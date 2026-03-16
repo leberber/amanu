@@ -83,7 +83,7 @@
     padding: var(--space-4);
     background: var(--surface-card);
     border-radius: 16px;
-    border: 1px solid var(--surface-border);
+    border: 1px solid rgba(0, 0, 0, 0.06);
   }
 
   &__icon {
@@ -165,7 +165,7 @@
   padding: var(--space-4);
   background: var(--surface-card);
   border-radius: 14px;
-  border: 1px solid var(--surface-border);
+  border: 1px solid rgba(0, 0, 0, 0.03);
   cursor: pointer;
   transition: all 0.2s ease;
   animation: slideUp 0.3s ease backwards;
