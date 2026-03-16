@@ -2451,10 +2451,10 @@
       "mark_delivered": "Marquer Livré",
       "update_status": "Mettre à Jour le Statut",
       "mark_arrived": "Marquer Arrivé",
-      "start_trip": "Démarrer le Trajet",
-      "complete_trip": "Terminer le Trajet",
+      "start_trip": "Démarrer",
+      "complete_trip": "Terminer",
       "cancel_trip": "Annuler",
-      "pickup_orders": "Récupérer les Commandes"
+      "pickup_orders": "Récupérer"
     },
     "trip_status": {
       "pending": "En Attente",
