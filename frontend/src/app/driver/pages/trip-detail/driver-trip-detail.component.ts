@@ -11,6 +11,7 @@ import { AnimatedRouteMapComponent } from '../../components/animated-route-map/a
 
 const ANIMATION_FALLBACK_MS = 7000;
 const MAP_RESIZE_DELAY_MS = 300;
+const MAP_ANIMATION_DURATION_MS = 4000;
 
 @Component({
   selector: 'app-driver-trip-detail',
@@ -40,6 +41,9 @@ export class DriverTripDetailComponent implements OnInit {
 
   // Reference to map component
   mapComponent = viewChild<AnimatedRouteMapComponent>('mapComponent');
+
+  // Constants for template
+  readonly mapAnimationDuration = MAP_ANIMATION_DURATION_MS;
 
   // Computed: trip status helpers
   private tripStatus = computed(() => this.trip()?.status?.toLowerCase() || '');

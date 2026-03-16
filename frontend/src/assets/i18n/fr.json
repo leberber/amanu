@@ -2421,6 +2421,7 @@
       "order_items": "Articles de la Commande",
       "delivery_completed": "Livraison Terminée",
       "address": "Adresse de Livraison",
+      "no_address": "Adresse non disponible",
       "phone": "Téléphone",
       "items": "Articles",
       "total": "Total de la Commande",

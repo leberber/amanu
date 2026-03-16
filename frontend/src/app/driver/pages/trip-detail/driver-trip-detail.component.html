@@ -19,7 +19,7 @@
           [routeCoords]="routeCoords()"
           [stops]="sortedStops()"
           [autoStart]="true"
-          [animationDuration]="4000"
+          [animationDuration]="mapAnimationDuration"
           (animationComplete)="onAnimationComplete()"
         />
       } @else {
@@ -58,14 +58,15 @@
 
           <!-- Stops -->
           @for (stop of sortedStops(); track stop.id; let last = $last) {
+            @let delivered = isStopDelivered(stop);
             <div
               class="itinerary__item"
               [class.itinerary__item--current]="currentStop()?.id === stop.id"
-              [class.itinerary__item--completed]="isStopDelivered(stop)">
+              [class.itinerary__item--completed]="delivered">
               <div
                 class="itinerary__marker itinerary__marker--stop"
-                [class.itinerary__marker--completed]="isStopDelivered(stop)">
-                @if (isStopDelivered(stop)) {
+                [class.itinerary__marker--completed]="delivered">
+                @if (delivered) {
                   <i class="pi pi-check"></i>
                 } @else {
                   {{ stop.sequence }}
@@ -79,7 +80,7 @@
                 @if (stop.customer_name) {
                   <span class="itinerary__customer">{{ stop.customer_name }}</span>
                 }
-                <span class="itinerary__address">{{ stop.shipping_address || 'Address not available' }}</span>
+                <span class="itinerary__address">{{ stop.shipping_address || ('driver.trip.no_address' | translate) }}</span>
 
                 <!-- Stop Actions -->
                 @if (isTripInProgress()) {
