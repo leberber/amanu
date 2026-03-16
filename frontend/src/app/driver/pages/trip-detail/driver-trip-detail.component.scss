@@ -46,6 +46,38 @@
   }
 }
 
+.status-badge {
+  position: absolute;
+  top: calc(var(--space-3) + env(safe-area-inset-top, 0px));
+  right: var(--space-3);
+  z-index: 1000;
+  padding: 0.375rem 0.75rem;
+  border-radius: var(--radius-md);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+
+  &--pending {
+    background: #f1f5f9;
+    color: #64748b;
+  }
+
+  &--assigned {
+    background: #dbeafe;
+    color: #2563eb;
+  }
+
+  &--in-progress {
+    background: #ffedd5;
+    color: #ea580c;
+  }
+
+  &--completed {
+    background: #dcfce7;
+    color: #16a34a;
+  }
+}
+
 // =============================================================================
 // MAP
 // =============================================================================

@@ -11,6 +11,14 @@
       <i class="pi pi-arrow-left"></i>
     </button>
 
+    <!-- Status Badge -->
+    <div class="status-badge" [class.status-badge--pending]="isPendingTrip()"
+         [class.status-badge--assigned]="canStartTrip()"
+         [class.status-badge--in-progress]="isTripInProgress()"
+         [class.status-badge--completed]="isTripCompleted()">
+      {{ trip()!.status | uppercase }}
+    </div>
+
     <!-- Map Section (only for pending trips) -->
     @if (shouldShowMap()) {
       <div

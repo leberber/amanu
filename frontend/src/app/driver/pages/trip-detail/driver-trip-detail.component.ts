@@ -1,6 +1,6 @@
 import { Component, inject, OnInit, signal, computed, ChangeDetectorRef, viewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { DecimalPipe, Location } from '@angular/common';
+import { DecimalPipe, Location, UpperCasePipe } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { trigger, state, style, animate, transition } from '@angular/animations';
 
@@ -19,7 +19,7 @@ type StopAction = 'arrived' | 'delivered';
 @Component({
   selector: 'app-driver-trip-detail',
   standalone: true,
-  imports: [TranslateModule, DecimalPipe, AnimatedRouteMapComponent],
+  imports: [TranslateModule, DecimalPipe, UpperCasePipe, AnimatedRouteMapComponent],
   templateUrl: './driver-trip-detail.component.html',
   styleUrl: './driver-trip-detail.component.scss',
   animations: [

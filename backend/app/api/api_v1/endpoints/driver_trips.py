@@ -781,6 +781,11 @@ def update_batched_stop_status(
 
     session.add(stop)
     session.commit()
+
+    # Refresh the stop to get updated status
+    session.refresh(stop)
+    # Expire the trip's stops relationship to reload fresh data
+    session.expire(trip, ['stops'])
     session.refresh(trip)
 
     return AcceptBatchedTripResponse(
