@@ -2415,6 +2415,7 @@
       "phone": "Phone",
       "items": "Items",
       "total": "Order Total",
+      "no_items": "No items in this order",
       "notes": "Delivery Notes",
       "estimated_time": "Estimated Time",
       "assigned_at": "Assigned At",

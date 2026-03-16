@@ -3,12 +3,11 @@
   @if (loading()) {
     <!-- Skeleton Loading -->
     <div class="orders-list">
-      @for (i of [1, 2, 3]; track i) {
-        <div class="order-card order-card--skeleton">
-          <div class="skeleton skeleton-badge"></div>
-          <div class="skeleton skeleton-text" style="width: 40%"></div>
-          <div class="skeleton skeleton-text" style="width: 80%"></div>
-          <div class="skeleton skeleton-text short" style="width: 60%"></div>
+      @for (i of [1, 2]; track i) {
+        <div class="trip-card trip-card--skeleton">
+          <div class="skeleton skeleton-header"></div>
+          <div class="skeleton skeleton-text"></div>
+          <div class="skeleton skeleton-text short"></div>
         </div>
       }
     </div>
@@ -23,86 +22,100 @@
     </div>
   } @else {
     <!-- Multi-Stop Trips -->
-    @if (activeMultiTrips().length > 0) {
-      <div class="section-header">
-        <h3 class="section-title">{{ 'driver.multi_trip.delivery_stops' | translate }}</h3>
-      </div>
-      <div class="orders-list orders-list--multi">
-        @for (trip of activeMultiTrips(); track trip.id) {
-          <div class="multi-trip-card" (click)="viewMultiTripDetails(trip)">
-            <div class="multi-trip-card__header">
-              <span class="multi-trip-card__id">{{ 'driver.multi_trip.trip' | translate }} #{{ trip.id }}</span>
-              <span class="multi-trip-card__progress">{{ trip.completed_stops }}/{{ trip.total_stops }}</span>
-            </div>
-            <div class="multi-trip-card__progress-bar">
-              <div
-                class="multi-trip-card__progress-fill"
-                [style.width.%]="(trip.completed_stops / trip.total_stops) * 100">
+    @for (trip of activeMultiTrips(); track trip.id) {
+      <div class="trip-card">
+        <!-- Trip Header -->
+        <div class="trip-card__header" (click)="viewMultiTripDetails(trip)">
+          <div class="trip-card__info">
+            <span class="trip-card__title">{{ trip.corridor || trip.h3_zone || ('driver.multi_trip.trip' | translate) + ' #' + trip.id }}</span>
+            <span class="trip-card__meta">{{ trip.completed_stops }}/{{ trip.total_stops }} {{ 'driver.multi_trip.stops' | translate }} · {{ trip.total_earnings | number:'1.0-0' }} DA</span>
+          </div>
+          <i class="pi pi-chevron-right trip-card__arrow"></i>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="trip-card__progress">
+          <div class="trip-card__progress-fill" [style.width.%]="(trip.completed_stops / trip.total_stops) * 100"></div>
+        </div>
+
+        <!-- Customer Timeline -->
+        @if (trip.stops && trip.stops.length > 0) {
+          <div class="customers-timeline">
+            @for (stop of trip.stops; track stop.id; let isLast = $last) {
+              <div class="customer-item" [class.customer-item--completed]="stop.status === 'delivered'">
+                <!-- Timeline Marker -->
+                <div class="customer-item__marker">
+                  <div class="marker-dot" [class.marker-dot--completed]="stop.status === 'delivered'">
+                    @if (stop.status === 'delivered') {
+                      <i class="pi pi-check"></i>
+                    } @else {
+                      <span>{{ stop.sequence }}</span>
+                    }
+                  </div>
+                  @if (!isLast) {
+                    <div class="marker-line"></div>
+                  }
+                </div>
+
+                <!-- Customer Content (Collapsible) -->
+                <div class="customer-item__content">
+                  <div class="customer-item__header" (click)="toggleStop(trip.id, stop.id); $event.stopPropagation()">
+                    <div class="customer-item__info">
+                      <span class="customer-item__status">{{ 'driver.stop_status.' + stop.status | translate }}</span>
+                      <h4 class="customer-item__name">{{ stop.customer_name || ('driver.trip.stop' | translate) + ' ' + stop.sequence }}</h4>
+                      <p class="customer-item__address">{{ stop.shipping_address }}</p>
+                    </div>
+                    <div class="customer-item__right">
+                      <span class="customer-item__amount">{{ stop.order_total || 0 | number:'1.0-0' }} DA</span>
+                      <i class="pi customer-item__chevron" [ngClass]="isStopExpanded(trip.id, stop.id) ? 'pi-chevron-up' : 'pi-chevron-down'"></i>
+                    </div>
+                  </div>
+
+                  <!-- Expanded Order Details -->
+                  @if (isStopExpanded(trip.id, stop.id)) {
+                    <div class="customer-item__details">
+                      <!-- Order Items -->
+                      @if (stop.order_items && stop.order_items.length > 0) {
+                        <div class="order-items-list">
+                          @for (item of stop.order_items; track item.id) {
+                            <div class="order-item-row">
+                              <span class="order-item-row__qty">{{ item.quantity }}x</span>
+                              <span class="order-item-row__name">{{ item.product_name }}</span>
+                              <span class="order-item-row__price">{{ item.quantity * item.unit_price | number:'1.0-0' }} DA</span>
+                            </div>
+                          }
+                        </div>
+                      } @else {
+                        <p class="no-items-text">{{ 'driver.trip.no_items' | translate }}</p>
+                      }
+
+                      <div class="detail-row">
+                        <span class="detail-row__label">{{ 'driver.trip.total' | translate }}</span>
+                        <span class="detail-row__value">{{ stop.order_total || 0 | number:'1.0-0' }} DA</span>
+                      </div>
+
+                      @if (stop.contact_phone) {
+                        <div class="contact-info">
+                          <i class="pi pi-phone"></i>
+                          <a [href]="'tel:' + stop.contact_phone">{{ stop.contact_phone }}</a>
+                        </div>
+                      }
+
+                      @if (stop.notes) {
+                        <div class="notes-info">
+                          <i class="pi pi-info-circle"></i>
+                          <span>{{ stop.notes }}</span>
+                        </div>
+                      }
+                    </div>
+                  }
+                </div>
               </div>
-            </div>
-            <div class="multi-trip-card__footer">
-              <span class="multi-trip-card__stops">
-                <i class="pi pi-map-marker"></i>
-                {{ trip.total_stops }} {{ 'driver.multi_trip.stops' | translate }}
-              </span>
-              <span class="multi-trip-card__earnings">{{ trip.total_earnings | number:'1.0-0' }} DA</span>
-            </div>
-            <div class="multi-trip-card__action">
-              <span>{{ 'driver.trip.view_details' | translate }}</span>
-              <i class="pi pi-chevron-right"></i>
-            </div>
+            }
           </div>
         }
       </div>
     }
 
-    <!-- Single Orders -->
-    @if (activeTrips().length > 0) {
-      @if (activeMultiTrips().length > 0) {
-        <div class="section-header">
-          <h3 class="section-title">{{ 'driver.active.title' | translate }}</h3>
-        </div>
-      }
-      <div class="orders-list">
-        @for (order of activeTrips(); track order.id) {
-        <div class="order-card" (click)="viewDetails(order)">
-          <div class="order-card__header">
-            <div 
-              class="order-card__status" 
-              [style.--status-color]="getStatusColor(order.status)">
-              <i [class]="getStatusIcon(order.status)"></i>
-              <span>{{ getStatusLabel(order.status) | translate }}</span>
-            </div>
-            <span class="order-card__id">#{{ order.id }}</span>
-          </div>
-
-          <div class="order-card__body">
-            <div class="order-card__row">
-              <i class="pi pi-map-marker"></i>
-              <span>{{ order.shipping_address }}</span>
-            </div>
-            <div class="order-card__row">
-              <i class="pi pi-phone"></i>
-              <span>{{ order.contact_phone }}</span>
-            </div>
-            <div class="order-card__meta">
-              <span class="order-card__items">
-                <i class="pi pi-box"></i>
-                {{ getItemsCount(order) }} {{ 'common.items' | translate }}
-              </span>
-              <span class="order-card__amount">{{ order.total_amount | number:'1.0-0' }} DA</span>
-            </div>
-          </div>
-
-          <div class="order-card__footer">
-            <span class="order-card__action">
-              {{ 'driver.trip.view_details' | translate }}
-              <i class="pi pi-chevron-right"></i>
-            </span>
-          </div>
-        </div>
-        }
-      </div>
-    }
   }
 </div>

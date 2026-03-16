@@ -6,6 +6,15 @@
 export type TripStatus = 'pending' | 'assigned' | 'in_progress' | 'completed' | 'cancelled';
 export type StopStatus = 'pending' | 'arrived' | 'delivered' | 'failed';
 
+export interface TripStopOrderItem {
+  id: number;
+  product_id: number;
+  quantity: number;
+  unit_price: number;
+  product_name: string;
+  product_unit: string;
+}
+
 export interface TripStop {
   id: number;
   trip_id: number;
@@ -22,6 +31,9 @@ export interface TripStop {
   shipping_address?: string;
   contact_phone?: string;
   order_total?: number;
+
+  // Order items (populated by endpoint)
+  order_items?: TripStopOrderItem[];
 
   // Location coordinates (for map display)
   latitude?: number;

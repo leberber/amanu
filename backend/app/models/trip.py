@@ -9,7 +9,7 @@ from enum import Enum
 
 if TYPE_CHECKING:
     from app.models.user import User
-    from app.models.order import Order
+    from app.models.order import Order, OrderItemRead
 
 
 class TripStatus(str, Enum):
@@ -123,6 +123,16 @@ class TripStop(SQLModel, table=True):
 # READ MODELS (API Responses)
 # =============================================================================
 
+class TripStopOrderItem(SQLModel):
+    """Simplified order item for trip stop display"""
+    id: int
+    product_id: int
+    quantity: float
+    unit_price: float
+    product_name: str
+    product_unit: str
+
+
 class TripStopRead(SQLModel):
     """Model for reading trip stops in API responses"""
     id: int
@@ -140,6 +150,9 @@ class TripStopRead(SQLModel):
     shipping_address: Optional[str] = None
     contact_phone: Optional[str] = None
     order_total: Optional[float] = None
+
+    # Order items (populated by endpoint)
+    order_items: List["TripStopOrderItem"] = []
 
     # Location coordinates (for map display)
     latitude: Optional[float] = None

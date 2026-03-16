@@ -1,6 +1,6 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { DecimalPipe } from '@angular/common';
+import { DecimalPipe, NgClass } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 
 import { DriverService } from '../../../services/driver.service';
@@ -12,7 +12,7 @@ import { TripWithStops } from '../../../models/trip.model';
 @Component({
   selector: 'app-driver-active',
   standalone: true,
-  imports: [TranslateModule, DecimalPipe],
+  imports: [TranslateModule, DecimalPipe, NgClass],
   templateUrl: './driver-active.component.html',
   styleUrl: './driver-active.component.scss'
 })
@@ -26,6 +26,9 @@ export class DriverActiveComponent implements OnInit {
   // State from service
   activeTrips = this.driverService.activeTrips;
   activeMultiTrips = this.driverService.activeMultiTrips;
+
+  // Expanded stops tracking (tripId-stopId)
+  expandedStops = signal<Set<string>>(new Set());
 
   // Local loading state - only shows if request takes > 300ms
   loading = signal(false);
@@ -53,6 +56,21 @@ export class DriverActiveComponent implements OnInit {
       }
     });
     this.driverService.getActiveMultiTrips().subscribe();
+  }
+
+  toggleStop(tripId: number, stopId: number): void {
+    const key = `${tripId}-${stopId}`;
+    const current = new Set(this.expandedStops());
+    if (current.has(key)) {
+      current.delete(key);
+    } else {
+      current.add(key);
+    }
+    this.expandedStops.set(current);
+  }
+
+  isStopExpanded(tripId: number, stopId: number): boolean {
+    return this.expandedStops().has(`${tripId}-${stopId}`);
   }
 
   viewDetails(order: Order): void {
