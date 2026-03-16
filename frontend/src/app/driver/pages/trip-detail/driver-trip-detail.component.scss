@@ -350,8 +350,8 @@
   transition: transform 0.1s ease;
 
   &--arrived {
-    background: var(--color-info);
-    color: var(--color-white);
+    background: #000;
+    color: #fff;
   }
 
   &--delivered {
