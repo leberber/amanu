@@ -1,0 +1,41 @@
+:host {
+  display: block;
+  height: 100%;
+  overflow: hidden;
+}
+
+.page-container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.page-header {
+  flex-shrink: 0;
+  padding: 1rem;
+  background: var(--surface-ground);
+  border-bottom: 1px solid var(--surface-border);
+}
+
+.page-content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 1rem;
+  padding-bottom: 2rem;
+  -webkit-overflow-scrolling: touch;
+}
+
+// Progress bar color overrides based on status
+::ng-deep {
+  .p-progressbar {
+    background: var(--surface-200);
+  }
+}
+
+code {
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+  font-size: 0.85rem;
+  word-break: break-all;
+}

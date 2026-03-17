@@ -21,3 +21,4 @@ geoalchemy2
 osmnx
 shapely
 polyline
+psutil

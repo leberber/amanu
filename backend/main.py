@@ -11,6 +11,7 @@ import traceback
 
 from app.database import create_db_and_tables, engine
 from app.core.logging_config import setup_logging, get_logger
+from app.core.system_metrics import get_metrics
 
 # Setup logging first
 setup_logging()
@@ -59,29 +60,36 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Add middleware for request timing and logging
+# Add middleware for request timing, logging, and metrics
 @app.middleware("http")
 async def add_process_time_header(request: Request, call_next):
     start_time = time.time()
+    metrics = get_metrics()
 
-    # Log incoming request
-    logger.info(f"REQUEST {request.method} {request.url.path}")
+    # Log incoming request (skip noisy endpoints)
+    if not request.url.path.startswith("/api/v1/admin/system"):
+        logger.info(f"REQUEST {request.method} {request.url.path}")
 
     try:
         response = await call_next(request)
         process_time = time.time() - start_time
         response.headers["X-Process-Time"] = str(process_time)
 
-        # Log response
-        log_level = logging.WARNING if response.status_code >= 400 else logging.INFO
-        logger.log(log_level, f"RESPONSE {request.method} {request.url.path} - {response.status_code} ({process_time:.3f}s)")
+        # Record metrics
+        metrics.record_request(request.url.path, request.method, response.status_code, process_time)
+
+        # Log response (skip noisy endpoints)
+        if not request.url.path.startswith("/api/v1/admin/system"):
+            log_level = logging.WARNING if response.status_code >= 400 else logging.INFO
+            logger.log(log_level, f"RESPONSE {request.method} {request.url.path} - {response.status_code} ({process_time:.3f}s)")
 
         return response
     except Exception as e:
         process_time = time.time() - start_time
-        # Log error with compact traceback (replace newlines for better parsing)
+        # Record error in metrics
+        metrics.record_request(request.url.path, request.method, 500, process_time)
+        # Log error with compact traceback
         tb_lines = traceback.format_exc().strip().split('\n')
-        # Get the last few relevant lines (skip framework noise)
         relevant_lines = [l.strip() for l in tb_lines if 'amanu/backend' in l or l.startswith('ValueError') or l.startswith('TypeError') or l.startswith('KeyError') or 'Error' in l][-5:]
         compact_tb = ' → '.join(relevant_lines) if relevant_lines else tb_lines[-1]
         logger.error(f"EXCEPTION {request.method} {request.url.path} - {type(e).__name__}: {str(e)} | {compact_tb}")

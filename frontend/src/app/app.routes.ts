@@ -208,6 +208,13 @@ export const routes: Routes = [
     canActivate: [adminOnlyGuard],
     data: { hideBottomNav: true }
   },
+  // System Monitoring Route (admin only)
+  {
+    path: 'admin/system',
+    loadComponent: () => import('./pages/admin/admin-system/admin-system.component').then(m => m.AdminSystemComponent),
+    canActivate: [adminOnlyGuard],
+    data: { hideBottomNav: true }
+  },
 
   // User Routes
   {

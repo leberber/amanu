@@ -79,7 +79,8 @@ export const ROUTES = {
     BATCHING: '/admin/batching',
     DRIVER_MANAGEMENT: '/admin/drivers',
     DRIVER_CONFIG: '/admin/drivers/config',
-    LOGS: '/admin/logs'
+    LOGS: '/admin/logs',
+    SYSTEM: '/admin/system'
   }
 } as const;
 

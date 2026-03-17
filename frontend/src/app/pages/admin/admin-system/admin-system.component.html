@@ -1,0 +1,337 @@
+<div class="page-container" @pageAnimation>
+  <!-- Fixed Header -->
+  <div class="page-header">
+    <div class="flex align-items-center justify-content-between">
+      <div>
+        <h1 class="text-2xl font-semibold m-0">System Monitoring</h1>
+        <p class="text-secondary mt-1 mb-0">Server performance and API metrics</p>
+      </div>
+      <div class="flex align-items-center gap-2">
+        @if (lastUpdated()) {
+          <span class="text-sm text-secondary">
+            Updated: {{ lastUpdated() | date:'HH:mm:ss' }}
+          </span>
+        }
+        <p-button
+          [icon]="autoRefresh() ? 'pi pi-pause' : 'pi pi-play'"
+          [severity]="autoRefresh() ? 'success' : 'secondary'"
+          [pTooltip]="autoRefresh() ? 'Auto-refresh ON (5s)' : 'Auto-refresh OFF'"
+          tooltipPosition="bottom"
+          (onClick)="toggleAutoRefresh()"
+          [rounded]="true"
+          [text]="true"
+        />
+        <p-button
+          icon="pi pi-refresh"
+          severity="secondary"
+          pTooltip="Refresh now"
+          tooltipPosition="bottom"
+          (onClick)="refresh()"
+          [rounded]="true"
+          [text]="true"
+        />
+      </div>
+    </div>
+  </div>
+
+  <!-- Scrollable Content -->
+  <div class="page-content">
+  <!-- Error State -->
+  @if (error()) {
+    <div class="surface-card border-round p-4 text-center">
+      <i class="pi pi-exclamation-triangle text-4xl text-orange-500 mb-3"></i>
+      <p class="text-secondary">{{ error() }}</p>
+      <p-button label="Retry" icon="pi pi-refresh" (onClick)="refresh()" />
+    </div>
+  }
+
+  <!-- Loading State -->
+  @if (loading() && !metrics()) {
+    <div class="grid">
+      @for (i of [1, 2, 3, 4]; track i) {
+        <div class="col-12 md:col-6 lg:col-3">
+          <div class="surface-card border-round p-4">
+            <p-skeleton height="2rem" width="50%" styleClass="mb-3" />
+            <p-skeleton height="4rem" styleClass="mb-2" />
+            <p-skeleton height="1rem" width="75%" />
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Metrics Content -->
+  @if (metrics(); as m) {
+    <!-- Health Status Banner -->
+    @if (health(); as h) {
+      <div
+        class="surface-card border-round p-3 mb-4 flex align-items-center gap-3"
+        [class.border-green-500]="h.status === 'healthy'"
+        [class.border-orange-500]="h.status === 'warning'"
+        [class.border-red-500]="h.status === 'critical'"
+        style="border-left: 4px solid"
+      >
+        <i
+          class="pi text-2xl"
+          [class.pi-check-circle]="h.status === 'healthy'"
+          [class.pi-exclamation-triangle]="h.status === 'warning'"
+          [class.pi-times-circle]="h.status === 'critical'"
+          [class.text-green-500]="h.status === 'healthy'"
+          [class.text-orange-500]="h.status === 'warning'"
+          [class.text-red-500]="h.status === 'critical'"
+        ></i>
+        <div class="flex-1">
+          <span class="font-semibold">System Status: </span>
+          <p-tag
+            [value]="h.status | titlecase"
+            [severity]="getHealthSeverity(h.status)"
+          />
+          @if (h.issues.length > 0) {
+            <span class="text-secondary ml-2">
+              {{ h.issues.join(', ') }}
+            </span>
+          }
+        </div>
+        <span class="text-secondary text-sm">
+          Uptime: {{ h.uptime }}
+        </span>
+      </div>
+    }
+
+    <!-- Main Metrics Grid -->
+    <div class="grid" @staggerAnimation>
+      <!-- CPU Card -->
+      <div class="col-12 md:col-6 lg:col-3 metric-card">
+        <div class="surface-card border-round p-4 h-full">
+          <div class="flex align-items-center justify-content-between mb-3">
+            <div class="flex align-items-center gap-2">
+              <i class="pi pi-microchip text-xl text-primary"></i>
+              <span class="font-semibold">CPU</span>
+            </div>
+            <p-tag
+              [value]="cpuStatus() | titlecase"
+              [severity]="getStatusSeverity(cpuStatus())"
+              [rounded]="true"
+            />
+          </div>
+          <div class="text-3xl font-bold mb-2">{{ m.system.cpu.percent | number:'1.1-1' }}%</div>
+          <p-progressBar
+            [value]="m.system.cpu.percent"
+            [showValue]="false"
+            styleClass="h-1rem"
+          />
+          <div class="text-secondary text-sm mt-2">
+            {{ m.system.cpu.count }} cores
+          </div>
+        </div>
+      </div>
+
+      <!-- Memory Card -->
+      <div class="col-12 md:col-6 lg:col-3 metric-card">
+        <div class="surface-card border-round p-4 h-full">
+          <div class="flex align-items-center justify-content-between mb-3">
+            <div class="flex align-items-center gap-2">
+              <i class="pi pi-server text-xl text-blue-500"></i>
+              <span class="font-semibold">Memory</span>
+            </div>
+            <p-tag
+              [value]="memoryStatus() | titlecase"
+              [severity]="getStatusSeverity(memoryStatus())"
+              [rounded]="true"
+            />
+          </div>
+          <div class="text-3xl font-bold mb-2">{{ m.system.memory.percent | number:'1.1-1' }}%</div>
+          <p-progressBar
+            [value]="m.system.memory.percent"
+            [showValue]="false"
+            styleClass="h-1rem"
+          />
+          <div class="text-secondary text-sm mt-2">
+            {{ m.system.memory.used_human }} / {{ m.system.memory.total_human }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Disk Card -->
+      <div class="col-12 md:col-6 lg:col-3 metric-card">
+        <div class="surface-card border-round p-4 h-full">
+          <div class="flex align-items-center justify-content-between mb-3">
+            <div class="flex align-items-center gap-2">
+              <i class="pi pi-database text-xl text-purple-500"></i>
+              <span class="font-semibold">Disk</span>
+            </div>
+            <p-tag
+              [value]="diskStatus() | titlecase"
+              [severity]="getStatusSeverity(diskStatus())"
+              [rounded]="true"
+            />
+          </div>
+          <div class="text-3xl font-bold mb-2">{{ m.system.disk.percent | number:'1.1-1' }}%</div>
+          <p-progressBar
+            [value]="m.system.disk.percent"
+            [showValue]="false"
+            styleClass="h-1rem"
+          />
+          <div class="text-secondary text-sm mt-2">
+            {{ m.system.disk.free_human }} free of {{ m.system.disk.total_human }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Process Card -->
+      <div class="col-12 md:col-6 lg:col-3 metric-card">
+        <div class="surface-card border-round p-4 h-full">
+          <div class="flex align-items-center justify-content-between mb-3">
+            <div class="flex align-items-center gap-2">
+              <i class="pi pi-cog text-xl text-cyan-500"></i>
+              <span class="font-semibold">Process</span>
+            </div>
+            <p-tag value="Active" severity="success" [rounded]="true" />
+          </div>
+          <div class="text-3xl font-bold mb-2">{{ m.system.process.memory_rss_human }}</div>
+          <div class="text-secondary text-sm">
+            <div>PID: {{ m.system.process.pid }}</div>
+            <div>Threads: {{ m.system.process.threads }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- API Performance Section -->
+    <h2 class="text-xl font-semibold mt-5 mb-3">API Performance</h2>
+    <div class="grid">
+      <!-- API Stats Overview -->
+      <div class="col-12 lg:col-6">
+        <div class="surface-card border-round p-4">
+          <div class="flex align-items-center justify-content-between mb-4">
+            <div class="flex align-items-center gap-2">
+              <i class="pi pi-chart-line text-xl text-green-500"></i>
+              <span class="font-semibold">Request Statistics</span>
+            </div>
+            <p-tag
+              [value]="apiStatus() | titlecase"
+              [severity]="getStatusSeverity(apiStatus())"
+              [rounded]="true"
+            />
+          </div>
+
+          <div class="grid">
+            <div class="col-6 mb-3">
+              <div class="text-secondary text-sm">Total Requests</div>
+              <div class="text-2xl font-bold">{{ m.api.total_requests | number }}</div>
+            </div>
+            <div class="col-6 mb-3">
+              <div class="text-secondary text-sm">Errors</div>
+              <div class="text-2xl font-bold" [class.text-red-500]="m.api.total_errors > 0">
+                {{ m.api.total_errors | number }}
+              </div>
+            </div>
+            <div class="col-6 mb-3">
+              <div class="text-secondary text-sm">Error Rate</div>
+              <div class="text-2xl font-bold" [class.text-red-500]="m.api.error_rate > 5">
+                {{ m.api.error_rate | number:'1.2-2' }}%
+              </div>
+            </div>
+            <div class="col-6 mb-3">
+              <div class="text-secondary text-sm">Requests/min</div>
+              <div class="text-2xl font-bold">{{ m.api.requests_per_minute | number:'1.1-1' }}</div>
+            </div>
+            <div class="col-6">
+              <div class="text-secondary text-sm">Avg Response Time</div>
+              <div class="text-2xl font-bold">{{ formatTime(m.api.avg_response_time_ms) }}</div>
+            </div>
+            <div class="col-6">
+              <div class="text-secondary text-sm">Recent Avg</div>
+              <div class="text-2xl font-bold">{{ formatTime(m.api.recent_avg_response_time_ms) }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slowest Endpoints -->
+      <div class="col-12 lg:col-6">
+        <div class="surface-card border-round p-4 h-full">
+          <div class="flex align-items-center justify-content-between mb-4">
+            <div class="flex align-items-center gap-2">
+              <i class="pi pi-clock text-xl text-orange-500"></i>
+              <span class="font-semibold">Slowest Endpoints</span>
+            </div>
+            @if (m.api.slowest_endpoints.length > 5) {
+              <p-button
+                [label]="showAllSlowest() ? 'Show less' : 'Show all (' + m.api.slowest_endpoints.length + ')'"
+                [text]="true"
+                size="small"
+                (onClick)="toggleShowAllSlowest()"
+              />
+            }
+          </div>
+
+          @if (m.api.slowest_endpoints.length === 0) {
+            <div class="text-secondary text-center py-4">No data yet</div>
+          } @else {
+            <div class="flex flex-column gap-2">
+              @for (ep of displayedSlowestEndpoints(); track ep.endpoint) {
+                <div class="flex align-items-center justify-content-between p-2 surface-ground border-round">
+                  <code class="text-sm">{{ ep.endpoint }}</code>
+                  <span class="font-semibold" [class.text-orange-500]="(ep.avg_time_ms || 0) > 500">
+                    {{ formatTime(ep.avg_time_ms || 0) }}
+                  </span>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Top Endpoints -->
+      <div class="col-12">
+        <div class="surface-card border-round p-4">
+          <div class="flex align-items-center justify-content-between mb-4">
+            <div class="flex align-items-center gap-2">
+              <i class="pi pi-star text-xl text-yellow-500"></i>
+              <span class="font-semibold">Most Accessed Endpoints</span>
+            </div>
+            @if (m.api.top_endpoints.length > 6) {
+              <p-button
+                [label]="showAllTop() ? 'Show less' : 'Show all (' + m.api.top_endpoints.length + ')'"
+                [text]="true"
+                size="small"
+                (onClick)="toggleShowAllTop()"
+              />
+            }
+          </div>
+
+          @if (m.api.top_endpoints.length === 0) {
+            <div class="text-secondary text-center py-4">No data yet</div>
+          } @else {
+            <div class="grid">
+              @for (ep of displayedTopEndpoints(); track ep.endpoint) {
+                <div class="col-12 md:col-6 lg:col-4">
+                  <div class="flex align-items-center justify-content-between p-2 surface-ground border-round">
+                    <code class="text-sm">{{ ep.endpoint }}</code>
+                    <p-tag [value]="(ep.count || 0) + ' calls'" severity="info" />
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Uptime Section -->
+    <div class="surface-card border-round p-4 mt-4">
+      <div class="flex align-items-center gap-2 mb-2">
+        <i class="pi pi-clock text-xl text-teal-500"></i>
+        <span class="font-semibold">Server Uptime</span>
+      </div>
+      <div class="flex align-items-center gap-4">
+        <div class="text-2xl font-bold">{{ m.uptime.uptime_human }}</div>
+        <span class="text-secondary text-sm">
+          Started: {{ m.uptime.started_at | date:'dd/MM/yyyy HH:mm' }}
+        </span>
+      </div>
+    </div>
+  }
+  </div><!-- end page-content -->
+</div><!-- end page-container -->

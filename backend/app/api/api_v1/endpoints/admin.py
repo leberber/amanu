@@ -13,6 +13,7 @@ from app.models.brand import Brand
 from app.models.order import Order, OrderStatus, OrderItem
 from app.core.security import get_current_admin_user, get_current_staff_user
 from app.core.logging_config import read_logs, get_log_stats
+from app.core.system_metrics import get_metrics
 
 router = APIRouter()
 
@@ -371,3 +372,64 @@ def get_application_logs(
         entries=[LogEntry(**e) for e in entries],
         stats=stats
     )
+
+
+# =============================================================================
+# SYSTEM METRICS ENDPOINTS
+# =============================================================================
+
+@router.get("/system")
+def get_system_metrics(
+    current_user: User = Depends(get_current_admin_user),
+) -> Any:
+    """
+    Get system performance metrics (admin only).
+
+    Returns CPU, memory, disk usage, and API performance stats.
+    """
+    metrics = get_metrics()
+    return metrics.get_all_metrics()
+
+
+@router.get("/system/health")
+def get_system_health(
+    current_user: User = Depends(get_current_admin_user),
+) -> Any:
+    """
+    Get quick system health status (admin only).
+
+    Returns a simple health check with status indicators.
+    """
+    metrics = get_metrics()
+    system = metrics.get_system_stats()
+    api = metrics.get_api_stats()
+    uptime = metrics.get_uptime()
+
+    # Determine overall health
+    issues = []
+    if system["cpu"]["status"] == "high":
+        issues.append("High CPU usage")
+    if system["memory"]["status"] == "high":
+        issues.append("High memory usage")
+    if system["disk"]["status"] == "high":
+        issues.append("Low disk space")
+    if api["status"] == "high":
+        issues.append("High error rate")
+
+    if len(issues) >= 2:
+        overall = "critical"
+    elif len(issues) == 1:
+        overall = "warning"
+    else:
+        overall = "healthy"
+
+    return {
+        "status": overall,
+        "issues": issues,
+        "uptime": uptime["uptime_human"],
+        "cpu_percent": system["cpu"]["percent"],
+        "memory_percent": system["memory"]["percent"],
+        "disk_percent": system["disk"]["percent"],
+        "error_rate": api["error_rate"],
+        "requests_per_minute": api["requests_per_minute"]
+    }

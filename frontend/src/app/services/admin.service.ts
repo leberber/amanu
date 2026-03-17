@@ -13,7 +13,9 @@ import {
   UserManage,
   UsersResponse,
   OrdersResponse,
-  LogsResponse
+  LogsResponse,
+  SystemMetrics,
+  SystemHealth
 } from '../models/admin.model';
 import {
   DriverProfileWithFlags,
@@ -123,5 +125,14 @@ export class AdminService {
       params['level'] = level;
     }
     return this.apiService.get<LogsResponse>('/admin/logs', { params });
+  }
+
+  // System Metrics
+  getSystemMetrics(): Observable<SystemMetrics> {
+    return this.apiService.get<SystemMetrics>('/admin/system');
+  }
+
+  getSystemHealth(): Observable<SystemHealth> {
+    return this.apiService.get<SystemHealth>('/admin/system/health');
   }
 }

@@ -145,3 +145,93 @@ export interface DashboardStats {
     entries: LogEntry[];
     stats: LogStats;
   }
+
+  // System Metrics
+  export interface SystemCpu {
+    percent: number;
+    count: number;
+    status: 'normal' | 'medium' | 'high';
+  }
+
+  export interface SystemMemory {
+    total: number;
+    available: number;
+    used: number;
+    percent: number;
+    total_human: string;
+    available_human: string;
+    used_human: string;
+    status: 'normal' | 'medium' | 'high';
+  }
+
+  export interface SystemDisk {
+    total: number;
+    used: number;
+    free: number;
+    percent: number;
+    total_human: string;
+    used_human: string;
+    free_human: string;
+    status: 'normal' | 'medium' | 'high';
+  }
+
+  export interface SystemProcess {
+    memory_rss: number;
+    memory_rss_human: string;
+    pid: number;
+    threads: number;
+  }
+
+  export interface ApiEndpointStat {
+    endpoint: string;
+    count?: number;
+    avg_time_ms?: number;
+  }
+
+  export interface ApiStats {
+    total_requests: number;
+    total_errors: number;
+    error_rate: number;
+    avg_response_time_ms: number;
+    recent_avg_response_time_ms: number;
+    requests_per_minute: number;
+    current_minute_requests: number;
+    slowest_endpoints: ApiEndpointStat[];
+    top_endpoints: ApiEndpointStat[];
+    status: 'normal' | 'medium' | 'high';
+  }
+
+  export interface SystemUptime {
+    started_at: string;
+    uptime_seconds: number;
+    uptime_human: string;
+  }
+
+  export interface SystemMetrics {
+    timestamp: string;
+    uptime: SystemUptime;
+    system: {
+      cpu: SystemCpu;
+      memory: SystemMemory;
+      disk: SystemDisk;
+      process: SystemProcess;
+      network?: {
+        bytes_sent: number;
+        bytes_recv: number;
+        bytes_sent_human: string;
+        bytes_recv_human: string;
+      };
+    };
+    api: ApiStats;
+  }
+
+  export interface SystemHealth {
+    status: 'healthy' | 'warning' | 'critical';
+    issues: string[];
+    uptime: string;
+    cpu_percent: number;
+    memory_percent: number;
+    disk_percent: number;
+    error_rate: number;
+    requests_per_minute: number;
+  }
