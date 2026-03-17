@@ -81,18 +81,36 @@ class SyncResult(BaseModel):
 # Helper Functions
 # =============================================================================
 
-def db_to_response(item: RestockItem, session: Session) -> RestockItemResponse:
-    """Convert database model to response model with joined data"""
+def db_to_response(
+    item: RestockItem,
+    session: Session,
+    brands_map: dict = None,
+    categories_map: dict = None
+) -> RestockItemResponse:
+    """Convert database model to response model with joined data.
+
+    Args:
+        item: The restock item
+        session: Database session
+        brands_map: Optional pre-loaded {brand_id: Brand} for batch optimization
+        categories_map: Optional pre-loaded {category_id: Category} for batch optimization
+    """
     brand_name = ""
     category_name = ""
 
     if item.brand_id:
-        brand = session.get(Brand, item.brand_id)
+        if brands_map:
+            brand = brands_map.get(item.brand_id)
+        else:
+            brand = session.get(Brand, item.brand_id)
         if brand:
             brand_name = brand.name
 
     if item.category_id:
-        category = session.get(Category, item.category_id)
+        if categories_map:
+            category = categories_map.get(item.category_id)
+        else:
+            category = session.get(Category, item.category_id)
         if category:
             category_name = category.name
 
@@ -272,7 +290,25 @@ async def get_restock(session: Session = Depends(get_session)):
     """Get all restock items with joined brand/category names"""
     statement = select(RestockItem).order_by(RestockItem.id)
     items = session.exec(statement).all()
-    return RestockData(items=[db_to_response(item, session) for item in items])
+
+    if not items:
+        return RestockData(items=[])
+
+    # Batch load brands and categories
+    brand_ids = {item.brand_id for item in items if item.brand_id}
+    category_ids = {item.category_id for item in items if item.category_id}
+
+    brands_map = {}
+    if brand_ids:
+        brands = session.exec(select(Brand).where(Brand.id.in_(brand_ids))).all()
+        brands_map = {b.id: b for b in brands}
+
+    categories_map = {}
+    if category_ids:
+        categories = session.exec(select(Category).where(Category.id.in_(category_ids))).all()
+        categories_map = {c.id: c for c in categories}
+
+    return RestockData(items=[db_to_response(item, session, brands_map, categories_map) for item in items])
 
 
 @router.post("/item", response_model=dict)

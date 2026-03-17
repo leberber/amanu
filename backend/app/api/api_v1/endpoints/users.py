@@ -101,11 +101,38 @@ def read_users(
     # Get users with pagination
     users = session.exec(select(User).offset(skip).limit(limit)).all()
 
+    if not users:
+        return UsersResponse(users=[], total=total)
+
+    # Batch load all user group links for these users
+    user_ids = [u.id for u in users]
+    links = session.exec(
+        select(UserGroupLink).where(UserGroupLink.user_id.in_(user_ids))
+    ).all()
+
+    # Batch load all referenced groups
+    group_ids = {link.group_id for link in links}
+    groups_map = {}
+    if group_ids:
+        groups = session.exec(select(UserGroup).where(UserGroup.id.in_(group_ids))).all()
+        groups_map = {g.id: g for g in groups}
+
+    # Build user_id -> groups mapping
+    user_groups_map = {}
+    for link in links:
+        if link.user_id not in user_groups_map:
+            user_groups_map[link.user_id] = []
+        group = groups_map.get(link.group_id)
+        if group:
+            user_groups_map[link.user_id].append(
+                UserGroupBasic(id=group.id, name=group.name, color=group.color)
+            )
+
     # Add groups to each user
     users_with_groups = []
     for user in users:
         user_dict = UserRead.model_validate(user).model_dump()
-        user_dict["groups"] = get_user_groups_for_user(user.id, session)
+        user_dict["groups"] = user_groups_map.get(user.id, [])
         users_with_groups.append(UserRead(**user_dict))
 
     # Return structured response
