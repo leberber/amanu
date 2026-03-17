@@ -125,3 +125,23 @@ export interface DashboardStats {
     orders: Order[];
     total: number;
   }
+
+  // Logs
+  export interface LogEntry {
+    timestamp: string;
+    level: string;
+    logger: string;
+    message: string;
+  }
+
+  export interface LogStats {
+    file_size: number;
+    file_size_human: string;
+    total_lines: number;
+    log_file: string;
+  }
+
+  export interface LogsResponse {
+    entries: LogEntry[];
+    stats: LogStats;
+  }

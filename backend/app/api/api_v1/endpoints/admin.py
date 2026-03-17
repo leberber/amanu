@@ -12,6 +12,7 @@ from app.models.category import Category
 from app.models.brand import Brand
 from app.models.order import Order, OrderStatus, OrderItem
 from app.core.security import get_current_admin_user, get_current_staff_user
+from app.core.logging_config import read_logs, get_log_stats
 
 router = APIRouter()
 
@@ -331,5 +332,42 @@ def get_low_stock_products(
             "price": product.price,
             "unit": product.unit
         })
-    
+
     return result
+
+
+# =============================================================================
+# LOGS ENDPOINTS
+# =============================================================================
+
+class LogEntry(BaseModel):
+    timestamp: str
+    level: str
+    logger: str
+    message: str
+
+
+class LogsResponse(BaseModel):
+    entries: List[LogEntry]
+    stats: Dict[str, Any]
+
+
+@router.get("/logs", response_model=LogsResponse)
+def get_application_logs(
+    lines: int = Query(default=100, ge=10, le=1000, description="Number of log lines to return"),
+    level: Optional[str] = Query(default=None, description="Filter by log level (INFO, WARNING, ERROR)"),
+    current_user: User = Depends(get_current_admin_user),
+) -> Any:
+    """
+    Get recent application logs (admin only).
+
+    - **lines**: Number of recent log entries to return (10-1000)
+    - **level**: Optional filter by log level
+    """
+    entries = read_logs(lines=lines, level=level)
+    stats = get_log_stats()
+
+    return LogsResponse(
+        entries=[LogEntry(**e) for e in entries],
+        stats=stats
+    )

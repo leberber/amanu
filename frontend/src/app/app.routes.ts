@@ -201,6 +201,13 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/admin/admin-batching/admin-batching.component').then(m => m.AdminBatchingComponent),
     canActivate: [adminGuard]
   },
+  // Logs Route (admin only)
+  {
+    path: 'admin/logs',
+    loadComponent: () => import('./pages/admin/admin-logs/admin-logs.component').then(m => m.AdminLogsComponent),
+    canActivate: [adminOnlyGuard],
+    data: { hideBottomNav: true }
+  },
 
   // User Routes
   {

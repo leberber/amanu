@@ -12,7 +12,8 @@ import {
   Order,
   UserManage,
   UsersResponse,
-  OrdersResponse
+  OrdersResponse,
+  LogsResponse
 } from '../models/admin.model';
 import {
   DriverProfileWithFlags,
@@ -113,5 +114,14 @@ export class AdminService {
 
   reassignOrder(orderId: number, request: AssignOrderRequest): Observable<AssignOrderResponse> {
     return this.apiService.post<AssignOrderResponse>(`/admin/drivers/orders/${orderId}/reassign`, request);
+  }
+
+  // Logs
+  getLogs(lines: number = 100, level?: string): Observable<LogsResponse> {
+    const params: Record<string, string | number> = { lines };
+    if (level) {
+      params['level'] = level;
+    }
+    return this.apiService.get<LogsResponse>('/admin/logs', { params });
   }
 }

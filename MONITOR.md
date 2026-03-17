@@ -2,6 +2,23 @@
 
 This guide covers how to monitor your application and view logs.
 
+## Admin Logs Page (Recommended)
+
+Access logs directly from your admin panel:
+
+```
+https://agroclik.com/admin/logs
+```
+
+Features:
+- View recent application logs
+- Filter by level (INFO, WARNING, ERROR)
+- Auto-refresh every 10 seconds
+- Error and warning counts
+- Log file statistics
+
+**Note:** Admin access required.
+
 ## Quick Access (SSH)
 
 ```bash

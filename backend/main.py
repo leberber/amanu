@@ -6,8 +6,15 @@ import uvicorn
 from sqlmodel import Session
 import time
 import os
+import logging
+import traceback
 
 from app.database import create_db_and_tables, engine
+from app.core.logging_config import setup_logging, get_logger
+
+# Setup logging first
+setup_logging()
+logger = get_logger("app")
 from app.api.api_v1.api import api_router
 from app.core.config import settings
 from app.core.admin import create_admin_user
@@ -52,14 +59,46 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Add middleware for request timing
+# Add middleware for request timing and logging
 @app.middleware("http")
 async def add_process_time_header(request: Request, call_next):
     start_time = time.time()
-    response = await call_next(request)
-    process_time = time.time() - start_time
-    response.headers["X-Process-Time"] = str(process_time)
-    return response
+
+    # Log incoming request
+    logger.info(f"REQUEST {request.method} {request.url.path}")
+
+    try:
+        response = await call_next(request)
+        process_time = time.time() - start_time
+        response.headers["X-Process-Time"] = str(process_time)
+
+        # Log response
+        log_level = logging.WARNING if response.status_code >= 400 else logging.INFO
+        logger.log(log_level, f"RESPONSE {request.method} {request.url.path} - {response.status_code} ({process_time:.3f}s)")
+
+        return response
+    except Exception as e:
+        process_time = time.time() - start_time
+        # Log error with compact traceback (replace newlines for better parsing)
+        tb_lines = traceback.format_exc().strip().split('\n')
+        # Get the last few relevant lines (skip framework noise)
+        relevant_lines = [l.strip() for l in tb_lines if 'amanu/backend' in l or l.startswith('ValueError') or l.startswith('TypeError') or l.startswith('KeyError') or 'Error' in l][-5:]
+        compact_tb = ' → '.join(relevant_lines) if relevant_lines else tb_lines[-1]
+        logger.error(f"EXCEPTION {request.method} {request.url.path} - {type(e).__name__}: {str(e)} | {compact_tb}")
+        raise
+
+
+# Global exception handler for unhandled errors
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    tb_lines = traceback.format_exc().strip().split('\n')
+    relevant_lines = [l.strip() for l in tb_lines if 'amanu/backend' in l or 'Error' in l][-5:]
+    compact_tb = ' → '.join(relevant_lines) if relevant_lines else tb_lines[-1]
+    logger.error(f"UNHANDLED {request.method} {request.url.path} - {type(exc).__name__}: {str(exc)} | {compact_tb}")
+    return JSONResponse(
+        status_code=500,
+        content={"detail": "Internal server error"}
+    )
 
 # Include API router
 app.include_router(api_router, prefix=settings.API_V1_STR)
@@ -72,6 +111,9 @@ if os.path.exists(well_known_path):
 @app.on_event("startup")
 def on_startup():
     """Create tables and initial data on startup"""
+    logger.info("=" * 50)
+    logger.info("APPLICATION STARTING")
+    logger.info("=" * 50)
     create_db_and_tables()
     
     # Create admin user

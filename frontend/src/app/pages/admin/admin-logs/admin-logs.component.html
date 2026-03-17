@@ -1,0 +1,117 @@
+<div class="admin-logs">
+  <!-- Header -->
+  <div class="logs-header">
+    <div class="logs-header__left">
+      <h1>Application Logs</h1>
+      @if (stats()) {
+        <span class="logs-header__stats">
+          {{ stats()?.file_size_human }} · {{ stats()?.total_lines }} lines
+        </span>
+      }
+    </div>
+    <div class="logs-header__actions">
+      <p-button
+        [icon]="autoRefresh() ? 'pi pi-pause' : 'pi pi-play'"
+        [label]="autoRefresh() ? 'Stop' : 'Auto'"
+        [severity]="autoRefresh() ? 'warn' : 'secondary'"
+        [outlined]="!autoRefresh()"
+        size="small"
+        (onClick)="toggleAutoRefresh()"
+        pTooltip="Auto-refresh every 10s" />
+      <p-button
+        icon="pi pi-refresh"
+        severity="secondary"
+        [outlined]="true"
+        size="small"
+        [loading]="loading()"
+        (onClick)="loadLogs()"
+        pTooltip="Refresh" />
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="logs-filters">
+    <div class="logs-filters__group">
+      <label>Level</label>
+      <p-select
+        [options]="levelOptions"
+        [ngModel]="selectedLevel()"
+        (ngModelChange)="onLevelChange($event)"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="All Levels"
+        styleClass="logs-select" />
+    </div>
+    <div class="logs-filters__group">
+      <label>Lines</label>
+      <p-select
+        [options]="linesOptions"
+        [ngModel]="selectedLines()"
+        (ngModelChange)="onLinesChange($event)"
+        optionLabel="label"
+        optionValue="value"
+        styleClass="logs-select" />
+    </div>
+    <div class="logs-filters__stats">
+      @if (errorCount() > 0) {
+        <p-tag [value]="errorCount() + ' errors'" severity="danger" />
+      }
+      @if (warningCount() > 0) {
+        <p-tag [value]="warningCount() + ' warnings'" severity="warn" />
+      }
+    </div>
+    <div class="logs-filters__scroll">
+      <p-button
+        icon="pi pi-arrow-up"
+        severity="secondary"
+        [text]="true"
+        size="small"
+        (onClick)="scrollToTop()"
+        pTooltip="Scroll to top" />
+      <p-button
+        icon="pi pi-arrow-down"
+        severity="secondary"
+        [text]="true"
+        size="small"
+        (onClick)="scrollToBottom()"
+        pTooltip="Scroll to bottom" />
+    </div>
+  </div>
+
+  <!-- Logs Container -->
+  <div class="logs-container">
+    @if (loading() && entries().length === 0) {
+      <div class="logs-loading">
+        <i class="pi pi-spin pi-spinner"></i>
+        <span>Loading logs...</span>
+      </div>
+    } @else if (filteredEntries().length === 0) {
+      <div class="logs-empty">
+        <i class="pi pi-inbox"></i>
+        <span>No log entries found</span>
+      </div>
+    } @else {
+      <div class="logs-list">
+        @for (entry of filteredEntries(); track $index) {
+          <div class="log-entry" [class.log-entry--error]="entry.level === 'ERROR'" [class.log-entry--warning]="entry.level === 'WARNING'">
+            <span class="log-entry__time">{{ entry.timestamp }}</span>
+            <p-tag
+              [value]="entry.level"
+              [severity]="getLevelSeverity(entry.level)"
+              styleClass="log-entry__level" />
+            <span class="log-entry__logger">{{ entry.logger }}</span>
+            <span class="log-entry__message">{{ entry.message }}</span>
+          </div>
+        }
+      </div>
+    }
+  </div>
+
+  <!-- Auto-refresh indicator -->
+  @if (autoRefresh()) {
+    <div class="logs-auto-refresh">
+      <i class="pi pi-sync pi-spin"></i>
+      Auto-refreshing every 10 seconds
+    </div>
+  }
+</div>

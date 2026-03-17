@@ -78,7 +78,8 @@ export const ROUTES = {
     SHIPPING: '/admin/shipping',
     BATCHING: '/admin/batching',
     DRIVER_MANAGEMENT: '/admin/drivers',
-    DRIVER_CONFIG: '/admin/drivers/config'
+    DRIVER_CONFIG: '/admin/drivers/config',
+    LOGS: '/admin/logs'
   }
 } as const;
 
