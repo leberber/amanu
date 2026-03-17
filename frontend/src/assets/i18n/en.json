@@ -1725,6 +1725,7 @@
     },
     "navigation": {
       "dashboard": "Dashboard",
+      "sales_report": "Sales Report",
       "orders": "Orders",
       "users": "Users",
       "drivers": "Drivers",

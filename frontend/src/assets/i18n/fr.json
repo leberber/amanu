@@ -1724,6 +1724,7 @@
     },
     "navigation": {
       "dashboard": "Tableau de Bord",
+      "sales_report": "Rapport de Ventes",
       "orders": "Commandes",
       "users": "Utilisateurs",
       "products": "Produits",

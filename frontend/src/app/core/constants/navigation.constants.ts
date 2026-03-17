@@ -40,6 +40,12 @@ export const ADMIN_NAV_ITEMS: AdminNavItem[] = [
     adminOnly: true
   },
   {
+    labelKey: 'admin.navigation.sales_report',
+    icon: 'pi pi-chart-line',
+    route: ROUTES.ADMIN.SALES_REPORT,
+    adminOnly: true
+  },
+  {
     labelKey: 'admin.navigation.orders',
     icon: 'pi pi-list',
     route: ROUTES.ADMIN.ORDERS,
