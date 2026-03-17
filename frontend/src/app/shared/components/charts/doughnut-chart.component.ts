@@ -5,10 +5,74 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { CurrencyService } from '../../../core/services/currency.service';
 import { onLanguageChange } from '../../../core/utils/language-change.util';
 import Chart from 'chart.js/auto';
-import ChartDataLabels from 'chartjs-plugin-datalabels';
 
-// Register the datalabels plugin
-Chart.register(ChartDataLabels);
+// Custom plugin for modern connector lines with percentage labels
+const modernLabelsPlugin = {
+  id: 'modernLabels',
+  afterDraw(chart: Chart) {
+    const ctx = chart.ctx;
+    const meta = chart.getDatasetMeta(0);
+    if (!meta?.data?.length) return;
+
+    const dataset = chart.data.datasets[0];
+    const data = dataset.data as number[];
+    const total = data.reduce((a, b) => a + b, 0);
+
+    meta.data.forEach((element, index) => {
+      const arc = element as unknown as {
+        x: number;
+        y: number;
+        startAngle: number;
+        endAngle: number;
+        outerRadius: number;
+      };
+
+      const value = data[index];
+      const percentage = (value / total) * 100;
+      if (percentage < 3) return; // Skip small segments
+
+      const midAngle = (arc.startAngle + arc.endAngle) / 2;
+      const { x: centerX, y: centerY, outerRadius } = arc;
+
+      // Calculate points
+      const startX = centerX + Math.cos(midAngle) * outerRadius;
+      const startY = centerY + Math.sin(midAngle) * outerRadius;
+      const elbowRadius = outerRadius + 10;
+      const elbowX = centerX + Math.cos(midAngle) * elbowRadius;
+      const elbowY = centerY + Math.sin(midAngle) * elbowRadius;
+      const isRightSide = Math.cos(midAngle) > 0;
+      const endX = elbowX + (isRightSide ? 20 : -20);
+
+      ctx.save();
+
+      // Draw connector line
+      ctx.beginPath();
+      ctx.moveTo(startX, startY);
+      ctx.lineTo(elbowX, elbowY);
+      ctx.lineTo(endX, elbowY);
+      ctx.strokeStyle = '#9ca3af';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      // Draw dot at end
+      ctx.beginPath();
+      ctx.arc(endX, elbowY, 2, 0, Math.PI * 2);
+      ctx.fillStyle = '#9ca3af';
+      ctx.fill();
+
+      // Draw percentage label
+      ctx.font = 'bold 10px sans-serif';
+      ctx.fillStyle = '#374151';
+      ctx.textBaseline = 'middle';
+      ctx.textAlign = isRightSide ? 'left' : 'right';
+      ctx.fillText(`${percentage.toFixed(0)}%`, endX + (isRightSide ? 5 : -5), elbowY);
+
+      ctx.restore();
+    });
+  }
+};
+
+Chart.register(modernLabelsPlugin);
 
 export interface DoughnutChartItem {
   label: string;
@@ -19,12 +83,12 @@ export type ChartColorScheme = 'purple' | 'blue' | 'green' | 'orange' | 'mixed';
 
 const COLOR_SCHEMES: Record<ChartColorScheme, { bg: string[]; hover: string[] }> = {
   purple: {
-    bg: ['#6366f1', '#8b5cf6', '#a855f7', '#d946ef', '#ec4899', '#f43f5e', '#f97316', '#eab308', '#22c55e', '#14b8a6'],
-    hover: ['#818cf8', '#a78bfa', '#c084fc', '#e879f9', '#f472b6', '#fb7185', '#fb923c', '#facc15', '#4ade80', '#2dd4bf']
+    bg: ['#8b5cf6', '#6366f1', '#a855f7', '#d946ef', '#ec4899', '#f43f5e', '#f97316', '#eab308', '#22c55e', '#14b8a6'],
+    hover: ['#a78bfa', '#818cf8', '#c084fc', '#e879f9', '#f472b6', '#fb7185', '#fb923c', '#facc15', '#4ade80', '#2dd4bf']
   },
   blue: {
-    bg: ['#0ea5e9', '#06b6d4', '#14b8a6', '#10b981', '#22c55e', '#84cc16', '#eab308', '#f59e0b', '#f97316', '#ef4444'],
-    hover: ['#38bdf8', '#22d3ee', '#2dd4bf', '#34d399', '#4ade80', '#a3e635', '#facc15', '#fbbf24', '#fb923c', '#f87171']
+    bg: ['#3b82f6', '#0ea5e9', '#06b6d4', '#14b8a6', '#10b981', '#22c55e', '#84cc16', '#eab308', '#f59e0b', '#f97316'],
+    hover: ['#60a5fa', '#38bdf8', '#22d3ee', '#2dd4bf', '#34d399', '#4ade80', '#a3e635', '#facc15', '#fbbf24', '#fb923c']
   },
   green: {
     bg: ['#22c55e', '#10b981', '#14b8a6', '#06b6d4', '#0ea5e9', '#6366f1', '#8b5cf6', '#a855f7', '#d946ef', '#ec4899'],
@@ -35,8 +99,9 @@ const COLOR_SCHEMES: Record<ChartColorScheme, { bg: string[]; hover: string[] }>
     hover: ['#fb923c', '#fdba74', '#fed7aa', '#ffedd5', '#f97316', '#ea580c', '#c2410c', '#facc15', '#fde047', '#fef9c3']
   },
   mixed: {
-    bg: ['#6366f1', '#0ea5e9', '#22c55e', '#eab308', '#f97316', '#ec4899', '#8b5cf6', '#14b8a6', '#f43f5e', '#84cc16'],
-    hover: ['#818cf8', '#38bdf8', '#4ade80', '#facc15', '#fb923c', '#f472b6', '#a78bfa', '#2dd4bf', '#fb7185', '#a3e635']
+    // Distinct colors: blue, green, purple, red, yellow, pink, cyan, orange, teal, lime
+    bg: ['#3b82f6', '#22c55e', '#8b5cf6', '#ef4444', '#eab308', '#ec4899', '#06b6d4', '#f97316', '#14b8a6', '#84cc16'],
+    hover: ['#60a5fa', '#4ade80', '#a78bfa', '#f87171', '#facc15', '#f472b6', '#22d3ee', '#fb923c', '#2dd4bf', '#a3e635']
   }
 };
 
@@ -87,22 +152,16 @@ const COLOR_SCHEMES: Record<ChartColorScheme, { bg: string[]; hover: string[] }>
   `]
 })
 export class DoughnutChartComponent implements OnInit {
-  // Inputs
   data = input.required<DoughnutChartItem[]>();
-  title = input<string>('');
   colorScheme = input<ChartColorScheme>('purple');
   loading = input<boolean>(false);
   emptyMessage = input<string>('common.no_data');
-  showPercentage = input<boolean>(true);
   showLegend = input<boolean>(true);
   legendPosition = input<'top' | 'bottom' | 'left' | 'right'>('bottom');
 
-  // Services
   private translateService = inject(TranslateService);
   private currencyService = inject(CurrencyService);
   private destroyRef = inject(DestroyRef);
-
-  // Internal state for re-rendering on language change
   private languageTrigger = 0;
 
   ngOnInit() {
@@ -113,11 +172,10 @@ export class DoughnutChartComponent implements OnInit {
 
   hasData = computed(() => {
     const items = this.data();
-    return items && items.length > 0 && items.some(item => item.value > 0);
+    return items?.length > 0 && items.some(item => item.value > 0);
   });
 
   chartData = computed(() => {
-    // Access languageTrigger to trigger recomputation
     const _ = this.languageTrigger;
     const items = this.data();
     const scheme = COLOR_SCHEMES[this.colorScheme()];
@@ -125,7 +183,6 @@ export class DoughnutChartComponent implements OnInit {
     return {
       labels: items.map(item => item.label),
       datasets: [{
-        label: this.title(),
         data: items.map(item => item.value),
         backgroundColor: scheme.bg.slice(0, items.length),
         hoverBackgroundColor: scheme.hover.slice(0, items.length),
@@ -136,14 +193,12 @@ export class DoughnutChartComponent implements OnInit {
   });
 
   chartOptions = computed(() => {
-    // Access languageTrigger to trigger recomputation
     const _ = this.languageTrigger;
-    const showPercentage = this.showPercentage();
     const currencyService = this.currencyService;
 
     return {
-      cutout: '50%',
-      radius: '70%', // Smaller radius to make room for outside labels
+      cutout: '45%',
+      radius: '60%',
       responsive: true,
       maintainAspectRatio: false,
       plugins: {
@@ -155,10 +210,7 @@ export class DoughnutChartComponent implements OnInit {
             pointStyle: 'circle',
             padding: 8,
             boxWidth: 8,
-            font: {
-              size: 10,
-              weight: '500'
-            }
+            font: { size: 10, weight: '500' }
           }
         },
         tooltip: {
@@ -173,47 +225,18 @@ export class DoughnutChartComponent implements OnInit {
             label: (context: { label: string; raw: number; dataset: { data: number[] } }) => {
               const label = context.label || '';
               const value = context.raw || 0;
-              const formatted = currencyService.formatCurrency(value);
-
-              if (showPercentage) {
-                const total = context.dataset.data.reduce((a: number, b: number) => a + b, 0);
-                const percentage = ((value / total) * 100).toFixed(1);
-                return `${label}: ${formatted} (${percentage}%)`;
-              }
-
-              return `${label}: ${formatted}`;
+              const total = context.dataset.data.reduce((a, b) => a + b, 0);
+              const percentage = ((value / total) * 100).toFixed(1);
+              return `${label}: ${currencyService.formatCurrency(value)} (${percentage}%)`;
             }
           }
         },
-        datalabels: {
-          anchor: 'end',
-          align: 'end',
-          offset: 5,
-          clip: false,
-          font: {
-            size: 10,
-            weight: 'bold'
-          },
-          color: '#374151',
-          formatter: (value: number, context: { dataset: { data: number[] } }) => {
-            const total = context.dataset.data.reduce((a: number, b: number) => a + b, 0);
-            const percentage = ((value / total) * 100).toFixed(0);
-            return `${percentage}%`;
-          },
-          display: (context: { dataset: { data: number[] }, dataIndex: number }) => {
-            const total = context.dataset.data.reduce((a: number, b: number) => a + b, 0);
-            const value = context.dataset.data[context.dataIndex];
-            const percentage = (value / total) * 100;
-            // Only show label if segment is > 5%
-            return percentage > 5;
-          }
-        }
+        datalabels: { display: false }
       },
       animation: {
         animateRotate: true,
         animateScale: true
-      },
-      locale: this.translateService.currentLang === 'ar' ? 'ar-SA' : this.translateService.currentLang
+      }
     };
   });
 }
