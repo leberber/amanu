@@ -42,33 +42,49 @@
   margin-bottom: var(--spacing-md);
 }
 
-.charts-grid {
+// Main layout: Left (line + pie stacked) | Right (bar full height)
+.charts-layout {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--spacing-md);
+  grid-template-columns: 1.2fr 0.8fr;
+  grid-template-rows: auto;
+  gap: 20px;
+  align-items: stretch;
 
-  @media (min-width: 992px) {
-    grid-template-columns: 1.5fr 1fr;
+  @media (max-width: 991px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.charts-left {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.charts-right {
+  display: flex;
+
+  .card {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
   }
 }
 
 .chart-container {
-  height: 350px;
-  padding: var(--spacing-md);
+  height: 250px;
+  padding: 20px;
 }
 
-.chart-container-large {
-  height: 400px;
-  padding: var(--spacing-md);
-
-  @media (min-width: 768px) {
-    height: 450px;
-  }
+.chart-container-bar {
+  flex: 1;
+  min-height: 300px;
+  padding: 20px;
 }
 
 .chart-body {
-  min-height: 280px;
-  padding: var(--spacing-md);
+  height: 250px;
+  padding: 20px;
 }
 
 .card-header__actions {
