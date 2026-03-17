@@ -88,6 +88,71 @@ def get_driver_stats(session: Session, driver_id: int) -> dict:
     }
 
 
+def get_driver_stats_batch(session: Session, drivers: list) -> dict:
+    """Compute stats for multiple drivers in bulk queries."""
+    if not drivers:
+        return {}
+
+    # Map driver_id -> user_id
+    driver_user_map = {d.id: d.user_id for d in drivers}
+    user_ids = list(driver_user_map.values())
+
+    # Initialize stats for all drivers
+    stats_map = {d.id: {
+        "active_orders_count": 0,
+        "total_deliveries": 0,
+        "total_earnings": 0.0,
+        "average_rating": None,
+        "total_ratings": 0,
+    } for d in drivers}
+
+    # Batch query: Active orders (direct assignment, not in trips)
+    active_direct = session.exec(
+        select(Order.driver_id, func.count(Order.id))
+        .where(Order.driver_id.in_(user_ids))
+        .where(Order.trip_id == None)
+        .where(Order.status.in_([OrderStatus.ASSIGNED, OrderStatus.PICKED_UP, OrderStatus.IN_TRANSIT]))
+        .group_by(Order.driver_id)
+    ).all()
+    active_direct_map = {uid: cnt for uid, cnt in active_direct}
+
+    # Batch query: Active orders from trips
+    active_trips = session.exec(
+        select(Trip.driver_id, func.count(TripStop.id))
+        .select_from(TripStop)
+        .join(Trip, TripStop.trip_id == Trip.id)
+        .where(Trip.driver_id.in_(user_ids))
+        .where(Trip.status.in_([TripStatus.ASSIGNED, TripStatus.IN_PROGRESS]))
+        .where(TripStop.status != 'delivered')
+        .group_by(Trip.driver_id)
+    ).all()
+    active_trips_map = {uid: cnt for uid, cnt in active_trips}
+
+    # Batch query: Delivered stats (count and earnings)
+    delivered = session.exec(
+        select(Order.driver_id, func.count(Order.id), func.coalesce(func.sum(Order.shipping_cost), 0))
+        .where(Order.driver_id.in_(user_ids))
+        .where(Order.status == OrderStatus.DELIVERED)
+        .group_by(Order.driver_id)
+    ).all()
+    delivered_map = {uid: (cnt, earnings) for uid, cnt, earnings in delivered}
+
+    # Populate stats map
+    for driver_id, user_id in driver_user_map.items():
+        active_count = active_direct_map.get(user_id, 0) + active_trips_map.get(user_id, 0)
+        delivered_data = delivered_map.get(user_id, (0, 0))
+
+        stats_map[driver_id] = {
+            "active_orders_count": active_count,
+            "total_deliveries": delivered_data[0],
+            "total_earnings": float(delivered_data[1]),
+            "average_rating": None,
+            "total_ratings": 0,
+        }
+
+    return stats_map
+
+
 def build_driver_read(driver: Driver, vehicle: DriverVehicle | None, stats: dict) -> DriverRead:
     """Build DriverRead from driver, vehicle, and stats"""
     return DriverRead(
@@ -324,26 +389,51 @@ def list_drivers(
     """
     List all drivers (admin only).
     """
-    drivers = session.exec(
+    users = session.exec(
         select(User)
         .where(User.role == UserRole.DRIVER)
         .offset(skip)
         .limit(limit)
     ).all()
 
+    if not users:
+        return []
+
+    user_ids = [u.id for u in users]
+
+    # Batch load all Driver records
+    drivers = session.exec(
+        select(Driver).where(Driver.user_id.in_(user_ids))
+    ).all()
+    driver_by_user = {d.user_id: d for d in drivers}
+    driver_ids = [d.id for d in drivers]
+
+    # Batch load all primary vehicles
+    vehicles = []
+    if driver_ids:
+        vehicles = session.exec(
+            select(DriverVehicle)
+            .where(DriverVehicle.driver_id.in_(driver_ids))
+            .where(DriverVehicle.is_primary == True)
+        ).all()
+    vehicle_by_driver = {v.driver_id: v for v in vehicles}
+
+    # Batch compute stats for all drivers
+    stats_map = get_driver_stats_batch(session, drivers) if drivers else {}
+
     result = []
-    for user in drivers:
-        driver = session.exec(
-            select(Driver).where(Driver.user_id == user.id)
-        ).first()
+    for user in users:
+        driver = driver_by_user.get(user.id)
 
         if driver:
-            vehicle = session.exec(
-                select(DriverVehicle)
-                .where(DriverVehicle.driver_id == driver.id)
-                .where(DriverVehicle.is_primary == True)
-            ).first()
-            stats = get_driver_stats(session, driver.id)
+            vehicle = vehicle_by_driver.get(driver.id)
+            stats = stats_map.get(driver.id, {
+                "active_orders_count": 0,
+                "total_deliveries": 0,
+                "total_earnings": 0.0,
+                "average_rating": None,
+                "total_ratings": 0,
+            })
             driver_read = build_driver_read(driver, vehicle, stats)
         else:
             driver_read = None

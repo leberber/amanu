@@ -191,13 +191,27 @@ def order_to_response(order: Order, session: Session) -> OrderWithItems:
 # BATCHED TRIPS (Multi-stop trips from smart batching)
 # =============================================================================
 
-def trip_to_response(trip: Trip, session: Session) -> TripWithStops:
-    """Convert Trip to TripWithStops response with all details."""
-    # Get driver info
+def trip_to_response(
+    trip: Trip,
+    session: Session,
+    users_map: dict = None,
+    orders_map: dict = None,
+    routes_map: dict = None
+) -> TripWithStops:
+    """Convert Trip to TripWithStops response with all details.
+
+    Args:
+        trip: The trip to convert
+        session: Database session
+        users_map: Optional pre-loaded {user_id: User} for batch optimization
+        orders_map: Optional pre-loaded {order_id: Order} for batch optimization
+        routes_map: Optional pre-loaded {user_id: CustomerRoute} for batch optimization
+    """
+    # Get driver info - use map if provided
     driver_name = None
     driver_phone = None
     if trip.driver_id:
-        driver_user = session.get(User, trip.driver_id)
+        driver_user = users_map.get(trip.driver_id) if users_map else session.get(User, trip.driver_id)
         if driver_user:
             driver_name = driver_user.full_name
             driver_phone = driver_user.phone
@@ -205,7 +219,7 @@ def trip_to_response(trip: Trip, session: Session) -> TripWithStops:
     # Get suggested driver info
     suggested_driver_name = None
     if trip.suggested_driver_id:
-        suggested_user = session.get(User, trip.suggested_driver_id)
+        suggested_user = users_map.get(trip.suggested_driver_id) if users_map else session.get(User, trip.suggested_driver_id)
         if suggested_user:
             suggested_driver_name = suggested_user.full_name
 
@@ -226,7 +240,8 @@ def trip_to_response(trip: Trip, session: Session) -> TripWithStops:
     stop_routes = []  # List of (user_id, lat, lng, route_coords)
 
     for stop in sorted_stops:
-        order = session.get(Order, stop.order_id)
+        # Use pre-loaded order if available
+        order = orders_map.get(stop.order_id) if orders_map else session.get(Order, stop.order_id)
         customer_name = None
         shipping_address = None
         contact_phone = None
@@ -260,10 +275,13 @@ def trip_to_response(trip: Trip, session: Session) -> TripWithStops:
                 latitude = order.user.latitude
                 longitude = order.user.longitude
 
-                # Get route polyline for this customer
-                customer_route = session.exec(
-                    select(CustomerRoute).where(CustomerRoute.user_id == order.user.id)
-                ).first()
+                # Get route polyline - use pre-loaded if available
+                if routes_map:
+                    customer_route = routes_map.get(order.user.id)
+                else:
+                    customer_route = session.exec(
+                        select(CustomerRoute).where(CustomerRoute.user_id == order.user.id)
+                    ).first()
 
                 if customer_route and customer_route.route_geom:
                     try:
@@ -378,6 +396,51 @@ def trip_to_response(trip: Trip, session: Session) -> TripWithStops:
     )
 
 
+def trips_to_response_batch(trips: list, session: Session) -> list:
+    """Convert multiple trips to TripWithStops responses with batch-loaded data."""
+    if not trips:
+        return []
+
+    # Collect all IDs needed
+    user_ids = set()
+    order_ids = set()
+
+    for trip in trips:
+        if trip.driver_id:
+            user_ids.add(trip.driver_id)
+        if trip.suggested_driver_id:
+            user_ids.add(trip.suggested_driver_id)
+        for stop in trip.stops:
+            order_ids.add(stop.order_id)
+
+    # Batch load users (drivers)
+    users_map = {}
+    if user_ids:
+        users = session.exec(select(User).where(User.id.in_(user_ids))).all()
+        users_map = {u.id: u for u in users}
+
+    # Batch load orders
+    orders_map = {}
+    customer_user_ids = set()
+    if order_ids:
+        orders = session.exec(select(Order).where(Order.id.in_(order_ids))).all()
+        orders_map = {o.id: o for o in orders}
+        # Collect customer user IDs for route loading
+        for order in orders:
+            if order.user_id:
+                customer_user_ids.add(order.user_id)
+
+    # Batch load customer routes
+    routes_map = {}
+    if customer_user_ids:
+        routes = session.exec(
+            select(CustomerRoute).where(CustomerRoute.user_id.in_(customer_user_ids))
+        ).all()
+        routes_map = {r.user_id: r for r in routes}
+
+    return [trip_to_response(trip, session, users_map, orders_map, routes_map) for trip in trips]
+
+
 @router.get("/batched/pending", response_model=List[TripWithStops])
 def get_pending_batched_trips(
     current_user: User = Depends(get_current_user),
@@ -403,7 +466,7 @@ def get_pending_batched_trips(
         .order_by(Trip.created_at.desc())
     ).all()
 
-    return [trip_to_response(trip, session) for trip in trips]
+    return trips_to_response_batch(trips, session)
 
 
 class AcceptBatchedTripResponse(SQLModel):
@@ -981,7 +1044,7 @@ def get_active_batched_trips(
         .order_by(Trip.assigned_at.desc())
     ).all()
 
-    return [trip_to_response(trip, session) for trip in trips]
+    return trips_to_response_batch(trips, session)
 
 
 @router.get("/batched/{trip_id}", response_model=TripWithStops)
