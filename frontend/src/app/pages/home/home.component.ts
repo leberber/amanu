@@ -9,6 +9,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { ProductService } from '../../services/product.service';
 import { TranslationService } from '../../services/translation.service';
 import { ToastMessageService } from '../../core/services/toast-message.service';
+import { TranslationHelperService } from '../../core/services/translation-helper.service';
 import { Category } from '../../models/product.model';
 import { ROUTES } from '../../core/constants/routes.constants';
 import { ImageFallbackDirective } from '../../shared/directives/image-fallback.directive';
@@ -23,11 +24,17 @@ import { ImageFallbackDirective } from '../../shared/directives/image-fallback.d
 export class HomeComponent implements OnInit {
   private productService = inject(ProductService);
   private translationService = inject(TranslationService);
+  private translationHelper = inject(TranslationHelperService);
   private toast = inject(ToastMessageService);
+  private destroyRef = inject(DestroyRef);
 
   // Constants
   readonly ROUTES = ROUTES;
 
+  // Raw categories from API (with translations embedded)
+  private rawCategories = signal<Category[]>([]);
+
+  // Transformed categories for display
   categories = signal<Array<{
     id: number;
     name: string;
@@ -36,35 +43,36 @@ export class HomeComponent implements OnInit {
     link: string;
   }>>([]);
 
-  private destroyRef = inject(DestroyRef);
-
   ngOnInit(): void {
-    // Subscribe to language changes - BehaviorSubject emits immediately on subscribe
-    // so no need for separate loadCategories() call
+    // Load categories once
+    this.loadCategories();
+
+    // On language change, re-transform using embedded translations (no API call)
     this.translationService.currentLanguage$
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => {
-        this.loadCategories();
-      });
+      .subscribe(() => this.transformCategories());
   }
-
 
   private loadCategories(): void {
     this.productService.getCategories(true).subscribe({
       next: (apiCategories: Category[]) => {
-        const transformedCategories = apiCategories.map(category => ({
-          id: category.id,
-          name: category.name,
-          description: category.description || '',
-          image: category.image_url || '',
-          link: `/products?category=${category.id}`
-        }));
-        
-        this.categories.set(transformedCategories);
+        this.rawCategories.set(apiCategories);
+        this.transformCategories();
       },
       error: (error) => {
         this.toast.showApiError(error, 'errors.load_categories_failed');
       }
     });
+  }
+
+  private transformCategories(): void {
+    const transformed = this.rawCategories().map(category => ({
+      id: category.id,
+      name: this.translationHelper.getCategoryName(category),
+      description: this.translationHelper.getCategoryDescription(category),
+      image: category.image_url || '',
+      link: `/products?category=${category.id}`
+    }));
+    this.categories.set(transformed);
   }
 }

@@ -5,7 +5,6 @@ import { SelectModule } from 'primeng/select';
 import { TagModule } from 'primeng/tag';
 
 import { ADMIN_CORE_IMPORTS } from '../../../shared/imports/admin-shared.imports';
-import { DateFormatPipe } from '../../../shared/pipes/date-format.pipe';
 import { AdminService } from '../../../services/admin.service';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
 import { LogEntry, LogStats } from '../../../models/admin.model';
@@ -16,8 +15,7 @@ import { LogEntry, LogStats } from '../../../models/admin.model';
   imports: [
     ...ADMIN_CORE_IMPORTS,
     SelectModule,
-    TagModule,
-    DateFormatPipe
+    TagModule
   ],
   templateUrl: './admin-logs.component.html',
   styleUrl: './admin-logs.component.scss'

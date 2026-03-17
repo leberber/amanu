@@ -144,7 +144,7 @@ export class AdminDashboardComponent implements OnInit {
     onLanguageChange(this.translateService, this.destroyRef, () => this.prepareChartData());
   }
 
-  private loadAllData() {
+  loadAllData() {
     this.loading.set(true);
 
     forkJoin({

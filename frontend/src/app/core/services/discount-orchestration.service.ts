@@ -1,5 +1,6 @@
-import { Injectable, inject, computed, signal } from '@angular/core';
-import { forkJoin, of, catchError, map, Observable, tap } from 'rxjs';
+import { Injectable, inject, computed, signal, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { forkJoin, of, catchError, map, Observable, tap, Subject, debounceTime, switchMap } from 'rxjs';
 
 import { CartService, CartItem } from '../../services/cart.service';
 import { PromotionService } from '../../services/promotion.service';
@@ -7,6 +8,9 @@ import { CrossSellPromotionService } from '../../services/cross-sell-promotion.s
 import { VolumeDiscountService, AppliedVolumeDiscount } from '../../services/volume-discount.service';
 import { AppliedPromotion } from '../../models/promotion.model';
 import { CrossSellDiscountItem } from '../../models/cross-sell-promotion.model';
+
+/** Debounce time for discount calculations (ms) */
+const CALCULATION_DEBOUNCE_MS = 300;
 
 /**
  * Unified discount type for aggregating all discount sources
@@ -48,16 +52,49 @@ export class DiscountOrchestrationService {
   private promotionService = inject(PromotionService);
   private crossSellService = inject(CrossSellPromotionService);
   private volumeDiscountService = inject(VolumeDiscountService);
+  private destroyRef = inject(DestroyRef);
+
+  // Debounced calculation trigger
+  private calculateTrigger$ = new Subject<void>();
 
   // Loading state
   private _isCalculating = signal(false);
   readonly isCalculating = this._isCalculating.asReadonly();
 
+  constructor() {
+    // Set up debounced calculation pipeline
+    // This prevents excessive API calls when cart changes rapidly
+    this.calculateTrigger$.pipe(
+      debounceTime(CALCULATION_DEBOUNCE_MS),
+      switchMap(() => this.performCalculation()),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe();
+  }
+
   /**
    * Calculate all discounts for current cart items.
-   * Returns an observable that completes when all discount calculations are done.
+   * Uses debouncing to prevent excessive API calls during rapid cart changes.
+   * Returns an observable that completes immediately; actual calculation happens after debounce.
    */
   calculateAllDiscounts(): Observable<DiscountSummary> {
+    const items = this.cartService.items();
+
+    if (items.length === 0) {
+      this.clearAllDiscounts();
+      return of(this.getEmptySummary());
+    }
+
+    // Trigger debounced calculation
+    this.calculateTrigger$.next();
+
+    // Return current summary immediately; updated values come via signals
+    return of(this.getCurrentSummary());
+  }
+
+  /**
+   * Perform the actual discount calculation (called after debounce)
+   */
+  private performCalculation(): Observable<DiscountSummary> {
     const items = this.cartService.items();
 
     if (items.length === 0) {

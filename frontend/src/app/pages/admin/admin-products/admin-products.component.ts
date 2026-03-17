@@ -52,32 +52,52 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
   // Brand filter
   brandFilter: number | null = null;
 
-  // Computed counts
-  activeCount = computed(() => this.allProducts().filter(p => p.is_active).length);
-  inactiveCount = computed(() => this.allProducts().filter(p => !p.is_active).length);
+  // Pre-computed product counts - single pass O(N) instead of O(N×M) filtering
+  private productCounts = computed(() => {
+    const products = this.allProducts();
+    let active = 0, inactive = 0;
+    const byCategory = new Map<number, number>();
+    const byBrand = new Map<number, number>();
 
-  // Computed category options
+    for (const p of products) {
+      if (p.is_active) active++; else inactive++;
+      byCategory.set(p.category_id, (byCategory.get(p.category_id) || 0) + 1);
+      if (p.brand_id) {
+        byBrand.set(p.brand_id, (byBrand.get(p.brand_id) || 0) + 1);
+      }
+    }
+
+    return { active, inactive, byCategory, byBrand, total: products.length };
+  });
+
+  // Computed counts
+  activeCount = computed(() => this.productCounts().active);
+  inactiveCount = computed(() => this.productCounts().inactive);
+
+  // Computed category options - uses pre-computed counts
   categoryOptions = computed(() => {
+    const counts = this.productCounts();
     const allLabel = this.translateService.instant('admin.products.filters.all_categories');
     return [
-      { label: allLabel, value: null as number | null, count: this.allProducts().length },
+      { label: allLabel, value: null as number | null, count: counts.total },
       ...this.categories().map(cat => ({
         label: this.getCategoryName(cat.id),
         value: cat.id as number | null,
-        count: this.allProducts().filter(p => p.category_id === cat.id).length
+        count: counts.byCategory.get(cat.id) || 0
       }))
     ];
   });
 
-  // Computed brand options
+  // Computed brand options - uses pre-computed counts
   brandOptions = computed(() => {
+    const counts = this.productCounts();
     const allLabel = this.translateService.instant('admin.products.filters.all_brands');
     return [
-      { label: allLabel, value: null as number | null, count: this.allProducts().length },
+      { label: allLabel, value: null as number | null, count: counts.total },
       ...this.brands().map(brand => ({
         label: brand.name,
         value: brand.id as number | null,
-        count: this.allProducts().filter(p => p.brand_id === brand.id).length
+        count: counts.byBrand.get(brand.id) || 0
       }))
     ];
   });
@@ -149,10 +169,9 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
     this.loadCategories();
     this.loadBrands();
     this.loadAllProducts();
-    onLanguageChange(this.translateService, this.destroyRef, () => {
-      this.loadCategories();
-      this.loadBrands();
-    });
+    // On language change, just re-filter to trigger UI re-render
+    // No API reload needed - translations are embedded in name_translations
+    onLanguageChange(this.translateService, this.destroyRef, () => this.filterItems());
   }
 
 

@@ -79,6 +79,10 @@ interface CategoryOption {
 export class StockComponent implements OnInit, OnDestroy {
   private readonly DEFAULT_COLOR = { bg: 'rgba(100, 116, 139, 0.12)', text: '#64748b' };
 
+  // Color caches to avoid recalculating on every change detection
+  private readonly brandColorCache = new Map<string, { bg: string; text: string }>();
+  private readonly categoryColorCache = new Map<string, { bg: string; text: string }>();
+
   private api = inject(ApiService);
   private http = inject(HttpClient);
   private toast = inject(ToastMessageService);
@@ -1093,11 +1097,23 @@ export class StockComponent implements OnInit, OnDestroy {
   }
 
   getBrandColor(brand: string): { bg: string; text: string } {
-    return this.getColorForString(brand);
+    if (!brand) return this.DEFAULT_COLOR;
+    let color = this.brandColorCache.get(brand);
+    if (!color) {
+      color = this.getColorForString(brand);
+      this.brandColorCache.set(brand, color);
+    }
+    return color;
   }
 
   getCategoryColor(category: string): { bg: string; text: string } {
-    return this.getColorForString(category + '_cat');
+    if (!category) return this.DEFAULT_COLOR;
+    let color = this.categoryColorCache.get(category);
+    if (!color) {
+      color = this.getColorForString(category + '_cat');
+      this.categoryColorCache.set(category, color);
+    }
+    return color;
   }
 
   openInvoicePreview(): void {

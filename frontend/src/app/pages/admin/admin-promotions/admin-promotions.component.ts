@@ -66,18 +66,45 @@ export class AdminPromotionsComponent extends BaseAdminListComponent implements 
   crossSellStatusFilter = 'all';
   volumeDiscountStatusFilter = 'all';
 
-  // Computed counts - Promo Codes
-  activeCount = computed(() => this.allPromotions().filter(p => this.getPromotionStatus(p) === 'active').length);
-  expiredCount = computed(() => this.allPromotions().filter(p => this.getPromotionStatus(p) === 'expired').length);
-  scheduledCount = computed(() => this.allPromotions().filter(p => this.getPromotionStatus(p) === 'scheduled').length);
+  // Pre-computed status counts - calculated once when data changes, not on every change detection
+  private promotionStatusCounts = computed(() => {
+    const counts = { active: 0, expired: 0, scheduled: 0 };
+    for (const p of this.allPromotions()) {
+      const status = this.getPromotionStatusPure(p);
+      if (status in counts) counts[status as keyof typeof counts]++;
+    }
+    return counts;
+  });
 
-  // Computed counts - Cross-Sell
-  crossSellActiveCount = computed(() => this.allCrossSellPromotions().filter(p => this.getCrossSellStatus(p) === 'active').length);
-  crossSellInactiveCount = computed(() => this.allCrossSellPromotions().filter(p => !p.is_active).length);
+  activeCount = computed(() => this.promotionStatusCounts().active);
+  expiredCount = computed(() => this.promotionStatusCounts().expired);
+  scheduledCount = computed(() => this.promotionStatusCounts().scheduled);
 
-  // Computed counts - Volume Discounts
-  volumeDiscountActiveCount = computed(() => this.allVolumeDiscounts().filter(d => this.getVolumeDiscountStatus(d) === 'active').length);
-  volumeDiscountInactiveCount = computed(() => this.allVolumeDiscounts().filter(d => !d.is_active).length);
+  // Pre-computed cross-sell counts
+  private crossSellStatusCounts = computed(() => {
+    let active = 0, inactive = 0;
+    for (const p of this.allCrossSellPromotions()) {
+      if (this.getCrossSellStatusPure(p) === 'active') active++;
+      if (!p.is_active) inactive++;
+    }
+    return { active, inactive };
+  });
+
+  crossSellActiveCount = computed(() => this.crossSellStatusCounts().active);
+  crossSellInactiveCount = computed(() => this.crossSellStatusCounts().inactive);
+
+  // Pre-computed volume discount counts
+  private volumeDiscountStatusCounts = computed(() => {
+    let active = 0, inactive = 0;
+    for (const d of this.allVolumeDiscounts()) {
+      if (this.getVolumeDiscountStatusPure(d) === 'active') active++;
+      if (!d.is_active) inactive++;
+    }
+    return { active, inactive };
+  });
+
+  volumeDiscountActiveCount = computed(() => this.volumeDiscountStatusCounts().active);
+  volumeDiscountInactiveCount = computed(() => this.volumeDiscountStatusCounts().inactive);
 
   // Skeleton configuration
   skeletonColumns: SkeletonColumn[] = [
@@ -143,6 +170,11 @@ export class AdminPromotionsComponent extends BaseAdminListComponent implements 
   }
 
   getPromotionStatus(promotion: Promotion): 'active' | 'expired' | 'scheduled' | 'inactive' {
+    return this.getPromotionStatusPure(promotion);
+  }
+
+  // Pure method for use in computed signals (no side effects)
+  private getPromotionStatusPure(promotion: Promotion): 'active' | 'expired' | 'scheduled' | 'inactive' {
     if (!promotion.is_active) return 'inactive';
 
     const now = new Date();
@@ -348,6 +380,11 @@ export class AdminPromotionsComponent extends BaseAdminListComponent implements 
   }
 
   getCrossSellStatus(promotion: CrossSellPromotion): 'active' | 'inactive' | 'scheduled' | 'expired' {
+    return this.getCrossSellStatusPure(promotion);
+  }
+
+  // Pure method for use in computed signals
+  private getCrossSellStatusPure(promotion: CrossSellPromotion): 'active' | 'inactive' | 'scheduled' | 'expired' {
     if (!promotion.is_active) return 'inactive';
 
     const now = new Date();
@@ -477,6 +514,11 @@ export class AdminPromotionsComponent extends BaseAdminListComponent implements 
   }
 
   getVolumeDiscountStatus(discount: VolumeDiscount): 'active' | 'inactive' | 'scheduled' | 'expired' {
+    return this.getVolumeDiscountStatusPure(discount);
+  }
+
+  // Pure method for use in computed signals
+  private getVolumeDiscountStatusPure(discount: VolumeDiscount): 'active' | 'inactive' | 'scheduled' | 'expired' {
     if (!discount.is_active) return 'inactive';
 
     const now = new Date();
