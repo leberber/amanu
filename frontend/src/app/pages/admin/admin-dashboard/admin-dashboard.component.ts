@@ -3,6 +3,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink, Router } from '@angular/router';
 import { ChartModule } from 'primeng/chart';
 import { TranslateService } from '@ngx-translate/core';
+import { forkJoin } from 'rxjs';
 
 import { ADMIN_CORE_IMPORTS } from '../../../shared/imports/admin-shared.imports';
 import { AgroclikPageContainerComponent } from '../../../shared/components/agroclik-page-container/agroclik-page-container.component';
@@ -139,56 +140,26 @@ export class AdminDashboardComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
 
   ngOnInit() {
-    this.loadDashboardStats();
-    this.loadProductsAndCategories();
-    this.loadBrands();
+    this.loadAllData();
     onLanguageChange(this.translateService, this.destroyRef, () => this.prepareChartData());
   }
 
-  loadProductsAndCategories() {
-    this.productService.getProducts()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (products) => {
-          this.products.set(products || []);
-          if (this.stats()) {
-            this.prepareChartData();
-          }
-        }
-      });
-
-    this.productService.getCategories()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (categories: Category[]) => {
-          this.categories.set(categories || []);
-          if (this.stats()) {
-            this.prepareChartData();
-          }
-        }
-      });
-  }
-
-  loadBrands() {
-    this.brandService.getBrands()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (brands) => {
-          this.brands.set(brands || []);
-          if (this.stats()) {
-            this.prepareChartData();
-          }
-        }
-      });
-  }
-
-  loadDashboardStats() {
+  private loadAllData() {
     this.loading.set(true);
-    this.adminService.getDashboardStats()
+
+    forkJoin({
+      stats: this.adminService.getDashboardStats(),
+      products: this.productService.getProducts(),
+      categories: this.productService.getCategories(),
+      brands: this.brandService.getBrands()
+    })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (stats) => {
-          this.stats.set(stats);
+        next: (result) => {
+          this.stats.set(result.stats);
+          this.products.set(result.products || []);
+          this.categories.set(result.categories || []);
+          this.brands.set(result.brands || []);
           this.loading.set(false);
           this.prepareChartData();
           setTimeout(() => this.tableInitialized.set(true), UI.TABLE_INIT_DELAY);
