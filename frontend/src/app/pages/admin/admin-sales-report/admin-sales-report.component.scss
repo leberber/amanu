@@ -65,9 +65,9 @@
   min-height: 0;
 }
 
-// Line chart takes 55% of left column
+// Line chart takes 55 parts of left column
 .line-chart-card {
-  flex: 0 0 55%;
+  flex: 55 1 0;
   display: flex;
   flex-direction: column;
   min-height: 0;
@@ -79,9 +79,9 @@
   }
 }
 
-// Pie charts row takes 45% of left column
+// Pie charts row takes 45 parts of left column
 .charts-row {
-  flex: 0 0 45%;
+  flex: 45 1 0;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 16px;
