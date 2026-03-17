@@ -91,7 +91,6 @@ export class CartComponent implements OnInit {
 
   // Private
   private prevTotalQuantity = 0;
-    private isFirstLoad = true;
 
   constructor() {
     effect(() => {
@@ -99,22 +98,16 @@ export class CartComponent implements OnInit {
       this.cartItems.set(items);
       this.syncQuantities(items);
 
-      if (this.isFirstLoad && items.length > 0) {
-        this.loadTranslatedNames();
-        this.isFirstLoad = false;
-      }
-
       const totalQty = items.reduce((sum, i) => sum + i.quantity, 0);
       if (totalQty !== this.prevTotalQuantity) {
         this.prevTotalQuantity = totalQty;
         this.handlePromotionChange(items);
       }
     });
-
-      }
+  }
 
   ngOnInit(): void {
-    this.loadTranslatedNames();
+    // BehaviorSubject emits immediately on subscribe, handles initial load + language changes
     this.translationService.currentLanguage$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.loadTranslatedNames());
