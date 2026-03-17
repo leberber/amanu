@@ -165,20 +165,30 @@
               </div>
             </div>
 
-            <!-- Bottom Selling Categories Doughnut Chart -->
+            <!-- Top Brands Doughnut Chart -->
             <div class="card card--no-hover animate-item" style="--item-delay: 250ms;">
               <div class="card-header">
-                <div class="card-header__icon card-header__icon--warning">
+                <div class="card-header__icon card-header__icon--purple">
                   <i class="pi pi-chart-pie"></i>
                 </div>
-                <h3 class="card-header__title">{{ 'admin.sales_report.bottom_categories' | translate }}</h3>
+                <h3 class="card-header__title">{{ 'admin.sales_report.top_brands' | translate }}</h3>
+                <div class="card-header__actions">
+                  <select
+                    class="limit-select"
+                    [value]="selectedBrandLimit()"
+                    (change)="selectBrandLimit(+$any($event.target).value)">
+                    @for (option of brandLimitOptions; track option.value) {
+                      <option [value]="option.value">{{ option.label }}</option>
+                    }
+                  </select>
+                </div>
               </div>
               <div class="card-body">
                 <app-doughnut-chart
-                  [data]="bottomCategoryChartData()"
+                  [data]="topBrandChartData()"
                   [loading]="loading()"
                   colorScheme="mixed"
-                  emptyMessage="admin.sales_report.no_category_data"
+                  emptyMessage="admin.sales_report.no_brand_data"
                 />
               </div>
             </div>

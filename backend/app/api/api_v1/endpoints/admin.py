@@ -37,6 +37,7 @@ class SalesReport(BaseModel):
     data: List[Dict[str, Any]]
     total_sales: float
     sales_by_category: List[Dict[str, Any]] = []
+    sales_by_brand: List[Dict[str, Any]] = []
     top_products: List[Dict[str, Any]] = []
 
 @router.get("/dashboard", response_model=DashboardStats)
@@ -381,6 +382,41 @@ def get_sales_report(
             "total_sales": float(row.total_sales) if row.total_sales else 0
         })
 
+    # Calculate sales by brand for this period
+    brand_query = (
+        select(
+            Product.brand_id,
+            func.sum(OrderItem.unit_price * OrderItem.quantity).label("total_sales")
+        )
+        .select_from(Order)
+        .join(OrderItem, OrderItem.order_id == Order.id)
+        .join(Product, Product.id == OrderItem.product_id)
+        .where(*base_filter)
+        .where(Product.brand_id.isnot(None))
+        .group_by(Product.brand_id)
+        .order_by(func.sum(OrderItem.unit_price * OrderItem.quantity).desc())
+        .limit(category_limit)
+    )
+
+    brand_results = session.exec(brand_query).all()
+
+    # Fetch brand details
+    brand_ids = [row[0] for row in brand_results if row[0]]
+    brands_map = {}
+    if brand_ids:
+        brands = session.exec(select(Brand).where(Brand.id.in_(brand_ids))).all()
+        brands_map = {b.id: b for b in brands}
+
+    sales_by_brand = []
+    for brand_id, total_sales in brand_results:
+        brand = brands_map.get(brand_id)
+        sales_by_brand.append({
+            "brand_id": brand_id,
+            "name": brand.name if brand else "",
+            "name_translations": brand.name_translations if brand else None,
+            "total_sales": float(total_sales) if total_sales else 0
+        })
+
     # Calculate top selling products for this period
     top_products_query = (
         select(
@@ -423,6 +459,7 @@ def get_sales_report(
         data=data,
         total_sales=total_sales,
         sales_by_category=sales_by_category,
+        sales_by_brand=sales_by_brand,
         top_products=top_products
     )
 

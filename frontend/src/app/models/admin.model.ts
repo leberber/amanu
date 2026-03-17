@@ -49,6 +49,7 @@ export interface DashboardStats {
     data: SalesData[];
     total_sales: number;
     sales_by_category: SalesByCategory[];
+    sales_by_brand?: SalesByBrand[];
     top_products: TopSellingProduct[];
   }
   

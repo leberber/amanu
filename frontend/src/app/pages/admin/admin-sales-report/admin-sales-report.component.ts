@@ -42,12 +42,13 @@ export class AdminSalesReportComponent implements OnInit {
   initialLoad = signal(true);
   selectedPeriod = signal<PeriodType>('daily');
   selectedCategoryLimit = signal<CategoryLimitType>(10);
+  selectedBrandLimit = signal<CategoryLimitType>(10);
   selectedProductLimit = signal<CategoryLimitType>(20);
 
   // Chart data signals (simplified for reusable components)
   lineChartData = signal<LineChartDataPoint[]>([]);
   topCategoryChartData = signal<DoughnutChartItem[]>([]);
-  bottomCategoryChartData = signal<DoughnutChartItem[]>([]);
+  topBrandChartData = signal<DoughnutChartItem[]>([]);
   productsChartData = signal<BarChartDataPoint[]>([]);
 
   // Period options
@@ -60,6 +61,14 @@ export class AdminSalesReportComponent implements OnInit {
 
   // Category limit options
   readonly categoryLimitOptions: { value: CategoryLimitType; label: string }[] = [
+    { value: 5, label: 'Top 5' },
+    { value: 10, label: 'Top 10' },
+    { value: 15, label: 'Top 15' },
+    { value: 20, label: 'Top 20' }
+  ];
+
+  // Brand limit options
+  readonly brandLimitOptions: { value: CategoryLimitType; label: string }[] = [
     { value: 5, label: 'Top 5' },
     { value: 10, label: 'Top 10' },
     { value: 15, label: 'Top 15' },
@@ -146,6 +155,14 @@ export class AdminSalesReportComponent implements OnInit {
     }
   }
 
+  selectBrandLimit(limit: number) {
+    const validLimit = limit as CategoryLimitType;
+    if (validLimit !== this.selectedBrandLimit()) {
+      this.selectedBrandLimit.set(validLimit);
+      this.prepareChartData();
+    }
+  }
+
   selectProductLimit(limit: number) {
     const validLimit = limit as CategoryLimitType;
     if (validLimit !== this.selectedProductLimit()) {
@@ -158,7 +175,7 @@ export class AdminSalesReportComponent implements OnInit {
     if (!report) {
       this.lineChartData.set([]);
       this.topCategoryChartData.set([]);
-      this.bottomCategoryChartData.set([]);
+      this.topBrandChartData.set([]);
       this.productsChartData.set([]);
       return;
     }
@@ -171,30 +188,30 @@ export class AdminSalesReportComponent implements OnInit {
       }))
     );
 
-    // Prepare category chart data - split into top and bottom selling
+    // Prepare top category chart data
     if (report.sales_by_category && report.sales_by_category.length > 0) {
       const limit = this.selectedCategoryLimit();
-      const sortedCategories = [...report.sales_by_category];
-
-      // Top selling (highest first) - already sorted from backend
       this.topCategoryChartData.set(
-        sortedCategories.slice(0, limit).map(item => ({
-          label: this.translationHelper.getCategoryName(item),
-          value: item.total_sales
-        }))
-      );
-
-      // Bottom selling (lowest first) - reverse and take from end
-      const bottomCategories = [...sortedCategories].reverse();
-      this.bottomCategoryChartData.set(
-        bottomCategories.slice(0, limit).map(item => ({
+        report.sales_by_category.slice(0, limit).map(item => ({
           label: this.translationHelper.getCategoryName(item),
           value: item.total_sales
         }))
       );
     } else {
       this.topCategoryChartData.set([]);
-      this.bottomCategoryChartData.set([]);
+    }
+
+    // Prepare top brand chart data
+    if (report.sales_by_brand && report.sales_by_brand.length > 0) {
+      const limit = this.selectedBrandLimit();
+      this.topBrandChartData.set(
+        report.sales_by_brand.slice(0, limit).map(item => ({
+          label: this.translationHelper.getBrandName(item),
+          value: item.total_sales
+        }))
+      );
+    } else {
+      this.topBrandChartData.set([]);
     }
 
     // Prepare products chart data
