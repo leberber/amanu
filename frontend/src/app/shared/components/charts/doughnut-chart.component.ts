@@ -10,7 +10,7 @@ export interface DoughnutChartItem {
   value: number;
 }
 
-export type ChartColorScheme = 'purple' | 'blue' | 'green' | 'mixed';
+export type ChartColorScheme = 'purple' | 'blue' | 'green' | 'orange' | 'mixed';
 
 const COLOR_SCHEMES: Record<ChartColorScheme, { bg: string[]; hover: string[] }> = {
   purple: {
@@ -24,6 +24,10 @@ const COLOR_SCHEMES: Record<ChartColorScheme, { bg: string[]; hover: string[] }>
   green: {
     bg: ['#22c55e', '#10b981', '#14b8a6', '#06b6d4', '#0ea5e9', '#6366f1', '#8b5cf6', '#a855f7', '#d946ef', '#ec4899'],
     hover: ['#4ade80', '#34d399', '#2dd4bf', '#22d3ee', '#38bdf8', '#818cf8', '#a78bfa', '#c084fc', '#e879f9', '#f472b6']
+  },
+  orange: {
+    bg: ['#f97316', '#fb923c', '#fdba74', '#fed7aa', '#ea580c', '#c2410c', '#9a3412', '#eab308', '#facc15', '#fef08a'],
+    hover: ['#fb923c', '#fdba74', '#fed7aa', '#ffedd5', '#f97316', '#ea580c', '#c2410c', '#facc15', '#fde047', '#fef9c3']
   },
   mixed: {
     bg: ['#6366f1', '#0ea5e9', '#22c55e', '#eab308', '#f97316', '#ec4899', '#8b5cf6', '#14b8a6', '#f43f5e', '#84cc16'],

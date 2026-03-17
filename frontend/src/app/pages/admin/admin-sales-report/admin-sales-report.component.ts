@@ -45,7 +45,8 @@ export class AdminSalesReportComponent implements OnInit {
 
   // Chart data signals (simplified for reusable components)
   lineChartData = signal<LineChartDataPoint[]>([]);
-  categoryChartData = signal<DoughnutChartItem[]>([]);
+  topCategoryChartData = signal<DoughnutChartItem[]>([]);
+  bottomCategoryChartData = signal<DoughnutChartItem[]>([]);
   productsChartData = signal<BarChartDataPoint[]>([]);
 
   // Period options
@@ -154,7 +155,8 @@ export class AdminSalesReportComponent implements OnInit {
     const report = this.salesReport();
     if (!report) {
       this.lineChartData.set([]);
-      this.categoryChartData.set([]);
+      this.topCategoryChartData.set([]);
+      this.bottomCategoryChartData.set([]);
       this.productsChartData.set([]);
       return;
     }
@@ -167,16 +169,30 @@ export class AdminSalesReportComponent implements OnInit {
       }))
     );
 
-    // Prepare category chart data
+    // Prepare category chart data - split into top and bottom selling
     if (report.sales_by_category && report.sales_by_category.length > 0) {
-      this.categoryChartData.set(
-        report.sales_by_category.map(item => ({
+      const limit = this.selectedCategoryLimit();
+      const sortedCategories = [...report.sales_by_category];
+
+      // Top selling (highest first) - already sorted from backend
+      this.topCategoryChartData.set(
+        sortedCategories.slice(0, limit).map(item => ({
+          label: this.translationHelper.getCategoryName(item),
+          value: item.total_sales
+        }))
+      );
+
+      // Bottom selling (lowest first) - reverse and take from end
+      const bottomCategories = [...sortedCategories].reverse();
+      this.bottomCategoryChartData.set(
+        bottomCategories.slice(0, limit).map(item => ({
           label: this.translationHelper.getCategoryName(item),
           value: item.total_sales
         }))
       );
     } else {
-      this.categoryChartData.set([]);
+      this.topCategoryChartData.set([]);
+      this.bottomCategoryChartData.set([]);
     }
 
     // Prepare products chart data

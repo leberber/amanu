@@ -71,22 +71,33 @@
       <!-- Chart Skeletons -->
       <div class="charts-layout">
         <div class="charts-left">
-          <div class="card card--no-hover animate-item" style="--item-delay: 150ms;">
+          <div class="card card--no-hover line-chart-card animate-item" style="--item-delay: 150ms;">
             <div class="card-header">
               <div class="skeleton" style="width: 32px; height: 32px; border-radius: var(--radius-md);"></div>
               <div class="skeleton skeleton-text" style="width: 140px; height: 20px;"></div>
             </div>
-            <div class="card-body chart-container">
-              <div class="skeleton" style="width: 100%; height: 200px; border-radius: var(--radius-md);"></div>
+            <div class="card-body">
+              <div class="skeleton" style="width: 100%; height: 100%; border-radius: var(--radius-md);"></div>
             </div>
           </div>
-          <div class="card card--no-hover animate-item" style="--item-delay: 200ms;">
-            <div class="card-header">
-              <div class="skeleton" style="width: 32px; height: 32px; border-radius: var(--radius-md);"></div>
-              <div class="skeleton skeleton-text" style="width: 140px; height: 20px;"></div>
+          <div class="charts-row">
+            <div class="card card--no-hover animate-item" style="--item-delay: 200ms;">
+              <div class="card-header">
+                <div class="skeleton" style="width: 32px; height: 32px; border-radius: var(--radius-md);"></div>
+                <div class="skeleton skeleton-text" style="width: 120px; height: 20px;"></div>
+              </div>
+              <div class="card-body">
+                <div class="skeleton" style="width: 120px; height: 120px; border-radius: 50%; margin: 0 auto;"></div>
+              </div>
             </div>
-            <div class="card-body chart-body">
-              <div class="skeleton" style="width: 180px; height: 180px; border-radius: 50%; margin: 0 auto;"></div>
+            <div class="card card--no-hover animate-item" style="--item-delay: 250ms;">
+              <div class="card-header">
+                <div class="skeleton" style="width: 32px; height: 32px; border-radius: var(--radius-md);"></div>
+                <div class="skeleton skeleton-text" style="width: 120px; height: 20px;"></div>
+              </div>
+              <div class="card-body">
+                <div class="skeleton" style="width: 120px; height: 120px; border-radius: 50%; margin: 0 auto;"></div>
+              </div>
             </div>
           </div>
         </div>
@@ -96,7 +107,7 @@
               <div class="skeleton" style="width: 32px; height: 32px; border-radius: var(--radius-md);"></div>
               <div class="skeleton skeleton-text" style="width: 140px; height: 20px;"></div>
             </div>
-            <div class="card-body chart-container-bar">
+            <div class="card-body">
               <div class="skeleton" style="width: 100%; height: 100%; border-radius: var(--radius-md);"></div>
             </div>
           </div>
@@ -107,14 +118,14 @@
         <!-- Left Column: Line + Pie stacked -->
         <div class="charts-left">
           <!-- Sales Over Time Line Chart -->
-          <div class="card card--no-hover animate-item" style="--item-delay: 150ms;">
+          <div class="card card--no-hover line-chart-card animate-item" style="--item-delay: 150ms;">
             <div class="card-header">
               <div class="card-header__icon card-header__icon--primary">
                 <i class="pi pi-chart-line"></i>
               </div>
               <h3 class="card-header__title">{{ 'admin.sales_report.chart_title' | translate }}</h3>
             </div>
-            <div class="card-body chart-container">
+            <div class="card-body">
               <app-line-chart
                 [data]="lineChartData()"
                 [loading]="loading()"
@@ -124,31 +135,52 @@
             </div>
           </div>
 
-          <!-- Sales by Category Doughnut Chart -->
-          <div class="card card--no-hover animate-item" style="--item-delay: 200ms;">
-            <div class="card-header">
-              <div class="card-header__icon card-header__icon--purple">
-                <i class="pi pi-chart-pie"></i>
+          <!-- Category Charts Side by Side -->
+          <div class="charts-row">
+            <!-- Top Selling Categories Doughnut Chart -->
+            <div class="card card--no-hover animate-item" style="--item-delay: 200ms;">
+              <div class="card-header">
+                <div class="card-header__icon card-header__icon--success">
+                  <i class="pi pi-chart-pie"></i>
+                </div>
+                <h3 class="card-header__title">{{ 'admin.sales_report.top_categories' | translate }}</h3>
+                <div class="card-header__actions">
+                  <select
+                    class="limit-select"
+                    [value]="selectedCategoryLimit()"
+                    (change)="selectCategoryLimit(+$any($event.target).value)">
+                    @for (option of categoryLimitOptions; track option.value) {
+                      <option [value]="option.value">{{ option.label }}</option>
+                    }
+                  </select>
+                </div>
               </div>
-              <h3 class="card-header__title">{{ 'admin.sales_report.by_category' | translate }}</h3>
-              <div class="card-header__actions">
-                <select
-                  class="limit-select"
-                  [value]="selectedCategoryLimit()"
-                  (change)="selectCategoryLimit(+$any($event.target).value)">
-                  @for (option of categoryLimitOptions; track option.value) {
-                    <option [value]="option.value">{{ option.label }}</option>
-                  }
-                </select>
+              <div class="card-body">
+                <app-doughnut-chart
+                  [data]="topCategoryChartData()"
+                  [loading]="loading()"
+                  colorScheme="green"
+                  emptyMessage="admin.sales_report.no_category_data"
+                />
               </div>
             </div>
-            <div class="card-body chart-body">
-              <app-doughnut-chart
-                [data]="categoryChartData()"
-                [loading]="loading()"
-                colorScheme="purple"
-                emptyMessage="admin.sales_report.no_category_data"
-              />
+
+            <!-- Bottom Selling Categories Doughnut Chart -->
+            <div class="card card--no-hover animate-item" style="--item-delay: 250ms;">
+              <div class="card-header">
+                <div class="card-header__icon card-header__icon--warning">
+                  <i class="pi pi-chart-pie"></i>
+                </div>
+                <h3 class="card-header__title">{{ 'admin.sales_report.bottom_categories' | translate }}</h3>
+              </div>
+              <div class="card-body">
+                <app-doughnut-chart
+                  [data]="bottomCategoryChartData()"
+                  [loading]="loading()"
+                  colorScheme="orange"
+                  emptyMessage="admin.sales_report.no_category_data"
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -172,7 +204,7 @@
                 </select>
               </div>
             </div>
-            <div class="card-body chart-container-bar">
+            <div class="card-body">
               <app-bar-chart
                 [data]="productsChartData()"
                 [loading]="loading()"

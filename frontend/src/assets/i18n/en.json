@@ -1112,6 +1112,8 @@
       "total_sales": "Total Sales",
       "chart_title": "Sales Over Time",
       "by_category": "Sales by Category",
+      "top_categories": "Top Selling Categories",
+      "bottom_categories": "Least Selling Categories",
       "sales": "Sales",
       "load_error": "Failed to load sales report",
       "no_data": "No Sales Data",
