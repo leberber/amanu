@@ -191,15 +191,18 @@ def create_cross_sell_promotion(
     """
     Create new cross-sell promotion (staff only).
     """
+    # Batch load target and trigger products for validation
+    all_product_ids = [promotion_in.target_product_id] + list(promotion_in.trigger_product_ids)
+    products = session.exec(select(Product).where(Product.id.in_(all_product_ids))).all()
+    products_map = {p.id: p for p in products}
+
     # Validate target product exists
-    target_product = session.get(Product, promotion_in.target_product_id)
-    if not target_product:
+    if promotion_in.target_product_id not in products_map:
         raise HTTPException(status_code=400, detail="Target product not found")
 
     # Validate trigger products exist
     for trigger_id in promotion_in.trigger_product_ids:
-        trigger_product = session.get(Product, trigger_id)
-        if not trigger_product:
+        if trigger_id not in products_map:
             raise HTTPException(status_code=400, detail=f"Trigger product {trigger_id} not found")
 
     # Use shared validation utilities
@@ -233,17 +236,27 @@ def update_cross_sell_promotion(
 
     update_data = promotion_in.model_dump(exclude_unset=True)
 
+    # Batch load products for validation if needed
+    product_ids_to_check = []
+    if "target_product_id" in update_data:
+        product_ids_to_check.append(update_data["target_product_id"])
+    if "trigger_product_ids" in update_data:
+        product_ids_to_check.extend(update_data["trigger_product_ids"])
+
+    products_map = {}
+    if product_ids_to_check:
+        products = session.exec(select(Product).where(Product.id.in_(product_ids_to_check))).all()
+        products_map = {p.id: p for p in products}
+
     # Validate target product if being updated
     if "target_product_id" in update_data:
-        target_product = session.get(Product, update_data["target_product_id"])
-        if not target_product:
+        if update_data["target_product_id"] not in products_map:
             raise HTTPException(status_code=400, detail="Target product not found")
 
     # Validate trigger products if being updated
     if "trigger_product_ids" in update_data:
         for trigger_id in update_data["trigger_product_ids"]:
-            trigger_product = session.get(Product, trigger_id)
-            if not trigger_product:
+            if trigger_id not in products_map:
                 raise HTTPException(status_code=400, detail=f"Trigger product {trigger_id} not found")
 
     # Get effective values for validation

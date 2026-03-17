@@ -220,9 +220,14 @@ def create_order(
     subtotal = 0
     total_weight_kg = 0.0  # Calculate weight while processing items
 
+    # Batch load all products for the order
+    product_ids = [item.product_id for item in order_in.items]
+    products = session.exec(select(Product).where(Product.id.in_(product_ids))).all()
+    products_map = {p.id: p for p in products}
+
     for item in order_in.items:
         # Check if product exists and is active
-        product = session.get(Product, item.product_id)
+        product = products_map.get(item.product_id)
         if not product:
             raise HTTPException(
                 status_code=404,

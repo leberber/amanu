@@ -503,10 +503,13 @@ def send_notification(
         notification.url
     )
 
-    # Remove expired subscriptions
-    for sub_id in result.get("expired_ids", []):
-        sub = session.get(PushSubscription, sub_id)
-        if sub:
+    # Remove expired subscriptions (batch load)
+    expired_ids = result.get("expired_ids", [])
+    if expired_ids:
+        expired_subs = session.exec(
+            select(PushSubscription).where(PushSubscription.id.in_(expired_ids))
+        ).all()
+        for sub in expired_subs:
             session.delete(sub)
     session.commit()
 
@@ -609,10 +612,12 @@ def send_targeted_notification(
             if "410" in str(result.get("error", "")):
                 expired_ids.append(sub.id)
 
-    # Remove expired subscriptions
-    for sub_id in expired_ids:
-        sub = session.get(PushSubscription, sub_id)
-        if sub:
+    # Remove expired subscriptions (batch load)
+    if expired_ids:
+        expired_subs = session.exec(
+            select(PushSubscription).where(PushSubscription.id.in_(expired_ids))
+        ).all()
+        for sub in expired_subs:
             session.delete(sub)
 
     # Save to history

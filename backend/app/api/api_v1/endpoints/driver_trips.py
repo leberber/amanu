@@ -536,9 +536,14 @@ def accept_batched_trip(
     trip.updated_at = now
     session.add(trip)
 
+    # Batch load all orders for the trip stops
+    order_ids = [stop.order_id for stop in trip.stops]
+    orders = session.exec(select(Order).where(Order.id.in_(order_ids))).all()
+    orders_map = {o.id: o for o in orders}
+
     # Assign all orders in this trip to the driver
     for stop in trip.stops:
-        order = session.get(Order, stop.order_id)
+        order = orders_map.get(stop.order_id)
         if order:
             order.driver_id = user.id
             order.status = OrderStatus.ASSIGNED
@@ -605,9 +610,14 @@ def start_batched_trip(
     trip.updated_at = now
     session.add(trip)
 
+    # Batch load all orders for the trip stops
+    order_ids = [stop.order_id for stop in trip.stops]
+    orders = session.exec(select(Order).where(Order.id.in_(order_ids))).all()
+    orders_map = {o.id: o for o in orders}
+
     # Update all orders to IN_TRANSIT
     for stop in trip.stops:
-        order = session.get(Order, stop.order_id)
+        order = orders_map.get(stop.order_id)
         if order:
             order.status = OrderStatus.IN_TRANSIT
             order.updated_at = now
@@ -671,9 +681,14 @@ def pickup_batched_trip(
     trip.updated_at = now
     session.add(trip)
 
+    # Batch load all orders for the trip stops
+    order_ids = [stop.order_id for stop in trip.stops]
+    orders = session.exec(select(Order).where(Order.id.in_(order_ids))).all()
+    orders_map = {o.id: o for o in orders}
+
     # Update all orders to PICKED_UP status
     for stop in trip.stops:
-        order = session.get(Order, stop.order_id)
+        order = orders_map.get(stop.order_id)
         if order:
             order.status = OrderStatus.PICKED_UP
             order.picked_up_at = now
@@ -740,9 +755,14 @@ def cancel_batched_trip(
     trip.updated_at = now
     session.add(trip)
 
+    # Batch load all orders for the trip stops
+    order_ids = [stop.order_id for stop in trip.stops]
+    orders = session.exec(select(Order).where(Order.id.in_(order_ids))).all()
+    orders_map = {o.id: o for o in orders}
+
     # Return all orders to CONFIRMED status (back to pool)
     for stop in trip.stops:
-        order = session.get(Order, stop.order_id)
+        order = orders_map.get(stop.order_id)
         if order:
             order.driver_id = None
             order.status = OrderStatus.CONFIRMED
@@ -823,9 +843,14 @@ def complete_batched_trip(
     trip.updated_at = now
     session.add(trip)
 
+    # Batch load all orders for the trip stops
+    order_ids = [stop.order_id for stop in trip.stops]
+    orders = session.exec(select(Order).where(Order.id.in_(order_ids))).all()
+    orders_map = {o.id: o for o in orders}
+
     # Update all orders to DELIVERED
     for stop in trip.stops:
-        order = session.get(Order, stop.order_id)
+        order = orders_map.get(stop.order_id)
         if order:
             order.status = OrderStatus.DELIVERED
             order.delivered_at = now
@@ -1000,9 +1025,14 @@ def decline_batched_trip(
 
     now = datetime.now(timezone.utc)
 
+    # Batch load all orders for the trip stops
+    order_ids = [stop.order_id for stop in trip.stops]
+    orders = session.exec(select(Order).where(Order.id.in_(order_ids))).all()
+    orders_map = {o.id: o for o in orders}
+
     # Return all orders to pending status (CONFIRMED, no driver, no trip)
     for stop in trip.stops:
-        order = session.get(Order, stop.order_id)
+        order = orders_map.get(stop.order_id)
         if order:
             order.driver_id = None
             order.trip_id = None

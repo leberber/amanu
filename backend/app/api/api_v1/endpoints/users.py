@@ -77,9 +77,17 @@ def get_user_groups_for_user(user_id: int, session: Session) -> List[UserGroupBa
     links = session.exec(
         select(UserGroupLink).where(UserGroupLink.user_id == user_id)
     ).all()
+    if not links:
+        return []
+
+    # Batch load all groups
+    group_ids = [link.group_id for link in links]
+    groups_list = session.exec(select(UserGroup).where(UserGroup.id.in_(group_ids))).all()
+    groups_map = {g.id: g for g in groups_list}
+
     groups = []
     for link in links:
-        group = session.get(UserGroup, link.group_id)
+        group = groups_map.get(link.group_id)
         if group:
             groups.append(UserGroupBasic(id=group.id, name=group.name, color=group.color))
     return groups
@@ -254,9 +262,17 @@ def get_user_groups(
         select(UserGroupLink).where(UserGroupLink.user_id == user_id)
     ).all()
 
+    if not links:
+        return []
+
+    # Batch load all groups
+    group_ids = [link.group_id for link in links]
+    groups_list = session.exec(select(UserGroup).where(UserGroup.id.in_(group_ids))).all()
+    groups_map = {g.id: g for g in groups_list}
+
     groups = []
     for link in links:
-        group = session.get(UserGroup, link.group_id)
+        group = groups_map.get(link.group_id)
         if group:
             groups.append(UserGroupBasic(id=group.id, name=group.name, color=group.color))
 
@@ -278,10 +294,15 @@ def update_user_groups(
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
+    # Batch load all groups to validate they exist
+    groups_list = session.exec(
+        select(UserGroup).where(UserGroup.id.in_(groups_in.group_ids))
+    ).all()
+    groups_map = {g.id: g for g in groups_list}
+
     # Validate all group IDs exist
     for group_id in groups_in.group_ids:
-        group = session.get(UserGroup, group_id)
-        if not group:
+        if group_id not in groups_map:
             raise HTTPException(status_code=400, detail=f"Group with ID {group_id} not found")
 
     # Remove all existing group links for this user
@@ -298,10 +319,10 @@ def update_user_groups(
 
     session.commit()
 
-    # Return updated groups
+    # Return updated groups using pre-loaded map
     groups = []
     for group_id in groups_in.group_ids:
-        group = session.get(UserGroup, group_id)
+        group = groups_map.get(group_id)
         if group:
             groups.append(UserGroupBasic(id=group.id, name=group.name, color=group.color))
 

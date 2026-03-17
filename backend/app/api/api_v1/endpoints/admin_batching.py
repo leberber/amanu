@@ -590,9 +590,14 @@ def assign_trip_to_driver(
     trip.updated_at = now
     session.add(trip)
 
+    # Batch load all orders for the trip stops
+    order_ids = [stop.order_id for stop in trip.stops]
+    orders = session.exec(select(Order).where(Order.id.in_(order_ids))).all()
+    orders_map = {o.id: o for o in orders}
+
     # Update all orders in the trip
     for stop in trip.stops:
-        order = session.get(Order, stop.order_id)
+        order = orders_map.get(stop.order_id)
         if order:
             order.driver_id = driver_user.id
             order.status = OrderStatus.ASSIGNED
@@ -656,9 +661,14 @@ def unassign_trip(
     trip.updated_at = now
     session.add(trip)
 
+    # Batch load all orders for the trip stops
+    order_ids = [stop.order_id for stop in trip.stops]
+    orders = session.exec(select(Order).where(Order.id.in_(order_ids))).all()
+    orders_map = {o.id: o for o in orders}
+
     # Update all orders in the trip
     for stop in trip.stops:
-        order = session.get(Order, stop.order_id)
+        order = orders_map.get(stop.order_id)
         if order:
             order.driver_id = None
             order.status = OrderStatus.CONFIRMED
@@ -728,9 +738,14 @@ def cancel_trip(
 
     now = datetime.now(timezone.utc)
 
+    # Batch load all orders for the trip stops
+    order_ids = [stop.order_id for stop in trip.stops]
+    orders = session.exec(select(Order).where(Order.id.in_(order_ids))).all()
+    orders_map = {o.id: o for o in orders}
+
     # Return orders to pool
     for stop in trip.stops:
-        order = session.get(Order, stop.order_id)
+        order = orders_map.get(stop.order_id)
         if order:
             order.trip_id = None
             order.driver_id = None
