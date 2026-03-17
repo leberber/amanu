@@ -26,6 +26,7 @@
     "@primeng/themes": "^20.0.0",
     "@types/leaflet": "^1.9.21",
     "chart.js": "^4.4.9",
+    "chartjs-plugin-datalabels": "^2.2.0",
     "h3-js": "^4.4.0",
     "jspdf": "^4.2.0",
     "jspdf-autotable": "^5.0.7",

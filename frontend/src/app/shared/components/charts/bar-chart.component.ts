@@ -4,6 +4,11 @@ import { ChartModule } from 'primeng/chart';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { CurrencyService } from '../../../core/services/currency.service';
 import { onLanguageChange } from '../../../core/utils/language-change.util';
+import Chart from 'chart.js/auto';
+import ChartDataLabels from 'chartjs-plugin-datalabels';
+
+// Register the datalabels plugin
+Chart.register(ChartDataLabels);
 
 export interface BarChartDataPoint {
   label: string;
@@ -117,6 +122,16 @@ export class BarChartComponent implements OnInit {
     const formatAsCurrency = this.formatAsCurrency();
     const currencyService = this.currencyService;
     const isHorizontal = this.horizontal();
+    const items = this.data();
+    const maxLabelLength = 20;
+
+    // Helper to truncate labels
+    const truncateLabel = (label: string): string => {
+      if (label.length > maxLabelLength) {
+        return label.substring(0, maxLabelLength - 3) + '...';
+      }
+      return label;
+    };
 
     return {
       indexAxis: isHorizontal ? 'y' : 'x',
@@ -134,12 +149,57 @@ export class BarChartComponent implements OnInit {
           cornerRadius: 8,
           displayColors: false,
           callbacks: {
+            // Show full product name in tooltip title
+            title: (tooltipItems: { dataIndex: number }[]) => {
+              const index = tooltipItems[0]?.dataIndex;
+              return items[index]?.label || '';
+            },
             label: (context: { raw: number }) => {
               const value = context.raw || 0;
               return formatAsCurrency
                 ? currencyService.formatCurrency(value)
                 : value.toLocaleString();
             }
+          }
+        },
+        datalabels: {
+          anchor: (context: { chart: Chart, dataIndex: number }) => {
+            const chart = context.chart;
+            const meta = chart.getDatasetMeta(0);
+            const bar = meta.data[context.dataIndex] as { width?: number, height?: number };
+            if (!bar) return 'end';
+            const barSize = isHorizontal ? (bar.width || 0) : (bar.height || 0);
+            // If bar is large enough, put label inside at end; otherwise outside
+            return barSize > 70 ? 'end' : 'end';
+          },
+          align: (context: { chart: Chart, dataIndex: number }) => {
+            const chart = context.chart;
+            const meta = chart.getDatasetMeta(0);
+            const bar = meta.data[context.dataIndex] as { width?: number, height?: number };
+            if (!bar) return 'end';
+            const barSize = isHorizontal ? (bar.width || 0) : (bar.height || 0);
+            // If bar is large enough, align inside (start from end); otherwise outside
+            return barSize > 70 ? 'start' : 'end';
+          },
+          clamp: true,
+          clip: false,
+          font: {
+            size: 11,
+            weight: 'bold'
+          },
+          color: (context: { chart: Chart, dataIndex: number }) => {
+            const chart = context.chart;
+            const meta = chart.getDatasetMeta(0);
+            const bar = meta.data[context.dataIndex] as { width?: number, height?: number };
+            if (!bar) return '#374151';
+            const barSize = isHorizontal ? (bar.width || 0) : (bar.height || 0);
+            // White text inside bar, dark text outside
+            return barSize > 70 ? '#ffffff' : '#374151';
+          },
+          formatter: (value: number) => {
+            return formatAsCurrency
+              ? currencyService.formatCurrency(value)
+              : value.toLocaleString();
           }
         }
       },
@@ -162,7 +222,11 @@ export class BarChartComponent implements OnInit {
             font: { size: 11 },
             callback: !isHorizontal
               ? (value: number) => formatAsCurrency ? currencyService.formatCurrency(value) : value.toLocaleString()
-              : undefined
+              : (value: number, index: number) => {
+                  // Truncate y-axis labels for horizontal bar chart
+                  const label = items[index]?.label || '';
+                  return truncateLabel(label);
+                }
           }
         }
       }
