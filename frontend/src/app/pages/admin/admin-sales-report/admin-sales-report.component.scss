@@ -129,16 +129,28 @@
 }
 
 .limit-select {
-  padding: var(--spacing-xs) var(--spacing-sm);
+  appearance: none;
+  padding: 6px 28px 6px 12px;
   border: 1px solid var(--surface-border);
-  border-radius: var(--radius-md);
-  background: var(--surface-card);
+  border-radius: 20px;
+  background-color: var(--surface-ground);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
   color: var(--text-color);
-  font-size: 0.875rem;
+  font-size: 0.75rem;
+  font-weight: 500;
   cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: var(--surface-hover);
+    border-color: var(--primary-color);
+  }
 
   &:focus {
     outline: none;
     border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
   }
 }

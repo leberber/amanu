@@ -147,13 +147,14 @@ export class LineChartComponent implements OnInit {
                 : value.toLocaleString();
             }
           }
-        }
+        },
+        datalabels: { display: false }
       },
       scales: {
         x: {
           grid: { display: false },
           ticks: {
-            font: { size: 11 },
+            font: { size: 12 },
             maxRotation: 45,
             minRotation: 0
           }
@@ -162,11 +163,17 @@ export class LineChartComponent implements OnInit {
           beginAtZero: true,
           grid: { color: 'rgba(0, 0, 0, 0.05)' },
           ticks: {
-            font: { size: 11 },
+            font: { size: 12 },
             callback: (value: number) => {
-              return formatAsCurrency
-                ? currencyService.formatCurrency(value)
-                : value.toLocaleString();
+              if (!formatAsCurrency) return value.toLocaleString();
+              // Compact format: 1K, 10K, 1M, etc.
+              if (value >= 1000000) {
+                return (value / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
+              }
+              if (value >= 1000) {
+                return (value / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
+              }
+              return value.toString();
             }
           }
         }

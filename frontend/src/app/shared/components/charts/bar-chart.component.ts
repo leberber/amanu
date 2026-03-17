@@ -15,15 +15,43 @@ export interface BarChartDataPoint {
   value: number;
 }
 
-export type BarChartColor = 'primary' | 'success' | 'warning' | 'danger' | 'info' | 'purple';
+export type BarChartColor = 'primary' | 'success' | 'warning' | 'danger' | 'info' | 'purple' | 'mixed';
 
-const BAR_COLORS: Record<BarChartColor, { bg: string; hover: string }> = {
+const BAR_COLORS: Record<Exclude<BarChartColor, 'mixed'>, { bg: string; hover: string }> = {
   primary: { bg: 'rgba(99, 102, 241, 0.8)', hover: 'rgba(99, 102, 241, 1)' },
   success: { bg: 'rgba(34, 197, 94, 0.8)', hover: 'rgba(34, 197, 94, 1)' },
   warning: { bg: 'rgba(234, 179, 8, 0.8)', hover: 'rgba(234, 179, 8, 1)' },
   danger: { bg: 'rgba(239, 68, 68, 0.8)', hover: 'rgba(239, 68, 68, 1)' },
   info: { bg: 'rgba(14, 165, 233, 0.8)', hover: 'rgba(14, 165, 233, 1)' },
   purple: { bg: 'rgba(139, 92, 246, 0.8)', hover: 'rgba(139, 92, 246, 1)' }
+};
+
+// Distinct colors for mixed mode
+const MIXED_COLORS = {
+  bg: [
+    'rgba(59, 130, 246, 0.8)',   // blue
+    'rgba(34, 197, 94, 0.8)',    // green
+    'rgba(139, 92, 246, 0.8)',   // purple
+    'rgba(239, 68, 68, 0.8)',    // red
+    'rgba(234, 179, 8, 0.8)',    // yellow
+    'rgba(236, 72, 153, 0.8)',   // pink
+    'rgba(6, 182, 212, 0.8)',    // cyan
+    'rgba(249, 115, 22, 0.8)',   // orange
+    'rgba(20, 184, 166, 0.8)',   // teal
+    'rgba(132, 204, 22, 0.8)',   // lime
+  ],
+  hover: [
+    'rgba(59, 130, 246, 1)',
+    'rgba(34, 197, 94, 1)',
+    'rgba(139, 92, 246, 1)',
+    'rgba(239, 68, 68, 1)',
+    'rgba(234, 179, 8, 1)',
+    'rgba(236, 72, 153, 1)',
+    'rgba(6, 182, 212, 1)',
+    'rgba(249, 115, 22, 1)',
+    'rgba(20, 184, 166, 1)',
+    'rgba(132, 204, 22, 1)',
+  ]
 };
 
 @Component({
@@ -102,15 +130,28 @@ export class BarChartComponent implements OnInit {
   chartData = computed(() => {
     const _ = this.languageTrigger;
     const items = this.data();
-    const colorScheme = BAR_COLORS[this.color()];
+    const colorType = this.color();
+
+    let bgColors: string | string[];
+    let hoverColors: string | string[];
+
+    if (colorType === 'mixed') {
+      // Use array of distinct colors, cycling if needed
+      bgColors = items.map((_, i) => MIXED_COLORS.bg[i % MIXED_COLORS.bg.length]);
+      hoverColors = items.map((_, i) => MIXED_COLORS.hover[i % MIXED_COLORS.hover.length]);
+    } else {
+      const colorScheme = BAR_COLORS[colorType];
+      bgColors = colorScheme.bg;
+      hoverColors = colorScheme.hover;
+    }
 
     return {
       labels: items.map(item => item.label),
       datasets: [{
         label: this.label(),
         data: items.map(item => item.value),
-        backgroundColor: colorScheme.bg,
-        hoverBackgroundColor: colorScheme.hover,
+        backgroundColor: bgColors,
+        hoverBackgroundColor: hoverColors,
         borderRadius: 6,
         borderSkipped: false
       }]

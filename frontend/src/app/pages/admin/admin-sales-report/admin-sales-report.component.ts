@@ -39,9 +39,9 @@ export class AdminSalesReportComponent implements OnInit {
   // Data signals
   salesReport = signal<SalesReport | null>(null);
   loading = signal(true);
-  selectedPeriod = signal<PeriodType>('weekly');
+  selectedPeriod = signal<PeriodType>('daily');
   selectedCategoryLimit = signal<CategoryLimitType>(10);
-  selectedProductLimit = signal<CategoryLimitType>(10);
+  selectedProductLimit = signal<CategoryLimitType>(20);
 
   // Chart data signals (simplified for reusable components)
   lineChartData = signal<LineChartDataPoint[]>([]);
