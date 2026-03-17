@@ -9,6 +9,9 @@ export const CACHE_TTL = {
   /** Volume discounts cache - 20 minutes */
   VOLUME_DISCOUNTS: 20 * 60 * 1000,
 
+  /** Cross-sell promotions cache - 20 minutes */
+  CROSS_SELL_PROMOTIONS: 20 * 60 * 1000,
+
   /** Promotions cache - 15 minutes */
   PROMOTIONS: 15 * 60 * 1000,
 

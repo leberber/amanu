@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, BehaviorSubject, tap, map } from 'rxjs';
+import { Observable, BehaviorSubject, tap, map, of } from 'rxjs';
 import { Brand, BrandCreate, BrandUpdate } from '../../models/brand.model';
 import { TranslateService } from '@ngx-translate/core';
 import { environment } from '../../../environments/environment';
@@ -33,12 +33,16 @@ export class BrandService {
   }
 
   /**
-   * Get brand by ID
+   * Get brand by ID - checks cache first, falls back to API
    */
   getBrand(id: number): Observable<Brand> {
-    const lang = this.translateService.currentLang || 'en';
-    let params = new HttpParams().set('lang', lang);
+    const cached = this.brandsCache$.getValue().find(b => b.id === id);
+    if (cached) {
+      return of(cached);
+    }
 
+    const lang = this.translateService.currentLang || 'en';
+    const params = new HttpParams().set('lang', lang);
     return this.http.get<Brand>(`${this.apiUrl}/${id}`, { params });
   }
 

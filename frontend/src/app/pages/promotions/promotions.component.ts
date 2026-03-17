@@ -67,8 +67,8 @@ export class PromotionsComponent implements OnInit {
 
     forkJoin({
       promos: this.promotionService.getActivePromotions(),
-      crossSell: this.crossSellService.getActivePromotionsPublic(),
-      volume: this.volumeDiscountService.getActive()
+      crossSell: this.crossSellService.getActivePromotionsCached(),
+      volume: this.volumeDiscountService.getActiveCached()
     })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({

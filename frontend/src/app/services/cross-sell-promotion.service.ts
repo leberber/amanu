@@ -1,5 +1,5 @@
-import { Injectable, inject } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Injectable, inject, signal } from '@angular/core';
+import { Observable, of, tap } from 'rxjs';
 import { ApiService } from './api.service';
 import {
   CrossSellPromotion,
@@ -8,12 +8,17 @@ import {
   CrossSellCalculationRequest,
   CrossSellCalculationResponse
 } from '../models/cross-sell-promotion.model';
+import { CACHE_TTL, isCacheExpired } from '../core/constants/cache.constants';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CrossSellPromotionService {
   private apiService = inject(ApiService);
+
+  // Cache for active cross-sell promotions
+  private cachedPromotions = signal<CrossSellPromotion[]>([]);
+  private lastFetchTime: number | null = null;
 
   /**
    * Get all cross-sell promotions (staff only)
@@ -42,6 +47,37 @@ export class CrossSellPromotionService {
    */
   getActivePromotionsPublic(): Observable<CrossSellPromotion[]> {
     return this.apiService.get<CrossSellPromotion[]>('/cross-sell-promotions/active');
+  }
+
+  /**
+   * Get active cross-sell promotions with caching (TTL: 20 minutes)
+   */
+  getActivePromotionsCached(): Observable<CrossSellPromotion[]> {
+    if (!isCacheExpired(this.lastFetchTime, CACHE_TTL.CROSS_SELL_PROMOTIONS)) {
+      return of(this.cachedPromotions());
+    }
+
+    return this.getActivePromotionsPublic().pipe(
+      tap(promotions => {
+        this.cachedPromotions.set(promotions);
+        this.lastFetchTime = Date.now();
+      })
+    );
+  }
+
+  /**
+   * Get cached promotions synchronously
+   */
+  getCachedPromotions(): CrossSellPromotion[] {
+    return this.cachedPromotions();
+  }
+
+  /**
+   * Clear the cache
+   */
+  clearCache(): void {
+    this.cachedPromotions.set([]);
+    this.lastFetchTime = null;
   }
 
   /**
