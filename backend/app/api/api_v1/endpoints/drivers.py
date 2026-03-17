@@ -611,8 +611,20 @@ def get_system_config(session: Session) -> DriverSystemConfig:
     return config
 
 
-def order_to_response(order: Order, session: Session) -> OrderWithItems:
-    """Convert Order to OrderWithItems response"""
+def order_to_response(
+    order: Order,
+    session: Session,
+    vehicles_map: dict = None,
+    products_map: dict = None
+) -> OrderWithItems:
+    """Convert Order to OrderWithItems response.
+
+    Args:
+        order: The order to convert
+        session: Database session
+        vehicles_map: Optional pre-loaded {driver_id: DriverVehicle} for batch optimization
+        products_map: Optional pre-loaded {product_id: Product} for batch optimization
+    """
     user_info = None
     if order.user:
         user_info = UserInfo(
@@ -628,11 +640,14 @@ def order_to_response(order: Order, session: Session) -> OrderWithItems:
     if order.driver:
         vehicle_type = None
         if order.driver.driver:
-            primary_vehicle = session.exec(
-                select(DriverVehicle)
-                .where(DriverVehicle.driver_id == order.driver.driver.id)
-                .where(DriverVehicle.is_primary == True)
-            ).first()
+            if vehicles_map is not None:
+                primary_vehicle = vehicles_map.get(order.driver.driver.id)
+            else:
+                primary_vehicle = session.exec(
+                    select(DriverVehicle)
+                    .where(DriverVehicle.driver_id == order.driver.driver.id)
+                    .where(DriverVehicle.is_primary == True)
+                ).first()
             if primary_vehicle:
                 vehicle_type = primary_vehicle.vehicle_type
         driver_info = DriverInfo(
@@ -661,17 +676,28 @@ def order_to_response(order: Order, session: Session) -> OrderWithItems:
     total_volume = 0.0
     if order.items:
         product_ids = [item.product_id for item in order.items]
-        products = session.exec(
-            select(Product).where(Product.id.in_(product_ids))
-        ).all()
-        product_map = {p.id: p for p in products}
-        for item in order.items:
-            product = product_map.get(item.product_id)
-            if product:
-                if product.weight:
-                    total_weight += product.weight * item.quantity
-                if product.volume:
-                    total_volume += product.volume * item.quantity
+        if products_map is not None:
+            # Use pre-loaded products
+            for item in order.items:
+                product = products_map.get(item.product_id)
+                if product:
+                    if product.weight:
+                        total_weight += product.weight * item.quantity
+                    if product.volume:
+                        total_volume += product.volume * item.quantity
+        else:
+            # Fallback: load products for this order
+            products = session.exec(
+                select(Product).where(Product.id.in_(product_ids))
+            ).all()
+            product_map = {p.id: p for p in products}
+            for item in order.items:
+                product = product_map.get(item.product_id)
+                if product:
+                    if product.weight:
+                        total_weight += product.weight * item.quantity
+                    if product.volume:
+                        total_volume += product.volume * item.quantity
 
     return OrderWithItems(
         id=order.id,
@@ -708,6 +734,53 @@ def order_to_response(order: Order, session: Session) -> OrderWithItems:
         min_vehicle_capacity_kg=order.min_vehicle_capacity_kg,
         trip_id=order.trip_id
     )
+
+
+def orders_to_response_batch(orders: list, session: Session) -> list:
+    """Convert multiple orders to responses with batch-loaded data.
+
+    This function pre-loads all vehicles and products in bulk before
+    converting orders, avoiding N+1 queries.
+    """
+    if not orders:
+        return []
+
+    # Collect all driver IDs that have driver records
+    driver_ids = set()
+    for order in orders:
+        if order.driver and order.driver.driver:
+            driver_ids.add(order.driver.driver.id)
+
+    # Batch load all primary vehicles
+    vehicles_map = {}
+    if driver_ids:
+        vehicles = session.exec(
+            select(DriverVehicle)
+            .where(DriverVehicle.driver_id.in_(driver_ids))
+            .where(DriverVehicle.is_primary == True)
+        ).all()
+        vehicles_map = {v.driver_id: v for v in vehicles}
+
+    # Collect all product IDs from all order items
+    product_ids = set()
+    for order in orders:
+        if order.items:
+            for item in order.items:
+                product_ids.add(item.product_id)
+
+    # Batch load all products
+    products_map = {}
+    if product_ids:
+        products = session.exec(
+            select(Product).where(Product.id.in_(product_ids))
+        ).all()
+        products_map = {p.id: p for p in products}
+
+    # Convert all orders using pre-loaded data
+    return [
+        order_to_response(order, session, vehicles_map, products_map)
+        for order in orders
+    ]
 
 
 class AvailableOrderRead(SQLModel):
@@ -770,6 +843,25 @@ def get_available_orders(
         .order_by(Order.created_at.asc())
     ).all()
 
+    if not orders:
+        return []
+
+    # Batch load all products for weight/volume calculation
+    product_ids = set()
+    for order in orders:
+        if order.items:
+            for item in order.items:
+                product_ids.add(item.product_id)
+
+    products_map = {}
+    if product_ids:
+        products = session.exec(
+            select(Product).where(Product.id.in_(product_ids))
+        ).all()
+        products_map = {p.id: p for p in products}
+
+    # Note: vehicles_map not needed since these orders have no driver assigned
+
     available_orders = []
     for order in orders:
         # For full load orders, check vehicle capacity
@@ -777,7 +869,7 @@ def get_available_orders(
             if driver_capacity_kg and driver_capacity_kg >= order.min_vehicle_capacity_kg:
                 # Driver can handle this full load order
                 available_orders.append(AvailableOrderRead(
-                    order=order_to_response(order, session),
+                    order=order_to_response(order, session, None, products_map),
                     is_full_load=True,
                     earnings=order.shipping_cost
                 ))
@@ -785,7 +877,7 @@ def get_available_orders(
             # Non-full load orders are available to all drivers
             # (unless they are PRIORITY - then they're immediately available)
             available_orders.append(AvailableOrderRead(
-                order=order_to_response(order, session),
+                order=order_to_response(order, session, None, products_map),
                 is_full_load=False,
                 earnings=order.shipping_cost
             ))

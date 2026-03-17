@@ -387,38 +387,18 @@ def get_delivery_zones_stats(
     """Get delivery zone statistics for a warehouse (admin only)."""
     from sqlmodel import func
 
-    # Count total zones
-    total_zones = session.exec(
-        select(func.count()).select_from(H3DeliveryZone).where(
-            H3DeliveryZone.warehouse_id == warehouse_id
-        )
+    # Combined query: get all stats in one query instead of 5 separate queries
+    stats = session.exec(
+        select(
+            func.count(H3DeliveryZone.id),
+            func.min(H3DeliveryZone.distance_km),
+            func.max(H3DeliveryZone.distance_km),
+            func.min(H3DeliveryZone.duration_min),
+            func.max(H3DeliveryZone.duration_min)
+        ).where(H3DeliveryZone.warehouse_id == warehouse_id)
     ).first()
 
-    # Get distance range
-    min_distance = session.exec(
-        select(func.min(H3DeliveryZone.distance_km)).where(
-            H3DeliveryZone.warehouse_id == warehouse_id
-        )
-    ).first()
-
-    max_distance = session.exec(
-        select(func.max(H3DeliveryZone.distance_km)).where(
-            H3DeliveryZone.warehouse_id == warehouse_id
-        )
-    ).first()
-
-    # Get duration range
-    min_duration = session.exec(
-        select(func.min(H3DeliveryZone.duration_min)).where(
-            H3DeliveryZone.warehouse_id == warehouse_id
-        )
-    ).first()
-
-    max_duration = session.exec(
-        select(func.max(H3DeliveryZone.duration_min)).where(
-            H3DeliveryZone.warehouse_id == warehouse_id
-        )
-    ).first()
+    total_zones, min_distance, max_distance, min_duration, max_duration = stats
 
     return {
         "warehouse_id": warehouse_id,

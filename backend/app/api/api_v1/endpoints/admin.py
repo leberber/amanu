@@ -3,6 +3,7 @@ from datetime import datetime, timezone, timedelta
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlmodel import Session, select, func
+from sqlalchemy import Integer, case, extract, cast, Date
 from pydantic import BaseModel
 
 from app.database import get_session
@@ -44,29 +45,41 @@ def get_dashboard_stats(
     """
     Get dashboard statistics (staff only).
     """
-    # Calculate statistics
+    # Combined query for order stats (total, pending, revenue) - 1 query instead of 3
+    order_stats = session.exec(
+        select(
+            func.count(Order.id),
+            func.sum(func.cast(Order.status == OrderStatus.PENDING, Integer)),
+            func.sum(
+                case(
+                    (Order.status != OrderStatus.CANCELLED, Order.total_amount),
+                    else_=0
+                )
+            )
+        ).select_from(Order)
+    ).first()
+    total_orders = order_stats[0] or 0
+    pending_orders = order_stats[1] or 0
+    total_revenue = order_stats[2] or 0.0
+
+    # Combined query for product stats (total, low stock) - 1 query instead of 2
+    product_stats = session.exec(
+        select(
+            func.count(Product.id),
+            func.sum(
+                func.cast(
+                    (Product.stock_quantity < 10) & (Product.is_active == True),
+                    Integer
+                )
+            )
+        ).select_from(Product)
+    ).first()
+    total_products = product_stats[0] or 0
+    low_stock_products = product_stats[1] or 0
+
+    # These remain separate as they're different tables
     total_users = session.exec(select(func.count()).select_from(User)).first()
-    total_products = session.exec(select(func.count()).select_from(Product)).first()
     total_categories = session.exec(select(func.count()).select_from(Category)).first()
-    total_orders = session.exec(select(func.count()).select_from(Order)).first()
-    
-    # Calculate total revenue
-    total_revenue = session.exec(
-        select(func.sum(Order.total_amount)).where(Order.status != OrderStatus.CANCELLED)
-    ).first() or 0.0
-    
-    # Count pending orders
-    pending_orders = session.exec(
-        select(func.count()).select_from(Order).where(Order.status == OrderStatus.PENDING)
-    ).first()
-    
-    # Count low stock products (less than 10 items)
-    low_stock_products = session.exec(
-        select(func.count()).select_from(Product).where(
-            Product.stock_quantity < 10,
-            Product.is_active == True
-        )
-    ).first()
     
     # The rest of your function...
     
@@ -225,104 +238,110 @@ def get_sales_report(
 ) -> Any:
     """
     Get sales report for a specific period (staff only).
+    Uses database GROUP BY for efficiency instead of loading all orders into Python.
     """
     # Set default date range if not provided
     if not end_date:
         end_date = datetime.now(timezone.utc)
-    
+
     if not start_date:
         if period == "daily":
-            # Last 30 days
             start_date = end_date - timedelta(days=30)
         elif period == "weekly":
-            # Last 12 weeks
             start_date = end_date - timedelta(weeks=12)
         elif period == "monthly":
-            # Last 12 months
             start_date = end_date - timedelta(days=365)
         elif period == "yearly":
-            # Last 5 years
             start_date = end_date - timedelta(days=365 * 5)
-    
-    # Query orders within date range
-    orders_query = select(Order).where(
+
+    # Base filter for all queries
+    base_filter = [
         Order.created_at >= start_date,
         Order.created_at <= end_date,
         Order.status != OrderStatus.CANCELLED
-    )
-    
-    orders = session.exec(orders_query).all()
-    
-    # Organize data by period
+    ]
+
     data = []
-    total_sales = 0
-    
+
     if period == "daily":
-        # Group by day
-        sales_by_day = {}
-        for order in orders:
-            day = order.created_at.date()
-            sales_by_day[day] = sales_by_day.get(day, 0) + order.total_amount
-            total_sales += order.total_amount
-        
-        # Format data
-        for day, amount in sorted(sales_by_day.items()):
+        # Group by day using database
+        query = select(
+            cast(Order.created_at, Date).label("day"),
+            func.sum(Order.total_amount).label("sales")
+        ).where(*base_filter).group_by(
+            cast(Order.created_at, Date)
+        ).order_by(cast(Order.created_at, Date))
+
+        results = session.exec(query).all()
+        for day, sales in results:
             data.append({
-                "date": day.isoformat(),
-                "sales": amount
+                "date": day.isoformat() if day else "",
+                "sales": float(sales) if sales else 0
             })
-    
+
     elif period == "weekly":
-        # Group by week
-        sales_by_week = {}
-        for order in orders:
-            # Calculate week number and year
-            year = order.created_at.year
-            week = order.created_at.isocalendar()[1]
-            week_key = f"{year}-W{week:02d}"
-            
-            sales_by_week[week_key] = sales_by_week.get(week_key, 0) + order.total_amount
-            total_sales += order.total_amount
-        
-        # Format data
-        for week_key, amount in sorted(sales_by_week.items()):
+        # Group by year and week using database
+        year_col = extract("year", Order.created_at)
+        week_col = extract("week", Order.created_at)
+
+        query = select(
+            year_col.label("year"),
+            week_col.label("week"),
+            func.sum(Order.total_amount).label("sales")
+        ).where(*base_filter).group_by(
+            year_col, week_col
+        ).order_by(year_col, week_col)
+
+        results = session.exec(query).all()
+        for year, week, sales in results:
+            week_key = f"{int(year)}-W{int(week):02d}"
             data.append({
                 "date": week_key,
-                "sales": amount
+                "sales": float(sales) if sales else 0
             })
-    
+
     elif period == "monthly":
-        # Group by month
-        sales_by_month = {}
-        for order in orders:
-            month_key = f"{order.created_at.year}-{order.created_at.month:02d}"
-            
-            sales_by_month[month_key] = sales_by_month.get(month_key, 0) + order.total_amount
-            total_sales += order.total_amount
-        
-        # Format data
-        for month_key, amount in sorted(sales_by_month.items()):
+        # Group by year and month using database
+        year_col = extract("year", Order.created_at)
+        month_col = extract("month", Order.created_at)
+
+        query = select(
+            year_col.label("year"),
+            month_col.label("month"),
+            func.sum(Order.total_amount).label("sales")
+        ).where(*base_filter).group_by(
+            year_col, month_col
+        ).order_by(year_col, month_col)
+
+        results = session.exec(query).all()
+        for year, month, sales in results:
+            month_key = f"{int(year)}-{int(month):02d}"
             data.append({
                 "date": month_key,
-                "sales": amount
+                "sales": float(sales) if sales else 0
             })
-    
+
     elif period == "yearly":
-        # Group by year
-        sales_by_year = {}
-        for order in orders:
-            year = order.created_at.year
-            
-            sales_by_year[year] = sales_by_year.get(year, 0) + order.total_amount
-            total_sales += order.total_amount
-        
-        # Format data
-        for year, amount in sorted(sales_by_year.items()):
+        # Group by year using database
+        year_col = extract("year", Order.created_at)
+
+        query = select(
+            year_col.label("year"),
+            func.sum(Order.total_amount).label("sales")
+        ).where(*base_filter).group_by(
+            year_col
+        ).order_by(year_col)
+
+        results = session.exec(query).all()
+        for year, sales in results:
             data.append({
-                "date": str(year),
-                "sales": amount
+                "date": str(int(year)),
+                "sales": float(sales) if sales else 0
             })
-    
+
+    # Calculate total from aggregated data (already computed by DB)
+    total_sales = sum(item["sales"] for item in data)
+
     return SalesReport(
         period=period,
         data=data,
