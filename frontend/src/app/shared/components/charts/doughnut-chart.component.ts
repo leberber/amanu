@@ -4,6 +4,11 @@ import { ChartModule } from 'primeng/chart';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { CurrencyService } from '../../../core/services/currency.service';
 import { onLanguageChange } from '../../../core/utils/language-change.util';
+import Chart from 'chart.js/auto';
+import ChartDataLabels from 'chartjs-plugin-datalabels';
+
+// Register the datalabels plugin
+Chart.register(ChartDataLabels);
 
 export interface DoughnutChartItem {
   label: string;
@@ -137,8 +142,8 @@ export class DoughnutChartComponent implements OnInit {
     const currencyService = this.currencyService;
 
     return {
-      cutout: '55%',
-      radius: '85%',
+      cutout: '50%',
+      radius: '70%', // Smaller radius to make room for outside labels
       responsive: true,
       maintainAspectRatio: false,
       plugins: {
@@ -178,6 +183,29 @@ export class DoughnutChartComponent implements OnInit {
 
               return `${label}: ${formatted}`;
             }
+          }
+        },
+        datalabels: {
+          anchor: 'end',
+          align: 'end',
+          offset: 5,
+          clip: false,
+          font: {
+            size: 10,
+            weight: 'bold'
+          },
+          color: '#374151',
+          formatter: (value: number, context: { dataset: { data: number[] } }) => {
+            const total = context.dataset.data.reduce((a: number, b: number) => a + b, 0);
+            const percentage = ((value / total) * 100).toFixed(0);
+            return `${percentage}%`;
+          },
+          display: (context: { dataset: { data: number[] }, dataIndex: number }) => {
+            const total = context.dataset.data.reduce((a: number, b: number) => a + b, 0);
+            const value = context.dataset.data[context.dataIndex];
+            const percentage = (value / total) * 100;
+            // Only show label if segment is > 5%
+            return percentage > 5;
           }
         }
       },

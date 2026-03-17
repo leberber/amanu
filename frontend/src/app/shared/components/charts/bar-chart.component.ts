@@ -163,23 +163,16 @@ export class BarChartComponent implements OnInit {
           }
         },
         datalabels: {
-          anchor: (context: { chart: Chart, dataIndex: number }) => {
-            const chart = context.chart;
-            const meta = chart.getDatasetMeta(0);
-            const bar = meta.data[context.dataIndex] as { width?: number, height?: number };
-            if (!bar) return 'end';
-            const barSize = isHorizontal ? (bar.width || 0) : (bar.height || 0);
-            // If bar is large enough, put label inside at end; otherwise outside
-            return barSize > 70 ? 'end' : 'end';
-          },
-          align: (context: { chart: Chart, dataIndex: number }) => {
-            const chart = context.chart;
-            const meta = chart.getDatasetMeta(0);
-            const bar = meta.data[context.dataIndex] as { width?: number, height?: number };
-            if (!bar) return 'end';
-            const barSize = isHorizontal ? (bar.width || 0) : (bar.height || 0);
-            // If bar is large enough, align inside (start from end); otherwise outside
-            return barSize > 70 ? 'start' : 'end';
+          anchor: 'end',
+          align: (context: { chart: Chart, dataIndex: number, dataset: { data: number[] } }) => {
+            // Get max value to calculate ratio
+            const data = context.dataset.data;
+            const maxValue = Math.max(...data);
+            const currentValue = data[context.dataIndex] || 0;
+            const ratio = currentValue / maxValue;
+
+            // If bar takes more than 75% of chart width, put label inside
+            return ratio > 0.75 ? 'start' : 'end';
           },
           clamp: true,
           clip: false,
@@ -187,14 +180,14 @@ export class BarChartComponent implements OnInit {
             size: 11,
             weight: 'bold'
           },
-          color: (context: { chart: Chart, dataIndex: number }) => {
-            const chart = context.chart;
-            const meta = chart.getDatasetMeta(0);
-            const bar = meta.data[context.dataIndex] as { width?: number, height?: number };
-            if (!bar) return '#374151';
-            const barSize = isHorizontal ? (bar.width || 0) : (bar.height || 0);
-            // White text inside bar, dark text outside
-            return barSize > 70 ? '#ffffff' : '#374151';
+          color: (context: { chart: Chart, dataIndex: number, dataset: { data: number[] } }) => {
+            const data = context.dataset.data;
+            const maxValue = Math.max(...data);
+            const currentValue = data[context.dataIndex] || 0;
+            const ratio = currentValue / maxValue;
+
+            // White text if inside bar, dark text if outside
+            return ratio > 0.75 ? '#ffffff' : '#374151';
           },
           formatter: (value: number) => {
             return formatAsCurrency
