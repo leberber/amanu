@@ -34,17 +34,26 @@ router = APIRouter()
 # HELPER FUNCTIONS
 # =============================================================================
 
-def build_trip_read(trip: Trip, session: Session) -> TripRead:
-    """Build TripRead from Trip model."""
+def build_trip_read(trip: Trip, session: Session, users_map: dict = None) -> TripRead:
+    """Build TripRead from Trip model.
+
+    Args:
+        trip: The trip model
+        session: Database session (used if users_map not provided)
+        users_map: Optional pre-loaded dict of user_id -> User for batch optimization
+    """
     # Count stops
     total_stops = len(trip.stops) if trip.stops else 0
     completed_stops = sum(1 for s in trip.stops if s.status == StopStatus.DELIVERED) if trip.stops else 0
 
-    # Get driver info
+    # Get driver info - use map if provided, otherwise query
     driver_name = None
     driver_phone = None
     if trip.driver_id:
-        driver_user = session.get(User, trip.driver_id)
+        if users_map:
+            driver_user = users_map.get(trip.driver_id)
+        else:
+            driver_user = session.get(User, trip.driver_id)
         if driver_user:
             driver_name = driver_user.full_name
             driver_phone = driver_user.phone
@@ -52,7 +61,10 @@ def build_trip_read(trip: Trip, session: Session) -> TripRead:
     # Get suggested driver info
     suggested_driver_name = None
     if trip.suggested_driver_id:
-        suggested_user = session.get(User, trip.suggested_driver_id)
+        if users_map:
+            suggested_user = users_map.get(trip.suggested_driver_id)
+        else:
+            suggested_user = session.get(User, trip.suggested_driver_id)
         if suggested_user:
             suggested_driver_name = suggested_user.full_name
 
@@ -83,13 +95,25 @@ def build_trip_read(trip: Trip, session: Session) -> TripRead:
     )
 
 
-def build_trip_with_stops(trip: Trip, session: Session) -> TripWithStops:
-    """Build TripWithStops from Trip model."""
-    trip_read = build_trip_read(trip, session)
+def build_trip_with_stops(trip: Trip, session: Session, users_map: dict = None, orders_map: dict = None) -> TripWithStops:
+    """Build TripWithStops from Trip model.
+
+    Args:
+        trip: The trip model
+        session: Database session
+        users_map: Optional pre-loaded dict of user_id -> User
+        orders_map: Optional pre-loaded dict of order_id -> Order
+    """
+    trip_read = build_trip_read(trip, session, users_map)
 
     stops = []
     for stop in sorted(trip.stops, key=lambda s: s.sequence):
-        order = session.get(Order, stop.order_id)
+        # Use map if provided, otherwise query
+        if orders_map:
+            order = orders_map.get(stop.order_id)
+        else:
+            order = session.get(Order, stop.order_id)
+
         customer_name = None
         shipping_address = None
         contact_phone = None
@@ -122,6 +146,28 @@ def build_trip_with_stops(trip: Trip, session: Session) -> TripWithStops:
         **trip_read.model_dump(),
         stops=stops,
     )
+
+
+def build_trips_read_batch(trips: list, session: Session) -> list:
+    """Build TripRead for multiple trips with batch-loaded users."""
+    if not trips:
+        return []
+
+    # Collect all user IDs needed
+    user_ids = set()
+    for trip in trips:
+        if trip.driver_id:
+            user_ids.add(trip.driver_id)
+        if trip.suggested_driver_id:
+            user_ids.add(trip.suggested_driver_id)
+
+    # Batch load users
+    users_map = {}
+    if user_ids:
+        users = session.exec(select(User).where(User.id.in_(user_ids))).all()
+        users_map = {u.id: u for u in users}
+
+    return [build_trip_read(t, session, users_map) for t in trips]
 
 
 # =============================================================================
@@ -272,25 +318,42 @@ def get_available_drivers_for_batching(
         .where(User.is_active == True)
     ).all()
 
+    if not drivers:
+        return {
+            "drivers": [],
+            "total": 0,
+            "available_count": 0,
+            "busy_count": 0,
+            "min_capacity_kg": 0,
+            "max_capacity_kg": 0,
+        }
+
+    # Batch load all primary vehicles
+    driver_ids = [driver.id for driver, user in drivers]
+    vehicles = session.exec(
+        select(DriverVehicle)
+        .where(DriverVehicle.driver_id.in_(driver_ids))
+        .where(DriverVehicle.is_primary == True)
+        .where(DriverVehicle.is_active == True)
+    ).all()
+    vehicle_map = {v.driver_id: v for v in vehicles}
+
+    # Batch load active trip counts for all drivers
+    user_ids = [user.id for driver, user in drivers]
+    trip_counts = session.exec(
+        select(Trip.driver_id, func.count(Trip.id))
+        .where(Trip.driver_id.in_(user_ids))
+        .where(Trip.status.in_([TripStatus.ASSIGNED, TripStatus.IN_PROGRESS]))
+        .group_by(Trip.driver_id)
+    ).all()
+    trip_count_map = {driver_id: count for driver_id, count in trip_counts}
+
     result = []
     for driver, user in drivers:
-        # Get primary vehicle for capacity
-        primary_vehicle = session.exec(
-            select(DriverVehicle)
-            .where(DriverVehicle.driver_id == driver.id)
-            .where(DriverVehicle.is_primary == True)
-            .where(DriverVehicle.is_active == True)
-        ).first()
-
+        primary_vehicle = vehicle_map.get(driver.id)
         capacity = primary_vehicle.capacity_kg if primary_vehicle and primary_vehicle.capacity_kg else 500.0
         vehicle_type = primary_vehicle.vehicle_type.value if primary_vehicle and primary_vehicle.vehicle_type else "van"
-
-        # Count active trips for this driver
-        active_trips_count = session.exec(
-            select(func.count(Trip.id))
-            .where(Trip.driver_id == user.id)
-            .where(Trip.status.in_([TripStatus.ASSIGNED, TripStatus.IN_PROGRESS]))
-        ).one() or 0
+        active_trips_count = trip_count_map.get(user.id, 0)
 
         result.append({
             "id": user.id,
@@ -423,7 +486,7 @@ def list_trips(
     query = query.order_by(Trip.created_at.desc()).offset(skip).limit(limit)
     trips = session.exec(query).all()
 
-    return [build_trip_read(t, session) for t in trips]
+    return build_trips_read_batch(trips, session)
 
 
 @router.get("/trips/{trip_id}", response_model=TripWithStops)

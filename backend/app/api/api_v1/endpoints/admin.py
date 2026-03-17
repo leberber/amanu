@@ -86,18 +86,33 @@ def get_dashboard_stats(
     ).limit(5)
 
     
-    top_selling_products = []
     top_products_result = session.exec(top_products_query).all()
-    
+
+    # Batch load products and categories to avoid N+1
+    product_ids = [row[0] for row in top_products_result]
+    products_map = {}
+    category_ids = set()
+
+    if product_ids:
+        products = session.exec(select(Product).where(Product.id.in_(product_ids))).all()
+        products_map = {p.id: p for p in products}
+        category_ids = {p.category_id for p in products if p.category_id}
+
+    categories_map = {}
+    if category_ids:
+        categories = session.exec(select(Category).where(Category.id.in_(category_ids))).all()
+        categories_map = {c.id: c for c in categories}
+
+    top_selling_products = []
     for product_id, product_name, total_quantity, total_sales in top_products_result:
-        product = session.get(Product, product_id)
+        product = products_map.get(product_id)
         category_name = "Unknown"
-        
+
         if product and product.category_id:
-            category = session.get(Category, product.category_id)
+            category = categories_map.get(product.category_id)
             if category:
                 category_name = category.name
-        
+
         top_selling_products.append({
             "product_id": product_id,
             "name": product_name,
@@ -106,21 +121,23 @@ def get_dashboard_stats(
             "category": category_name,
             "image_url": product.image_url if product else None
         })
-    
-    # Get recent orders
-    recent_orders_query = select(Order).order_by(Order.created_at.desc()).limit(5)
+
+    # Get recent orders with users in a single JOIN query
+    recent_orders_query = (
+        select(Order, User)
+        .outerjoin(User, Order.user_id == User.id)
+        .order_by(Order.created_at.desc())
+        .limit(5)
+    )
     recent_orders = []
-    
-    for order in session.exec(recent_orders_query):
-        user = session.get(User, order.user_id)
-        username = user.full_name if user else "Unknown"
-        
+
+    for order, user in session.exec(recent_orders_query):
         recent_orders.append({
             "order_id": order.id,
             "status": order.status,
             "total_amount": order.total_amount,
             "created_at": order.created_at.isoformat(),
-            "customer_name": username
+            "customer_name": user.full_name if user else "Unknown"
         })
     
     # Get sales by category
@@ -135,16 +152,21 @@ def get_dashboard_stats(
         Product.category_id
     )
     
-    sales_by_category = []
     sales_by_category_result = session.exec(sales_by_category_query).all()
-    
-    for category_id, total_sales in sales_by_category_result:
-        category = session.get(Category, category_id)
-        category_name = category.name if category else "Unknown"
 
+    # Batch load categories to avoid N+1
+    cat_ids_for_sales = [row[0] for row in sales_by_category_result if row[0]]
+    sales_categories_map = {}
+    if cat_ids_for_sales:
+        cats = session.exec(select(Category).where(Category.id.in_(cat_ids_for_sales))).all()
+        sales_categories_map = {c.id: c for c in cats}
+
+    sales_by_category = []
+    for category_id, total_sales in sales_by_category_result:
+        category = sales_categories_map.get(category_id)
         sales_by_category.append({
             "category_id": category_id,
-            "name": category_name,
+            "name": category.name if category else "Unknown",
             "total_sales": total_sales
         })
 
@@ -161,16 +183,21 @@ def get_dashboard_stats(
         Product.brand_id
     )
 
-    sales_by_brand = []
     sales_by_brand_result = session.exec(sales_by_brand_query).all()
 
-    for brand_id, total_sales in sales_by_brand_result:
-        brand = session.get(Brand, brand_id)
-        brand_name = brand.name if brand else "Unknown"
+    # Batch load brands to avoid N+1
+    brand_ids_for_sales = [row[0] for row in sales_by_brand_result if row[0]]
+    sales_brands_map = {}
+    if brand_ids_for_sales:
+        brands = session.exec(select(Brand).where(Brand.id.in_(brand_ids_for_sales))).all()
+        sales_brands_map = {b.id: b for b in brands}
 
+    sales_by_brand = []
+    for brand_id, total_sales in sales_by_brand_result:
+        brand = sales_brands_map.get(brand_id)
         sales_by_brand.append({
             "brand_id": brand_id,
-            "name": brand_name,
+            "name": brand.name if brand else "Unknown",
             "total_sales": total_sales
         })
 
@@ -318,17 +345,22 @@ def get_low_stock_products(
     ).order_by(Product.stock_quantity)
     
     products = session.exec(query).all()
-    
+
+    # Batch load categories to avoid N+1
+    category_ids = {p.category_id for p in products if p.category_id}
+    categories_map = {}
+    if category_ids:
+        categories = session.exec(select(Category).where(Category.id.in_(category_ids))).all()
+        categories_map = {c.id: c for c in categories}
+
     # Format response
     result = []
     for product in products:
-        category = session.get(Category, product.category_id)
-        category_name = category.name if category else "Unknown"
-        
+        category = categories_map.get(product.category_id)
         result.append({
             "id": product.id,
             "name": product.name,
-            "category": category_name,
+            "category": category.name if category else "Unknown",
             "stock_quantity": product.stock_quantity,
             "price": product.price,
             "unit": product.unit

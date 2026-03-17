@@ -81,7 +81,7 @@ class SmartBatchingService:
 
     def get_active_drivers(self) -> List[DriverCapacity]:
         """Get all active drivers with their vehicle capacity."""
-        # Get available drivers with their primary vehicle
+        # Get available drivers with their primary vehicle in a single query
         drivers = self.session.exec(
             select(Driver, User)
             .join(User, Driver.user_id == User.id)
@@ -89,16 +89,22 @@ class SmartBatchingService:
             .where(User.is_active == True)
         ).all()
 
+        if not drivers:
+            return []
+
+        # Batch load all primary vehicles for these drivers
+        driver_ids = [driver.id for driver, user in drivers]
+        vehicles = self.session.exec(
+            select(DriverVehicle)
+            .where(DriverVehicle.driver_id.in_(driver_ids))
+            .where(DriverVehicle.is_primary == True)
+            .where(DriverVehicle.is_active == True)
+        ).all()
+        vehicle_map = {v.driver_id: v for v in vehicles}
+
         result = []
         for driver, user in drivers:
-            # Get primary vehicle for capacity
-            primary_vehicle = self.session.exec(
-                select(DriverVehicle)
-                .where(DriverVehicle.driver_id == driver.id)
-                .where(DriverVehicle.is_primary == True)
-                .where(DriverVehicle.is_active == True)
-            ).first()
-
+            primary_vehicle = vehicle_map.get(driver.id)
             capacity = primary_vehicle.capacity_kg if primary_vehicle and primary_vehicle.capacity_kg else 500.0
             vehicle_type = primary_vehicle.vehicle_type.value if primary_vehicle and primary_vehicle.vehicle_type else "van"
 
@@ -121,16 +127,22 @@ class SmartBatchingService:
             .where(User.is_active == True)
         ).all()
 
+        if not drivers:
+            return []
+
+        # Batch load all primary vehicles for these drivers
+        driver_ids = [driver.id for driver, user in drivers]
+        vehicles = self.session.exec(
+            select(DriverVehicle)
+            .where(DriverVehicle.driver_id.in_(driver_ids))
+            .where(DriverVehicle.is_primary == True)
+            .where(DriverVehicle.is_active == True)
+        ).all()
+        vehicle_map = {v.driver_id: v for v in vehicles}
+
         result = []
         for driver, user in drivers:
-            # Get primary vehicle for capacity
-            primary_vehicle = self.session.exec(
-                select(DriverVehicle)
-                .where(DriverVehicle.driver_id == driver.id)
-                .where(DriverVehicle.is_primary == True)
-                .where(DriverVehicle.is_active == True)
-            ).first()
-
+            primary_vehicle = vehicle_map.get(driver.id)
             capacity = primary_vehicle.capacity_kg if primary_vehicle and primary_vehicle.capacity_kg else 500.0
             vehicle_type = primary_vehicle.vehicle_type.value if primary_vehicle and primary_vehicle.vehicle_type else "van"
 
@@ -163,12 +175,21 @@ class SmartBatchingService:
             .where(Order.is_full_load == False)
         ).all()
 
+        if not orders:
+            return []
+
+        # Batch load all customer routes for these orders
+        user_ids = list({order.user_id for order in orders if order.user_id})
+        routes_map = {}
+        if user_ids:
+            routes = self.session.exec(
+                select(CustomerRoute).where(CustomerRoute.user_id.in_(user_ids))
+            ).all()
+            routes_map = {r.user_id: r for r in routes}
+
         result = []
         for order in orders:
-            # Get customer route data
-            route = self.session.exec(
-                select(CustomerRoute).where(CustomerRoute.user_id == order.user_id)
-            ).first()
+            route = routes_map.get(order.user_id)
 
             # Use pre-calculated weight, fallback to calculation for old orders
             weight_kg = order.total_weight_kg if order.total_weight_kg > 0 else self._calculate_order_weight(order)
