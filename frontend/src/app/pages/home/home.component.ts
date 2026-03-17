@@ -39,14 +39,13 @@ export class HomeComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
 
   ngOnInit(): void {
-    // Subscribe to language changes - automatically cleaned up on destroy
+    // Subscribe to language changes - BehaviorSubject emits immediately on subscribe
+    // so no need for separate loadCategories() call
     this.translationService.currentLanguage$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
         this.loadCategories();
       });
-
-    this.loadCategories();
   }
 
 

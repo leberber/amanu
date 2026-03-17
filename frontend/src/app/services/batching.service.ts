@@ -1,6 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, tap, map, timeout } from 'rxjs';
+import { Observable, tap, map, timeout, forkJoin } from 'rxjs';
 
 import { environment } from '../../environments/environment';
 import {
@@ -71,6 +71,13 @@ export class BatchingService {
   }
 
   /**
+   * Refresh both stats and trips in parallel (single combined call)
+   */
+  refreshData(): Observable<[BatchingStats, Trip[]]> {
+    return forkJoin([this.getStats(), this.getTrips()]);
+  }
+
+  /**
    * Preview batching without creating trips
    */
   previewBatching(): Observable<BatchingPreviewResponse> {
@@ -86,8 +93,7 @@ export class BatchingService {
     return this.http.post<BatchingRunResponse>(`${this.apiUrl}${API_ENDPOINTS.RUN}`, {}).pipe(
       tap(() => {
         // Refresh stats and trips after batching
-        this.getStats().subscribe();
-        this.getTrips().subscribe();
+        this.refreshData().subscribe();
         // Clear preview since it's no longer valid
         this._preview.set(null);
       })
@@ -197,7 +203,7 @@ export class BatchingService {
     ).pipe(
       tap(() => {
         this._trips.update(trips => trips.filter(t => t.id !== tripId));
-        this.getStats().subscribe();
+        this.getStats().subscribe();  // Only stats needed, trips already updated locally
       })
     );
   }
@@ -246,8 +252,7 @@ export class BatchingService {
     ).pipe(
       tap(() => {
         // Refresh stats and trips after batching
-        this.getStats().subscribe();
-        this.getTrips().subscribe();
+        this.refreshData().subscribe();
         // Clear pending orders and preview
         this._pendingOrders.set([]);
         this._preview.set(null);
@@ -303,8 +308,7 @@ export class BatchingService {
       {}
     ).pipe(
       tap(() => {
-        this.getStats().subscribe();
-        this.getTrips().subscribe();
+        this.refreshData().subscribe();
         this._pendingOrders.set([]);
       })
     );
@@ -346,7 +350,7 @@ export class BatchingService {
       tap(() => {
         this._trips.set([]);
         this._pendingOrders.set([]);
-        this.getStats().subscribe();
+        this.getStats().subscribe();  // Only stats needed, trips already cleared
       })
     );
   }

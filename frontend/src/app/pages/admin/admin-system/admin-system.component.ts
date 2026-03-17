@@ -149,7 +149,7 @@ export class AdminSystemComponent implements OnInit, OnDestroy {
       if (this.autoRefresh()) {
         this.loadMetrics();
       }
-    }, 5000); // Refresh every 5 seconds
+    }, 30000); // Refresh every 30 seconds
   }
 
   private stopAutoRefresh(): void {

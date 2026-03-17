@@ -114,7 +114,7 @@ export class AdminLogsComponent implements OnInit, OnDestroy {
     this.autoRefresh.set(true);
     this.refreshInterval = setInterval(() => {
       this.loadLogs();
-    }, 10000); // Refresh every 10 seconds
+    }, 30000); // Refresh every 30 seconds
   }
 
   private stopAutoRefresh(): void {

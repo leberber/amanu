@@ -100,6 +100,7 @@ export class ProductListComponent implements OnInit {
   readonly skeletonListItems = Array.from({ length: UI.SKELETON_LIST_COUNT }, (_, i) => i + 1);
 
   ngOnInit(): void {
+    // BehaviorSubject emits immediately on subscribe, so no separate load call needed
     this.translationService.currentLanguage$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
@@ -113,10 +114,6 @@ export class ProductListComponent implements OnInit {
         this.filters.update(f => ({ ...f, search: query }));
         this.loadProducts().subscribe();
       });
-
-    if (this.categories().length === 0) {
-      this.loadCategoriesAndProducts();
-    }
   }
 
   openMobileSearch(): void {

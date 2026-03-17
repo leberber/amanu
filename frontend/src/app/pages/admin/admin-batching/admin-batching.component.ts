@@ -1225,8 +1225,7 @@ export class AdminBatchingComponent implements OnInit {
 
   private refreshAllData(): void {
     this.loadPendingOrders();
-    this.batchingService.getStats().subscribe();
-    this.batchingService.getTrips().subscribe();
+    this.batchingService.refreshData().subscribe();
   }
 
   // ==================== Tabs ====================
@@ -1282,8 +1281,7 @@ export class AdminBatchingComponent implements OnInit {
         this.assigning.set(false);
         this.toast.showSuccess('admin.batching.assign_success', { driver: res.trip?.driver_name });
         this.closeAssignDialog();
-        this.batchingService.getStats().subscribe();
-        this.batchingService.getTrips().subscribe();
+        this.batchingService.refreshData().subscribe();
       },
       error: (err) => { this.assigning.set(false); this.toast.showApiError(err, 'admin.batching.assign_error'); }
     });
@@ -1372,7 +1370,7 @@ export class AdminBatchingComponent implements OnInit {
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
         this.batchingService.unassignTrip(trip.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-          next: () => { this.toast.showSuccess('admin.batching.unassign_success'); this.batchingService.getStats().subscribe(); this.batchingService.getTrips().subscribe(); },
+          next: () => { this.toast.showSuccess('admin.batching.unassign_success'); this.batchingService.refreshData().subscribe(); },
           error: () => this.toast.showError('admin.batching.unassign_error')
         });
       }

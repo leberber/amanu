@@ -15,7 +15,7 @@
         <p-button
           [icon]="autoRefresh() ? 'pi pi-pause' : 'pi pi-play'"
           [severity]="autoRefresh() ? 'success' : 'secondary'"
-          [pTooltip]="autoRefresh() ? 'Auto-refresh ON (5s)' : 'Auto-refresh OFF'"
+          [pTooltip]="autoRefresh() ? 'Auto-refresh ON (30s)' : 'Auto-refresh OFF'"
           tooltipPosition="bottom"
           (onClick)="toggleAutoRefresh()"
           [rounded]="true"
