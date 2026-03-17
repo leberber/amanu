@@ -1108,6 +1108,22 @@
       "notification_failed": "فشل إرسال الإشعار",
       "notification_empty": "يرجى إدخال العنوان والرسالة"
     },
+    "sales_report": {
+      "title": "تقرير المبيعات",
+      "subtitle": "عرض اتجاهات المبيعات عبر الوقت",
+      "total_sales": "إجمالي المبيعات",
+      "chart_title": "المبيعات عبر الوقت",
+      "sales": "المبيعات",
+      "load_error": "فشل في تحميل تقرير المبيعات",
+      "no_data": "لا توجد بيانات مبيعات",
+      "no_data_description": "لا توجد بيانات مبيعات متاحة للفترة المحددة.",
+      "period": {
+        "daily": "يومي",
+        "weekly": "أسبوعي",
+        "monthly": "شهري",
+        "yearly": "سنوي"
+      }
+    },
     "stats": {
       "total_users": "إجمالي المستخدمين",
       "total_products": "إجمالي المنتجات",

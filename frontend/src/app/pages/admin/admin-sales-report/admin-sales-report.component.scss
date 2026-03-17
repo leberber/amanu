@@ -1,0 +1,28 @@
+// Sales Report component styles
+// Uses primarily PrimeNG utilities - minimal custom SCSS
+
+.kpi-section {
+  margin-bottom: var(--spacing-md);
+}
+
+.stat-card--large {
+  .stat-card__value {
+    font-size: 1.75rem;
+  }
+}
+
+.period-selector {
+  display: flex;
+  justify-content: center;
+  margin-bottom: var(--spacing-md);
+}
+
+.chart-container {
+  height: 350px;
+  padding: var(--spacing-md);
+
+  p-chart {
+    display: block;
+    height: 100%;
+  }
+}

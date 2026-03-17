@@ -215,6 +215,13 @@ export const routes: Routes = [
     canActivate: [adminOnlyGuard],
     data: { hideBottomNav: true }
   },
+  // Sales Report Route (admin only)
+  {
+    path: 'admin/sales-report',
+    loadComponent: () => import('./pages/admin/admin-sales-report/admin-sales-report.component').then(m => m.AdminSalesReportComponent),
+    canActivate: [adminOnlyGuard],
+    data: { hideBottomNav: true }
+  },
 
   // User Routes
   {

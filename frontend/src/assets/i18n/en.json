@@ -1106,6 +1106,22 @@
       "notification_failed": "Failed to send notification",
       "notification_empty": "Please enter title and message"
     },
+    "sales_report": {
+      "title": "Sales Report",
+      "subtitle": "View sales trends over time",
+      "total_sales": "Total Sales",
+      "chart_title": "Sales Over Time",
+      "sales": "Sales",
+      "load_error": "Failed to load sales report",
+      "no_data": "No Sales Data",
+      "no_data_description": "There is no sales data available for the selected period.",
+      "period": {
+        "daily": "Daily",
+        "weekly": "Weekly",
+        "monthly": "Monthly",
+        "yearly": "Yearly"
+      }
+    },
     "stats": {
       "total_users": "Total Users",
       "total_products": "Total Products",
