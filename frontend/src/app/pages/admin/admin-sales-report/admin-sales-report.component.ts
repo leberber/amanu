@@ -39,6 +39,7 @@ export class AdminSalesReportComponent implements OnInit {
   // Data signals
   salesReport = signal<SalesReport | null>(null);
   loading = signal(true);
+  initialLoad = signal(true);
   selectedPeriod = signal<PeriodType>('daily');
   selectedCategoryLimit = signal<CategoryLimitType>(10);
   selectedProductLimit = signal<CategoryLimitType>(20);
@@ -122,6 +123,7 @@ export class AdminSalesReportComponent implements OnInit {
         next: (report) => {
           this.salesReport.set(report);
           this.loading.set(false);
+          this.initialLoad.set(false);
           this.prepareChartData();
         },
         error: () => {

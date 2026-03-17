@@ -1,8 +1,8 @@
 <app-agroclik-page-container>
   <!-- Top Section: Header + Period Selector -->
   <div pageTop>
-    @if (loading()) {
-      <!-- Header Skeleton -->
+    @if (initialLoad()) {
+      <!-- Header Skeleton (only on first load) -->
       <div class="admin-list-header animate-item" style="--item-delay: 0ms;">
         <div class="header-title">
           <div class="admin-icon-wrapper">
@@ -67,8 +67,8 @@
 
   <!-- Main Section: Charts -->
   <div pageMain>
-    @if (loading()) {
-      <!-- Chart Skeletons -->
+    @if (initialLoad()) {
+      <!-- Chart Skeletons (only on first load) -->
       <div class="charts-layout">
         <div class="charts-left">
           <div class="card card--no-hover line-chart-card animate-item" style="--item-delay: 150ms;">
