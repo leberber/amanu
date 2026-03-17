@@ -36,6 +36,8 @@ class SalesReport(BaseModel):
     period: str
     data: List[Dict[str, Any]]
     total_sales: float
+    sales_by_category: List[Dict[str, Any]] = []
+    top_products: List[Dict[str, Any]] = []
 
 @router.get("/dashboard", response_model=DashboardStats)
 def get_dashboard_stats(
@@ -233,6 +235,8 @@ def get_sales_report(
     period: str = Query(..., enum=["daily", "weekly", "monthly", "yearly"]),
     start_date: Optional[datetime] = None,
     end_date: Optional[datetime] = None,
+    category_limit: Optional[int] = Query(default=10, ge=1, le=100),
+    product_limit: Optional[int] = Query(default=10, ge=1, le=50),
     current_user: User = Depends(get_current_staff_user),
     session: Session = Depends(get_session),
 ) -> Any:
@@ -342,10 +346,84 @@ def get_sales_report(
     # Calculate total from aggregated data (already computed by DB)
     total_sales = sum(item["sales"] for item in data)
 
+    # Calculate sales by category for this period
+    category_sales_query = (
+        select(
+            Category.id.label("category_id"),
+            func.sum(OrderItem.unit_price * OrderItem.quantity).label("total_sales")
+        )
+        .select_from(Order)
+        .join(OrderItem, OrderItem.order_id == Order.id)
+        .join(Product, Product.id == OrderItem.product_id)
+        .join(Category, Category.id == Product.category_id)
+        .where(*base_filter)
+        .group_by(Category.id)
+        .order_by(func.sum(OrderItem.unit_price * OrderItem.quantity).desc())
+        .limit(category_limit)
+    )
+
+    category_results = session.exec(category_sales_query).all()
+
+    # Fetch full category details for translations
+    category_ids = [row.category_id for row in category_results]
+    categories_map = {}
+    if category_ids:
+        categories = session.exec(select(Category).where(Category.id.in_(category_ids))).all()
+        categories_map = {c.id: c for c in categories}
+
+    sales_by_category = []
+    for row in category_results:
+        cat = categories_map.get(row.category_id)
+        sales_by_category.append({
+            "category_id": row.category_id,
+            "name": cat.name if cat else "",
+            "name_translations": cat.name_translations if cat else None,
+            "total_sales": float(row.total_sales) if row.total_sales else 0
+        })
+
+    # Calculate top selling products for this period
+    top_products_query = (
+        select(
+            Product.id.label("product_id"),
+            func.sum(OrderItem.quantity).label("total_quantity"),
+            func.sum(OrderItem.unit_price * OrderItem.quantity).label("total_sales")
+        )
+        .select_from(Order)
+        .join(OrderItem, OrderItem.order_id == Order.id)
+        .join(Product, Product.id == OrderItem.product_id)
+        .where(*base_filter)
+        .group_by(Product.id)
+        .order_by(func.sum(OrderItem.unit_price * OrderItem.quantity).desc())
+        .limit(product_limit)
+    )
+
+    product_results = session.exec(top_products_query).all()
+
+    # Fetch full product details
+    product_ids = [row.product_id for row in product_results]
+    products_map = {}
+    if product_ids:
+        products = session.exec(select(Product).where(Product.id.in_(product_ids))).all()
+        products_map = {p.id: p for p in products}
+
+    top_products = []
+    for row in product_results:
+        prod = products_map.get(row.product_id)
+        top_products.append({
+            "product_id": row.product_id,
+            "name": prod.name if prod else "",
+            "name_translations": prod.name_translations if prod else None,
+            "image_url": prod.image_url if prod else None,
+            "total_quantity": int(row.total_quantity) if row.total_quantity else 0,
+            "total_sales": float(row.total_sales) if row.total_sales else 0
+        })
+
     return SalesReport(
         period=period,
         data=data,
-        total_sales=total_sales
+        total_sales=total_sales,
+        sales_by_category=sales_by_category,
+        top_products=top_products
     )
 
 @router.get("/low-stock", response_model=List[Dict[str, Any]])

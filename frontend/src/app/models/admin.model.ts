@@ -48,6 +48,8 @@ export interface DashboardStats {
     period: string;
     data: SalesData[];
     total_sales: number;
+    sales_by_category: SalesByCategory[];
+    top_products: TopSellingProduct[];
   }
   
   export interface SalesData {

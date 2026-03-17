@@ -33,17 +33,31 @@ export class AdminService {
     return this.apiService.get<DashboardStats>('/admin/dashboard');
   }
 
-  getSalesReport(period: 'daily' | 'weekly' | 'monthly' | 'yearly', startDate?: string, endDate?: string): Observable<SalesReport> {
+  getSalesReport(
+    period: 'daily' | 'weekly' | 'monthly' | 'yearly',
+    startDate?: string,
+    endDate?: string,
+    categoryLimit?: number,
+    productLimit?: number
+  ): Observable<SalesReport> {
     let params: any = { period };
-    
+
     if (startDate) {
       params.start_date = startDate;
     }
-    
+
     if (endDate) {
       params.end_date = endDate;
     }
-    
+
+    if (categoryLimit) {
+      params.category_limit = categoryLimit;
+    }
+
+    if (productLimit) {
+      params.product_limit = productLimit;
+    }
+
     return this.apiService.get<SalesReport>('/admin/sales-report', { params });
   }
 

@@ -1,87 +1,36 @@
 import { Component, OnInit, inject, DestroyRef, signal, computed } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TranslateService } from '@ngx-translate/core';
-import { ChartModule } from 'primeng/chart';
 
 import { ADMIN_CORE_IMPORTS } from '../../../shared/imports/admin-shared.imports';
 import { AgroclikPageContainerComponent } from '../../../shared/components/agroclik-page-container/agroclik-page-container.component';
+import {
+  LineChartComponent,
+  LineChartDataPoint,
+  DoughnutChartComponent,
+  DoughnutChartItem,
+  BarChartComponent,
+  BarChartDataPoint
+} from '../../../shared/components/charts';
 import { onLanguageChange } from '../../../core/utils/language-change.util';
 import { AdminService } from '../../../services/admin.service';
 import { SalesReport } from '../../../models/admin.model';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
 import { CurrencyService } from '../../../core/services/currency.service';
+import { TranslationHelperService } from '../../../core/services/translation-helper.service';
 
 type PeriodType = 'daily' | 'weekly' | 'monthly' | 'yearly';
-
-interface ChartData {
-  labels: string[];
-  datasets: {
-    label: string;
-    data: number[];
-    fill: boolean;
-    borderColor: string;
-    backgroundColor: string;
-    tension: number;
-    pointBackgroundColor: string;
-    pointBorderColor: string;
-    pointHoverBackgroundColor: string;
-    pointHoverBorderColor: string;
-    pointRadius: number;
-    pointHoverRadius: number;
-  }[];
-}
-
-interface ChartOptions {
-  responsive: boolean;
-  maintainAspectRatio: boolean;
-  plugins: {
-    legend: {
-      display: boolean;
-    };
-    tooltip: {
-      backgroundColor: string;
-      titleFont: { size: number; weight: string };
-      bodyFont: { size: number };
-      padding: number;
-      cornerRadius: number;
-      displayColors: boolean;
-      callbacks: {
-        label: (context: TooltipContext) => string;
-      };
-    };
-  };
-  scales: {
-    x: {
-      grid: { display: boolean };
-      ticks: { font: { size: number }; maxRotation: number; minRotation: number };
-    };
-    y: {
-      beginAtZero: boolean;
-      grid: { color: string };
-      ticks: {
-        font: { size: number };
-        callback: (value: number) => string;
-      };
-    };
-  };
-  interaction: {
-    intersect: boolean;
-    mode: string;
-  };
-}
-
-interface TooltipContext {
-  label: string;
-  raw: number;
-}
+type CategoryLimitType = 5 | 10 | 15 | 20;
 
 @Component({
   selector: 'app-admin-sales-report',
   standalone: true,
   imports: [
     ...ADMIN_CORE_IMPORTS,
-    ChartModule,
-    AgroclikPageContainerComponent
+    AgroclikPageContainerComponent,
+    LineChartComponent,
+    DoughnutChartComponent,
+    BarChartComponent
   ],
   templateUrl: './admin-sales-report.component.html',
   styleUrl: './admin-sales-report.component.scss'
@@ -91,10 +40,13 @@ export class AdminSalesReportComponent implements OnInit {
   salesReport = signal<SalesReport | null>(null);
   loading = signal(true);
   selectedPeriod = signal<PeriodType>('weekly');
+  selectedCategoryLimit = signal<CategoryLimitType>(10);
+  selectedProductLimit = signal<CategoryLimitType>(10);
 
-  // Chart signals
-  chartData = signal<ChartData | null>(null);
-  chartOptions = signal<ChartOptions | null>(null);
+  // Chart data signals (simplified for reusable components)
+  lineChartData = signal<LineChartDataPoint[]>([]);
+  categoryChartData = signal<DoughnutChartItem[]>([]);
+  productsChartData = signal<BarChartDataPoint[]>([]);
 
   // Period options
   readonly periodOptions: { value: PeriodType; labelKey: string; icon: string }[] = [
@@ -104,10 +56,31 @@ export class AdminSalesReportComponent implements OnInit {
     { value: 'yearly', labelKey: 'admin.sales_report.period.yearly', icon: 'pi-chart-line' }
   ];
 
+  // Category limit options
+  readonly categoryLimitOptions: { value: CategoryLimitType; label: string }[] = [
+    { value: 5, label: 'Top 5' },
+    { value: 10, label: 'Top 10' },
+    { value: 15, label: 'Top 15' },
+    { value: 20, label: 'Top 20' }
+  ];
+
+  // Product limit options
+  readonly productLimitOptions: { value: CategoryLimitType; label: string }[] = [
+    { value: 5, label: 'Top 5' },
+    { value: 10, label: 'Top 10' },
+    { value: 15, label: 'Top 15' },
+    { value: 20, label: 'Top 20' }
+  ];
+
   // Computed
   hasData = computed(() => {
     const report = this.salesReport();
     return report !== null && report.data.length > 0;
+  });
+
+  hasCategoryData = computed(() => {
+    const report = this.salesReport();
+    return report !== null && report.sales_by_category && report.sales_by_category.length > 0;
   });
 
   // Services
@@ -115,24 +88,40 @@ export class AdminSalesReportComponent implements OnInit {
   private toast = inject(ToastMessageService);
   private translateService = inject(TranslateService);
   private currencyService = inject(CurrencyService);
+  private translationHelper = inject(TranslationHelperService);
   private destroyRef = inject(DestroyRef);
 
   ngOnInit() {
     this.loadReport(this.selectedPeriod());
-    onLanguageChange(this.translateService, this.destroyRef, () => this.prepareChart());
+    onLanguageChange(this.translateService, this.destroyRef, () => this.prepareChartData());
   }
 
-  loadReport(period: PeriodType) {
+  loadReport(period?: PeriodType, categoryLimit?: CategoryLimitType, productLimit?: CategoryLimitType) {
     this.loading.set(true);
-    this.selectedPeriod.set(period);
 
-    this.adminService.getSalesReport(period)
+    if (period) {
+      this.selectedPeriod.set(period);
+    }
+    if (categoryLimit) {
+      this.selectedCategoryLimit.set(categoryLimit);
+    }
+    if (productLimit) {
+      this.selectedProductLimit.set(productLimit);
+    }
+
+    this.adminService.getSalesReport(
+      this.selectedPeriod(),
+      undefined,
+      undefined,
+      this.selectedCategoryLimit(),
+      this.selectedProductLimit()
+    )
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (report) => {
           this.salesReport.set(report);
           this.loading.set(false);
-          this.prepareChart();
+          this.prepareChartData();
         },
         error: () => {
           this.loading.set(false);
@@ -147,77 +136,85 @@ export class AdminSalesReportComponent implements OnInit {
     }
   }
 
-  prepareChart() {
+  selectCategoryLimit(limit: number) {
+    const validLimit = limit as CategoryLimitType;
+    if (validLimit !== this.selectedCategoryLimit()) {
+      this.loadReport(undefined, validLimit);
+    }
+  }
+
+  selectProductLimit(limit: number) {
+    const validLimit = limit as CategoryLimitType;
+    if (validLimit !== this.selectedProductLimit()) {
+      this.loadReport(undefined, undefined, validLimit);
+    }
+  }
+
+  prepareChartData() {
     const report = this.salesReport();
-    if (!report || report.data.length === 0) {
-      this.chartData.set(null);
+    if (!report) {
+      this.lineChartData.set([]);
+      this.categoryChartData.set([]);
+      this.productsChartData.set([]);
       return;
     }
 
-    const labels = report.data.map(item => this.formatDateLabel(item.date));
-    const sales = report.data.map(item => item.sales);
+    // Prepare line chart data (sales over time)
+    this.lineChartData.set(
+      report.data.map(item => ({
+        label: this.formatDateLabel(item.date),
+        value: item.sales
+      }))
+    );
 
-    this.chartData.set({
-      labels,
-      datasets: [{
-        label: this.translateService.instant('admin.sales_report.sales'),
-        data: sales,
-        fill: true,
-        borderColor: '#6366f1',
-        backgroundColor: 'rgba(99, 102, 241, 0.1)',
-        tension: 0.4,
-        pointBackgroundColor: '#6366f1',
-        pointBorderColor: '#ffffff',
-        pointHoverBackgroundColor: '#ffffff',
-        pointHoverBorderColor: '#6366f1',
-        pointRadius: 4,
-        pointHoverRadius: 6
-      }]
-    });
+    // Prepare category chart data
+    if (report.sales_by_category && report.sales_by_category.length > 0) {
+      this.categoryChartData.set(
+        report.sales_by_category.map(item => ({
+          label: this.translationHelper.getCategoryName(item),
+          value: item.total_sales
+        }))
+      );
+    } else {
+      this.categoryChartData.set([]);
+    }
 
-    this.chartOptions.set({
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          display: false
-        },
-        tooltip: {
-          backgroundColor: 'rgba(0, 0, 0, 0.8)',
-          titleFont: { size: 14, weight: 'bold' },
-          bodyFont: { size: 13 },
-          padding: 12,
-          cornerRadius: 8,
-          displayColors: false,
-          callbacks: {
-            label: (context: TooltipContext) => {
-              return this.currencyService.formatCurrency(context.raw);
-            }
-          }
-        }
-      },
-      scales: {
-        x: {
-          grid: { display: false },
-          ticks: { font: { size: 11 }, maxRotation: 45, minRotation: 0 }
-        },
-        y: {
-          beginAtZero: true,
-          grid: { color: 'rgba(0, 0, 0, 0.05)' },
-          ticks: {
-            font: { size: 11 },
-            callback: (value: number) => this.currencyService.formatCurrency(value)
-          }
-        }
-      },
-      interaction: {
-        intersect: false,
-        mode: 'index'
-      }
-    });
+    // Prepare products chart data
+    if (report.top_products && report.top_products.length > 0) {
+      this.productsChartData.set(
+        report.top_products.map(item => ({
+          label: this.translationHelper.getProductName(item),
+          value: item.total_sales
+        }))
+      );
+    } else {
+      this.productsChartData.set([]);
+    }
   }
 
   private formatDateLabel(dateStr: string): string {
+    // Handle weekly format like "2024-W12"
+    if (dateStr.includes('-W')) {
+      const [year, weekPart] = dateStr.split('-W');
+      return `W${weekPart} ${year}`;
+    }
+
+    // Handle yearly format like "2024"
+    if (/^\d{4}$/.test(dateStr)) {
+      return dateStr;
+    }
+
+    // Handle monthly format like "2024-03"
+    if (/^\d{4}-\d{2}$/.test(dateStr)) {
+      const [year, month] = dateStr.split('-');
+      const date = new Date(parseInt(year), parseInt(month) - 1, 1);
+      return date.toLocaleDateString(this.translateService.currentLang, {
+        month: 'short',
+        year: 'numeric'
+      });
+    }
+
+    // Handle daily format (ISO date)
     const date = new Date(dateStr);
     const period = this.selectedPeriod();
 
@@ -226,19 +223,9 @@ export class AdminSalesReportComponent implements OnInit {
         day: 'numeric',
         month: 'short'
       });
-    } else if (period === 'weekly') {
-      return date.toLocaleDateString(this.translateService.currentLang, {
-        day: 'numeric',
-        month: 'short'
-      });
-    } else if (period === 'monthly') {
-      return date.toLocaleDateString(this.translateService.currentLang, {
-        month: 'short',
-        year: 'numeric'
-      });
-    } else {
-      return date.getFullYear().toString();
     }
+
+    return dateStr;
   }
 
   formatCurrency(value: number): string {

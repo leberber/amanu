@@ -1,17 +1,17 @@
 import { Component, OnInit, inject, DestroyRef, signal, computed } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink, Router } from '@angular/router';
-import { ChartModule } from 'primeng/chart';
 import { TranslateService } from '@ngx-translate/core';
 import { forkJoin } from 'rxjs';
 
 import { ADMIN_CORE_IMPORTS } from '../../../shared/imports/admin-shared.imports';
 import { AgroclikPageContainerComponent } from '../../../shared/components/agroclik-page-container/agroclik-page-container.component';
+import { DoughnutChartComponent, DoughnutChartItem } from '../../../shared/components/charts';
 import { ROUTES, RouteHelpers } from '../../../core/constants/routes.constants';
 import { UI } from '../../../core/constants/ui.constants';
 import { onLanguageChange } from '../../../core/utils/language-change.util';
 import { AdminService } from '../../../services/admin.service';
-import { DashboardStats, SalesByCategory, SalesByBrand, TopSellingProduct } from '../../../models/admin.model';
+import { DashboardStats } from '../../../models/admin.model';
 import { ProductService } from '../../../services/product.service';
 import { BrandService } from '../../../core/services/brand.service';
 import { Product, Category } from '../../../models/product.model';
@@ -20,63 +20,6 @@ import { TranslationHelperService } from '../../../core/services/translation-hel
 import { ToastMessageService } from '../../../core/services/toast-message.service';
 import { CurrencyService } from '../../../core/services/currency.service';
 import { ImageFallbackDirective } from '../../../shared/directives/image-fallback.directive';
-
-// Chart.js compatible types
-interface ChartData {
-  labels: string[];
-  datasets: {
-    label: string;
-    data: number[];
-    backgroundColor: string[];
-    hoverBackgroundColor: string[];
-    borderWidth: number;
-    hoverOffset: number;
-  }[];
-}
-
-interface ChartOptions {
-  cutout: string;
-  radius: string;
-  responsive: boolean;
-  maintainAspectRatio: boolean;
-  plugins: {
-    legend: {
-      position: string;
-      labels: {
-        usePointStyle: boolean;
-        pointStyle: string;
-        padding: number;
-        font: {
-          size: number;
-          weight: string;
-        };
-      };
-    };
-    tooltip: {
-      backgroundColor: string;
-      titleFont: { size: number; weight: string };
-      bodyFont: { size: number };
-      padding: number;
-      cornerRadius: number;
-      displayColors: boolean;
-      boxPadding: number;
-      callbacks: {
-        label: (context: TooltipContext) => string;
-      };
-    };
-  };
-  animation: {
-    animateRotate: boolean;
-    animateScale: boolean;
-  };
-  locale: string;
-}
-
-interface TooltipContext {
-  label: string;
-  raw: number;
-  dataset: { data: number[] };
-}
 
 // Translatable entity interface for helper functions
 interface TranslatableEntity {
@@ -95,8 +38,8 @@ interface TranslatableEntity {
   imports: [
     ...ADMIN_CORE_IMPORTS,
     RouterLink,
-    ChartModule,
     AgroclikPageContainerComponent,
+    DoughnutChartComponent,
     ImageFallbackDirective
   ],
   templateUrl: './admin-dashboard.component.html',
@@ -113,11 +56,9 @@ export class AdminDashboardComponent implements OnInit {
   // UI state signals
   tableInitialized = signal(false);
 
-  // Chart data signals
-  categoryChartData = signal<ChartData | null>(null);
-  categoryChartOptions = signal<ChartOptions | null>(null);
-  brandChartData = signal<ChartData | null>(null);
-  brandChartOptions = signal<ChartOptions | null>(null);
+  // Chart data signals (simplified for reusable components)
+  categoryChartData = signal<DoughnutChartItem[]>([]);
+  brandChartData = signal<DoughnutChartItem[]>([]);
 
   // Tab state
   activeTab = signal<'analytics' | 'top-products' | 'insights'>('analytics');
@@ -180,104 +121,21 @@ export class AdminDashboardComponent implements OnInit {
     const currentStats = this.stats();
     if (!currentStats) return;
 
-    this.prepareCategoryChart(currentStats);
-    this.prepareBrandChart(currentStats);
-  }
+    // Prepare category chart data
+    this.categoryChartData.set(
+      currentStats.sales_by_category.map(item => ({
+        label: this.getCategoryName(item),
+        value: item.total_sales
+      }))
+    );
 
-  private prepareCategoryChart(stats: DashboardStats) {
-    const categoryLabels = stats.sales_by_category.map(item => this.getCategoryName(item));
-    const categorySales = stats.sales_by_category.map(item => item.total_sales);
-
-    this.categoryChartData.set({
-      labels: categoryLabels,
-      datasets: [{
-        label: this.translateService.instant('admin.dashboard.sales_by_category'),
-        data: categorySales,
-        backgroundColor: [
-          '#6366f1', '#8b5cf6', '#a855f7', '#d946ef', '#ec4899',
-          '#f43f5e', '#f97316', '#eab308', '#22c55e', '#14b8a6'
-        ],
-        hoverBackgroundColor: [
-          '#818cf8', '#a78bfa', '#c084fc', '#e879f9', '#f472b6',
-          '#fb7185', '#fb923c', '#facc15', '#4ade80', '#2dd4bf'
-        ],
-        borderWidth: 0,
-        hoverOffset: 8
-      }]
-    });
-
-    this.categoryChartOptions.set(this.getChartOptions());
-  }
-
-  private prepareBrandChart(stats: DashboardStats) {
-    const brandLabels = stats.sales_by_brand.map(item => this.getBrandName(item));
-    const brandSales = stats.sales_by_brand.map(item => item.total_sales);
-
-    this.brandChartData.set({
-      labels: brandLabels,
-      datasets: [{
-        label: this.translateService.instant('admin.dashboard.sales_by_brand'),
-        data: brandSales,
-        backgroundColor: [
-          '#0ea5e9', '#06b6d4', '#14b8a6', '#10b981', '#22c55e',
-          '#84cc16', '#eab308', '#f59e0b', '#f97316', '#ef4444'
-        ],
-        hoverBackgroundColor: [
-          '#38bdf8', '#22d3ee', '#2dd4bf', '#34d399', '#4ade80',
-          '#a3e635', '#facc15', '#fbbf24', '#fb923c', '#f87171'
-        ],
-        borderWidth: 0,
-        hoverOffset: 8
-      }]
-    });
-
-    this.brandChartOptions.set(this.getChartOptions());
-  }
-
-  private getChartOptions(): ChartOptions {
-    return {
-      cutout: '55%',
-      radius: '85%',
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          position: 'bottom',
-          labels: {
-            usePointStyle: true,
-            pointStyle: 'circle',
-            padding: 20,
-            font: {
-              size: 12,
-              weight: '500'
-            }
-          }
-        },
-        tooltip: {
-          backgroundColor: 'rgba(0, 0, 0, 0.8)',
-          titleFont: { size: 14, weight: 'bold' },
-          bodyFont: { size: 13 },
-          padding: 12,
-          cornerRadius: 8,
-          displayColors: true,
-          boxPadding: 6,
-          callbacks: {
-            label: (context: TooltipContext) => {
-              const label = context.label || '';
-              const value = context.raw || 0;
-              const total = context.dataset.data.reduce((a: number, b: number) => a + b, 0);
-              const percentage = ((value / total) * 100).toFixed(1);
-              return `${label}: ${this.currencyService.formatCurrency(value)} (${percentage}%)`;
-            }
-          }
-        }
-      },
-      animation: {
-        animateRotate: true,
-        animateScale: true
-      },
-      locale: this.translateService.currentLang === 'ar' ? 'ar-SA' : this.translateService.currentLang
-    };
+    // Prepare brand chart data
+    this.brandChartData.set(
+      currentStats.sales_by_brand.map(item => ({
+        label: this.getBrandName(item),
+        value: item.total_sales
+      }))
+    );
   }
 
   // Navigation methods

@@ -1,13 +1,38 @@
 // Sales Report component styles
-// Uses primarily PrimeNG utilities - minimal custom SCSS
 
-.kpi-section {
-  margin-bottom: var(--spacing-md);
+.admin-list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
 }
 
-.stat-card--large {
-  .stat-card__value {
-    font-size: 1.75rem;
+.header-stats {
+  display: flex;
+  align-items: center;
+}
+
+.header-kpi {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--primary-gradient, linear-gradient(135deg, var(--primary-color), var(--primary-700)));
+  border-radius: var(--radius-lg);
+  color: white;
+
+  &__value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  &__label {
+    font-size: 0.75rem;
+    opacity: 0.9;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
   }
 }
 
@@ -17,12 +42,50 @@
   margin-bottom: var(--spacing-md);
 }
 
+.charts-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--spacing-md);
+
+  @media (min-width: 992px) {
+    grid-template-columns: 1.5fr 1fr;
+  }
+}
+
 .chart-container {
   height: 350px;
   padding: var(--spacing-md);
+}
 
-  p-chart {
-    display: block;
-    height: 100%;
+.chart-container-large {
+  height: 400px;
+  padding: var(--spacing-md);
+
+  @media (min-width: 768px) {
+    height: 450px;
+  }
+}
+
+.chart-body {
+  min-height: 280px;
+  padding: var(--spacing-md);
+}
+
+.card-header__actions {
+  margin-left: auto;
+}
+
+.limit-select {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-md);
+  background: var(--surface-card);
+  color: var(--text-color);
+  font-size: 0.875rem;
+  cursor: pointer;
+
+  &:focus {
+    outline: none;
+    border-color: var(--primary-color);
   }
 }

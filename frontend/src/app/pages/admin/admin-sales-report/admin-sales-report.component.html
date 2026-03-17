@@ -1,5 +1,5 @@
 <app-agroclik-page-container>
-  <!-- Top Section: Header + KPI + Period Selector -->
+  <!-- Top Section: Header + Period Selector -->
   <div pageTop>
     @if (loading()) {
       <!-- Header Skeleton -->
@@ -14,18 +14,8 @@
             <div class="skeleton skeleton-text" style="width: 240px; height: 16px; margin-top: 8px;"></div>
           </div>
         </div>
-      </div>
-
-      <!-- KPI Card Skeleton -->
-      <div class="kpi-section animate-item" style="--item-delay: 50ms;">
-        <div class="stat-card stat-card--large">
-          <div class="stat-card__content">
-            <span class="stat-card__value">
-              <span class="skeleton" style="width: 40px; height: 40px; border-radius: var(--radius-md);"></span>
-              <span class="skeleton skeleton-text" style="width: 120px; height: 32px;"></span>
-            </span>
-            <span class="skeleton skeleton-text" style="width: 100px; height: 14px; margin-top: 8px;"></span>
-          </div>
+        <div class="header-stats">
+          <div class="skeleton" style="width: 150px; height: 48px; border-radius: var(--radius-md);"></div>
         </div>
       </div>
 
@@ -34,7 +24,7 @@
         <div class="skeleton" style="width: 100%; max-width: 400px; height: 44px; border-radius: var(--radius-xl);"></div>
       </div>
     } @else {
-      <!-- Header -->
+      <!-- Header with Total Sales -->
       <div class="admin-list-header animate-item" style="--item-delay: 0ms;">
         <div class="header-title">
           <div class="admin-icon-wrapper">
@@ -48,22 +38,15 @@
             <p>{{ 'admin.sales_report.subtitle' | translate }}</p>
           </div>
         </div>
-      </div>
-
-      <!-- Total Sales KPI -->
-      @if (salesReport()) {
-        <div class="kpi-section animate-item" style="--item-delay: 50ms;">
-          <div class="stat-card stat-card--large">
-            <div class="stat-card__content">
-              <span class="stat-card__value">
-                <span class="stat-card__icon stat-card__icon--success"><i class="pi pi-wallet"></i></span>
-                {{ formatCurrency(salesReport()!.total_sales) }}
-              </span>
-              <span class="stat-card__label">{{ 'admin.sales_report.total_sales' | translate }}</span>
+        @if (salesReport()) {
+          <div class="header-stats">
+            <div class="header-kpi">
+              <span class="header-kpi__value">{{ formatCurrency(salesReport()!.total_sales) }}</span>
+              <span class="header-kpi__label">{{ 'admin.sales_report.total_sales' | translate }}</span>
             </div>
           </div>
-        </div>
-      }
+        }
+      </div>
 
       <!-- Period Selector -->
       <div class="period-selector animate-item" style="--item-delay: 100ms;">
@@ -82,11 +65,34 @@
     }
   </div>
 
-  <!-- Main Section: Chart -->
+  <!-- Main Section: Charts -->
   <div pageMain>
     @if (loading()) {
-      <!-- Chart Skeleton -->
-      <div class="card card--no-hover animate-item" style="--item-delay: 150ms;">
+      <!-- Chart Skeletons -->
+      <div class="charts-grid">
+        <div class="card card--no-hover animate-item" style="--item-delay: 150ms;">
+          <div class="card-header">
+            <div class="skeleton" style="width: 32px; height: 32px; border-radius: var(--radius-md);"></div>
+            <div class="skeleton skeleton-text" style="width: 140px; height: 20px;"></div>
+          </div>
+          <div class="card-body chart-container">
+            <div class="skeleton" style="width: 100%; height: 300px; border-radius: var(--radius-md);"></div>
+          </div>
+        </div>
+
+        <div class="card card--no-hover animate-item" style="--item-delay: 200ms;">
+          <div class="card-header">
+            <div class="skeleton" style="width: 32px; height: 32px; border-radius: var(--radius-md);"></div>
+            <div class="skeleton skeleton-text" style="width: 140px; height: 20px;"></div>
+          </div>
+          <div class="card-body chart-body">
+            <div class="skeleton" style="width: 200px; height: 200px; border-radius: 50%; margin: 0 auto;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Products Bar Chart Skeleton -->
+      <div class="card card--no-hover animate-item" style="--item-delay: 250ms; margin-top: var(--spacing-md);">
         <div class="card-header">
           <div class="skeleton" style="width: 32px; height: 32px; border-radius: var(--radius-md);"></div>
           <div class="skeleton skeleton-text" style="width: 140px; height: 20px;"></div>
@@ -95,29 +101,82 @@
           <div class="skeleton" style="width: 100%; height: 300px; border-radius: var(--radius-md);"></div>
         </div>
       </div>
-    } @else if (hasData()) {
-      <!-- Chart Card -->
-      <div class="card card--no-hover animate-item" style="--item-delay: 150ms;">
-        <div class="card-header">
-          <div class="card-header__icon card-header__icon--primary">
-            <i class="pi pi-chart-line"></i>
+    } @else {
+      <div class="charts-grid">
+        <!-- Sales Over Time Line Chart -->
+        <div class="card card--no-hover animate-item" style="--item-delay: 150ms;">
+          <div class="card-header">
+            <div class="card-header__icon card-header__icon--primary">
+              <i class="pi pi-chart-line"></i>
+            </div>
+            <h3 class="card-header__title">{{ 'admin.sales_report.chart_title' | translate }}</h3>
           </div>
-          <h3 class="card-header__title">{{ 'admin.sales_report.chart_title' | translate }}</h3>
+          <div class="card-body chart-container">
+            <app-line-chart
+              [data]="lineChartData()"
+              [loading]="loading()"
+              color="primary"
+              emptyMessage="admin.sales_report.no_data"
+            />
+          </div>
         </div>
-        <div class="card-body chart-container">
-          @if (chartData()) {
-            <p-chart type="line" [data]="chartData()" [options]="chartOptions()"></p-chart>
-          }
+
+        <!-- Sales by Category Doughnut Chart -->
+        <div class="card card--no-hover animate-item" style="--item-delay: 200ms;">
+          <div class="card-header">
+            <div class="card-header__icon card-header__icon--purple">
+              <i class="pi pi-chart-pie"></i>
+            </div>
+            <h3 class="card-header__title">{{ 'admin.sales_report.by_category' | translate }}</h3>
+            <div class="card-header__actions">
+              <select
+                class="limit-select"
+                [value]="selectedCategoryLimit()"
+                (change)="selectCategoryLimit(+$any($event.target).value)">
+                @for (option of categoryLimitOptions; track option.value) {
+                  <option [value]="option.value">{{ option.label }}</option>
+                }
+              </select>
+            </div>
+          </div>
+          <div class="card-body chart-body">
+            <app-doughnut-chart
+              [data]="categoryChartData()"
+              [loading]="loading()"
+              colorScheme="purple"
+              emptyMessage="admin.sales_report.no_category_data"
+            />
+          </div>
         </div>
       </div>
-    } @else {
-      <!-- Empty State -->
-      <div class="empty-state animate-item" style="--item-delay: 150ms;">
-        <div class="empty-state__icon empty-state__icon--secondary">
-          <i class="pi pi-chart-line"></i>
+
+      <!-- Top Products Bar Chart -->
+      <div class="card card--no-hover animate-item" style="--item-delay: 250ms; margin-top: var(--spacing-md);">
+        <div class="card-header">
+          <div class="card-header__icon card-header__icon--success">
+            <i class="pi pi-shopping-bag"></i>
+          </div>
+          <h3 class="card-header__title">{{ 'admin.sales_report.top_products' | translate }}</h3>
+          <div class="card-header__actions">
+            <select
+              class="limit-select"
+              [value]="selectedProductLimit()"
+              (change)="selectProductLimit(+$any($event.target).value)">
+              @for (option of productLimitOptions; track option.value) {
+                <option [value]="option.value">{{ option.label }}</option>
+              }
+            </select>
+          </div>
         </div>
-        <h3 class="empty-state__title">{{ 'admin.sales_report.no_data' | translate }}</h3>
-        <p class="empty-state__description">{{ 'admin.sales_report.no_data_description' | translate }}</p>
+        <div class="card-body chart-container-large">
+          <app-bar-chart
+            [data]="productsChartData()"
+            [loading]="loading()"
+            color="success"
+            [horizontal]="true"
+            emptyMessage="admin.sales_report.no_products_data"
+          />
+        </div>
       </div>
     }
   </div>

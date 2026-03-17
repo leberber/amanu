@@ -1,0 +1,171 @@
+import { Component, input, computed, inject, DestroyRef, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ChartModule } from 'primeng/chart';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { CurrencyService } from '../../../core/services/currency.service';
+import { onLanguageChange } from '../../../core/utils/language-change.util';
+
+export interface BarChartDataPoint {
+  label: string;
+  value: number;
+}
+
+export type BarChartColor = 'primary' | 'success' | 'warning' | 'danger' | 'info' | 'purple';
+
+const BAR_COLORS: Record<BarChartColor, { bg: string; hover: string }> = {
+  primary: { bg: 'rgba(99, 102, 241, 0.8)', hover: 'rgba(99, 102, 241, 1)' },
+  success: { bg: 'rgba(34, 197, 94, 0.8)', hover: 'rgba(34, 197, 94, 1)' },
+  warning: { bg: 'rgba(234, 179, 8, 0.8)', hover: 'rgba(234, 179, 8, 1)' },
+  danger: { bg: 'rgba(239, 68, 68, 0.8)', hover: 'rgba(239, 68, 68, 1)' },
+  info: { bg: 'rgba(14, 165, 233, 0.8)', hover: 'rgba(14, 165, 233, 1)' },
+  purple: { bg: 'rgba(139, 92, 246, 0.8)', hover: 'rgba(139, 92, 246, 1)' }
+};
+
+@Component({
+  selector: 'app-bar-chart',
+  standalone: true,
+  imports: [CommonModule, ChartModule, TranslateModule],
+  template: `
+    <div class="chart-wrapper">
+      @if (loading()) {
+        <div class="chart-skeleton">
+          <div class="skeleton" style="width: 100%; height: 100%; border-radius: var(--radius-md);"></div>
+        </div>
+      } @else if (hasData()) {
+        <p-chart type="bar" [data]="chartData()" [options]="chartOptions()"></p-chart>
+      } @else {
+        <div class="empty-state empty-state--compact">
+          <div class="empty-state__icon">
+            <i class="pi pi-chart-bar"></i>
+          </div>
+          <h3 class="empty-state__title">{{ emptyMessage() | translate }}</h3>
+        </div>
+      }
+    </div>
+  `,
+  styles: [`
+    .chart-wrapper {
+      height: 100%;
+      min-height: 150px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .chart-skeleton {
+      width: 100%;
+      height: 100%;
+    }
+
+    :host ::ng-deep p-chart {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+  `]
+})
+export class BarChartComponent implements OnInit {
+  // Inputs
+  data = input.required<BarChartDataPoint[]>();
+  label = input<string>('');
+  color = input<BarChartColor>('primary');
+  loading = input<boolean>(false);
+  emptyMessage = input<string>('common.no_data');
+  horizontal = input<boolean>(false);
+  formatAsCurrency = input<boolean>(true);
+  showLegend = input<boolean>(false);
+
+  // Services
+  private translateService = inject(TranslateService);
+  private currencyService = inject(CurrencyService);
+  private destroyRef = inject(DestroyRef);
+
+  // Internal state for re-rendering on language change
+  private languageTrigger = 0;
+
+  ngOnInit() {
+    onLanguageChange(this.translateService, this.destroyRef, () => {
+      this.languageTrigger++;
+    });
+  }
+
+  hasData = computed(() => {
+    const items = this.data();
+    return items && items.length > 0;
+  });
+
+  chartData = computed(() => {
+    const _ = this.languageTrigger;
+    const items = this.data();
+    const colorScheme = BAR_COLORS[this.color()];
+
+    return {
+      labels: items.map(item => item.label),
+      datasets: [{
+        label: this.label(),
+        data: items.map(item => item.value),
+        backgroundColor: colorScheme.bg,
+        hoverBackgroundColor: colorScheme.hover,
+        borderRadius: 6,
+        borderSkipped: false
+      }]
+    };
+  });
+
+  chartOptions = computed(() => {
+    const _ = this.languageTrigger;
+    const formatAsCurrency = this.formatAsCurrency();
+    const currencyService = this.currencyService;
+    const isHorizontal = this.horizontal();
+
+    return {
+      indexAxis: isHorizontal ? 'y' : 'x',
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: this.showLegend()
+        },
+        tooltip: {
+          backgroundColor: 'rgba(0, 0, 0, 0.8)',
+          titleFont: { size: 14, weight: 'bold' },
+          bodyFont: { size: 13 },
+          padding: 12,
+          cornerRadius: 8,
+          displayColors: false,
+          callbacks: {
+            label: (context: { raw: number }) => {
+              const value = context.raw || 0;
+              return formatAsCurrency
+                ? currencyService.formatCurrency(value)
+                : value.toLocaleString();
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: { display: isHorizontal },
+          ticks: {
+            font: { size: 11 },
+            maxRotation: 45,
+            minRotation: 0,
+            callback: isHorizontal
+              ? (value: number) => formatAsCurrency ? currencyService.formatCurrency(value) : value.toLocaleString()
+              : undefined
+          }
+        },
+        y: {
+          beginAtZero: true,
+          grid: { display: !isHorizontal, color: 'rgba(0, 0, 0, 0.05)' },
+          ticks: {
+            font: { size: 11 },
+            callback: !isHorizontal
+              ? (value: number) => formatAsCurrency ? currencyService.formatCurrency(value) : value.toLocaleString()
+              : undefined
+          }
+        }
+      }
+    };
+  });
+}

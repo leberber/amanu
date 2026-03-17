@@ -188,16 +188,12 @@
               <h3 class="card-header__title">{{ 'admin.dashboard.sales_by_category' | translate }}</h3>
             </div>
             <div class="card-body chart-body">
-              @if (categoryChartData()) {
-                <p-chart type="doughnut" [data]="categoryChartData()" [options]="categoryChartOptions()"></p-chart>
-              } @else {
-                <div class="empty-state empty-state--compact">
-                  <div class="empty-state__icon">
-                    <i class="pi pi-chart-pie"></i>
-                  </div>
-                  <h3 class="empty-state__title">{{ 'admin.dashboard.no_category_data' | translate }}</h3>
-                </div>
-              }
+              <app-doughnut-chart
+                [data]="categoryChartData()"
+                [loading]="loading()"
+                colorScheme="purple"
+                emptyMessage="admin.dashboard.no_category_data"
+              />
             </div>
           </div>
 
@@ -210,16 +206,12 @@
               <h3 class="card-header__title">{{ 'admin.dashboard.sales_by_brand' | translate }}</h3>
             </div>
             <div class="card-body chart-body">
-              @if (brandChartData()) {
-                <p-chart type="doughnut" [data]="brandChartData()" [options]="brandChartOptions()"></p-chart>
-              } @else {
-                <div class="empty-state empty-state--compact">
-                  <div class="empty-state__icon">
-                    <i class="pi pi-chart-pie"></i>
-                  </div>
-                  <h3 class="empty-state__title">{{ 'admin.dashboard.no_brand_data' | translate }}</h3>
-                </div>
-              }
+              <app-doughnut-chart
+                [data]="brandChartData()"
+                [loading]="loading()"
+                colorScheme="blue"
+                emptyMessage="admin.dashboard.no_brand_data"
+              />
             </div>
           </div>
         </div>

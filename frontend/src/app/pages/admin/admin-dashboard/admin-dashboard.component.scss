@@ -1,11 +1,11 @@
 .dashboard-tabs {
-  margin-top: var(--space-4);
+  margin-top: var(--space-2);
 }
 
 .charts-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: var(--space-4);
+  gap: var(--space-3);
 
   @media (max-width: 1024px) {
     grid-template-columns: 1fr;
@@ -13,8 +13,32 @@
 }
 
 .chart-body {
+  min-height: 220px;
+  padding: var(--space-2);
+
   p-chart {
     display: block;
-    height: 300px;
+    height: 200px;
+  }
+}
+
+// Compact cards
+:host ::ng-deep {
+  .card-header {
+    padding: var(--space-3) var(--space-4);
+  }
+
+  .card-header__title {
+    font-size: 0.875rem;
+  }
+
+  .card-header__icon {
+    width: 28px;
+    height: 28px;
+    font-size: 0.875rem;
+  }
+
+  .card-body {
+    padding: var(--space-3);
   }
 }
