@@ -41,8 +41,13 @@
         @if (salesReport()) {
           <div class="header-stats">
             <div class="header-kpi">
-              <span class="header-kpi__value">{{ formatCurrency(salesReport()!.total_sales) }}</span>
-              <span class="header-kpi__label">{{ 'admin.sales_report.total_sales' | translate }}</span>
+              <div class="header-kpi__icon">
+                <i class="pi pi-wallet"></i>
+              </div>
+              <div class="header-kpi__content">
+                <span class="header-kpi__value">{{ formatCurrency(salesReport()!.total_sales) }}</span>
+                <span class="header-kpi__label">{{ 'admin.sales_report.total_sales' | translate }}</span>
+              </div>
             </div>
           </div>
         }
