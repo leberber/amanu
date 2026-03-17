@@ -30,16 +30,23 @@ def read_user_groups(
     query = query.order_by(UserGroup.name)
     groups = session.exec(query).all()
 
+    if not groups:
+        return []
+
+    # Batch load user counts for all groups in one query
+    group_ids = [g.id for g in groups]
+    counts = session.exec(
+        select(UserGroupLink.group_id, func.count(UserGroupLink.user_id))
+        .where(UserGroupLink.group_id.in_(group_ids))
+        .group_by(UserGroupLink.group_id)
+    ).all()
+    count_map = {group_id: cnt for group_id, cnt in counts}
+
     # Add user count for each group
     result = []
     for group in groups:
         group_dict = UserGroupRead.model_validate(group).model_dump()
-        # Count users in this group
-        count_query = select(func.count(UserGroupLink.user_id)).where(
-            UserGroupLink.group_id == group.id
-        )
-        user_count = session.exec(count_query).one()
-        group_dict["user_count"] = user_count
+        group_dict["user_count"] = count_map.get(group.id, 0)
         result.append(UserGroupRead(**group_dict))
 
     return result

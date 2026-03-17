@@ -397,6 +397,14 @@ def calculate_discount(
     # Calculate discount based on scope
     discount_amount = 0
 
+    # Batch load products for category/brand scope checks
+    products_map = {}
+    if promotion.scope in [PromotionScope.CATEGORY, PromotionScope.BRAND]:
+        product_ids = [item.product_id for item in request.cart_items]
+        if product_ids:
+            products = session.exec(select(Product).where(Product.id.in_(product_ids))).all()
+            products_map = {p.id: p for p in products}
+
     if promotion.scope == PromotionScope.GLOBAL:
         # Apply to entire order
         discount_amount = promotion.calculate_discount(subtotal)
@@ -405,7 +413,7 @@ def calculate_discount(
         # Get products in the category and calculate their total
         category_total = 0
         for item in request.cart_items:
-            product = session.get(Product, item.product_id)
+            product = products_map.get(item.product_id)
             if product and product.category_id == promotion.category_id:
                 category_total += item.unit_price * item.quantity
         discount_amount = promotion.calculate_discount(category_total)
@@ -414,7 +422,7 @@ def calculate_discount(
         # Get products from the brand and calculate their total
         brand_total = 0
         for item in request.cart_items:
-            product = session.get(Product, item.product_id)
+            product = products_map.get(item.product_id)
             if product and product.brand_id == promotion.brand_id:
                 brand_total += item.unit_price * item.quantity
         discount_amount = promotion.calculate_discount(brand_total)

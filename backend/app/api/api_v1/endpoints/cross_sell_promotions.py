@@ -37,10 +37,24 @@ def get_product_info(session: Session, product_ids: List[int]) -> dict:
     return {p.id: {"name": p.name, "image": p.image_url} for p in products}
 
 
-def promotion_to_read(promotion: CrossSellPromotion, session: Session) -> CrossSellPromotionRead:
-    """Convert CrossSellPromotion to CrossSellPromotionRead with product names and images"""
-    # Get target product info
-    target_product = session.get(Product, promotion.target_product_id)
+def promotion_to_read(
+    promotion: CrossSellPromotion,
+    session: Session,
+    products_map: dict = None
+) -> CrossSellPromotionRead:
+    """Convert CrossSellPromotion to CrossSellPromotionRead with product names and images.
+
+    Args:
+        promotion: The promotion to convert
+        session: Database session
+        products_map: Optional pre-loaded {product_id: Product} for batch optimization
+    """
+    # Get target product info - use map if provided
+    if products_map:
+        target_product = products_map.get(promotion.target_product_id)
+    else:
+        target_product = session.get(Product, promotion.target_product_id)
+
     target_name = target_product.name if target_product else None
     target_image = target_product.image_url if target_product else None
     target_pieces_per_box = target_product.pieces_per_box if target_product else None
@@ -49,11 +63,22 @@ def promotion_to_read(promotion: CrossSellPromotion, session: Session) -> CrossS
     trigger_names = []
     trigger_images = []
     if promotion.trigger_product_ids:
-        product_info = get_product_info(session, promotion.trigger_product_ids)
-        for pid in promotion.trigger_product_ids:
-            info = product_info.get(pid, {"name": f"Product {pid}", "image": None})
-            trigger_names.append(info["name"])
-            trigger_images.append(info["image"])
+        if products_map:
+            # Use pre-loaded map
+            for pid in promotion.trigger_product_ids:
+                product = products_map.get(pid)
+                if product:
+                    trigger_names.append(product.name)
+                    trigger_images.append(product.image_url)
+                else:
+                    trigger_names.append(f"Product {pid}")
+                    trigger_images.append(None)
+        else:
+            product_info = get_product_info(session, promotion.trigger_product_ids)
+            for pid in promotion.trigger_product_ids:
+                info = product_info.get(pid, {"name": f"Product {pid}", "image": None})
+                trigger_names.append(info["name"])
+                trigger_images.append(info["image"])
 
     return CrossSellPromotionRead(
         id=promotion.id,
@@ -76,6 +101,25 @@ def promotion_to_read(promotion: CrossSellPromotion, session: Session) -> CrossS
     )
 
 
+def promotions_to_read_batch(promotions: list, session: Session) -> list:
+    """Convert multiple promotions with batch-loaded products."""
+    if not promotions:
+        return []
+
+    # Collect all product IDs needed
+    product_ids = set()
+    for p in promotions:
+        product_ids.add(p.target_product_id)
+        if p.trigger_product_ids:
+            product_ids.update(p.trigger_product_ids)
+
+    # Batch load all products
+    products = session.exec(select(Product).where(Product.id.in_(product_ids))).all()
+    products_map = {p.id: p for p in products}
+
+    return [promotion_to_read(p, session, products_map) for p in promotions]
+
+
 @router.get("/active", response_model=List[CrossSellPromotionRead])
 def read_active_cross_sell_promotions(
     session: Session = Depends(get_session),
@@ -94,7 +138,7 @@ def read_active_cross_sell_promotions(
     query = query.order_by(CrossSellPromotion.created_at.desc())
 
     promotions = session.exec(query).all()
-    return [promotion_to_read(p, session) for p in promotions]
+    return promotions_to_read_batch(promotions, session)
 
 
 @router.get("", response_model=List[CrossSellPromotionRead])
@@ -120,7 +164,7 @@ def read_cross_sell_promotions(
         )
 
     promotions = session.exec(query).all()
-    return [promotion_to_read(p, session) for p in promotions]
+    return promotions_to_read_batch(promotions, session)
 
 
 @router.get("/{promotion_id}", response_model=CrossSellPromotionRead)
