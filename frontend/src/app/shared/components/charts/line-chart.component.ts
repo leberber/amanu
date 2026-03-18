@@ -182,7 +182,10 @@ export class LineChartComponent implements OnInit {
         intersect: false,
         mode: 'index'
       },
-      animation: false
+      animation: {
+        duration: 400,
+        easing: 'easeOutQuart'
+      }
     };
   });
 }

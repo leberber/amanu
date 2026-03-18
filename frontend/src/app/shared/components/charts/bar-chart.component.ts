@@ -264,7 +264,10 @@ export class BarChartComponent implements OnInit {
           }
         }
       },
-      animation: false
+      animation: {
+        duration: 400,
+        easing: 'easeOutQuart'
+      }
     };
   });
 }

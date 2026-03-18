@@ -258,7 +258,10 @@ export class DoughnutChartComponent implements OnInit {
         },
         datalabels: { display: false }
       },
-      animation: false
+      animation: {
+        duration: 400,
+        easing: 'easeOutQuart'
+      }
     };
   });
 
