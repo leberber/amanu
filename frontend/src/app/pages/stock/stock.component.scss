@@ -89,6 +89,11 @@
   .segment-control__item {
     padding: var(--space-2) var(--space-4);
   }
+
+  .count.cart {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: white;
+  }
 }
 
 // Sync All button in header
@@ -1171,42 +1176,6 @@
   }
 }
 
-.btn-invoice {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.625rem 1rem;
-  background: linear-gradient(135deg, #f59e0b, #d97706);
-  color: white;
-  border: none;
-  border-radius: var(--radius-md);
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.15s ease;
-
-  &:hover {
-    filter: brightness(1.1);
-    transform: translateY(-1px);
-  }
-
-  i {
-    font-size: 0.9rem;
-  }
-
-  .badge {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 18px;
-    height: 18px;
-    padding: 0 0.4rem;
-    background: rgba(255, 255, 255, 0.25);
-    border-radius: 9px;
-    font-size: 0.7rem;
-    font-weight: 600;
-  }
-}
 
 // =============================================================================
 // CLICKABLE THUMBNAIL
@@ -1388,54 +1357,8 @@
 }
 
 // =============================================================================
-// INVOICE PREVIEW DIALOG
+// SUPPLIER GROUP (used in cart tab)
 // =============================================================================
-
-.invoice-preview {
-  padding: 1rem;
-}
-
-.invoice-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 1.5rem;
-  padding-bottom: 1rem;
-  border-bottom: 2px solid var(--surface-border);
-}
-
-.invoice-company {
-  h2 {
-    margin: 0 0 0.25rem 0;
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--text-color);
-  }
-
-  p {
-    margin: 0;
-    font-size: 0.875rem;
-    color: var(--text-color-secondary);
-  }
-}
-
-.invoice-summary {
-  text-align: right;
-
-  .summary-item {
-    display: block;
-    font-size: 0.875rem;
-    color: var(--text-color-secondary);
-    margin-bottom: 0.25rem;
-  }
-
-  .summary-total {
-    display: block;
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: var(--primary-color);
-  }
-}
 
 .supplier-group {
   margin-bottom: 1.5rem;
@@ -1477,88 +1400,9 @@
   }
 }
 
-.invoice-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.875rem;
-
-  th, td {
-    padding: 0.6rem 0.75rem;
-    text-align: left;
-    border-bottom: 1px solid var(--surface-border);
-  }
-
-  th {
-    font-weight: 600;
-    color: var(--text-color-secondary);
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.03em;
-    background: var(--surface-100);
-  }
-
-  tbody tr:hover {
-    background: var(--surface-50);
-  }
-
-  tfoot {
-    td {
-      padding: 0.75rem;
-      border-bottom: none;
-      border-top: 2px solid var(--surface-border);
-      background: var(--surface-100);
-    }
-  }
-
-  .text-center {
-    text-align: center;
-  }
-
-  .text-right {
-    text-align: right;
-  }
-
-  .font-semibold {
-    font-weight: 600;
-  }
-}
-
 .brand-pill.small {
   font-size: 0.7rem;
   padding: 0.15rem 0.4rem;
-}
-
-.invoice-grand-total {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  gap: 1rem;
-  margin-top: 1.5rem;
-  padding: 1rem;
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(37, 99, 235, 0.05));
-  border-radius: var(--radius-lg);
-  border: 1px solid rgba(59, 130, 246, 0.2);
-
-  span:first-child {
-    font-size: 1rem;
-    font-weight: 500;
-    color: var(--text-color);
-  }
-
-  .total-value {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--primary-color);
-  }
-}
-
-.invoice-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.75rem;
-  margin-top: 1.5rem;
-  padding-top: 1rem;
-  border-top: 1px solid var(--surface-border);
 }
 
 // Dialog footer buttons
@@ -1665,5 +1509,326 @@ $group-border: rgba(59, 130, 246, 0.2);
   }
   100% {
     opacity: 1;
+  }
+}
+
+
+// =============================================================================
+// CART BUTTON (in table row actions)
+// =============================================================================
+
+.btn-cart {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: transparent;
+  color: var(--text-color-secondary);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover {
+    background: rgba(59, 130, 246, 0.1);
+    color: #3b82f6;
+    border-color: rgba(59, 130, 246, 0.2);
+  }
+
+  &.in-cart {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: white;
+    border-color: #2563eb;
+
+    &:hover {
+      filter: brightness(1.1);
+    }
+  }
+
+  i {
+    font-size: 0.9rem;
+  }
+}
+
+// =============================================================================
+// CART TAB
+// =============================================================================
+
+.cart-tab {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+
+  .table-header {
+    flex-shrink: 0;
+  }
+}
+
+.cart-title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-color);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+
+  i {
+    color: var(--primary-color);
+  }
+
+  .cart-count-label {
+    font-size: 0.875rem;
+    font-weight: 400;
+    color: var(--text-color-secondary);
+  }
+}
+
+.cart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--surface-border);
+
+  h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-color);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+
+    i {
+      color: var(--primary-color);
+    }
+  }
+
+  .cart-count {
+    margin-left: 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 400;
+    color: var(--text-color-secondary);
+  }
+}
+
+.cart-header-left {
+  display: flex;
+  align-items: center;
+}
+
+.cart-header-right {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.btn-clear-cart {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: transparent;
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover {
+    background: rgba(239, 68, 68, 0.1);
+    border-color: rgba(239, 68, 68, 0.5);
+  }
+
+  i {
+    font-size: 0.85rem;
+  }
+}
+
+.btn-download-pdf {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover {
+    filter: brightness(1.1);
+    transform: translateY(-1px);
+  }
+
+  i {
+    font-size: 0.85rem;
+  }
+}
+
+.cart-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 2rem;
+  max-width: 900px;
+  margin: 0 auto;
+
+  .supplier-group {
+    margin-bottom: 1.5rem;
+  }
+
+  .supplier-header {
+    .supplier-total {
+      margin-left: auto;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--primary-color);
+    }
+  }
+}
+
+.cart-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+
+  th, td {
+    padding: 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid var(--surface-border);
+  }
+
+  th {
+    font-weight: 600;
+    color: var(--text-color-secondary);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    background: var(--surface-100);
+  }
+
+  tbody tr {
+    transition: background 0.15s ease;
+
+    &:hover {
+      background: var(--surface-50);
+    }
+  }
+
+  .col-image {
+    width: 60px;
+    padding: 0.5rem !important;
+
+    .product-thumbnail {
+      width: 50px;
+      height: 50px;
+    }
+  }
+
+  .col-actions {
+    width: 50px;
+    text-align: center;
+  }
+}
+
+.btn-remove {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: transparent;
+  color: var(--text-color-secondary);
+  border: 1px solid transparent;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    border-color: rgba(239, 68, 68, 0.2);
+  }
+
+  i {
+    font-size: 0.8rem;
+  }
+}
+
+.cart-grand-total {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  padding: 1.25rem 1.5rem;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(37, 99, 235, 0.05));
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  max-width: 900px;
+  margin-left: auto;
+  margin-right: auto;
+
+  span:first-child {
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: var(--text-color);
+  }
+
+  .total-value {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--primary-color);
+  }
+}
+
+// =============================================================================
+// MOBILE OPTIMIZATIONS FOR CART
+// =============================================================================
+
+@media (max-width: 768px) {
+  .cart-title {
+    font-size: 1rem;
+
+    .cart-count-label {
+      display: none;
+    }
+  }
+
+  .btn-clear-cart,
+  .btn-download-pdf {
+    .btn-text {
+      display: none;
+    }
+  }
+
+  .cart-table {
+    font-size: 0.8rem;
+
+    th, td {
+      padding: 0.5rem;
+    }
+
+    .col-image {
+      display: none;
+    }
+  }
+
+  .cart-grand-total {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.5rem;
+
+    .total-value {
+      font-size: 1.5rem;
+    }
   }
 }

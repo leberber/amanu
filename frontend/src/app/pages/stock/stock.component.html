@@ -29,8 +29,10 @@
         [actionCount]="0"
       />
     } @else {
-      <!-- Stock Table -->
+      <!-- Table Container (fullscreen) -->
       <div class="table-container animate-item" [class.fullscreen]="isFullscreen()" style="--item-delay: 100ms;">
+        <!-- Stock Tab -->
+        @if (currentTab() === 'stock') {
         <div class="table-header">
           <div class="table-header-left">
             <app-table-search [(query)]="searchQuery" />
@@ -44,29 +46,31 @@
             <div class="segment-control segment-control--glass" style="margin-right: 40px;">
               <button
                 class="segment-control__item"
-                [class.active]="currentView() === 'active'"
-                (click)="currentView.set('active')">
+                [class.active]="currentView() === 'active' && currentTab() === 'stock'"
+                (click)="currentView.set('active'); currentTab.set('stock')">
                 <span>Actif</span>
                 <span class="count active">{{ activeCount() }}</span>
               </button>
               <button
                 class="segment-control__item"
-                [class.active]="currentView() === 'inactive'"
-                (click)="currentView.set('inactive')">
+                [class.active]="currentView() === 'inactive' && currentTab() === 'stock'"
+                (click)="currentView.set('inactive'); currentTab.set('stock')">
                 <span>Inactif</span>
                 <span class="count inactive">{{ hiddenCount() }}</span>
+              </button>
+              <button
+                class="segment-control__item"
+                [class.active]="currentTab() === 'cart'"
+                (click)="currentTab.set('cart')">
+                <span>Commande</span>
+                @if (cartCount() > 0) {
+                  <span class="count cart">{{ cartCount() }}</span>
+                }
               </button>
             </div>
             <button class="btn-add" (click)="addRow()" pTooltip="Ajouter une ligne">
               <i class="pi pi-plus"></i>
               <span class="btn-text">Ajouter</span>
-            </button>
-            <button class="btn-invoice" (click)="openInvoicePreview()" pTooltip="Générer Bon de Commande">
-              <i class="pi pi-file-pdf"></i>
-              <span class="btn-text">Commande</span>
-              @if (selectedCount() > 0) {
-                <span class="badge">{{ selectedCount() }}</span>
-              }
             </button>
             <button class="btn-download" (click)="downloadStock()" pTooltip="Télécharger CSV">
               <i class="pi pi-download"></i>
@@ -612,6 +616,14 @@
                     <!-- Actions -->
                     <td class="col-actions">
                       <div class="action-buttons">
+                        <button
+                          class="btn-cart"
+                          [class.in-cart]="isInCart(row.id)"
+                          (click)="toggleCart(row)"
+                          [pTooltip]="isInCart(row.id) ? 'Retirer du panier' : 'Ajouter au panier'"
+                        >
+                          <i class="pi" [class.pi-shopping-cart]="!isInCart(row.id)" [class.pi-check]="isInCart(row.id)"></i>
+                        </button>
                         <button class="btn-save-row" [class.dirty]="isRowDirty(row.id) || isNewRow(row)" (click)="saveRow(row)" [disabled]="savingRow() === row.id" pTooltip="Enregistrer">
                           @if (savingRow() === row.id) {
                             <i class="pi pi-spin pi-spinner"></i>
@@ -653,121 +665,138 @@
             </div>
           </div>
         }
-      </div>
+        } <!-- End Stock Tab Content -->
+
+        <!-- Cart Tab (Bon de Commande) -->
+        @if (currentTab() === 'cart') {
+        <div class="cart-tab">
+        <!-- Cart Header with Segment Control -->
+        <div class="table-header">
+          <div class="table-header-left">
+            <h2 class="cart-title">
+              <i class="pi pi-shopping-cart"></i>
+              Bon de Commande
+              <span class="cart-count-label">{{ cartCount() }} produits</span>
+            </h2>
+          </div>
+          <div class="table-actions">
+            <div class="segment-control segment-control--glass" style="margin-right: 40px;">
+              <button
+                class="segment-control__item"
+                (click)="currentView.set('active'); currentTab.set('stock')">
+                <span>Actif</span>
+                <span class="count active">{{ activeCount() }}</span>
+              </button>
+              <button
+                class="segment-control__item"
+                (click)="currentView.set('inactive'); currentTab.set('stock')">
+                <span>Inactif</span>
+                <span class="count inactive">{{ hiddenCount() }}</span>
+              </button>
+              <button
+                class="segment-control__item active"
+                (click)="currentTab.set('cart')">
+                <span>Commande</span>
+                @if (cartCount() > 0) {
+                  <span class="count cart">{{ cartCount() }}</span>
+                }
+              </button>
+            </div>
+            @if (cartCount() > 0) {
+              <button class="btn-clear-cart" (click)="clearCart()" pTooltip="Vider le panier">
+                <i class="pi pi-trash"></i>
+                <span class="btn-text">Vider</span>
+              </button>
+              <button class="btn-download-pdf" (click)="downloadCartPDF()" pTooltip="Télécharger PDF">
+                <i class="pi pi-file-pdf"></i>
+                <span class="btn-text">PDF</span>
+              </button>
+            }
+          </div>
+        </div>
+
+        @if (cartCount() === 0) {
+          <!-- Empty Cart State -->
+          <div class="empty-state">
+            <div class="empty-state__icon">
+              <i class="pi pi-shopping-cart"></i>
+            </div>
+            <h3 class="empty-state__title">Panier Vide</h3>
+            <p class="empty-state__description">Ajoutez des produits depuis l'onglet Stock en cliquant sur l'icône panier</p>
+            <button class="btn-primary" (click)="currentTab.set('stock')">
+              <i class="pi pi-arrow-left"></i>
+              Retour au Stock
+            </button>
+          </div>
+        } @else {
+          <!-- Cart Items Grouped by Supplier -->
+          <div class="cart-content">
+            @for (entry of cartGroupedBySupplier() | keyvalue; track entry.key) {
+              <div class="supplier-group">
+                <div class="supplier-header">
+                  <h3><i class="pi pi-truck"></i> {{ entry.key }}</h3>
+                  @if (entry.value[0].phone) {
+                    <span class="supplier-phone"><i class="pi pi-phone"></i> {{ entry.value[0].phone }}</span>
+                  }
+                  <span class="supplier-total">{{ getSupplierTotal(entry.value) | number:'1.0-0' }} DA</span>
+                </div>
+                <table class="cart-table">
+                  <thead>
+                    <tr>
+                      <th class="col-image">Image</th>
+                      <th>Produit</th>
+                      <th>Marque</th>
+                      <th class="text-center">Qté</th>
+                      <th class="text-right">Prix/Carton</th>
+                      <th class="text-right">Total</th>
+                      <th class="col-actions"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (row of entry.value; track row.id) {
+                      <tr>
+                        <td class="col-image">
+                          <img
+                            [src]="row.image"
+                            [alt]="row.name"
+                            class="product-thumbnail"
+                            loading="lazy"
+                            (error)="onImageError($event)"
+                          />
+                        </td>
+                        <td>{{ row.name }}</td>
+                        <td>
+                          <span class="brand-pill small" [style.background]="getBrandColor(row.brand).bg" [style.color]="getBrandColor(row.brand).text">{{ row.brand }}</span>
+                        </td>
+                        <td class="text-center">{{ row.nmbCarton }}</td>
+                        <td class="text-right">{{ row.prixCarton | number:'1.0-0' }}</td>
+                        <td class="text-right font-semibold">{{ row.prixCarton * row.nmbCarton | number:'1.0-0' }}</td>
+                        <td class="col-actions">
+                          <button class="btn-remove" (click)="removeFromCart(row)" pTooltip="Retirer">
+                            <i class="pi pi-times"></i>
+                          </button>
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            }
+
+            <!-- Grand Total -->
+            <div class="cart-grand-total">
+              <span>Total Général:</span>
+              <span class="total-value">{{ cartTotalValue() | number:'1.0-0' }} DA</span>
+            </div>
+          </div>
+        }
+        </div>
+        } <!-- End Cart Tab -->
+
+      </div> <!-- End table-container -->
     }
   </div>
 </app-agroclik-page-container>
-
-<!-- Invoice Preview Dialog -->
-<p-dialog
-  [(visible)]="showInvoiceDialog"
-  header="Aperçu Bon de Commande"
-  [modal]="true"
-  [style]="{ width: '90vw', maxWidth: '900px' }"
-  [contentStyle]="{ 'max-height': '70vh', 'overflow': 'auto' }"
-  [draggable]="false"
-  [resizable]="false"
->
-  <div class="invoice-preview">
-    <!-- Invoice Header -->
-    <div class="invoice-header">
-      <div class="invoice-company">
-        <h2>Bon de Commande</h2>
-        <p>Date: {{ invoiceDate | date:'dd/MM/yyyy HH:mm' }}</p>
-      </div>
-      <div class="invoice-summary">
-        <span class="summary-item">{{ selectedCount() }} produits</span>
-        <span class="summary-total">{{ selectedTotalValue() | number:'1.0-0' }} DA</span>
-      </div>
-    </div>
-
-    <!-- Grouped by Supplier -->
-    @if (groupBySupplier()) {
-      @for (entry of rowsGroupedBySupplier() | keyvalue; track entry.key) {
-        <div class="supplier-group">
-          <div class="supplier-header">
-            <h3><i class="pi pi-truck"></i> {{ entry.key }}</h3>
-            @if (entry.value[0].phone) {
-              <span class="supplier-phone"><i class="pi pi-phone"></i> {{ entry.value[0].phone }}</span>
-            }
-          </div>
-          <table class="invoice-table">
-            <thead>
-              <tr>
-                <th>Produit</th>
-                <th>Marque</th>
-                <th class="text-center">Qté</th>
-                <th class="text-right">Prix/Carton</th>
-                <th class="text-right">Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (row of entry.value; track row.id) {
-                <tr>
-                  <td>{{ row.name }}</td>
-                  <td><span class="brand-pill small" [style.background]="getBrandColor(row.brand).bg" [style.color]="getBrandColor(row.brand).text">{{ row.brand }}</span></td>
-                  <td class="text-center">{{ row.nmbCarton }}</td>
-                  <td class="text-right">{{ row.prixCarton | number:'1.0-0' }}</td>
-                  <td class="text-right font-semibold">{{ row.prixCarton * row.nmbCarton | number:'1.0-0' }}</td>
-                </tr>
-              }
-            </tbody>
-            <tfoot>
-              <tr>
-                <td colspan="4" class="text-right"><strong>Sous-total:</strong></td>
-                <td class="text-right font-semibold">{{ getSupplierTotal(entry.value) | number:'1.0-0' }} DA</td>
-              </tr>
-            </tfoot>
-          </table>
-        </div>
-      }
-    } @else {
-      <!-- Not Grouped -->
-      <table class="invoice-table">
-        <thead>
-          <tr>
-            <th>Produit</th>
-            <th>Marque</th>
-            <th>Fournisseur</th>
-            <th class="text-center">Qté</th>
-            <th class="text-right">Prix/Carton</th>
-            <th class="text-right">Total</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (row of selectedForInvoice(); track row.id) {
-            <tr>
-              <td>{{ row.name }}</td>
-              <td><span class="brand-pill small" [style.background]="getBrandColor(row.brand).bg" [style.color]="getBrandColor(row.brand).text">{{ row.brand }}</span></td>
-              <td>{{ row.supplier || '-' }}</td>
-              <td class="text-center">{{ row.nmbCarton }}</td>
-              <td class="text-right">{{ row.prixCarton | number:'1.0-0' }}</td>
-              <td class="text-right font-semibold">{{ row.prixCarton * row.nmbCarton | number:'1.0-0' }}</td>
-            </tr>
-          }
-        </tbody>
-      </table>
-    }
-
-    <!-- Grand Total -->
-    <div class="invoice-grand-total">
-      <span>Total Général:</span>
-      <span class="total-value">{{ selectedTotalValue() | number:'1.0-0' }} DA</span>
-    </div>
-
-    <!-- Action Buttons -->
-    <div class="invoice-actions">
-      <button class="btn-secondary" (click)="closeInvoiceDialog()">
-        <i class="pi pi-times"></i>
-        Fermer
-      </button>
-      <button class="btn-primary" (click)="downloadInvoicePDF()">
-        <i class="pi pi-download"></i>
-        Télécharger PDF
-      </button>
-    </div>
-  </div>
-</p-dialog>
 
 <!-- Image Lightbox with Upload -->
 @if (lightboxImage()) {

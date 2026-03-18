@@ -78,6 +78,7 @@ interface CategoryOption {
 })
 export class StockComponent implements OnInit, OnDestroy {
   private readonly DEFAULT_COLOR = { bg: 'rgba(100, 116, 139, 0.12)', text: '#64748b' };
+  private readonly CART_STORAGE_KEY = 'stock_cart_items';
 
   // Color caches to avoid recalculating on every change detection
   private readonly brandColorCache = new Map<string, { bg: string; text: string }>();
@@ -95,9 +96,6 @@ export class StockComponent implements OnInit, OnDestroy {
   searchQuery = signal('');
   dirtyRows = signal<Set<number>>(new Set());
   editingCell = signal<{ rowId: number; field: 'brand' | 'category' | 'priority' | 'packageType' | 'productUnit' | 'name' } | null>(null);
-  showInvoiceDialog = false;
-  groupBySupplier = signal(true);
-  invoiceDate = new Date();
   lightboxImage = signal<string | null>(null);
   lightboxRow = signal<RestockRow | null>(null);
   isDragging = signal(false);
@@ -114,6 +112,12 @@ export class StockComponent implements OnInit, OnDestroy {
   sortField = signal<string>('brand');
   sortOrder = signal<'asc' | 'desc'>('asc');
   purchaseColumnsExpanded = signal(false);
+
+  // Tab navigation
+  currentTab = signal<'stock' | 'cart'>('stock');
+
+  // Cart functionality
+  cartItemIds = signal<Set<number>>(new Set());
 
   priorityOptions = [
     { label: '-', value: 0 },
@@ -284,18 +288,24 @@ export class StockComponent implements OnInit, OnDestroy {
     return this.brandsList().map(b => ({ label: b.name, value: b.name }));
   });
 
-  selectedForInvoice = computed(() => this.allRows().filter(r => r.carry));
-
-  selectedCount = computed(() => this.selectedForInvoice().length);
-
-  selectedTotalValue = computed(() => this.selectedForInvoice().reduce((sum, r) => sum + (r.prixCarton * r.nmbCarton), 0));
-
   hiddenCount = computed(() => this.allRows().filter(r => r.hidden).length);
 
   activeCount = computed(() => this.allRows().filter(r => !r.hidden).length);
 
-  rowsGroupedBySupplier = computed(() => {
-    const rows = this.selectedForInvoice();
+  // Cart computed properties
+  cartItems = computed(() => {
+    const ids = this.cartItemIds();
+    return this.allRows().filter(r => ids.has(r.id));
+  });
+
+  cartCount = computed(() => this.cartItemIds().size);
+
+  cartTotalValue = computed(() =>
+    this.cartItems().reduce((sum, r) => sum + (r.prixCarton * r.nmbCarton), 0)
+  );
+
+  cartGroupedBySupplier = computed(() => {
+    const rows = this.cartItems();
     const groups = new Map<string, RestockRow[]>();
 
     rows.forEach(row => {
@@ -309,14 +319,69 @@ export class StockComponent implements OnInit, OnDestroy {
     return groups;
   });
 
-
   ngOnInit(): void {
     document.body.classList.add('fullscreen-active');
+    this.loadCartFromStorage();
     this.loadData();
   }
 
   ngOnDestroy(): void {
     document.body.classList.remove('fullscreen-active');
+  }
+
+  // Cart methods
+  private loadCartFromStorage(): void {
+    try {
+      const stored = localStorage.getItem(this.CART_STORAGE_KEY);
+      if (stored) {
+        const ids = JSON.parse(stored) as number[];
+        this.cartItemIds.set(new Set(ids));
+      }
+    } catch {
+      // Ignore parse errors
+    }
+  }
+
+  private saveCartToStorage(): void {
+    const ids = Array.from(this.cartItemIds());
+    localStorage.setItem(this.CART_STORAGE_KEY, JSON.stringify(ids));
+  }
+
+  addToCart(row: RestockRow): void {
+    this.cartItemIds.update(set => {
+      const newSet = new Set(set);
+      newSet.add(row.id);
+      return newSet;
+    });
+    this.saveCartToStorage();
+    this.toast.showSuccess(`${row.name} ajouté au panier`);
+  }
+
+  removeFromCart(row: RestockRow): void {
+    this.cartItemIds.update(set => {
+      const newSet = new Set(set);
+      newSet.delete(row.id);
+      return newSet;
+    });
+    this.saveCartToStorage();
+  }
+
+  toggleCart(row: RestockRow): void {
+    if (this.isInCart(row.id)) {
+      this.removeFromCart(row);
+    } else {
+      this.addToCart(row);
+    }
+  }
+
+  isInCart(rowId: number): boolean {
+    return this.cartItemIds().has(rowId);
+  }
+
+  clearCart(): void {
+    this.cartItemIds.set(new Set());
+    this.saveCartToStorage();
+    this.toast.showSuccess('Panier vidé');
   }
 
   loadData(): void {
@@ -1116,18 +1181,6 @@ export class StockComponent implements OnInit, OnDestroy {
     return color;
   }
 
-  openInvoicePreview(): void {
-    if (this.selectedCount() === 0) {
-      this.toast.showWarn('Aucun produit sélectionné. Activez "À Vendre" pour les produits souhaités.');
-      return;
-    }
-    this.showInvoiceDialog = true;
-  }
-
-  closeInvoiceDialog(): void {
-    this.showInvoiceDialog = false;
-  }
-
   openLightbox(imageUrl: string, row?: RestockRow): void {
     if (imageUrl && !imageUrl.includes('placeholder')) {
       this.lightboxImage.set(imageUrl);
@@ -1260,110 +1313,6 @@ export class StockComponent implements OnInit, OnDestroy {
     }, 100);
   }
 
-  downloadInvoicePDF(): void {
-    try {
-      const doc = new jsPDF();
-      const pageWidth = doc.internal.pageSize.getWidth();
-
-      // Header
-      doc.setFontSize(20);
-      doc.setFont('helvetica', 'bold');
-      doc.text('Bon de Commande', 14, 20);
-
-      doc.setFontSize(10);
-      doc.setFont('helvetica', 'normal');
-      doc.text(`Date: ${this.formatDate(this.invoiceDate.toISOString())}`, 14, 28);
-
-      if (this.groupBySupplier()) {
-        let yPosition = 40;
-        const groups = this.rowsGroupedBySupplier();
-
-        groups.forEach((rows, supplier) => {
-          if (yPosition > 250) {
-            doc.addPage();
-            yPosition = 20;
-          }
-
-          doc.setFontSize(12);
-          doc.setFont('helvetica', 'bold');
-          doc.text(`Fournisseur: ${supplier}`, 14, yPosition);
-
-          const phone = rows[0]?.phone;
-          if (phone) {
-            doc.setFontSize(10);
-            doc.setFont('helvetica', 'normal');
-            doc.text(`Tél: ${phone}`, 14, yPosition + 6);
-            yPosition += 6;
-          }
-
-          yPosition += 10;
-
-          const tableData = rows.map(row => [
-            row.name,
-            row.brand,
-            row.nmbCarton.toString(),
-            this.formatNumber(row.prixCarton),
-            this.formatNumber(row.prixCarton * row.nmbCarton)
-          ]);
-
-          const supplierTotal = rows.reduce((sum, r) => sum + (r.prixCarton * r.nmbCarton), 0);
-
-          autoTable(doc, {
-            startY: yPosition,
-            head: [['Produit', 'Marque', 'Qté', 'Prix/Carton', 'Total']],
-            body: tableData,
-            foot: [['', '', '', 'Total:', this.formatNumber(supplierTotal)]],
-            theme: 'striped',
-            headStyles: { fillColor: [59, 130, 246] },
-            footStyles: { fillColor: [240, 240, 240], textColor: [0, 0, 0], fontStyle: 'bold' },
-            margin: { left: 14, right: 14 },
-            styles: { fontSize: 9 },
-            columnStyles: {
-              0: { cellWidth: 60 },
-              1: { cellWidth: 40 },
-              2: { cellWidth: 20, halign: 'center' },
-              3: { cellWidth: 30, halign: 'right' },
-              4: { cellWidth: 30, halign: 'right' }
-            }
-          });
-
-          yPosition = (doc as any).lastAutoTable.finalY + 15;
-        });
-
-        doc.setFontSize(14);
-        doc.setFont('helvetica', 'bold');
-        doc.text(`Total Général: ${this.formatNumber(this.selectedTotalValue())} DA`, pageWidth - 14, yPosition, { align: 'right' });
-      } else {
-        const tableData = this.selectedForInvoice().map(row => [
-          row.name,
-          row.brand,
-          row.supplier || '-',
-          row.nmbCarton.toString(),
-          this.formatNumber(row.prixCarton),
-          this.formatNumber(row.prixCarton * row.nmbCarton)
-        ]);
-
-        autoTable(doc, {
-          startY: 40,
-          head: [['Produit', 'Marque', 'Fournisseur', 'Qté', 'Prix/Carton', 'Total']],
-          body: tableData,
-          foot: [['', '', '', '', 'Total:', this.formatNumber(this.selectedTotalValue())]],
-          theme: 'striped',
-          headStyles: { fillColor: [59, 130, 246] },
-          footStyles: { fillColor: [240, 240, 240], textColor: [0, 0, 0], fontStyle: 'bold' },
-          margin: { left: 14, right: 14 },
-          styles: { fontSize: 9 }
-        });
-      }
-
-      const fileName = `commande_${this.invoiceDate.toISOString().split('T')[0]}.pdf`;
-      doc.save(fileName);
-      this.toast.showSuccess('PDF téléchargé avec succès');
-    } catch {
-      this.toast.showError('Erreur lors de la génération du PDF');
-    }
-  }
-
   private formatNumber(value: number): string {
     return value.toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
   }
@@ -1374,5 +1323,92 @@ export class StockComponent implements OnInit, OnDestroy {
 
   getSupplierTotal(rows: RestockRow[]): number {
     return rows.reduce((sum, r) => sum + (r.prixCarton * r.nmbCarton), 0);
+  }
+
+  downloadCartPDF(): void {
+    if (this.cartCount() === 0) {
+      this.toast.showWarn('Le panier est vide');
+      return;
+    }
+
+    try {
+      const doc = new jsPDF();
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const today = new Date();
+
+      // Header
+      doc.setFontSize(20);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Bon de Commande', 14, 20);
+
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      doc.text(`Date: ${this.formatDate(today.toISOString())}`, 14, 28);
+
+      let yPosition = 40;
+      const groups = this.cartGroupedBySupplier();
+
+      groups.forEach((rows, supplier) => {
+        if (yPosition > 250) {
+          doc.addPage();
+          yPosition = 20;
+        }
+
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'bold');
+        doc.text(`Fournisseur: ${supplier}`, 14, yPosition);
+
+        const phone = rows[0]?.phone;
+        if (phone) {
+          doc.setFontSize(10);
+          doc.setFont('helvetica', 'normal');
+          doc.text(`Tél: ${phone}`, 14, yPosition + 6);
+          yPosition += 6;
+        }
+
+        yPosition += 10;
+
+        const tableData = rows.map(row => [
+          row.name,
+          row.brand,
+          row.nmbCarton.toString(),
+          this.formatNumber(row.prixCarton),
+          this.formatNumber(row.prixCarton * row.nmbCarton)
+        ]);
+
+        const supplierTotal = rows.reduce((sum, r) => sum + (r.prixCarton * r.nmbCarton), 0);
+
+        autoTable(doc, {
+          startY: yPosition,
+          head: [['Produit', 'Marque', 'Qté', 'Prix/Carton', 'Total']],
+          body: tableData,
+          foot: [['', '', '', 'Total:', this.formatNumber(supplierTotal)]],
+          theme: 'striped',
+          headStyles: { fillColor: [59, 130, 246] },
+          footStyles: { fillColor: [240, 240, 240], textColor: [0, 0, 0], fontStyle: 'bold' },
+          margin: { left: 14, right: 14 },
+          styles: { fontSize: 9 },
+          columnStyles: {
+            0: { cellWidth: 60 },
+            1: { cellWidth: 40 },
+            2: { cellWidth: 20, halign: 'center' },
+            3: { cellWidth: 30, halign: 'right' },
+            4: { cellWidth: 30, halign: 'right' }
+          }
+        });
+
+        yPosition = (doc as any).lastAutoTable.finalY + 15;
+      });
+
+      doc.setFontSize(14);
+      doc.setFont('helvetica', 'bold');
+      doc.text(`Total Général: ${this.formatNumber(this.cartTotalValue())} DA`, pageWidth - 14, yPosition, { align: 'right' });
+
+      const fileName = `bon_commande_${today.toISOString().split('T')[0]}.pdf`;
+      doc.save(fileName);
+      this.toast.showSuccess('PDF téléchargé avec succès');
+    } catch {
+      this.toast.showError('Erreur lors de la génération du PDF');
+    }
   }
 }
