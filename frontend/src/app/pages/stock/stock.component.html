@@ -702,16 +702,6 @@
                 }
               </button>
             </div>
-            @if (cartCount() > 0) {
-              <button class="btn-clear-cart" (click)="clearCart()" pTooltip="Vider le panier">
-                <i class="pi pi-trash"></i>
-                <span class="btn-text">Vider</span>
-              </button>
-              <button class="btn-download-pdf" (click)="downloadCartPDF()" pTooltip="Télécharger PDF">
-                <i class="pi pi-file-pdf"></i>
-                <span class="btn-text">PDF</span>
-              </button>
-            }
           </div>
         </div>
 
@@ -729,65 +719,108 @@
             </button>
           </div>
         } @else {
-          <!-- Cart Items with PrimeNG Table -->
-          <div class="cart-content">
-            <div class="cart-table-wrapper">
-            <p-table
-              [value]="cartItems()"
-              [scrollable]="true"
-              scrollHeight="calc(100vh - 100px)"
-              styleClass="p-datatable-sm cart-table-prime"
-            >
-              <ng-template pTemplate="header">
-                <tr>
-                  <th style="width: 70px">Image</th>
-                  <th>Produit</th>
-                  <th>Marque</th>
-                  <th class="text-center" style="width: 80px">Qté</th>
-                  <th class="text-right" style="width: 120px">Prix/Carton</th>
-                  <th class="text-right" style="width: 120px">Total</th>
-                  <th style="width: 50px"></th>
-                </tr>
-              </ng-template>
-              <ng-template pTemplate="body" let-row>
-                <tr>
-                  <td>
-                    <img
-                      [src]="row.image"
-                      [alt]="row.name"
-                      class="product-thumbnail"
-                      loading="lazy"
-                      (error)="onImageError($event)"
-                    />
-                  </td>
-                  <td>{{ row.name }}</td>
-                  <td>
-                    <span class="brand-pill small" [style.background]="getBrandColor(row.brand).bg" [style.color]="getBrandColor(row.brand).text">{{ row.brand }}</span>
-                  </td>
-                  <td class="text-center">{{ row.nmbCarton }}</td>
-                  <td class="text-right">{{ row.prixCarton | number:'1.0-0' }}</td>
-                  <td class="text-right font-semibold">{{ row.prixCarton * row.nmbCarton | number:'1.0-0' }} DA</td>
-                  <td>
-                    <button class="btn-remove" (click)="removeFromCart(row)" pTooltip="Retirer">
-                      <i class="pi pi-times"></i>
-                    </button>
-                  </td>
-                </tr>
-              </ng-template>
-              <ng-template pTemplate="footer">
-                <tr>
-                  <td colspan="7">
-                    <div class="cart-table-footer">
-                      <span class="cart-footer-count">{{ cartCount() }} produits</span>
-                      <div class="cart-footer-total">
-                        <span class="label">Total Général</span>
-                        <span class="value">{{ cartTotalValue() | number:'1.0-0' }} DA</span>
-                      </div>
-                    </div>
-                  </td>
-                </tr>
-              </ng-template>
-            </p-table>
+          <!-- Cart Layout: Table Left, Sidebar Right -->
+          <div class="cart-layout">
+            <!-- Table Section -->
+            <div class="cart-table-section">
+              <div class="cart-table-wrapper">
+                <p-table
+                  [value]="cartItems()"
+                  [scrollable]="true"
+                  scrollHeight="calc(100vh - 115px)"
+                  styleClass="p-datatable-sm cart-table-prime"
+                >
+                  <ng-template pTemplate="header">
+                    <tr>
+                      <th style="width: 70px">Image</th>
+                      <th>Produit</th>
+                      <th>Marque</th>
+                      <th class="text-center" style="width: 80px">Qté</th>
+                      <th class="text-right" style="width: 120px">Prix/Carton</th>
+                      <th class="text-right" style="width: 120px">Total</th>
+                      <th style="width: 50px"></th>
+                    </tr>
+                  </ng-template>
+                  <ng-template pTemplate="body" let-row>
+                    <tr>
+                      <td>
+                        <img
+                          [src]="row.image"
+                          [alt]="row.name"
+                          class="product-thumbnail"
+                          loading="lazy"
+                          (error)="onImageError($event)"
+                        />
+                      </td>
+                      <td>{{ row.name }}</td>
+                      <td>
+                        <span class="brand-pill small" [style.background]="getBrandColor(row.brand).bg" [style.color]="getBrandColor(row.brand).text">{{ row.brand }}</span>
+                      </td>
+                      <td class="text-center">{{ row.nmbCarton }}</td>
+                      <td class="text-right">{{ row.prixCarton | number:'1.0-0' }}</td>
+                      <td class="text-right font-semibold">{{ row.prixCarton * row.nmbCarton | number:'1.0-0' }} DA</td>
+                      <td>
+                        <button class="btn-remove" (click)="removeFromCart(row)" pTooltip="Retirer">
+                          <i class="pi pi-times"></i>
+                        </button>
+                      </td>
+                    </tr>
+                  </ng-template>
+                  <ng-template pTemplate="footer">
+                    <tr>
+                      <td colspan="7">
+                        <div class="cart-table-footer">
+                          <span class="cart-footer-count">{{ cartCount() }} produits</span>
+                          <div class="cart-footer-total">
+                            <span class="label">Total Général</span>
+                            <span class="value">{{ cartTotalValue() | number:'1.0-0' }} DA</span>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  </ng-template>
+                </p-table>
+              </div>
+            </div>
+
+            <!-- Sidebar Section -->
+            <div class="cart-sidebar">
+              <div class="cart-sidebar-content">
+                <h3 class="sidebar-title">Générer Bon de Commande</h3>
+
+                <div class="sidebar-field">
+                  <label>Fournisseur</label>
+                  <p-select
+                    [options]="supplierOptions()"
+                    [(ngModel)]="selectedSupplier"
+                    placeholder="Tous les fournisseurs"
+                    [showClear]="true"
+                    [editable]="true"
+                    styleClass="w-full"
+                  />
+                </div>
+
+                <div class="sidebar-summary">
+                  <div class="summary-row">
+                    <span>Produits</span>
+                    <span>{{ selectedSupplier ? getSupplierItemCount(selectedSupplier) : cartCount() }}</span>
+                  </div>
+                  <div class="summary-row total">
+                    <span>Total</span>
+                    <span>{{ selectedSupplier ? getSupplierTotalValue(selectedSupplier) : cartTotalValue() | number:'1.0-0' }} DA</span>
+                  </div>
+                </div>
+
+                <button class="btn-generate" (click)="generateBonDeCommande()">
+                  <i class="pi pi-file-pdf"></i>
+                  Générer PDF
+                </button>
+
+                <a class="btn-clear-link" (click)="clearCart()">
+                  <i class="pi pi-trash"></i>
+                  Vider le panier
+                </a>
+              </div>
             </div>
           </div>
         }
@@ -798,6 +831,25 @@
     }
   </div>
 </app-agroclik-page-container>
+
+<!-- PDF Preview Dialog -->
+<p-dialog
+  header="Aperçu du Bon de Commande"
+  [(visible)]="showPdfPreview"
+  [modal]="true"
+  [style]="{ width: '90vw', height: '90vh' }"
+  [contentStyle]="{ height: 'calc(90vh - 120px)', padding: '0' }"
+  [closable]="true"
+  (onHide)="closePdfPreview()"
+>
+  @if (pdfPreviewUrl()) {
+    <iframe [src]="pdfPreviewUrl()" style="width: 100%; height: 100%; border: none;"></iframe>
+  }
+  <ng-template pTemplate="footer">
+    <button pButton label="Fermer" icon="pi pi-times" class="p-button-secondary" (click)="closePdfPreview()"></button>
+    <button pButton label="Télécharger" icon="pi pi-download" (click)="downloadPdf()"></button>
+  </ng-template>
+</p-dialog>
 
 <!-- Image Lightbox with Upload -->
 @if (lightboxImage()) {

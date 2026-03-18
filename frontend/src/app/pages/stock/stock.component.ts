@@ -3,6 +3,7 @@ import { DecimalPipe } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { catchError, of, finalize, forkJoin } from 'rxjs';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { MultiSelectModule } from 'primeng/multiselect';
@@ -318,6 +319,170 @@ export class StockComponent implements OnInit, OnDestroy {
 
     return groups;
   });
+
+  // Supplier selection for PDF generation
+  selectedSupplier: string | null = null;
+
+  // PDF Preview
+  private sanitizer = inject(DomSanitizer);
+  pdfPreviewUrl = signal<SafeResourceUrl | null>(null);
+  private pdfBlobUrl: string | null = null;
+  pdfDoc: jsPDF | null = null;
+  showPdfPreview = false;
+
+  supplierOptions = computed(() => {
+    const suppliers = new Set<string>();
+    this.cartItems().forEach(item => {
+      if (item.supplier) {
+        suppliers.add(item.supplier);
+      }
+    });
+    return Array.from(suppliers).map(s => ({ label: s, value: s }));
+  });
+
+  getSupplierItemCount(supplier: string): number {
+    return this.cartItems().filter(item => item.supplier === supplier).length;
+  }
+
+  getSupplierTotalValue(supplier: string): number {
+    return this.cartItems()
+      .filter(item => item.supplier === supplier)
+      .reduce((sum, r) => sum + (r.prixCarton * r.nmbCarton), 0);
+  }
+
+  closePdfPreview(): void {
+    this.showPdfPreview = false;
+    if (this.pdfBlobUrl) {
+      URL.revokeObjectURL(this.pdfBlobUrl);
+      this.pdfBlobUrl = null;
+    }
+    this.pdfPreviewUrl.set(null);
+    this.pdfDoc = null;
+  }
+
+  downloadPdf(): void {
+    if (this.pdfDoc) {
+      const today = new Date().toLocaleDateString('fr-FR');
+      const supplierName = this.selectedSupplier || 'tous';
+      this.pdfDoc.save(`bon-de-commande-${supplierName}-${today}.pdf`);
+      this.toast.showSuccess('PDF téléchargé avec succès');
+      this.closePdfPreview();
+    }
+  }
+
+  generateBonDeCommande(): void {
+    if (this.cartCount() === 0) {
+      this.toast.showWarn('Le panier est vide');
+      return;
+    }
+
+    try {
+      const doc = new jsPDF();
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const today = new Date();
+
+      // Filter by supplier if selected
+      const items = this.selectedSupplier
+        ? this.cartItems().filter(item => item.supplier === this.selectedSupplier)
+        : this.cartItems();
+
+      if (items.length === 0) {
+        this.toast.showWarn('Aucun produit pour ce fournisseur');
+        return;
+      }
+
+      // Group items by supplier
+      const groups = new Map<string, RestockRow[]>();
+      items.forEach(row => {
+        const supplier = row.supplier?.trim() || '';
+        if (!groups.has(supplier)) {
+          groups.set(supplier, []);
+        }
+        groups.get(supplier)!.push(row);
+      });
+
+      // Header
+      doc.setFontSize(20);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Bon de Commande', 14, 20);
+
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      doc.text(`Date: ${this.formatDate(today.toISOString())}`, 14, 28);
+
+      let yPosition = 40;
+
+      groups.forEach((rows, supplier) => {
+        if (yPosition > 250) {
+          doc.addPage();
+          yPosition = 20;
+        }
+
+        // Only show supplier header if supplier name exists
+        if (supplier) {
+          doc.setFontSize(12);
+          doc.setFont('helvetica', 'bold');
+          doc.text(`Fournisseur: ${supplier}`, 14, yPosition);
+
+          const phone = rows[0]?.phone;
+          if (phone) {
+            doc.setFontSize(10);
+            doc.setFont('helvetica', 'normal');
+            doc.text(`Tél: ${phone}`, 14, yPosition + 6);
+            yPosition += 6;
+          }
+
+          yPosition += 10;
+        }
+
+        const tableData = rows.map(row => [
+          row.name,
+          row.brand,
+          row.nmbCarton.toString(),
+          this.formatNumber(row.prixCarton),
+          this.formatNumber(row.prixCarton * row.nmbCarton)
+        ]);
+
+        const supplierTotal = rows.reduce((sum, r) => sum + (r.prixCarton * r.nmbCarton), 0);
+
+        autoTable(doc, {
+          startY: yPosition,
+          head: [['Produit', 'Marque', 'Qté', 'Prix/Carton', 'Total']],
+          body: tableData,
+          foot: [['', '', '', 'Total:', this.formatNumber(supplierTotal)]],
+          theme: 'striped',
+          headStyles: { fillColor: [59, 130, 246] },
+          footStyles: { fillColor: [240, 240, 240], textColor: [0, 0, 0], fontStyle: 'bold' },
+          margin: { left: 14, right: 14 },
+          styles: { fontSize: 9 },
+          columnStyles: {
+            0: { cellWidth: 60 },
+            1: { cellWidth: 40 },
+            2: { cellWidth: 20, halign: 'center' },
+            3: { cellWidth: 30, halign: 'right' },
+            4: { cellWidth: 30, halign: 'right' }
+          }
+        });
+
+        yPosition = (doc as any).lastAutoTable.finalY + 15;
+      });
+
+      const totalValue = items.reduce((sum, r) => sum + (r.prixCarton * r.nmbCarton), 0);
+      doc.setFontSize(14);
+      doc.setFont('helvetica', 'bold');
+      doc.text(`Total Général: ${this.formatNumber(totalValue)} DA`, pageWidth - 14, yPosition, { align: 'right' });
+
+      // Show preview
+      this.pdfDoc = doc;
+      const pdfBlob = doc.output('blob');
+      this.pdfBlobUrl = URL.createObjectURL(pdfBlob);
+      this.pdfPreviewUrl.set(this.sanitizer.bypassSecurityTrustResourceUrl(this.pdfBlobUrl));
+      this.showPdfPreview = true;
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      this.toast.showError('Erreur lors de la génération du PDF');
+    }
+  }
 
   ngOnInit(): void {
     document.body.classList.add('fullscreen-active');
@@ -1314,7 +1479,8 @@ export class StockComponent implements OnInit, OnDestroy {
   }
 
   private formatNumber(value: number): string {
-    return value.toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+    // Use simple formatting for PDF compatibility
+    return Math.round(value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
   }
 
   private formatDate(dateStr: string): string {
