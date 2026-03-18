@@ -41,207 +41,267 @@
   @if (formInitialized()) {
     <form [formGroup]="discountForm" (ngSubmit)="onSubmit()">
       <div class="form-wizard form-wizard--fullpage">
-        <div class="form-wizard__body">
-          <div class="grid">
-            <!-- Left Column: Basic Info & Product -->
-            <div class="col-12 lg:col-6 item-animate">
-              <div class="form-card">
-                <div class="card-header">
-                  <div class="card-header__icon card-header__icon--primary">
-                    <i class="pi pi-info-circle"></i>
-                  </div>
-                  <h3 class="card-header__title">{{ 'admin.promotions.form.basic_info' | translate }}</h3>
+        <div class="form-wizard__header">
+          <div class="stepper-horizontal">
+            <div class="stepper-horizontal__step" [class.stepper-horizontal__step--active]="currentStep() === 1" [class.stepper-horizontal__step--completed]="currentStep() > 1">
+              <div class="stepper-horizontal__indicator">
+                <div class="stepper-horizontal__number">
+                  @if (currentStep() > 1) {
+                    <i class="pi pi-check"></i>
+                  } @else {
+                    1
+                  }
                 </div>
-                <div class="card-body">
-                  <div class="form-field">
-                    <div class="field-box" [class.filled]="discountForm.get('name')?.value">
-                      <div class="field-box__icon field-box__icon--primary">
-                        <i class="pi pi-tag"></i>
-                      </div>
-                      <div class="field-box__content">
-                        <label>{{ 'admin.promotions.volume_discount.form.name' | translate }} <span class="required">*</span></label>
-                        <input type="text" formControlName="name" [placeholder]="'admin.promotions.volume_discount.form.name_placeholder' | translate">
-                      </div>
-                    </div>
-                    @if (discountForm.get('name')?.invalid && discountForm.get('name')?.touched) {
-                      <span class="field-error">{{ 'admin.promotions.volume_discount.form.name_required' | translate }}</span>
-                    }
-                  </div>
-
-                  <div class="form-field">
-                    <div class="field-box" [class.filled]="discountForm.get('description')?.value">
-                      <div class="field-box__icon field-box__icon--secondary">
-                        <i class="pi pi-align-left"></i>
-                      </div>
-                      <div class="field-box__content">
-                        <label>{{ 'admin.promotions.volume_discount.form.description' | translate }}</label>
-                        <textarea pTextarea formControlName="description" [placeholder]="'admin.promotions.volume_discount.form.description_placeholder' | translate" rows="3"></textarea>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="form-field">
-                    <div class="field-box" [class.filled]="discountForm.get('product_id')?.value">
-                      <div class="field-box__icon field-box__icon--success">
-                        <i class="pi pi-box"></i>
-                      </div>
-                      <div class="field-box__content">
-                        <label>{{ 'admin.promotions.volume_discount.form.product' | translate }} <span class="required">*</span></label>
-                        <p-select
-                          formControlName="product_id"
-                          [options]="productOptions()"
-                          optionLabel="label"
-                          optionValue="value"
-                          [placeholder]="'admin.promotions.volume_discount.form.select_product' | translate"
-                          [filter]="true"
-                          styleClass="w-full"
-                          appendTo="body" />
-                      </div>
-                    </div>
-                    @if (discountForm.get('product_id')?.invalid && discountForm.get('product_id')?.touched) {
-                      <span class="field-error">{{ 'admin.promotions.volume_discount.form.product_required' | translate }}</span>
-                    }
-                  </div>
-
-                  <div class="form-field">
-                    <div class="field-box" [class.filled]="discountForm.get('min_quantity')?.value">
-                      <div class="field-box__icon field-box__icon--warning">
-                        <i class="pi pi-hashtag"></i>
-                      </div>
-                      <div class="field-box__content">
-                        <label>{{ 'admin.promotions.volume_discount.form.min_quantity' | translate }} <span class="required">*</span></label>
-                        <p-inputNumber formControlName="min_quantity" [min]="1" [showButtons]="true" styleClass="w-full" />
-                      </div>
-                    </div>
-                    <span class="field-hint">{{ 'admin.promotions.volume_discount.form.min_quantity_hint' | translate }}</span>
-                  </div>
-                </div>
+                <span class="stepper-horizontal__label">{{ 'admin.promotions.form.step1_title' | translate }}</span>
               </div>
+              <div class="stepper-horizontal__connector"></div>
             </div>
-
-            <!-- Right Column: Discount Settings & Schedule -->
-            <div class="col-12 lg:col-6 item-animate" [style.animation-delay]="ANIMATION.STAGGER_DELAY + 'ms'">
-              <div class="form-card">
-                <div class="card-header">
-                  <div class="card-header__icon card-header__icon--success">
-                    <i class="pi pi-percentage"></i>
-                  </div>
-                  <h3 class="card-header__title">{{ 'admin.promotions.form.discount_settings' | translate }}</h3>
-                </div>
-                <div class="card-body">
-                  <div class="form-field">
-                    <div class="field-box" [class.filled]="discountForm.get('discount_type')?.value">
-                      <div class="field-box__icon field-box__icon--success">
-                        <i class="pi pi-sliders-h"></i>
-                      </div>
-                      <div class="field-box__content">
-                        <label>{{ 'admin.promotions.volume_discount.form.discount_type' | translate }} <span class="required">*</span></label>
-                        <p-select formControlName="discount_type" [options]="discountTypeOptions()" optionLabel="label" optionValue="value" styleClass="w-full" appendTo="body" />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="form-field">
-                    <div class="field-box" [class.filled]="discountForm.get('discount_value')?.value">
-                      <div class="field-box__icon field-box__icon--purple">
-                        @if (isFreeUnitsDiscount()) {
-                          <i class="pi pi-gift"></i>
-                        } @else {
-                          <i class="pi pi-calculator"></i>
-                        }
-                      </div>
-                      <div class="field-box__content">
-                        <label>{{ 'admin.promotions.volume_discount.form.discount_value' | translate }} <span class="required">*</span></label>
-                        <p-inputNumber formControlName="discount_value" [min]="MIN_DISCOUNT" [max]="maxDiscountValue()" [suffix]="discountSuffix()" styleClass="w-full" />
-                      </div>
-                    </div>
-                    @if (isFreeUnitsDiscount()) {
-                      <span class="field-hint">{{ 'admin.promotions.volume_discount.form.free_units_hint' | translate }}</span>
-                    }
-                  </div>
-                </div>
-              </div>
-
-              <div class="form-card mt-4">
-                <div class="card-header">
-                  <div class="card-header__icon card-header__icon--orange">
-                    <i class="pi pi-calendar"></i>
-                  </div>
-                  <h3 class="card-header__title">{{ 'admin.promotions.volume_discount.form.validity_period' | translate }}</h3>
-                </div>
-                <div class="card-body">
-                  <div class="form-field">
-                    <div class="field-box" [class.filled]="discountForm.get('start_date')?.value">
-                      <div class="field-box__icon field-box__icon--success">
-                        <i class="pi pi-calendar-plus"></i>
-                      </div>
-                      <div class="field-box__content">
-                        <label>{{ 'admin.promotions.volume_discount.form.start_date' | translate }} <span class="required">*</span></label>
-                        <p-datepicker formControlName="start_date" [showTime]="true" [showIcon]="true" [dateFormat]="DATE_FORMAT" appendTo="body" styleClass="w-full" />
-                      </div>
-                    </div>
-                    @if (discountForm.get('start_date')?.invalid && discountForm.get('start_date')?.touched) {
-                      <span class="field-error">{{ 'admin.promotions.form.start_date' | translate }} {{ 'common.required' | translate }}</span>
-                    }
-                  </div>
-
-                  <div class="form-field">
-                    <div class="field-box" [class.filled]="discountForm.get('end_date')?.value">
-                      <div class="field-box__icon field-box__icon--danger">
-                        <i class="pi pi-calendar-minus"></i>
-                      </div>
-                      <div class="field-box__content">
-                        <label>{{ 'admin.promotions.volume_discount.form.end_date' | translate }} <span class="required">*</span></label>
-                        <p-datepicker formControlName="end_date" [showTime]="true" [showIcon]="true" [dateFormat]="DATE_FORMAT" appendTo="body" styleClass="w-full" />
-                      </div>
-                    </div>
-                    @if (discountForm.get('end_date')?.invalid && discountForm.get('end_date')?.touched) {
-                      <span class="field-error">{{ 'admin.promotions.form.end_date' | translate }} {{ 'common.required' | translate }}</span>
-                    }
-                  </div>
-
-                  <div class="active-switch-container mt-5">
-                    <div
-                      class="active-switch"
-                      [class.active-switch--on]="discountForm.get('is_active')?.value"
-                      (click)="toggleActive()"
-                      (keydown.enter)="toggleActive()"
-                      (keydown.space)="toggleActive(); $event.preventDefault()"
-                      role="switch"
-                      [attr.aria-checked]="discountForm.get('is_active')?.value"
-                      [attr.aria-label]="'admin.promotions.volume_discount.form.is_active' | translate"
-                      tabindex="0">
-                      <div class="active-switch__track">
-                        <div class="active-switch__thumb">
-                          <i [class]="discountForm.get('is_active')?.value ? 'pi pi-check' : 'pi pi-times'"></i>
-                        </div>
-                      </div>
-                      <div class="active-switch__label">
-                        <span class="active-switch__title">{{ 'admin.promotions.volume_discount.form.is_active' | translate }}</span>
-                        <span class="active-switch__description">{{ discountForm.get('is_active')?.value ? ('admin.promotions.volume_discount.form.discount_visible' | translate) : ('admin.promotions.volume_discount.form.discount_hidden' | translate) }}</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+            <div class="stepper-horizontal__step" [class.stepper-horizontal__step--active]="currentStep() === 2">
+              <div class="stepper-horizontal__indicator">
+                <div class="stepper-horizontal__number">2</div>
+                <span class="stepper-horizontal__label">{{ 'admin.promotions.form.step2_title' | translate }}</span>
               </div>
             </div>
           </div>
         </div>
 
+        <div class="form-wizard__body">
+          @if (currentStep() === 1) {
+            <div class="grid">
+              <!-- Left Column: Basic Info -->
+              <div class="col-12 lg:col-6 item-animate">
+                <div class="form-card">
+                  <div class="card-header">
+                    <div class="card-header__icon card-header__icon--primary">
+                      <i class="pi pi-info-circle"></i>
+                    </div>
+                    <h3 class="card-header__title">{{ 'admin.promotions.form.basic_info' | translate }}</h3>
+                  </div>
+                  <div class="card-body">
+                    <div class="form-field">
+                      <div class="field-box" [class.filled]="discountForm.get('name')?.value">
+                        <div class="field-box__icon field-box__icon--primary">
+                          <i class="pi pi-tag"></i>
+                        </div>
+                        <div class="field-box__content">
+                          <label>{{ 'admin.promotions.volume_discount.form.name' | translate }} <span class="required">*</span></label>
+                          <input type="text" formControlName="name" [placeholder]="'admin.promotions.volume_discount.form.name_placeholder' | translate">
+                        </div>
+                      </div>
+                      @if (discountForm.get('name')?.invalid && discountForm.get('name')?.touched) {
+                        <span class="field-error">{{ 'admin.promotions.volume_discount.form.name_required' | translate }}</span>
+                      }
+                    </div>
+
+                    <div class="form-field">
+                      <div class="field-box" [class.filled]="discountForm.get('description')?.value">
+                        <div class="field-box__icon field-box__icon--secondary">
+                          <i class="pi pi-align-left"></i>
+                        </div>
+                        <div class="field-box__content">
+                          <label>{{ 'admin.promotions.volume_discount.form.description' | translate }}</label>
+                          <textarea pTextarea formControlName="description" [placeholder]="'admin.promotions.volume_discount.form.description_placeholder' | translate" rows="3"></textarea>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Right Column: Product & Quantity -->
+              <div class="col-12 lg:col-6 item-animate" [style.animation-delay]="ANIMATION.STAGGER_DELAY + 'ms'">
+                <div class="form-card">
+                  <div class="card-header">
+                    <div class="card-header__icon card-header__icon--success">
+                      <i class="pi pi-box"></i>
+                    </div>
+                    <h3 class="card-header__title">{{ 'admin.promotions.volume_discount.form.product_settings' | translate }}</h3>
+                  </div>
+                  <div class="card-body">
+                    <div class="form-field">
+                      <div class="field-box" [class.filled]="discountForm.get('product_id')?.value">
+                        <div class="field-box__icon field-box__icon--success">
+                          <i class="pi pi-box"></i>
+                        </div>
+                        <div class="field-box__content">
+                          <label>{{ 'admin.promotions.volume_discount.form.product' | translate }} <span class="required">*</span></label>
+                          <p-select
+                            formControlName="product_id"
+                            [options]="productOptions()"
+                            optionLabel="label"
+                            optionValue="value"
+                            [placeholder]="'admin.promotions.volume_discount.form.select_product' | translate"
+                            [filter]="true"
+                            styleClass="w-full"
+                            appendTo="body" />
+                        </div>
+                      </div>
+                      @if (discountForm.get('product_id')?.invalid && discountForm.get('product_id')?.touched) {
+                        <span class="field-error">{{ 'admin.promotions.volume_discount.form.product_required' | translate }}</span>
+                      }
+                    </div>
+
+                    <div class="form-field">
+                      <div class="field-box" [class.filled]="discountForm.get('min_quantity')?.value">
+                        <div class="field-box__icon field-box__icon--warning">
+                          <i class="pi pi-hashtag"></i>
+                        </div>
+                        <div class="field-box__content">
+                          <label>{{ 'admin.promotions.volume_discount.form.min_quantity' | translate }} <span class="required">*</span></label>
+                          <p-inputNumber formControlName="min_quantity" [min]="1" [showButtons]="true" styleClass="w-full" />
+                        </div>
+                      </div>
+                      <span class="field-hint">{{ 'admin.promotions.volume_discount.form.min_quantity_hint' | translate }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          }
+
+          @if (currentStep() === 2) {
+            <div class="grid">
+              <!-- Left Column: Discount Settings -->
+              <div class="col-12 lg:col-6 item-animate">
+                <div class="form-card">
+                  <div class="card-header">
+                    <div class="card-header__icon card-header__icon--success">
+                      <i class="pi pi-percentage"></i>
+                    </div>
+                    <h3 class="card-header__title">{{ 'admin.promotions.form.discount_settings' | translate }}</h3>
+                  </div>
+                  <div class="card-body">
+                    <div class="form-field">
+                      <div class="field-box" [class.filled]="discountForm.get('discount_type')?.value">
+                        <div class="field-box__icon field-box__icon--success">
+                          <i class="pi pi-sliders-h"></i>
+                        </div>
+                        <div class="field-box__content">
+                          <label>{{ 'admin.promotions.volume_discount.form.discount_type' | translate }} <span class="required">*</span></label>
+                          <p-select formControlName="discount_type" [options]="discountTypeOptions()" optionLabel="label" optionValue="value" styleClass="w-full" appendTo="body" />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="form-field">
+                      <div class="field-box" [class.filled]="discountForm.get('discount_value')?.value">
+                        <div class="field-box__icon field-box__icon--purple">
+                          @if (isFreeUnitsDiscount()) {
+                            <i class="pi pi-gift"></i>
+                          } @else {
+                            <i class="pi pi-calculator"></i>
+                          }
+                        </div>
+                        <div class="field-box__content">
+                          <label>{{ 'admin.promotions.volume_discount.form.discount_value' | translate }} <span class="required">*</span></label>
+                          <p-inputNumber formControlName="discount_value" [min]="MIN_DISCOUNT" [max]="maxDiscountValue()" [suffix]="discountSuffix()" styleClass="w-full" />
+                        </div>
+                      </div>
+                      @if (isFreeUnitsDiscount()) {
+                        <span class="field-hint">{{ 'admin.promotions.volume_discount.form.free_units_hint' | translate }}</span>
+                      }
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Right Column: Validity Period -->
+              <div class="col-12 lg:col-6 item-animate" [style.animation-delay]="ANIMATION.STAGGER_DELAY + 'ms'">
+                <div class="form-card">
+                  <div class="card-header">
+                    <div class="card-header__icon card-header__icon--orange">
+                      <i class="pi pi-calendar"></i>
+                    </div>
+                    <h3 class="card-header__title">{{ 'admin.promotions.volume_discount.form.validity_period' | translate }}</h3>
+                  </div>
+                  <div class="card-body">
+                    <div class="form-field">
+                      <div class="field-box" [class.filled]="discountForm.get('start_date')?.value">
+                        <div class="field-box__icon field-box__icon--success">
+                          <i class="pi pi-calendar-plus"></i>
+                        </div>
+                        <div class="field-box__content">
+                          <label>{{ 'admin.promotions.volume_discount.form.start_date' | translate }} <span class="required">*</span></label>
+                          <p-datepicker formControlName="start_date" [showTime]="true" [showIcon]="true" [dateFormat]="DATE_FORMAT" appendTo="body" styleClass="w-full" />
+                        </div>
+                      </div>
+                      @if (discountForm.get('start_date')?.invalid && discountForm.get('start_date')?.touched) {
+                        <span class="field-error">{{ 'admin.promotions.form.start_date' | translate }} {{ 'common.required' | translate }}</span>
+                      }
+                    </div>
+
+                    <div class="form-field">
+                      <div class="field-box" [class.filled]="discountForm.get('end_date')?.value">
+                        <div class="field-box__icon field-box__icon--danger">
+                          <i class="pi pi-calendar-minus"></i>
+                        </div>
+                        <div class="field-box__content">
+                          <label>{{ 'admin.promotions.volume_discount.form.end_date' | translate }} <span class="required">*</span></label>
+                          <p-datepicker formControlName="end_date" [showTime]="true" [showIcon]="true" [dateFormat]="DATE_FORMAT" appendTo="body" styleClass="w-full" />
+                        </div>
+                      </div>
+                      @if (discountForm.get('end_date')?.invalid && discountForm.get('end_date')?.touched) {
+                        <span class="field-error">{{ 'admin.promotions.form.end_date' | translate }} {{ 'common.required' | translate }}</span>
+                      }
+                    </div>
+
+                    <div class="active-switch-container mt-5">
+                      <div
+                        class="active-switch"
+                        [class.active-switch--on]="discountForm.get('is_active')?.value"
+                        (click)="toggleActive()"
+                        (keydown.enter)="toggleActive()"
+                        (keydown.space)="toggleActive(); $event.preventDefault()"
+                        role="switch"
+                        [attr.aria-checked]="discountForm.get('is_active')?.value"
+                        [attr.aria-label]="'admin.promotions.volume_discount.form.is_active' | translate"
+                        tabindex="0">
+                        <div class="active-switch__track">
+                          <div class="active-switch__thumb">
+                            <i [class]="discountForm.get('is_active')?.value ? 'pi pi-check' : 'pi pi-times'"></i>
+                          </div>
+                        </div>
+                        <div class="active-switch__label">
+                          <span class="active-switch__title">{{ 'admin.promotions.volume_discount.form.is_active' | translate }}</span>
+                          <span class="active-switch__description">{{ discountForm.get('is_active')?.value ? ('admin.promotions.volume_discount.form.discount_visible' | translate) : ('admin.promotions.volume_discount.form.discount_hidden' | translate) }}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+
         <div class="form-wizard__footer">
           <span class="chip chip--primary">
             <i class="pi pi-box"></i>
-            {{ 'admin.promotions.volume_discount.add' | translate }}
+            {{ 'admin.promotions.form.step' | translate }} {{ currentStep() }}/{{ totalSteps }}
           </span>
           <div class="step-nav">
-            <button type="submit" class="step-nav__btn step-nav__btn--finish" [disabled]="discountForm.invalid || loading()">
-              @if (loading()) {
-                <i class="pi pi-spin pi-spinner"></i>
-              } @else {
-                <i class="pi pi-check"></i>
-              }
-              <span>{{ submitButtonLabel() | translate }}</span>
-            </button>
+            @if (currentStep() > 1) {
+              <button type="button" class="step-nav__btn step-nav__btn--prev" (click)="prevStep()">
+                <i class="pi pi-arrow-left"></i>
+                <span>{{ 'common.previous' | translate }}</span>
+              </button>
+            }
+            @if (currentStep() < totalSteps) {
+              <button type="button" class="step-nav__btn step-nav__btn--next" (click)="nextStep()" [disabled]="!isStep1Valid()">
+                <span>{{ 'common.next' | translate }}</span>
+                <i class="pi pi-arrow-right"></i>
+              </button>
+            }
+            @if (currentStep() === totalSteps) {
+              <button type="submit" class="step-nav__btn step-nav__btn--finish" [disabled]="discountForm.invalid || loading()">
+                @if (loading()) {
+                  <i class="pi pi-spin pi-spinner"></i>
+                } @else {
+                  <i class="pi pi-check"></i>
+                }
+                <span>{{ submitButtonLabel() | translate }}</span>
+              </button>
+            }
           </div>
         </div>
       </div>

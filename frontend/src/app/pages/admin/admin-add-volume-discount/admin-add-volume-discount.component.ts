@@ -127,6 +127,10 @@ export class AdminAddVolumeDiscountComponent implements OnInit {
     this.nameValue().length >= VALIDATION.MIN_NAME_LENGTH && this.discountValue() >= PROMOTION_DEFAULTS.MIN_DISCOUNT
   );
 
+  // Step wizard
+  readonly currentStep = signal(1);
+  readonly totalSteps = 2;
+
   readonly ROUTES = ROUTES;
   readonly ANIMATION = ANIMATION;
   readonly MIN_DISCOUNT = PROMOTION_DEFAULTS.MIN_DISCOUNT;
@@ -302,5 +306,24 @@ export class AdminAddVolumeDiscountComponent implements OnInit {
   toggleActive(): void {
     const control = this.discountForm.get('is_active');
     control?.setValue(!control.value);
+  }
+
+  isStep1Valid(): boolean {
+    const nameValid = this.discountForm.get('name')?.valid ?? false;
+    const productValid = this.discountForm.get('product_id')?.valid ?? false;
+    const minQtyValid = this.discountForm.get('min_quantity')?.valid ?? false;
+    return nameValid && productValid && minQtyValid;
+  }
+
+  nextStep(): void {
+    if (this.currentStep() < this.totalSteps && this.isStep1Valid()) {
+      this.currentStep.update(step => step + 1);
+    }
+  }
+
+  prevStep(): void {
+    if (this.currentStep() > 1) {
+      this.currentStep.update(step => step - 1);
+    }
   }
 }

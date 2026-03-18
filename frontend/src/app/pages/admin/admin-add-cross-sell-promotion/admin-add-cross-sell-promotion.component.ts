@@ -110,6 +110,10 @@ export class AdminAddCrossSellPromotionComponent implements OnInit {
     this.nameValue().length >= VALIDATION.MIN_NAME_LENGTH && this.discountValue() >= PROMOTION_DEFAULTS.MIN_DISCOUNT
   );
 
+  // Step wizard
+  readonly currentStep = signal(1);
+  readonly totalSteps = 2;
+
   readonly ROUTES = ROUTES;
   readonly ANIMATION = ANIMATION;
   readonly MIN_DISCOUNT = PROMOTION_DEFAULTS.MIN_DISCOUNT;
@@ -285,5 +289,24 @@ export class AdminAddCrossSellPromotionComponent implements OnInit {
   toggleActive(): void {
     const control = this.promotionForm.get('is_active');
     control?.setValue(!control.value);
+  }
+
+  isStep1Valid(): boolean {
+    const nameValid = this.promotionForm.get('name')?.valid ?? false;
+    const targetValid = this.promotionForm.get('target_product_id')?.valid ?? false;
+    const triggerValid = this.promotionForm.get('trigger_product_ids')?.valid ?? false;
+    return nameValid && targetValid && triggerValid;
+  }
+
+  nextStep(): void {
+    if (this.currentStep() < this.totalSteps && this.isStep1Valid()) {
+      this.currentStep.update(step => step + 1);
+    }
+  }
+
+  prevStep(): void {
+    if (this.currentStep() > 1) {
+      this.currentStep.update(step => step - 1);
+    }
   }
 }
