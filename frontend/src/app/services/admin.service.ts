@@ -143,6 +143,10 @@ export class AdminService {
     return this.apiService.delete<void>(`/admin/routes/${userId}`);
   }
 
+  updateCustomerRoute(userId: number, data: { corridor?: string }): Observable<CustomerRoute> {
+    return this.apiService.patch<CustomerRoute>(`/admin/routes/${userId}`, data);
+  }
+
   // Driver management
   getAvailableDrivers(): Observable<DriverProfileWithFlags[]> {
     return this.apiService.get<DriverProfileWithFlags[]>('/admin/drivers/profiles');

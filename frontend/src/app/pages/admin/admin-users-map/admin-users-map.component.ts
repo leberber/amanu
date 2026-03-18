@@ -12,6 +12,7 @@ import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
 import { BadgeModule } from 'primeng/badge';
 import { TagModule } from 'primeng/tag';
+import { InputTextModule } from 'primeng/inputtext';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService } from 'primeng/api';
 import { Popover, PopoverModule } from 'primeng/popover';
@@ -40,6 +41,7 @@ const DEPOT_COLOR = '#3b82f6'; // blue
     BadgeModule,
     PopoverModule,
     TagModule,
+    InputTextModule,
     ConfirmDialogModule,
     TranslateModule,
     PageLayoutComponent
@@ -89,6 +91,9 @@ export class AdminUsersMapComponent implements OnInit, OnDestroy {
   readonly loadingRoute = signal(false);
   readonly savingRoute = signal(false);
   readonly deletingRoute = signal(false);
+  readonly editingRoute = signal(false);
+  readonly editCorridor = signal('');
+  readonly savingCorridor = signal(false);
 
   // Filters
   readonly routeFilter = signal<'all' | 'without_route'>('all');
@@ -354,6 +359,8 @@ export class AdminUsersMapComponent implements OnInit, OnDestroy {
     this.popoverVisible.set(false);
     this.selectedUser.set(null);
     this.routePreview.set(null);
+    this.editingRoute.set(false);
+    this.editCorridor.set('');
     this.clearRouteFromMap();
   }
 
@@ -361,6 +368,8 @@ export class AdminUsersMapComponent implements OnInit, OnDestroy {
     this.popoverVisible.set(false);
     this.selectedUser.set(null);
     this.routePreview.set(null);
+    this.editingRoute.set(false);
+    this.editCorridor.set('');
     this.clearRouteFromMap();
   }
 
@@ -515,13 +524,57 @@ export class AdminUsersMapComponent implements OnInit, OnDestroy {
     this.routeLayer.clearLayers();
   }
 
+  // Route editing
+  startEditRoute(): void {
+    const route = this.selectedUserRoute();
+    this.editCorridor.set(route?.corridor || '');
+    this.editingRoute.set(true);
+  }
+
+  cancelEditRoute(): void {
+    this.editingRoute.set(false);
+    this.editCorridor.set('');
+  }
+
+  saveRouteCorridor(): void {
+    const user = this.selectedUser();
+    if (!user) return;
+
+    this.savingCorridor.set(true);
+
+    this.adminService.updateCustomerRoute(user.id, { corridor: this.editCorridor() || undefined })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (updatedRoute) => {
+          // Update local state
+          const routesMap = new Map(this.customerRoutesMap());
+          routesMap.set(user.id, updatedRoute);
+          this.customerRoutesMap.set(routesMap);
+
+          this.editingRoute.set(false);
+          this.savingCorridor.set(false);
+
+          this.toastService.showSuccess(
+            this.translateService.instant('admin.users.map.route_updated')
+          );
+        },
+        error: () => {
+          this.savingCorridor.set(false);
+          this.toastService.showError(
+            this.translateService.instant('admin.users.map.route_update_error')
+          );
+        }
+      });
+  }
+
+  onCorridorInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.editCorridor.set(input.value);
+  }
+
   // Navigation
   goToUsersList(): void {
     this.router.navigate([ROUTES.ADMIN.USERS]);
-  }
-
-  editUser(user: UserManage): void {
-    this.router.navigate([ROUTES.ADMIN.USERS, user.id, 'edit']);
   }
 
   // Helpers

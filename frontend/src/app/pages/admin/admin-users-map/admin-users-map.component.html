@@ -121,30 +121,75 @@
         <!-- Route Section -->
         <div class="popover-route">
           @if (selectedUserHasRoute()) {
-            <!-- Has Route - Show route info -->
-            <div class="route-info-compact">
-              <div class="route-stat-compact">
-                <i class="pi pi-map"></i>
-                <span>{{ selectedUserRoute()?.distance_km | number:'1.1-1' }} km</span>
-              </div>
-              <div class="route-stat-compact">
-                <i class="pi pi-clock"></i>
-                <span>{{ selectedUserRoute()?.duration_min | number:'1.0-0' }} min</span>
-              </div>
-              @if (selectedUserRoute()?.corridor) {
-                <div class="route-stat-compact">
-                  <i class="pi pi-directions"></i>
-                  <span>{{ selectedUserRoute()?.corridor }}</span>
+            @if (editingRoute()) {
+              <!-- Edit Mode -->
+              <div class="route-edit">
+                <div class="route-info-compact">
+                  <div class="route-stat-compact">
+                    <i class="pi pi-map"></i>
+                    <span>{{ selectedUserRoute()?.distance_km | number:'1.1-1' }} km</span>
+                  </div>
+                  <div class="route-stat-compact">
+                    <i class="pi pi-clock"></i>
+                    <span>{{ selectedUserRoute()?.duration_min | number:'1.0-0' }} min</span>
+                  </div>
                 </div>
-              }
-            </div>
-            <button pButton
-              class="p-button-danger p-button-text p-button-sm"
-              icon="pi pi-trash"
-              [label]="'admin.users.map.delete_route' | translate"
-              [loading]="deletingRoute()"
-              (click)="confirmDeleteRoute()">
-            </button>
+                <div class="corridor-input">
+                  <label class="corridor-label">{{ 'admin.users.map.corridor' | translate }}</label>
+                  <input
+                    type="text"
+                    pInputText
+                    class="p-inputtext-sm w-full"
+                    [value]="editCorridor()"
+                    (input)="onCorridorInput($event)"
+                    placeholder="Ex: Nord, Sud, Est...">
+                </div>
+                <div class="edit-actions">
+                  <button pButton
+                    class="p-button-text p-button-sm"
+                    icon="pi pi-times"
+                    (click)="cancelEditRoute()">
+                  </button>
+                  <button pButton
+                    class="p-button-success p-button-sm"
+                    icon="pi pi-check"
+                    [label]="'common.save' | translate"
+                    [loading]="savingCorridor()"
+                    (click)="saveRouteCorridor()">
+                  </button>
+                </div>
+              </div>
+            } @else {
+              <!-- View Mode -->
+              <div class="route-info-compact">
+                <div class="route-stat-compact">
+                  <i class="pi pi-map"></i>
+                  <span>{{ selectedUserRoute()?.distance_km | number:'1.1-1' }} km</span>
+                </div>
+                <div class="route-stat-compact">
+                  <i class="pi pi-clock"></i>
+                  <span>{{ selectedUserRoute()?.duration_min | number:'1.0-0' }} min</span>
+                </div>
+              </div>
+              <div class="corridor-display">
+                <span class="corridor-label">{{ 'admin.users.map.corridor' | translate }}:</span>
+                <span class="corridor-value">{{ selectedUserRoute()?.corridor || '-' }}</span>
+              </div>
+              <div class="route-actions-row">
+                <button pButton
+                  class="p-button-text p-button-sm"
+                  icon="pi pi-pencil"
+                  [label]="'common.edit' | translate"
+                  (click)="startEditRoute()">
+                </button>
+                <button pButton
+                  class="p-button-danger p-button-text p-button-sm"
+                  icon="pi pi-trash"
+                  [loading]="deletingRoute()"
+                  (click)="confirmDeleteRoute()">
+                </button>
+              </div>
+            }
           } @else {
             <!-- No Route -->
             @if (routePreview()) {
@@ -185,16 +230,6 @@
               </button>
             }
           }
-        </div>
-
-        <!-- Edit Button -->
-        <div class="popover-footer">
-          <button pButton
-            class="p-button-outlined p-button-sm w-full"
-            icon="pi pi-pencil"
-            [label]="'common.edit' | translate"
-            (click)="editUser(selectedUser()!)">
-          </button>
         </div>
       </div>
     }
