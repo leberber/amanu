@@ -539,7 +539,14 @@ export class StockComponent implements OnInit, OnDestroy {
 
       autoTable(doc, {
         startY: yPosition,
-        head: [['#', 'Designation', 'Marque', 'Qte', 'P.U', 'Total']],
+        head: [[
+          { content: '#', styles: { halign: 'center' } },
+          { content: 'Designation', styles: { halign: 'left' } },
+          { content: 'Marque', styles: { halign: 'left' } },
+          { content: 'Qte', styles: { halign: 'center' } },
+          { content: 'P.U', styles: { halign: 'right' } },
+          { content: 'Total', styles: { halign: 'right' } }
+        ]],
         body: tableData,
         theme: 'plain',
         headStyles: {
