@@ -488,19 +488,19 @@ export class StockComponent implements OnInit, OnDestroy {
         yPosition = 40;
         doc.setFontSize(12);
         doc.setFont('helvetica', 'bold');
-        doc.text(`Fournisseur: ${supplierInfo?.name || this.selectedSupplier}`, 14, yPosition);
+        doc.text(`Fournisseur: ${this.normalizeText(supplierInfo?.name || this.selectedSupplier)}`, 14, yPosition);
 
         doc.setFontSize(10);
         doc.setFont('helvetica', 'normal');
         yPosition += 6;
 
         if (supplierInfo?.address) {
-          doc.text(`Adresse: ${supplierInfo.address}${supplierInfo.city ? ', ' + supplierInfo.city : ''}`, 14, yPosition);
+          doc.text(`Adresse: ${this.normalizeText(supplierInfo.address)}${supplierInfo.city ? ', ' + this.normalizeText(supplierInfo.city) : ''}`, 14, yPosition);
           yPosition += 5;
         }
 
         if (supplierInfo?.phone) {
-          doc.text(`Tél: ${supplierInfo.phone}`, 14, yPosition);
+          doc.text(`Tel: ${supplierInfo.phone}`, 14, yPosition);
           yPosition += 5;
         }
 
@@ -514,10 +514,10 @@ export class StockComponent implements OnInit, OnDestroy {
         yPosition = 40;
       }
 
-      // Create table data from all cart items
+      // Create table data from all cart items (normalize text for PDF compatibility)
       const tableData = items.map(row => [
-        row.name,
-        row.brand,
+        this.normalizeText(row.name),
+        this.normalizeText(row.brand),
         row.nmbCarton.toString(),
         this.formatNumber(row.prixCarton),
         this.formatNumber(row.prixCarton * row.nmbCarton)
@@ -1592,6 +1592,11 @@ export class StockComponent implements OnInit, OnDestroy {
     return new Date(dateStr).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
   }
 
+  private normalizeText(text: string): string {
+    // Remove accents for PDF compatibility (é → e, è → e, etc.)
+    return text.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  }
+
   getSupplierTotal(rows: RestockRow[]): number {
     return rows.reduce((sum, r) => sum + (r.prixCarton * r.nmbCarton), 0);
   }
@@ -1630,20 +1635,20 @@ export class StockComponent implements OnInit, OnDestroy {
 
         doc.setFontSize(12);
         doc.setFont('helvetica', 'bold');
-        doc.text(`Fournisseur: ${supplierInfo?.name || supplier}`, 14, yPosition);
+        doc.text(`Fournisseur: ${this.normalizeText(supplierInfo?.name || supplier)}`, 14, yPosition);
 
         doc.setFontSize(10);
         doc.setFont('helvetica', 'normal');
         let detailsY = yPosition + 6;
 
         if (supplierInfo?.address) {
-          doc.text(`Adresse: ${supplierInfo.address}${supplierInfo.city ? ', ' + supplierInfo.city : ''}`, 14, detailsY);
+          doc.text(`Adresse: ${this.normalizeText(supplierInfo.address)}${supplierInfo.city ? ', ' + this.normalizeText(supplierInfo.city) : ''}`, 14, detailsY);
           detailsY += 5;
         }
 
         const phone = supplierInfo?.phone || rows[0]?.phone;
         if (phone) {
-          doc.text(`Tél: ${phone}`, 14, detailsY);
+          doc.text(`Tel: ${phone}`, 14, detailsY);
           detailsY += 5;
         }
 
@@ -1655,8 +1660,8 @@ export class StockComponent implements OnInit, OnDestroy {
         yPosition = detailsY + 5;
 
         const tableData = rows.map(row => [
-          row.name,
-          row.brand,
+          this.normalizeText(row.name),
+          this.normalizeText(row.brand),
           row.nmbCarton.toString(),
           this.formatNumber(row.prixCarton),
           this.formatNumber(row.prixCarton * row.nmbCarton)
