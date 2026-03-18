@@ -38,7 +38,9 @@ export class AdminService {
     startDate?: string,
     endDate?: string,
     categoryLimit?: number,
-    productLimit?: number
+    productLimit?: number,
+    categoryId?: number,
+    brandId?: number
   ): Observable<SalesReport> {
     let params: any = { period };
 
@@ -56,6 +58,14 @@ export class AdminService {
 
     if (productLimit) {
       params.product_limit = productLimit;
+    }
+
+    if (categoryId) {
+      params.category_id = categoryId;
+    }
+
+    if (brandId) {
+      params.brand_id = brandId;
     }
 
     return this.apiService.get<SalesReport>('/admin/sales-report', { params });

@@ -1,4 +1,4 @@
-import { Component, input, computed, inject, DestroyRef, OnInit } from '@angular/core';
+import { Component, input, output, computed, inject, DestroyRef, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ChartModule } from 'primeng/chart';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -75,8 +75,14 @@ const modernLabelsPlugin = {
 Chart.register(modernLabelsPlugin);
 
 export interface DoughnutChartItem {
+  id?: number;
   label: string;
   value: number;
+}
+
+export interface DoughnutChartClickEvent {
+  index: number;
+  item: DoughnutChartItem;
 }
 
 export type ChartColorScheme = 'purple' | 'blue' | 'green' | 'orange' | 'mixed';
@@ -116,7 +122,7 @@ const COLOR_SCHEMES: Record<ChartColorScheme, { bg: string[]; hover: string[] }>
           <div class="skeleton" style="width: 200px; height: 200px; border-radius: 50%; margin: 0 auto;"></div>
         </div>
       } @else if (hasData()) {
-        <p-chart type="doughnut" [data]="chartData()" [options]="chartOptions()"></p-chart>
+        <p-chart type="doughnut" [data]="chartData()" [options]="chartOptions()" (onDataSelect)="onChartClick($event)"></p-chart>
       } @else {
         <div class="empty-state empty-state--compact">
           <div class="empty-state__icon">
@@ -158,6 +164,8 @@ export class DoughnutChartComponent implements OnInit {
   emptyMessage = input<string>('common.no_data');
   showLegend = input<boolean>(true);
   legendPosition = input<'top' | 'bottom' | 'left' | 'right'>('bottom');
+
+  itemClick = output<DoughnutChartClickEvent>();
 
   private translateService = inject(TranslateService);
   private currencyService = inject(CurrencyService);
@@ -201,6 +209,12 @@ export class DoughnutChartComponent implements OnInit {
       radius: '60%',
       responsive: true,
       maintainAspectRatio: false,
+      onHover: (event: { native: MouseEvent }, elements: unknown[]) => {
+        const canvas = event.native?.target as HTMLCanvasElement;
+        if (canvas) {
+          canvas.style.cursor = elements.length > 0 ? 'pointer' : 'default';
+        }
+      },
       plugins: {
         legend: {
           display: this.showLegend(),
@@ -239,4 +253,14 @@ export class DoughnutChartComponent implements OnInit {
       }
     };
   });
+
+  onChartClick(event: { element: { index: number } }) {
+    if (event?.element) {
+      const index = event.element.index;
+      const items = this.data();
+      if (index >= 0 && index < items.length) {
+        this.itemClick.emit({ index, item: items[index] });
+      }
+    }
+  }
 }

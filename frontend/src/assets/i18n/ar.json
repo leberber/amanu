@@ -1129,7 +1129,9 @@
         "weekly": "أسبوعي",
         "monthly": "شهري",
         "yearly": "سنوي"
-      }
+      },
+      "filtered_by": "تصفية حسب",
+      "clear_all": "مسح الكل"
     },
     "stats": {
       "total_users": "إجمالي المستخدمين",

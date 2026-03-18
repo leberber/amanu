@@ -9,6 +9,7 @@ import {
   LineChartDataPoint,
   DoughnutChartComponent,
   DoughnutChartItem,
+  DoughnutChartClickEvent,
   BarChartComponent,
   BarChartDataPoint
 } from '../../../shared/components/charts';
@@ -44,6 +45,12 @@ export class AdminSalesReportComponent implements OnInit {
   selectedCategoryLimit = signal<CategoryLimitType>(10);
   selectedBrandLimit = signal<CategoryLimitType>(10);
   selectedProductLimit = signal<CategoryLimitType>(20);
+
+  // Cross-filter signals
+  filterCategoryId = signal<number | null>(null);
+  filterCategoryName = signal<string>('');
+  filterBrandId = signal<number | null>(null);
+  filterBrandName = signal<string>('');
 
   // Chart data signals (simplified for reusable components)
   lineChartData = signal<LineChartDataPoint[]>([]);
@@ -94,6 +101,10 @@ export class AdminSalesReportComponent implements OnInit {
     return report !== null && report.sales_by_category && report.sales_by_category.length > 0;
   });
 
+  hasActiveFilter = computed(() => {
+    return this.filterCategoryId() !== null || this.filterBrandId() !== null;
+  });
+
   // Services
   private adminService = inject(AdminService);
   private toast = inject(ToastMessageService);
@@ -125,7 +136,9 @@ export class AdminSalesReportComponent implements OnInit {
       undefined,
       undefined,
       this.selectedCategoryLimit(),
-      this.selectedProductLimit()
+      this.selectedProductLimit(),
+      this.filterCategoryId() ?? undefined,
+      this.filterBrandId() ?? undefined
     )
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
@@ -193,6 +206,7 @@ export class AdminSalesReportComponent implements OnInit {
       const limit = this.selectedCategoryLimit();
       this.topCategoryChartData.set(
         report.sales_by_category.slice(0, limit).map(item => ({
+          id: item.category_id,
           label: this.translationHelper.getCategoryName(item),
           value: item.total_sales
         }))
@@ -206,6 +220,7 @@ export class AdminSalesReportComponent implements OnInit {
       const limit = this.selectedBrandLimit();
       this.topBrandChartData.set(
         report.sales_by_brand.slice(0, limit).map(item => ({
+          id: item.brand_id,
           label: this.translationHelper.getBrandName(item),
           value: item.total_sales
         }))
@@ -265,5 +280,54 @@ export class AdminSalesReportComponent implements OnInit {
 
   formatCurrency(value: number): string {
     return this.currencyService.formatCurrency(value);
+  }
+
+  // Cross-filter click handlers
+  onCategoryClick(event: DoughnutChartClickEvent) {
+    if (event.item.id) {
+      // Toggle: if same category clicked, clear it
+      if (this.filterCategoryId() === event.item.id) {
+        this.filterCategoryId.set(null);
+        this.filterCategoryName.set('');
+      } else {
+        this.filterCategoryId.set(event.item.id);
+        this.filterCategoryName.set(event.item.label);
+      }
+      this.loadReport();
+    }
+  }
+
+  onBrandClick(event: DoughnutChartClickEvent) {
+    if (event.item.id) {
+      // Toggle: if same brand clicked, clear it
+      if (this.filterBrandId() === event.item.id) {
+        this.filterBrandId.set(null);
+        this.filterBrandName.set('');
+      } else {
+        this.filterBrandId.set(event.item.id);
+        this.filterBrandName.set(event.item.label);
+      }
+      this.loadReport();
+    }
+  }
+
+  clearCategoryFilter() {
+    this.filterCategoryId.set(null);
+    this.filterCategoryName.set('');
+    this.loadReport();
+  }
+
+  clearBrandFilter() {
+    this.filterBrandId.set(null);
+    this.filterBrandName.set('');
+    this.loadReport();
+  }
+
+  clearAllFilters() {
+    this.filterCategoryId.set(null);
+    this.filterCategoryName.set('');
+    this.filterBrandId.set(null);
+    this.filterBrandName.set('');
+    this.loadReport();
   }
 }

@@ -1127,7 +1127,9 @@
         "weekly": "Weekly",
         "monthly": "Monthly",
         "yearly": "Yearly"
-      }
+      },
+      "filtered_by": "Filtered by",
+      "clear_all": "Clear all"
     },
     "stats": {
       "total_users": "Total Users",

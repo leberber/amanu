@@ -238,12 +238,15 @@ def get_sales_report(
     end_date: Optional[datetime] = None,
     category_limit: Optional[int] = Query(default=10, ge=1, le=100),
     product_limit: Optional[int] = Query(default=10, ge=1, le=50),
+    category_id: Optional[int] = Query(default=None),
+    brand_id: Optional[int] = Query(default=None),
     current_user: User = Depends(get_current_staff_user),
     session: Session = Depends(get_session),
 ) -> Any:
     """
     Get sales report for a specific period (staff only).
     Uses database GROUP BY for efficiency instead of loading all orders into Python.
+    Supports filtering by category_id and/or brand_id.
     """
     # Set default date range if not provided
     if not end_date:
@@ -266,16 +269,37 @@ def get_sales_report(
         Order.status != OrderStatus.CANCELLED
     ]
 
+    # Product filters for cross-filtering
+    product_filters = []
+    if category_id:
+        product_filters.append(Product.category_id == category_id)
+    if brand_id:
+        product_filters.append(Product.brand_id == brand_id)
+    has_filter = bool(product_filters)
+
     data = []
 
     if period == "daily":
-        # Group by day using database
-        query = select(
-            cast(Order.created_at, Date).label("day"),
-            func.sum(Order.total_amount).label("sales")
-        ).where(*base_filter).group_by(
-            cast(Order.created_at, Date)
-        ).order_by(cast(Order.created_at, Date))
+        if has_filter:
+            query = (
+                select(
+                    cast(Order.created_at, Date).label("day"),
+                    func.sum(OrderItem.unit_price * OrderItem.quantity).label("sales")
+                )
+                .select_from(Order)
+                .join(OrderItem, OrderItem.order_id == Order.id)
+                .join(Product, Product.id == OrderItem.product_id)
+                .where(*base_filter, *product_filters)
+                .group_by(cast(Order.created_at, Date))
+                .order_by(cast(Order.created_at, Date))
+            )
+        else:
+            query = select(
+                cast(Order.created_at, Date).label("day"),
+                func.sum(Order.total_amount).label("sales")
+            ).where(*base_filter).group_by(
+                cast(Order.created_at, Date)
+            ).order_by(cast(Order.created_at, Date))
 
         results = session.exec(query).all()
         for day, sales in results:
@@ -285,17 +309,31 @@ def get_sales_report(
             })
 
     elif period == "weekly":
-        # Group by year and week using database
         year_col = extract("year", Order.created_at)
         week_col = extract("week", Order.created_at)
 
-        query = select(
-            year_col.label("year"),
-            week_col.label("week"),
-            func.sum(Order.total_amount).label("sales")
-        ).where(*base_filter).group_by(
-            year_col, week_col
-        ).order_by(year_col, week_col)
+        if has_filter:
+            query = (
+                select(
+                    year_col.label("year"),
+                    week_col.label("week"),
+                    func.sum(OrderItem.unit_price * OrderItem.quantity).label("sales")
+                )
+                .select_from(Order)
+                .join(OrderItem, OrderItem.order_id == Order.id)
+                .join(Product, Product.id == OrderItem.product_id)
+                .where(*base_filter, *product_filters)
+                .group_by(year_col, week_col)
+                .order_by(year_col, week_col)
+            )
+        else:
+            query = select(
+                year_col.label("year"),
+                week_col.label("week"),
+                func.sum(Order.total_amount).label("sales")
+            ).where(*base_filter).group_by(
+                year_col, week_col
+            ).order_by(year_col, week_col)
 
         results = session.exec(query).all()
         for year, week, sales in results:
@@ -306,17 +344,31 @@ def get_sales_report(
             })
 
     elif period == "monthly":
-        # Group by year and month using database
         year_col = extract("year", Order.created_at)
         month_col = extract("month", Order.created_at)
 
-        query = select(
-            year_col.label("year"),
-            month_col.label("month"),
-            func.sum(Order.total_amount).label("sales")
-        ).where(*base_filter).group_by(
-            year_col, month_col
-        ).order_by(year_col, month_col)
+        if has_filter:
+            query = (
+                select(
+                    year_col.label("year"),
+                    month_col.label("month"),
+                    func.sum(OrderItem.unit_price * OrderItem.quantity).label("sales")
+                )
+                .select_from(Order)
+                .join(OrderItem, OrderItem.order_id == Order.id)
+                .join(Product, Product.id == OrderItem.product_id)
+                .where(*base_filter, *product_filters)
+                .group_by(year_col, month_col)
+                .order_by(year_col, month_col)
+            )
+        else:
+            query = select(
+                year_col.label("year"),
+                month_col.label("month"),
+                func.sum(Order.total_amount).label("sales")
+            ).where(*base_filter).group_by(
+                year_col, month_col
+            ).order_by(year_col, month_col)
 
         results = session.exec(query).all()
         for year, month, sales in results:
@@ -327,15 +379,28 @@ def get_sales_report(
             })
 
     elif period == "yearly":
-        # Group by year using database
         year_col = extract("year", Order.created_at)
 
-        query = select(
-            year_col.label("year"),
-            func.sum(Order.total_amount).label("sales")
-        ).where(*base_filter).group_by(
-            year_col
-        ).order_by(year_col)
+        if has_filter:
+            query = (
+                select(
+                    year_col.label("year"),
+                    func.sum(OrderItem.unit_price * OrderItem.quantity).label("sales")
+                )
+                .select_from(Order)
+                .join(OrderItem, OrderItem.order_id == Order.id)
+                .join(Product, Product.id == OrderItem.product_id)
+                .where(*base_filter, *product_filters)
+                .group_by(year_col)
+                .order_by(year_col)
+            )
+        else:
+            query = select(
+                year_col.label("year"),
+                func.sum(Order.total_amount).label("sales")
+            ).where(*base_filter).group_by(
+                year_col
+            ).order_by(year_col)
 
         results = session.exec(query).all()
         for year, sales in results:
@@ -347,7 +412,11 @@ def get_sales_report(
     # Calculate total from aggregated data (already computed by DB)
     total_sales = sum(item["sales"] for item in data)
 
-    # Calculate sales by category for this period
+    # Calculate sales by category for this period (apply brand filter only)
+    category_filters = []
+    if brand_id:
+        category_filters.append(Product.brand_id == brand_id)
+
     category_sales_query = (
         select(
             Category.id.label("category_id"),
@@ -357,7 +426,7 @@ def get_sales_report(
         .join(OrderItem, OrderItem.order_id == Order.id)
         .join(Product, Product.id == OrderItem.product_id)
         .join(Category, Category.id == Product.category_id)
-        .where(*base_filter)
+        .where(*base_filter, *category_filters)
         .group_by(Category.id)
         .order_by(func.sum(OrderItem.unit_price * OrderItem.quantity).desc())
         .limit(category_limit)
@@ -382,7 +451,11 @@ def get_sales_report(
             "total_sales": float(row.total_sales) if row.total_sales else 0
         })
 
-    # Calculate sales by brand for this period
+    # Calculate sales by brand for this period (apply category filter only)
+    brand_filters = []
+    if category_id:
+        brand_filters.append(Product.category_id == category_id)
+
     brand_query = (
         select(
             Product.brand_id,
@@ -391,7 +464,7 @@ def get_sales_report(
         .select_from(Order)
         .join(OrderItem, OrderItem.order_id == Order.id)
         .join(Product, Product.id == OrderItem.product_id)
-        .where(*base_filter)
+        .where(*base_filter, *brand_filters)
         .where(Product.brand_id.isnot(None))
         .group_by(Product.brand_id)
         .order_by(func.sum(OrderItem.unit_price * OrderItem.quantity).desc())
@@ -417,7 +490,7 @@ def get_sales_report(
             "total_sales": float(total_sales) if total_sales else 0
         })
 
-    # Calculate top selling products for this period
+    # Calculate top selling products for this period (apply both filters)
     top_products_query = (
         select(
             Product.id.label("product_id"),
@@ -427,7 +500,7 @@ def get_sales_report(
         .select_from(Order)
         .join(OrderItem, OrderItem.order_id == Order.id)
         .join(Product, Product.id == OrderItem.product_id)
-        .where(*base_filter)
+        .where(*base_filter, *product_filters)
         .group_by(Product.id)
         .order_by(func.sum(OrderItem.unit_price * OrderItem.quantity).desc())
         .limit(product_limit)

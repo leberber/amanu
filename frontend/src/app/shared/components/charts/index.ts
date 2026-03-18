@@ -1,5 +1,5 @@
 export { DoughnutChartComponent } from './doughnut-chart.component';
-export type { DoughnutChartItem, ChartColorScheme } from './doughnut-chart.component';
+export type { DoughnutChartItem, ChartColorScheme, DoughnutChartClickEvent } from './doughnut-chart.component';
 
 export { LineChartComponent } from './line-chart.component';
 export type { LineChartDataPoint, LineChartColor } from './line-chart.component';

@@ -67,6 +67,34 @@
           }
         </div>
       </div>
+
+      <!-- Active Filters -->
+      @if (hasActiveFilter()) {
+        <div class="active-filters animate-item" style="--item-delay: 150ms;">
+          <span class="active-filters__label">{{ 'admin.sales_report.filtered_by' | translate }}:</span>
+          @if (filterCategoryId()) {
+            <span class="filter-chip filter-chip--category">
+              <i class="pi pi-tag"></i>
+              {{ filterCategoryName() }}
+              <button class="filter-chip__clear" (click)="clearCategoryFilter()">
+                <i class="pi pi-times"></i>
+              </button>
+            </span>
+          }
+          @if (filterBrandId()) {
+            <span class="filter-chip filter-chip--brand">
+              <i class="pi pi-bookmark"></i>
+              {{ filterBrandName() }}
+              <button class="filter-chip__clear" (click)="clearBrandFilter()">
+                <i class="pi pi-times"></i>
+              </button>
+            </span>
+          }
+          <button class="clear-all-btn" (click)="clearAllFilters()">
+            {{ 'admin.sales_report.clear_all' | translate }}
+          </button>
+        </div>
+      }
     }
   </div>
 
@@ -166,6 +194,7 @@
                   [loading]="loading()"
                   colorScheme="mixed"
                   emptyMessage="admin.sales_report.no_category_data"
+                  (itemClick)="onCategoryClick($event)"
                 />
               </div>
             </div>
@@ -194,6 +223,7 @@
                   [loading]="loading()"
                   colorScheme="mixed"
                   emptyMessage="admin.sales_report.no_brand_data"
+                  (itemClick)="onBrandClick($event)"
                 />
               </div>
             </div>

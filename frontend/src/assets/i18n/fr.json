@@ -1124,7 +1124,9 @@
         "weekly": "Hebdomadaire",
         "monthly": "Mensuel",
         "yearly": "Annuel"
-      }
+      },
+      "filtered_by": "Filtré par",
+      "clear_all": "Effacer tout"
     },
     "stats": {
       "total_users": "Total Utilisateurs",
