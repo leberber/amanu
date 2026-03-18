@@ -1394,7 +1394,21 @@
         "filter_route": "Itinéraire",
         "without_route": "Sans Itinéraire",
         "list_view": "Vue Liste",
-        "user_details": "Détails du Client"
+        "user_details": "Détails du Client",
+        "route_info": "Information Itinéraire",
+        "distance": "Distance",
+        "duration": "Durée",
+        "corridor": "Corridor",
+        "no_route": "Aucun itinéraire calculé pour ce client",
+        "create_route": "Calculer Itinéraire",
+        "delete_route": "Supprimer Itinéraire",
+        "route_preview": "Aperçu de l'itinéraire",
+        "delete_route_confirm": "Êtes-vous sûr de vouloir supprimer l'itinéraire de ce client ?",
+        "route_saved": "Itinéraire enregistré avec succès",
+        "route_deleted": "Itinéraire supprimé avec succès",
+        "route_fetch_error": "Échec du calcul de l'itinéraire",
+        "route_save_error": "Échec de l'enregistrement de l'itinéraire",
+        "route_delete_error": "Échec de la suppression de l'itinéraire"
       }
     },
     "user_groups": {

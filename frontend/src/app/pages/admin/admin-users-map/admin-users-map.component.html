@@ -71,85 +71,126 @@
         </div>
       }
       <div id="users-map" class="map-container"></div>
+
+      <!-- Hidden target for popover positioning -->
+      <div #popoverTarget class="popover-target"></div>
     </div>
   </div>
 
-  <!-- Customer Detail Drawer -->
-  <p-drawer
-    [(visible)]="drawerVisible"
-    position="right"
-    [style]="{ width: '360px' }"
-    [showCloseIcon]="true"
-    (onHide)="closeDrawer()">
-    <ng-template pTemplate="header">
-      <span class="drawer-title">{{ 'admin.users.map.user_details' | translate }}</span>
-    </ng-template>
-
+  <!-- Customer Detail Popover -->
+  <p-popover #userPopover (onHide)="onPopoverHide()">
     @if (selectedUser()) {
-      <div class="user-detail">
-        <!-- User Avatar & Name -->
-        <div class="user-header">
-          <div class="user-avatar" style="background-color: #22c55e">
-            {{ selectedUser()!.full_name?.charAt(0)?.toUpperCase() || '?' }}
+      <div class="user-popover">
+        <!-- Header with close button -->
+        <div class="popover-header">
+          <div class="user-header-compact">
+            <div class="user-avatar-sm" style="background-color: #22c55e">
+              {{ selectedUser()!.full_name?.charAt(0)?.toUpperCase() || '?' }}
+            </div>
+            <div class="user-info-compact">
+              <h4 class="user-name-sm">{{ selectedUser()!.full_name }}</h4>
+              <span class="user-location-sm">
+                @if (selectedUser()!.commune) { {{ selectedUser()!.commune }} }
+                @else if (selectedUser()!.wilaya) { {{ selectedUser()!.wilaya }} }
+              </span>
+            </div>
           </div>
-          <div class="user-info">
-            <h3 class="user-name">{{ selectedUser()!.full_name }}</h3>
-            <p class="user-email">{{ selectedUser()!.email }}</p>
-          </div>
+          <button pButton
+            class="p-button-text p-button-rounded p-button-sm close-btn"
+            icon="pi pi-times"
+            (click)="closePopover()">
+          </button>
         </div>
 
-        <!-- Tags -->
-        <div class="user-tags">
-          <p-tag [value]="'admin.users.roles.customer' | translate" severity="success" />
-          <p-tag
-            [value]="selectedUser()!.is_active ? ('common.active' | translate) : ('common.inactive' | translate)"
-            [severity]="getStatusSeverity(selectedUser()!.is_active)" />
-        </div>
-
-        <!-- Details -->
-        <div class="user-details-list">
+        <!-- Contact Info -->
+        <div class="popover-contact">
           @if (selectedUser()!.phone) {
-            <div class="detail-row">
+            <div class="contact-item">
               <i class="pi pi-phone"></i>
               <span>{{ selectedUser()!.phone }}</span>
             </div>
           }
-
           @if (selectedUser()!.store_name) {
-            <div class="detail-row">
+            <div class="contact-item">
               <i class="pi pi-building"></i>
               <span>{{ selectedUser()!.store_name }}</span>
             </div>
           }
-
-          @if (selectedUser()!.address) {
-            <div class="detail-row">
-              <i class="pi pi-map-marker"></i>
-              <span>{{ selectedUser()!.address }}</span>
-            </div>
-          }
-
-          @if (selectedUser()!.wilaya || selectedUser()!.commune) {
-            <div class="detail-row">
-              <i class="pi pi-globe"></i>
-              <span>
-                @if (selectedUser()!.commune) { {{ selectedUser()!.commune }}, }
-                @if (selectedUser()!.daira) { {{ selectedUser()!.daira }}, }
-                {{ selectedUser()!.wilaya }}
-              </span>
-            </div>
-          }
-
-          <div class="detail-row">
-            <i class="pi pi-calendar"></i>
-            <span>{{ selectedUser()!.created_at | date:'dd/MM/yyyy HH:mm' }}</span>
-          </div>
         </div>
 
-        <!-- Actions -->
-        <div class="user-actions">
+        <!-- Route Section -->
+        <div class="popover-route">
+          @if (selectedUserHasRoute()) {
+            <!-- Has Route - Show route info -->
+            <div class="route-info-compact">
+              <div class="route-stat-compact">
+                <i class="pi pi-map"></i>
+                <span>{{ selectedUserRoute()?.distance_km | number:'1.1-1' }} km</span>
+              </div>
+              <div class="route-stat-compact">
+                <i class="pi pi-clock"></i>
+                <span>{{ selectedUserRoute()?.duration_min | number:'1.0-0' }} min</span>
+              </div>
+              @if (selectedUserRoute()?.corridor) {
+                <div class="route-stat-compact">
+                  <i class="pi pi-directions"></i>
+                  <span>{{ selectedUserRoute()?.corridor }}</span>
+                </div>
+              }
+            </div>
+            <button pButton
+              class="p-button-danger p-button-text p-button-sm"
+              icon="pi pi-trash"
+              [label]="'admin.users.map.delete_route' | translate"
+              [loading]="deletingRoute()"
+              (click)="confirmDeleteRoute()">
+            </button>
+          } @else {
+            <!-- No Route -->
+            @if (routePreview()) {
+              <!-- Route Preview Mode -->
+              <div class="route-preview-compact">
+                <div class="route-info-compact">
+                  <div class="route-stat-compact">
+                    <i class="pi pi-map"></i>
+                    <span>{{ routePreview()?.distance_km | number:'1.1-1' }} km</span>
+                  </div>
+                  <div class="route-stat-compact">
+                    <i class="pi pi-clock"></i>
+                    <span>{{ routePreview()?.duration_min | number:'1.0-0' }} min</span>
+                  </div>
+                </div>
+                <div class="preview-actions">
+                  <button pButton
+                    class="p-button-text p-button-sm"
+                    icon="pi pi-times"
+                    (click)="cancelRoutePreview()">
+                  </button>
+                  <button pButton
+                    class="p-button-success p-button-sm"
+                    icon="pi pi-check"
+                    [label]="'common.save' | translate"
+                    [loading]="savingRoute()"
+                    (click)="saveRoute()">
+                  </button>
+                </div>
+              </div>
+            } @else {
+              <button pButton
+                class="p-button-primary p-button-sm w-full"
+                icon="pi pi-directions"
+                [label]="'admin.users.map.create_route' | translate"
+                [loading]="loadingRoute()"
+                (click)="fetchRoutePreview()">
+              </button>
+            }
+          }
+        </div>
+
+        <!-- Edit Button -->
+        <div class="popover-footer">
           <button pButton
-            class="p-button-outlined w-full"
+            class="p-button-outlined p-button-sm w-full"
             icon="pi pi-pencil"
             [label]="'common.edit' | translate"
             (click)="editUser(selectedUser()!)">
@@ -157,6 +198,9 @@
         </div>
       </div>
     }
-  </p-drawer>
+  </p-popover>
+
+  <!-- Confirm Dialog -->
+  <p-confirmDialog />
 
 </app-page-layout>

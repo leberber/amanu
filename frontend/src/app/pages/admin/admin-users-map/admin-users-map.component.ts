@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, signal, inject, computed, DestroyRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, inject, computed, DestroyRef, viewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -11,15 +11,19 @@ import * as L from 'leaflet';
 import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
 import { BadgeModule } from 'primeng/badge';
-import { DrawerModule } from 'primeng/drawer';
 import { TagModule } from 'primeng/tag';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { ConfirmationService } from 'primeng/api';
+import { Popover, PopoverModule } from 'primeng/popover';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 // App
 import { MAP_DEFAULTS, LEAFLET_TILES, LEAFLET_ASSETS } from '../../../core/constants/map.constants';
 import { ROUTES, PAGINATION, USER_ROLES } from '../../../core/constants';
 import { AdminService } from '../../../services/admin.service';
-import { UserManage, UsersResponse, CustomerRoute } from '../../../models/admin.model';
+import { RoadBuilderService, RouteResult } from '../../../services/road-builder.service';
+import { ToastMessageService } from '../../../core/services/toast-message.service';
+import { UserManage, CustomerRoute } from '../../../models/admin.model';
 import { PageLayoutComponent } from '../../../shared/components/page-layout/page-layout.component';
 
 // Marker colors
@@ -34,11 +38,13 @@ const DEPOT_COLOR = '#3b82f6'; // blue
     ButtonModule,
     TooltipModule,
     BadgeModule,
-    DrawerModule,
+    PopoverModule,
     TagModule,
+    ConfirmDialogModule,
     TranslateModule,
     PageLayoutComponent
   ],
+  providers: [ConfirmationService],
   templateUrl: './admin-users-map.component.html',
   styleUrl: './admin-users-map.component.scss',
   animations: [
@@ -52,13 +58,21 @@ const DEPOT_COLOR = '#3b82f6'; // blue
 })
 export class AdminUsersMapComponent implements OnInit, OnDestroy {
   private adminService = inject(AdminService);
+  private roadBuilderService = inject(RoadBuilderService);
   private router = inject(Router);
   private translateService = inject(TranslateService);
+  private toastService = inject(ToastMessageService);
+  private confirmationService = inject(ConfirmationService);
   private destroyRef = inject(DestroyRef);
+
+  // Popover reference
+  readonly userPopover = viewChild<Popover>('userPopover');
+  readonly popoverTarget = viewChild<ElementRef>('popoverTarget');
 
   // Map
   private map!: L.Map;
   private markersLayer = L.layerGroup();
+  private routeLayer = L.layerGroup();
   private depotMarker!: L.Marker;
   private currentTileLayer!: L.TileLayer;
 
@@ -66,11 +80,32 @@ export class AdminUsersMapComponent implements OnInit, OnDestroy {
   readonly loading = signal(true);
   readonly allUsers = signal<UserManage[]>([]);
   readonly customerRouteUserIds = signal<Set<number>>(new Set());
+  readonly customerRoutesMap = signal<Map<number, CustomerRoute>>(new Map());
   readonly selectedUser = signal<UserManage | null>(null);
-  readonly drawerVisible = signal(false);
+  readonly popoverVisible = signal(false);
+
+  // Route management state
+  readonly routePreview = signal<RouteResult | null>(null);
+  readonly loadingRoute = signal(false);
+  readonly savingRoute = signal(false);
+  readonly deletingRoute = signal(false);
 
   // Filters
   readonly routeFilter = signal<'all' | 'without_route'>('all');
+
+  // Computed - Check if selected user has a route
+  readonly selectedUserHasRoute = computed(() => {
+    const user = this.selectedUser();
+    if (!user) return false;
+    return this.customerRouteUserIds().has(user.id);
+  });
+
+  // Computed - Get selected user's route
+  readonly selectedUserRoute = computed(() => {
+    const user = this.selectedUser();
+    if (!user) return null;
+    return this.customerRoutesMap().get(user.id) || null;
+  });
 
   // Computed - Only customers
   readonly customers = computed(() => {
@@ -139,6 +174,11 @@ export class AdminUsersMapComponent implements OnInit, OnDestroy {
           const routeUserIds = new Set(routes.map(r => r.user_id));
           this.customerRouteUserIds.set(routeUserIds);
 
+          // Build map of user ID to route for quick lookup
+          const routesMap = new Map<number, CustomerRoute>();
+          routes.forEach(r => routesMap.set(r.user_id, r));
+          this.customerRoutesMap.set(routesMap);
+
           this.loading.set(false);
           // Initialize map after data is loaded
           setTimeout(() => this.initMap(), 100);
@@ -172,6 +212,9 @@ export class AdminUsersMapComponent implements OnInit, OnDestroy {
       subdomains: LEAFLET_TILES.GOOGLE.SUBDOMAINS,
       attribution: LEAFLET_TILES.GOOGLE.ATTRIBUTION
     }).addTo(this.map);
+
+    // Add route layer (below markers)
+    this.routeLayer.addTo(this.map);
 
     // Add markers layer
     this.markersLayer.addTo(this.map);
@@ -236,8 +279,8 @@ export class AdminUsersMapComponent implements OnInit, OnDestroy {
     const marker = L.marker([user.latitude!, user.longitude!], { icon });
 
     // Add click event
-    marker.on('click', () => {
-      this.selectUser(user);
+    marker.on('click', (e: L.LeafletMouseEvent) => {
+      this.selectUser(user, e.originalEvent);
     });
 
     // Add tooltip with user name
@@ -277,19 +320,199 @@ export class AdminUsersMapComponent implements OnInit, OnDestroy {
   }
 
   // User selection
-  selectUser(user: UserManage): void {
+  selectUser(user: UserManage, event?: Event): void {
+    // Close any existing popover first
+    const popover = this.userPopover();
+    if (popover) {
+      popover.hide();
+    }
+
     this.selectedUser.set(user);
-    this.drawerVisible.set(true);
+    this.routePreview.set(null);
+    this.clearRouteFromMap();
 
     // Center map on user
     if (user.latitude && user.longitude) {
       this.map.setView([user.latitude, user.longitude], 15);
     }
+
+    // Show popover after a small delay to ensure map is centered
+    setTimeout(() => {
+      const target = this.popoverTarget();
+      if (popover && target) {
+        popover.show(event || new Event('click'), target.nativeElement);
+        this.popoverVisible.set(true);
+      }
+    }, 100);
   }
 
-  closeDrawer(): void {
-    this.drawerVisible.set(false);
+  closePopover(): void {
+    const popover = this.userPopover();
+    if (popover) {
+      popover.hide();
+    }
+    this.popoverVisible.set(false);
     this.selectedUser.set(null);
+    this.routePreview.set(null);
+    this.clearRouteFromMap();
+  }
+
+  onPopoverHide(): void {
+    this.popoverVisible.set(false);
+    this.selectedUser.set(null);
+    this.routePreview.set(null);
+    this.clearRouteFromMap();
+  }
+
+  // Route management
+  async fetchRoutePreview(): Promise<void> {
+    const user = this.selectedUser();
+    if (!user?.latitude || !user?.longitude) return;
+
+    this.loadingRoute.set(true);
+    this.routePreview.set(null);
+    this.clearRouteFromMap();
+
+    try {
+      // Get route from depot to customer using Google Directions
+      const route = await this.roadBuilderService.getRoute(
+        [
+          { lat: MAP_DEFAULTS.LATITUDE, lng: MAP_DEFAULTS.LONGITUDE }, // Depot
+          { lat: user.latitude, lng: user.longitude } // Customer
+        ],
+        'google'
+      );
+
+      this.routePreview.set(route);
+      this.drawRouteOnMap(route.coordinates);
+
+      // Fit bounds to show the route
+      const bounds = L.latLngBounds([
+        [MAP_DEFAULTS.LATITUDE, MAP_DEFAULTS.LONGITUDE],
+        [user.latitude, user.longitude]
+      ]);
+      this.map.fitBounds(bounds, { padding: [80, 80] });
+    } catch {
+      this.toastService.showError(
+        this.translateService.instant('admin.users.map.route_fetch_error')
+      );
+    } finally {
+      this.loadingRoute.set(false);
+    }
+  }
+
+  async saveRoute(): Promise<void> {
+    const user = this.selectedUser();
+    if (!user) return;
+
+    this.savingRoute.set(true);
+
+    this.adminService.fetchAndSaveCustomerRoute(user.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (savedRoute) => {
+          // Update local state
+          const routeUserIds = new Set(this.customerRouteUserIds());
+          routeUserIds.add(user.id);
+          this.customerRouteUserIds.set(routeUserIds);
+
+          const routesMap = new Map(this.customerRoutesMap());
+          routesMap.set(user.id, savedRoute);
+          this.customerRoutesMap.set(routesMap);
+
+          this.routePreview.set(null);
+          this.savingRoute.set(false);
+
+          this.toastService.showSuccess(
+            this.translateService.instant('admin.users.map.route_saved')
+          );
+
+          // Re-render markers to update counts
+          this.renderMarkers();
+        },
+        error: () => {
+          this.savingRoute.set(false);
+          this.toastService.showError(
+            this.translateService.instant('admin.users.map.route_save_error')
+          );
+        }
+      });
+  }
+
+  cancelRoutePreview(): void {
+    this.routePreview.set(null);
+    this.clearRouteFromMap();
+
+    // Recenter on user
+    const user = this.selectedUser();
+    if (user?.latitude && user?.longitude) {
+      this.map.setView([user.latitude, user.longitude], 15);
+    }
+  }
+
+  confirmDeleteRoute(): void {
+    this.confirmationService.confirm({
+      message: this.translateService.instant('admin.users.map.delete_route_confirm'),
+      header: this.translateService.instant('common.confirm'),
+      icon: 'pi pi-exclamation-triangle',
+      acceptButtonStyleClass: 'p-button-danger',
+      accept: () => this.deleteRoute()
+    });
+  }
+
+  private deleteRoute(): void {
+    const user = this.selectedUser();
+    if (!user) return;
+
+    this.deletingRoute.set(true);
+
+    this.adminService.deleteCustomerRoute(user.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          // Update local state
+          const routeUserIds = new Set(this.customerRouteUserIds());
+          routeUserIds.delete(user.id);
+          this.customerRouteUserIds.set(routeUserIds);
+
+          const routesMap = new Map(this.customerRoutesMap());
+          routesMap.delete(user.id);
+          this.customerRoutesMap.set(routesMap);
+
+          this.clearRouteFromMap();
+          this.deletingRoute.set(false);
+
+          this.toastService.showSuccess(
+            this.translateService.instant('admin.users.map.route_deleted')
+          );
+
+          // Re-render markers to update counts
+          this.renderMarkers();
+        },
+        error: () => {
+          this.deletingRoute.set(false);
+          this.toastService.showError(
+            this.translateService.instant('admin.users.map.route_delete_error')
+          );
+        }
+      });
+  }
+
+  private drawRouteOnMap(coordinates: { lat: number; lng: number }[]): void {
+    this.routeLayer.clearLayers();
+
+    const latLngs = coordinates.map(c => L.latLng(c.lat, c.lng));
+    const polyline = L.polyline(latLngs, {
+      color: '#3b82f6',
+      weight: 5,
+      opacity: 0.8
+    });
+
+    polyline.addTo(this.routeLayer);
+  }
+
+  private clearRouteFromMap(): void {
+    this.routeLayer.clearLayers();
   }
 
   // Navigation

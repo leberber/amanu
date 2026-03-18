@@ -130,6 +130,11 @@ export interface DashboardStats {
     corridor?: string;
   }
 
+  // Customer Route with geometry coordinates for map display
+  export interface CustomerRouteWithGeometry extends CustomerRoute {
+    coordinates: Array<[number, number]>; // [[lng, lat], ...]
+  }
+
   // Consistent response models
   export interface UsersResponse {
     users: UserManage[];

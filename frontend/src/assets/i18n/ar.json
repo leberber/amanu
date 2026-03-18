@@ -1395,7 +1395,21 @@
         "filter_route": "المسار",
         "without_route": "بدون مسار",
         "list_view": "عرض القائمة",
-        "user_details": "تفاصيل العميل"
+        "user_details": "تفاصيل العميل",
+        "route_info": "معلومات المسار",
+        "distance": "المسافة",
+        "duration": "المدة",
+        "corridor": "الممر",
+        "no_route": "لم يتم حساب مسار لهذا العميل",
+        "create_route": "حساب المسار",
+        "delete_route": "حذف المسار",
+        "route_preview": "معاينة المسار",
+        "delete_route_confirm": "هل أنت متأكد من حذف مسار هذا العميل؟",
+        "route_saved": "تم حفظ المسار بنجاح",
+        "route_deleted": "تم حذف المسار بنجاح",
+        "route_fetch_error": "فشل في حساب المسار",
+        "route_save_error": "فشل في حفظ المسار",
+        "route_delete_error": "فشل في حذف المسار"
       }
     },
     "user_groups": {

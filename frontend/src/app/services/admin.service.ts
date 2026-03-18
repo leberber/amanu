@@ -131,6 +131,18 @@ export class AdminService {
     return this.apiService.get<CustomerRoute[]>('/admin/routes/');
   }
 
+  getCustomerRoute(userId: number): Observable<CustomerRoute> {
+    return this.apiService.get<CustomerRoute>(`/admin/routes/${userId}`);
+  }
+
+  fetchAndSaveCustomerRoute(userId: number): Observable<CustomerRoute> {
+    return this.apiService.post<CustomerRoute>('/admin/routes/fetch', { user_id: userId });
+  }
+
+  deleteCustomerRoute(userId: number): Observable<void> {
+    return this.apiService.delete<void>(`/admin/routes/${userId}`);
+  }
+
   // Driver management
   getAvailableDrivers(): Observable<DriverProfileWithFlags[]> {
     return this.apiService.get<DriverProfileWithFlags[]>('/admin/drivers/profiles');
