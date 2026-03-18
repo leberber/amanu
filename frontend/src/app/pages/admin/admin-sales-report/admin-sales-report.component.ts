@@ -48,9 +48,7 @@ export class AdminSalesReportComponent implements OnInit {
 
   // Cross-filter signals
   filterCategoryId = signal<number | null>(null);
-  filterCategoryName = signal<string>('');
   filterBrandId = signal<number | null>(null);
-  filterBrandName = signal<string>('');
 
   // Chart data signals (simplified for reusable components)
   lineChartData = signal<LineChartDataPoint[]>([]);
@@ -99,10 +97,6 @@ export class AdminSalesReportComponent implements OnInit {
   hasCategoryData = computed(() => {
     const report = this.salesReport();
     return report !== null && report.sales_by_category && report.sales_by_category.length > 0;
-  });
-
-  hasActiveFilter = computed(() => {
-    return this.filterCategoryId() !== null || this.filterBrandId() !== null;
   });
 
   // Services
@@ -288,10 +282,8 @@ export class AdminSalesReportComponent implements OnInit {
       // Toggle: if same category clicked, clear it
       if (this.filterCategoryId() === event.item.id) {
         this.filterCategoryId.set(null);
-        this.filterCategoryName.set('');
       } else {
         this.filterCategoryId.set(event.item.id);
-        this.filterCategoryName.set(event.item.label);
       }
       this.loadReport();
     }
@@ -302,32 +294,10 @@ export class AdminSalesReportComponent implements OnInit {
       // Toggle: if same brand clicked, clear it
       if (this.filterBrandId() === event.item.id) {
         this.filterBrandId.set(null);
-        this.filterBrandName.set('');
       } else {
         this.filterBrandId.set(event.item.id);
-        this.filterBrandName.set(event.item.label);
       }
       this.loadReport();
     }
-  }
-
-  clearCategoryFilter() {
-    this.filterCategoryId.set(null);
-    this.filterCategoryName.set('');
-    this.loadReport();
-  }
-
-  clearBrandFilter() {
-    this.filterBrandId.set(null);
-    this.filterBrandName.set('');
-    this.loadReport();
-  }
-
-  clearAllFilters() {
-    this.filterCategoryId.set(null);
-    this.filterCategoryName.set('');
-    this.filterBrandId.set(null);
-    this.filterBrandName.set('');
-    this.loadReport();
   }
 }

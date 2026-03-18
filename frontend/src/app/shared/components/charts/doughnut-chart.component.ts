@@ -164,6 +164,7 @@ export class DoughnutChartComponent implements OnInit {
   emptyMessage = input<string>('common.no_data');
   showLegend = input<boolean>(true);
   legendPosition = input<'top' | 'bottom' | 'left' | 'right'>('bottom');
+  selectedId = input<number | null>(null);
 
   itemClick = output<DoughnutChartClickEvent>();
 
@@ -187,6 +188,14 @@ export class DoughnutChartComponent implements OnInit {
     const _ = this.languageTrigger;
     const items = this.data();
     const scheme = COLOR_SCHEMES[this.colorScheme()];
+    const selectedId = this.selectedId();
+
+    // Create offset array - selected segment is offset
+    const offsets = items.map(item => item.id === selectedId ? 12 : 0);
+
+    // Create border array - selected segment has border
+    const borderWidths = items.map(item => item.id === selectedId ? 3 : 0);
+    const borderColors = items.map(item => item.id === selectedId ? '#1e293b' : 'transparent');
 
     return {
       labels: items.map(item => item.label),
@@ -194,8 +203,10 @@ export class DoughnutChartComponent implements OnInit {
         data: items.map(item => item.value),
         backgroundColor: scheme.bg.slice(0, items.length),
         hoverBackgroundColor: scheme.hover.slice(0, items.length),
-        borderWidth: 0,
-        hoverOffset: 8
+        borderWidth: borderWidths,
+        borderColor: borderColors,
+        hoverOffset: 8,
+        offset: offsets
       }]
     };
   });
