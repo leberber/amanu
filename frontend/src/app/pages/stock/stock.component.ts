@@ -391,6 +391,7 @@ export class StockComponent implements OnInit, OnDestroy {
   private pdfBlobUrl: string | null = null;
   pdfDoc: jsPDF | null = null;
   showPdfPreview = false;
+  private logoImage: HTMLImageElement | null = null;
 
   supplierOptions = computed(() => {
     const suppliers = new Set<string>();
@@ -459,6 +460,15 @@ export class StockComponent implements OnInit, OnDestroy {
 
       // Use all cart items (no filtering)
       const items = this.cartItems();
+
+      // Add Agroclik logo at top right (maintain aspect ratio)
+      if (this.logoImage) {
+        const maxLogoHeight = 20;
+        const aspectRatio = this.logoImage.width / this.logoImage.height;
+        const logoHeight = maxLogoHeight;
+        const logoWidth = logoHeight * aspectRatio;
+        doc.addImage(this.logoImage, 'PNG', pageWidth - logoWidth - 14, 8, logoWidth, logoHeight);
+      }
 
       // Header
       doc.setFontSize(20);
@@ -574,6 +584,15 @@ export class StockComponent implements OnInit, OnDestroy {
     document.body.classList.add('fullscreen-active');
     this.loadCartFromStorage();
     this.loadData();
+    this.loadLogo();
+  }
+
+  private loadLogo(): void {
+    const img = new Image();
+    img.src = 'logo.png';
+    img.onload = () => {
+      this.logoImage = img;
+    };
   }
 
   ngOnDestroy(): void {
