@@ -456,66 +456,77 @@ export class StockComponent implements OnInit, OnDestroy {
     try {
       const doc = new jsPDF();
       const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+      const margin = 12;
       const today = new Date();
-
-      // Use all cart items (no filtering)
       const items = this.cartItems();
+      const orderRef = `BC-${today.getFullYear()}${String(today.getMonth() + 1).padStart(2, '0')}${String(today.getDate()).padStart(2, '0')}-${String(Math.floor(Math.random() * 1000)).padStart(3, '0')}`;
 
-      // Add Agroclik logo at top right (maintain aspect ratio)
+      // ===== HEADER =====
+      // Logo on the right
       if (this.logoImage) {
-        const maxLogoHeight = 20;
+        const logoHeight = 12;
         const aspectRatio = this.logoImage.width / this.logoImage.height;
-        const logoHeight = maxLogoHeight;
         const logoWidth = logoHeight * aspectRatio;
-        doc.addImage(this.logoImage, 'PNG', pageWidth - logoWidth - 14, 8, logoWidth, logoHeight);
+        doc.addImage(this.logoImage, 'PNG', pageWidth - margin - logoWidth, 8, logoWidth, logoHeight);
       }
 
-      // Header
-      doc.setFontSize(20);
+      // Document title on the left
+      doc.setFontSize(16);
       doc.setFont('helvetica', 'bold');
-      doc.text('Bon de Commande', 14, 20);
+      doc.setTextColor(40, 40, 40);
+      doc.text('BON DE COMMANDE', margin, 14);
 
-      doc.setFontSize(10);
+      // Reference and date below title
+      doc.setFontSize(8);
       doc.setFont('helvetica', 'normal');
-      doc.text(`Date: ${this.formatDate(today.toISOString())}`, 14, 28);
+      doc.setTextColor(100, 100, 100);
+      doc.text(`${orderRef}  |  ${this.formatDate(today.toISOString())}`, margin, 20);
 
-      let yPosition = 38;
+      // Thin separator line
+      doc.setDrawColor(220, 220, 220);
+      doc.setLineWidth(0.2);
+      doc.line(margin, 24, pageWidth - margin, 24);
 
-      // Add selected supplier details at the top if one is selected
-      if (this.selectedSupplier) {
-        const supplierInfo = SUPPLIER_DETAILS[this.selectedSupplier];
+      // ===== SUPPLIER INFO (Left side) - Always show =====
+      let yPosition = 30;
 
-        yPosition = 40;
-        doc.setFontSize(12);
-        doc.setFont('helvetica', 'bold');
-        doc.text(`Fournisseur: ${this.normalizeText(supplierInfo?.name || this.selectedSupplier)}`, 14, yPosition);
+      // Use selected supplier or default to first one (Cevital)
+      const supplierKey = this.selectedSupplier || 'Cevital';
+      const supplierInfo = SUPPLIER_DETAILS[supplierKey];
 
-        doc.setFontSize(10);
-        doc.setFont('helvetica', 'normal');
-        yPosition += 6;
+      doc.setFontSize(7);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(120, 120, 120);
+      doc.text('FOURNISSEUR', margin, yPosition);
 
-        if (supplierInfo?.address) {
-          doc.text(`Adresse: ${this.normalizeText(supplierInfo.address)}${supplierInfo.city ? ', ' + this.normalizeText(supplierInfo.city) : ''}`, 14, yPosition);
-          yPosition += 5;
-        }
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(40, 40, 40);
+      doc.text(this.normalizeText(supplierInfo?.name || supplierKey), margin, yPosition + 5);
 
-        if (supplierInfo?.phone) {
-          doc.text(`Tel: ${supplierInfo.phone}`, 14, yPosition);
-          yPosition += 5;
-        }
+      doc.setFontSize(8);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(80, 80, 80);
+      let infoY = yPosition + 10;
 
-        if (supplierInfo?.email) {
-          doc.text(`Email: ${supplierInfo.email}`, 14, yPosition);
-          yPosition += 5;
-        }
-
-        yPosition += 8;
-      } else {
-        yPosition = 40;
+      if (supplierInfo?.address) {
+        doc.text(this.normalizeText(supplierInfo.address), margin, infoY);
+        infoY += 4;
+      }
+      if (supplierInfo?.city) {
+        doc.text(this.normalizeText(supplierInfo.city), margin, infoY);
+        infoY += 4;
+      }
+      if (supplierInfo?.phone) {
+        doc.text(`Tel: ${supplierInfo.phone}`, margin, infoY);
       }
 
-      // Create table data from all cart items (normalize text for PDF compatibility)
-      const tableData = items.map(row => [
+      yPosition += 24;
+
+      // ===== PRODUCTS TABLE =====
+      const tableData = items.map((row, index) => [
+        (index + 1).toString(),
         this.normalizeText(row.name),
         this.normalizeText(row.brand),
         row.nmbCarton.toString(),
@@ -524,49 +535,89 @@ export class StockComponent implements OnInit, OnDestroy {
       ]);
 
       const totalValue = items.reduce((sum, r) => sum + (r.prixCarton * r.nmbCarton), 0);
+      const totalItems = items.reduce((sum, r) => sum + r.nmbCarton, 0);
 
       autoTable(doc, {
         startY: yPosition,
-        head: [['Produit', 'Marque', 'Qté', 'Prix/Carton', 'Total']],
+        head: [['#', 'Designation', 'Marque', 'Qte', 'P.U', 'Total']],
         body: tableData,
-        foot: [['', '', '', 'Total:', this.formatNumber(totalValue)]],
         theme: 'plain',
         headStyles: {
-          fillColor: [245, 245, 245],
-          textColor: [40, 40, 40],
+          fillColor: [55, 55, 55],
+          textColor: [255, 255, 255],
           fontStyle: 'bold',
-          lineWidth: 0.5,
-          lineColor: [200, 200, 200]
+          fontSize: 7,
+          cellPadding: 2
         },
         bodyStyles: {
-          lineWidth: 0.25,
-          lineColor: [220, 220, 220]
-        },
-        footStyles: {
-          fillColor: [250, 250, 250],
-          textColor: [30, 30, 30],
-          fontStyle: 'bold',
-          lineWidth: 0.5,
-          lineColor: [200, 200, 200]
+          fontSize: 7,
+          cellPadding: 1.8,
+          textColor: [60, 60, 60]
         },
         alternateRowStyles: {
-          fillColor: [252, 252, 252]
+          fillColor: [248, 248, 248]
         },
-        margin: { left: 14, right: 14 },
-        styles: {
-          fontSize: 9,
-          cellPadding: 4,
-          lineColor: [220, 220, 220],
-          lineWidth: 0.25
-        },
+        margin: { left: margin, right: margin },
+        tableWidth: pageWidth - 2 * margin,
         columnStyles: {
-          0: { cellWidth: 60 },
-          1: { cellWidth: 40 },
-          2: { cellWidth: 20, halign: 'center' },
-          3: { cellWidth: 30, halign: 'right' },
-          4: { cellWidth: 30, halign: 'right' }
+          0: { cellWidth: 10, halign: 'center' },
+          1: { cellWidth: 'auto' },
+          2: { cellWidth: 35 },
+          3: { cellWidth: 15, halign: 'center' },
+          4: { cellWidth: 25, halign: 'right' },
+          5: { cellWidth: 28, halign: 'right', fontStyle: 'bold' }
         }
       });
+
+      // Get final Y position after table
+      let finalY = (doc as any).lastAutoTable.finalY + 8;
+
+      // ===== TOTALS (Right aligned) =====
+      const totalsX = pageWidth - margin - 50;
+
+      doc.setFontSize(7);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(100, 100, 100);
+      doc.text(`${items.length} produits  |  ${totalItems} articles`, totalsX, finalY, { align: 'left' });
+
+      finalY += 6;
+      doc.setFillColor(50, 50, 50);
+      doc.roundedRect(totalsX - 3, finalY - 4, 53, 10, 2, 2, 'F');
+
+      doc.setFontSize(8);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(255, 255, 255);
+      doc.text('TOTAL', totalsX, finalY + 2);
+      doc.text(`${this.formatNumber(totalValue)} DA`, pageWidth - margin - 5, finalY + 2, { align: 'right' });
+
+      // ===== SIGNATURES =====
+      finalY += 20;
+
+      if (finalY < pageHeight - 40) {
+        doc.setFontSize(7);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(120, 120, 120);
+
+        // Left signature
+        doc.text('Signature Fournisseur', margin, finalY);
+        doc.setDrawColor(200, 200, 200);
+        doc.setLineWidth(0.2);
+        doc.roundedRect(margin, finalY + 2, 55, 18, 2, 2, 'S');
+
+        // Right signature
+        doc.text('Signature Acheteur', pageWidth - margin - 55, finalY);
+        doc.roundedRect(pageWidth - margin - 55, finalY + 2, 55, 18, 2, 2, 'S');
+      }
+
+      // ===== FOOTER =====
+      doc.setDrawColor(220, 220, 220);
+      doc.setLineWidth(0.2);
+      doc.line(margin, pageHeight - 10, pageWidth - margin, pageHeight - 10);
+
+      doc.setFontSize(6);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(150, 150, 150);
+      doc.text('Document genere automatiquement', pageWidth / 2, pageHeight - 5, { align: 'center' });
 
       // Show preview
       this.pdfDoc = doc;
