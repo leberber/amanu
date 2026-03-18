@@ -258,10 +258,7 @@ export class DoughnutChartComponent implements OnInit {
         },
         datalabels: { display: false }
       },
-      animation: {
-        animateRotate: true,
-        animateScale: true
-      }
+      animation: false
     };
   });
 

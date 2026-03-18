@@ -181,7 +181,8 @@ export class LineChartComponent implements OnInit {
       interaction: {
         intersect: false,
         mode: 'index'
-      }
+      },
+      animation: false
     };
   });
 }

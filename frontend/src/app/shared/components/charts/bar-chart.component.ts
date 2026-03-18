@@ -263,7 +263,8 @@ export class BarChartComponent implements OnInit {
                 }
           }
         }
-      }
+      },
+      animation: false
     };
   });
 }
