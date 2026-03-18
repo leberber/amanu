@@ -118,6 +118,18 @@ export interface DashboardStats {
     groups?: UserGroupBasic[];
   }
 
+  // Customer Route (for delivery route optimization)
+  export interface CustomerRoute {
+    id: number;
+    user_id: number;
+    distance_meters: number;
+    duration_seconds: number;
+    distance_km: number;
+    duration_min: number;
+    heading?: number;
+    corridor?: string;
+  }
+
   // Consistent response models
   export interface UsersResponse {
     users: UserManage[];

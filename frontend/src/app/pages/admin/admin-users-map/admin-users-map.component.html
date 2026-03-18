@@ -40,30 +40,23 @@
 
     <!-- Filter Bar -->
     <div class="map-filter-bar">
-      <!-- Status Filter -->
+      <!-- Route Filter -->
       <div class="filter-group">
-        <span class="filter-label">{{ 'admin.users.map.filter_status' | translate }}:</span>
+        <span class="filter-label">{{ 'admin.users.map.filter_route' | translate }}:</span>
         <div class="filter-buttons">
           <button
             class="filter-btn"
-            [class.filter-btn--active]="statusFilter() === 'all'"
-            (click)="setStatusFilter('all')">
+            [class.filter-btn--active]="routeFilter() === 'all'"
+            (click)="setRouteFilter('all')">
             {{ 'common.all' | translate }}
             <span class="filter-count">{{ customersWithLocationCount() }}</span>
           </button>
           <button
             class="filter-btn"
-            [class.filter-btn--active]="statusFilter() === 'active'"
-            (click)="setStatusFilter('active')">
-            {{ 'common.active' | translate }}
-            <span class="filter-count">{{ activeCustomersCount() }}</span>
-          </button>
-          <button
-            class="filter-btn"
-            [class.filter-btn--active]="statusFilter() === 'inactive'"
-            (click)="setStatusFilter('inactive')">
-            {{ 'common.inactive' | translate }}
-            <span class="filter-count">{{ inactiveCustomersCount() }}</span>
+            [class.filter-btn--active]="routeFilter() === 'without_route'"
+            (click)="setRouteFilter('without_route')">
+            {{ 'admin.users.map.without_route' | translate }}
+            <span class="filter-count">{{ customersWithoutRouteCount() }}</span>
           </button>
         </div>
       </div>

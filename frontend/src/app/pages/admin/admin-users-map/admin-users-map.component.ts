@@ -2,6 +2,8 @@ import { Component, OnInit, OnDestroy, signal, inject, computed, DestroyRef } fr
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { trigger, transition, style, animate } from '@angular/animations';
 import * as L from 'leaflet';
 
@@ -17,7 +19,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { MAP_DEFAULTS, LEAFLET_TILES, LEAFLET_ASSETS } from '../../../core/constants/map.constants';
 import { ROUTES, PAGINATION, USER_ROLES } from '../../../core/constants';
 import { AdminService } from '../../../services/admin.service';
-import { UserManage, UsersResponse } from '../../../models/admin.model';
+import { UserManage, UsersResponse, CustomerRoute } from '../../../models/admin.model';
 import { PageLayoutComponent } from '../../../shared/components/page-layout/page-layout.component';
 
 // Marker colors
@@ -63,11 +65,12 @@ export class AdminUsersMapComponent implements OnInit, OnDestroy {
   // State
   readonly loading = signal(true);
   readonly allUsers = signal<UserManage[]>([]);
+  readonly customerRouteUserIds = signal<Set<number>>(new Set());
   readonly selectedUser = signal<UserManage | null>(null);
   readonly drawerVisible = signal(false);
 
   // Filters
-  readonly statusFilter = signal<'all' | 'active' | 'inactive'>('all');
+  readonly routeFilter = signal<'all' | 'without_route'>('all');
 
   // Computed - Only customers
   readonly customers = computed(() => {
@@ -81,10 +84,10 @@ export class AdminUsersMapComponent implements OnInit, OnDestroy {
   readonly filteredCustomers = computed(() => {
     let users = this.customersWithLocation();
 
-    // Status filter
-    if (this.statusFilter() !== 'all') {
-      const isActive = this.statusFilter() === 'active';
-      users = users.filter(u => u.is_active === isActive);
+    // Route filter
+    if (this.routeFilter() === 'without_route') {
+      const routeUserIds = this.customerRouteUserIds();
+      users = users.filter(u => !routeUserIds.has(u.id));
     }
 
     return users;
@@ -94,17 +97,20 @@ export class AdminUsersMapComponent implements OnInit, OnDestroy {
   readonly customersWithLocationCount = computed(() => this.customersWithLocation().length);
   readonly filteredCustomersCount = computed(() => this.filteredCustomers().length);
 
-  readonly activeCustomersCount = computed(() =>
-    this.customersWithLocation().filter(u => u.is_active).length
-  );
-  readonly inactiveCustomersCount = computed(() =>
-    this.customersWithLocation().filter(u => !u.is_active).length
-  );
+  readonly customersWithRouteCount = computed(() => {
+    const routeUserIds = this.customerRouteUserIds();
+    return this.customersWithLocation().filter(u => routeUserIds.has(u.id)).length;
+  });
+
+  readonly customersWithoutRouteCount = computed(() => {
+    const routeUserIds = this.customerRouteUserIds();
+    return this.customersWithLocation().filter(u => !routeUserIds.has(u.id)).length;
+  });
 
   readonly ROUTES = ROUTES;
 
   ngOnInit(): void {
-    this.loadUsers();
+    this.loadData();
   }
 
   ngOnDestroy(): void {
@@ -113,19 +119,31 @@ export class AdminUsersMapComponent implements OnInit, OnDestroy {
     }
   }
 
-  private loadUsers(): void {
+  private loadData(): void {
     this.loading.set(true);
-    this.adminService.getAllUsers(1, PAGINATION.FETCH_ALL_LIMIT)
+
+    // Fetch users and customer routes in parallel
+    // Routes request has catchError to not block users if routes fail
+    forkJoin({
+      users: this.adminService.getAllUsers(1, PAGINATION.FETCH_ALL_LIMIT),
+      routes: this.adminService.getCustomerRoutes().pipe(
+        catchError(() => of([])) // Return empty array if routes fail
+      )
+    })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (response: UsersResponse) => {
-          this.allUsers.set(response.users || []);
+        next: ({ users, routes }) => {
+          this.allUsers.set(users.users || []);
+
+          // Build set of user IDs that have routes
+          const routeUserIds = new Set(routes.map(r => r.user_id));
+          this.customerRouteUserIds.set(routeUserIds);
+
           this.loading.set(false);
           // Initialize map after data is loaded
           setTimeout(() => this.initMap(), 100);
         },
-        error: (err) => {
-          console.error('Failed to load users:', err);
+        error: () => {
           this.loading.set(false);
           // Still initialize the map even on error
           setTimeout(() => this.initMap(), 100);
@@ -252,8 +270,8 @@ export class AdminUsersMapComponent implements OnInit, OnDestroy {
   }
 
   // Filter methods
-  setStatusFilter(status: 'all' | 'active' | 'inactive'): void {
-    this.statusFilter.set(status);
+  setRouteFilter(filter: 'all' | 'without_route'): void {
+    this.routeFilter.set(filter);
     this.renderMarkers();
     this.fitBoundsToMarkers();
   }

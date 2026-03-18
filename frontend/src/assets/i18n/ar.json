@@ -1392,7 +1392,8 @@
         "on_map": "على الخريطة",
         "with_location": "مع موقع",
         "without_location": "بدون موقع",
-        "filter_status": "الحالة",
+        "filter_route": "المسار",
+        "without_route": "بدون مسار",
         "list_view": "عرض القائمة",
         "user_details": "تفاصيل العميل"
       }

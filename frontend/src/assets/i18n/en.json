@@ -1389,7 +1389,8 @@
         "on_map": "on map",
         "with_location": "with location",
         "without_location": "without location",
-        "filter_status": "Status",
+        "filter_route": "Route",
+        "without_route": "Without Route",
         "list_view": "List View",
         "user_details": "Customer Details"
       }

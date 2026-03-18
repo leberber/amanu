@@ -15,7 +15,8 @@ import {
   OrdersResponse,
   LogsResponse,
   SystemMetrics,
-  SystemHealth
+  SystemHealth,
+  CustomerRoute
 } from '../models/admin.model';
 import {
   DriverProfileWithFlags,
@@ -123,6 +124,11 @@ export class AdminService {
 
   createUser(userData: any): Observable<UserManage> {
     return this.apiService.post<UserManage>('/auth/register', userData);
+  }
+
+  // Customer Routes
+  getCustomerRoutes(): Observable<CustomerRoute[]> {
+    return this.apiService.get<CustomerRoute[]>('/admin/routes/');
   }
 
   // Driver management

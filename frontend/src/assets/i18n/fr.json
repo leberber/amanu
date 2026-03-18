@@ -1391,7 +1391,8 @@
         "on_map": "sur la carte",
         "with_location": "avec localisation",
         "without_location": "sans localisation",
-        "filter_status": "Statut",
+        "filter_route": "Itinéraire",
+        "without_route": "Sans Itinéraire",
         "list_view": "Vue Liste",
         "user_details": "Détails du Client"
       }
