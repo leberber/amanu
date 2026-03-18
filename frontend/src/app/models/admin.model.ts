@@ -255,3 +255,17 @@ export interface DashboardStats {
     error_rate: number;
     requests_per_minute: number;
   }
+
+  export interface ApiError {
+    timestamp: string;
+    method: string;
+    path: string;
+    status_code: number;
+    response_time_ms: number;
+    error_message: string | null;
+  }
+
+  export interface SystemErrorsResponse {
+    errors: ApiError[];
+    total_errors: number;
+  }

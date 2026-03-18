@@ -16,7 +16,8 @@ import {
   LogsResponse,
   SystemMetrics,
   SystemHealth,
-  CustomerRoute
+  CustomerRoute,
+  SystemErrorsResponse
 } from '../models/admin.model';
 import {
   DriverProfileWithFlags,
@@ -180,5 +181,13 @@ export class AdminService {
 
   getSystemHealth(): Observable<SystemHealth> {
     return this.apiService.get<SystemHealth>('/admin/system/health');
+  }
+
+  getSystemErrors(limit: number = 50): Observable<SystemErrorsResponse> {
+    return this.apiService.get<SystemErrorsResponse>('/admin/system/errors', { params: { limit } });
+  }
+
+  clearSystemErrors(): Observable<void> {
+    return this.apiService.delete<void>('/admin/system/errors');
   }
 }

@@ -672,3 +672,32 @@ def get_system_health(
         "error_rate": api["error_rate"],
         "requests_per_minute": api["requests_per_minute"]
     }
+
+
+@router.get("/system/errors")
+def get_system_errors(
+    current_user: User = Depends(get_current_admin_user),
+    limit: int = Query(50, le=100, description="Number of errors to return")
+) -> Any:
+    """
+    Get recent API errors with details (admin only).
+
+    Returns the last N errors with timestamp, endpoint, status code, and error message.
+    """
+    metrics = get_metrics()
+    return {
+        "errors": metrics.get_recent_errors(limit),
+        "total_errors": metrics.request_metrics.total_errors
+    }
+
+
+@router.delete("/system/errors")
+def clear_system_errors(
+    current_user: User = Depends(get_current_admin_user),
+) -> Any:
+    """
+    Clear the error log (admin only).
+    """
+    metrics = get_metrics()
+    metrics.clear_errors()
+    return {"message": "Error log cleared"}

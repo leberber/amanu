@@ -14,6 +14,17 @@ from typing import Dict, List, Optional
 
 
 @dataclass
+class ErrorRecord:
+    """Stores details of an API error."""
+    timestamp: str
+    method: str
+    path: str
+    status_code: int
+    response_time_ms: float
+    error_message: Optional[str] = None
+
+
+@dataclass
 class RequestMetrics:
     """Tracks API request performance."""
     total_requests: int = 0
@@ -22,6 +33,9 @@ class RequestMetrics:
 
     # Recent response times (last 100 requests)
     recent_times: deque = field(default_factory=lambda: deque(maxlen=100))
+
+    # Recent errors (last 100 errors with details)
+    recent_errors: deque = field(default_factory=lambda: deque(maxlen=100))
 
     # Requests per endpoint
     endpoint_counts: Dict[str, int] = field(default_factory=dict)
@@ -57,7 +71,14 @@ class SystemMetrics:
         self.request_metrics = RequestMetrics()
         self._metrics_lock = Lock()
 
-    def record_request(self, path: str, method: str, status_code: int, response_time: float):
+    def record_request(
+        self,
+        path: str,
+        method: str,
+        status_code: int,
+        response_time: float,
+        error_message: Optional[str] = None
+    ):
         """Record a completed request."""
         with self._metrics_lock:
             metrics = self.request_metrics
@@ -69,6 +90,16 @@ class SystemMetrics:
 
             if status_code >= 400:
                 metrics.total_errors += 1
+                # Store error details
+                error_record = ErrorRecord(
+                    timestamp=datetime.now(timezone.utc).isoformat(),
+                    method=method,
+                    path=path,
+                    status_code=status_code,
+                    response_time_ms=round(response_time * 1000, 2),
+                    error_message=error_message
+                )
+                metrics.recent_errors.append(error_record)
 
             # Update per-endpoint stats
             endpoint = f"{method} {path}"
@@ -230,6 +261,29 @@ class SystemMetrics:
             "uptime_seconds": int(uptime_delta.total_seconds()),
             "uptime_human": f"{days}d {hours}h {minutes}m {seconds}s" if days > 0 else f"{hours}h {minutes}m {seconds}s"
         }
+
+    def get_recent_errors(self, limit: int = 50) -> List[dict]:
+        """Get recent API errors with details."""
+        with self._metrics_lock:
+            errors = list(self.request_metrics.recent_errors)
+            # Return most recent first
+            errors.reverse()
+            return [
+                {
+                    "timestamp": e.timestamp,
+                    "method": e.method,
+                    "path": e.path,
+                    "status_code": e.status_code,
+                    "response_time_ms": e.response_time_ms,
+                    "error_message": e.error_message
+                }
+                for e in errors[:limit]
+            ]
+
+    def clear_errors(self):
+        """Clear the error log."""
+        with self._metrics_lock:
+            self.request_metrics.recent_errors.clear()
 
     def get_all_metrics(self) -> dict:
         """Get all metrics combined."""

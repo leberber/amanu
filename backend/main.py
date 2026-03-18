@@ -75,8 +75,26 @@ async def add_process_time_header(request: Request, call_next):
         process_time = time.time() - start_time
         response.headers["X-Process-Time"] = str(process_time)
 
-        # Record metrics
-        metrics.record_request(request.url.path, request.method, response.status_code, process_time)
+        # Record metrics with error message for failed requests
+        error_msg = None
+        if response.status_code >= 400:
+            # Map common status codes to messages
+            error_messages = {
+                400: "Bad Request",
+                401: "Unauthorized",
+                403: "Forbidden",
+                404: "Not Found",
+                405: "Method Not Allowed",
+                409: "Conflict",
+                422: "Validation Error",
+                429: "Too Many Requests",
+                500: "Internal Server Error",
+                502: "Bad Gateway",
+                503: "Service Unavailable",
+            }
+            error_msg = error_messages.get(response.status_code, f"HTTP {response.status_code}")
+
+        metrics.record_request(request.url.path, request.method, response.status_code, process_time, error_msg)
 
         # Log response (skip noisy endpoints)
         if not request.url.path.startswith("/api/v1/admin/system"):
@@ -86,8 +104,9 @@ async def add_process_time_header(request: Request, call_next):
         return response
     except Exception as e:
         process_time = time.time() - start_time
-        # Record error in metrics
-        metrics.record_request(request.url.path, request.method, 500, process_time)
+        error_msg = f"{type(e).__name__}: {str(e)}"
+        # Record error in metrics with message
+        metrics.record_request(request.url.path, request.method, 500, process_time, error_msg)
         # Log error with compact traceback
         tb_lines = traceback.format_exc().strip().split('\n')
         relevant_lines = [l.strip() for l in tb_lines if 'amanu/backend' in l or l.startswith('ValueError') or l.startswith('TypeError') or l.startswith('KeyError') or 'Error' in l][-5:]

@@ -1,13 +1,14 @@
 import { Component, OnInit, OnDestroy, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AdminService } from '../../../services/admin.service';
-import { SystemMetrics, SystemHealth } from '../../../models/admin.model';
+import { SystemMetrics, SystemHealth, ApiError } from '../../../models/admin.model';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { TagModule } from 'primeng/tag';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { TooltipModule } from 'primeng/tooltip';
 import { SkeletonModule } from 'primeng/skeleton';
+import { AccordionModule } from 'primeng/accordion';
 import { trigger, transition, style, animate, stagger, query } from '@angular/animations';
 
 @Component({
@@ -20,7 +21,8 @@ import { trigger, transition, style, animate, stagger, query } from '@angular/an
     TagModule,
     ProgressBarModule,
     TooltipModule,
-    SkeletonModule
+    SkeletonModule,
+    AccordionModule
   ],
   templateUrl: './admin-system.component.html',
   styleUrl: './admin-system.component.scss',
@@ -48,7 +50,11 @@ export class AdminSystemComponent implements OnInit, OnDestroy {
 
   metrics = signal<SystemMetrics | null>(null);
   health = signal<SystemHealth | null>(null);
+  errors = signal<ApiError[]>([]);
+  totalErrors = signal(0);
   loading = signal(true);
+  loadingErrors = signal(false);
+  clearingErrors = signal(false);
   error = signal<string | null>(null);
   autoRefresh = signal(true);
   lastUpdated = signal<Date | null>(null);
@@ -105,7 +111,7 @@ export class AdminSystemComponent implements OnInit, OnDestroy {
   }
 
   loadMetrics(): void {
-    // Load both metrics and health in parallel
+    // Load metrics, health, and errors in parallel
     this.adminService.getSystemMetrics().subscribe({
       next: (data) => {
         this.metrics.set(data);
@@ -116,7 +122,6 @@ export class AdminSystemComponent implements OnInit, OnDestroy {
       error: (err) => {
         this.error.set('Failed to load system metrics');
         this.loading.set(false);
-        console.error('Error loading metrics:', err);
       }
     });
 
@@ -124,10 +129,43 @@ export class AdminSystemComponent implements OnInit, OnDestroy {
       next: (data) => {
         this.health.set(data);
       },
-      error: (err) => {
-        console.error('Error loading health:', err);
+      error: () => {}
+    });
+
+    this.loadErrors();
+  }
+
+  loadErrors(): void {
+    this.loadingErrors.set(true);
+    this.adminService.getSystemErrors(100).subscribe({
+      next: (data) => {
+        this.errors.set(data.errors);
+        this.totalErrors.set(data.total_errors);
+        this.loadingErrors.set(false);
+      },
+      error: () => {
+        this.loadingErrors.set(false);
       }
     });
+  }
+
+  clearErrors(): void {
+    this.clearingErrors.set(true);
+    this.adminService.clearSystemErrors().subscribe({
+      next: () => {
+        this.errors.set([]);
+        this.clearingErrors.set(false);
+      },
+      error: () => {
+        this.clearingErrors.set(false);
+      }
+    });
+  }
+
+  getStatusCodeSeverity(code: number): 'success' | 'info' | 'warning' | 'danger' | 'secondary' {
+    if (code >= 500) return 'danger';
+    if (code >= 400) return 'warning';
+    return 'info';
   }
 
   refresh(): void {

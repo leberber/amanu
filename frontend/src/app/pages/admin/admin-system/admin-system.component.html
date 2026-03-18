@@ -319,6 +319,88 @@
       </div>
     </div>
 
+    <!-- API Errors Section -->
+    <div class="surface-card border-round p-4 mt-4">
+      <div class="flex align-items-center justify-content-between mb-3">
+        <div class="flex align-items-center gap-2">
+          <i class="pi pi-exclamation-circle text-xl text-red-500"></i>
+          <span class="font-semibold">Recent API Errors</span>
+          @if (totalErrors() > 0) {
+            <p-tag [value]="totalErrors() + ' total'" severity="danger" [rounded]="true" />
+          }
+        </div>
+        @if (errors().length > 0) {
+          <p-button
+            label="Clear"
+            icon="pi pi-trash"
+            severity="danger"
+            [text]="true"
+            size="small"
+            [loading]="clearingErrors()"
+            (onClick)="clearErrors()"
+          />
+        }
+      </div>
+
+      @if (loadingErrors()) {
+        <div class="flex flex-column gap-2">
+          @for (i of [1, 2, 3]; track i) {
+            <p-skeleton height="3rem" styleClass="border-round" />
+          }
+        </div>
+      } @else if (errors().length === 0) {
+        <div class="text-secondary text-center py-4">
+          <i class="pi pi-check-circle text-2xl text-green-500 mb-2"></i>
+          <p class="m-0">No recent errors</p>
+        </div>
+      } @else {
+        <p-accordion [multiple]="true">
+          @for (err of errors(); track err.timestamp; let i = $index) {
+            <p-accordion-panel [value]="'error-' + i">
+              <p-accordion-header>
+                <div class="flex align-items-center gap-3 w-full">
+                  <p-tag
+                    [value]="err.status_code.toString()"
+                    [severity]="getStatusCodeSeverity(err.status_code)"
+                    styleClass="min-w-3rem text-center"
+                  />
+                  <span class="font-semibold">{{ err.method }}</span>
+                  <code class="text-sm flex-1 overflow-hidden text-overflow-ellipsis white-space-nowrap">{{ err.path }}</code>
+                  <span class="text-secondary text-sm">{{ err.timestamp | date:'dd/MM HH:mm:ss' }}</span>
+                </div>
+              </p-accordion-header>
+              <p-accordion-content>
+                <div class="flex flex-column gap-2">
+                  <div class="flex gap-2">
+                    <span class="text-secondary">Endpoint:</span>
+                    <code>{{ err.method }} {{ err.path }}</code>
+                  </div>
+                  <div class="flex gap-2">
+                    <span class="text-secondary">Status:</span>
+                    <span>{{ err.status_code }}</span>
+                  </div>
+                  <div class="flex gap-2">
+                    <span class="text-secondary">Response Time:</span>
+                    <span>{{ err.response_time_ms }}ms</span>
+                  </div>
+                  <div class="flex gap-2">
+                    <span class="text-secondary">Time:</span>
+                    <span>{{ err.timestamp | date:'dd/MM/yyyy HH:mm:ss' }}</span>
+                  </div>
+                  @if (err.error_message) {
+                    <div class="mt-2 p-2 surface-ground border-round">
+                      <span class="text-secondary">Error Message:</span>
+                      <p class="m-0 mt-1 font-mono text-sm">{{ err.error_message }}</p>
+                    </div>
+                  }
+                </div>
+              </p-accordion-content>
+            </p-accordion-panel>
+          }
+        </p-accordion>
+      }
+    </div>
+
     <!-- Uptime Section -->
     <div class="surface-card border-round p-4 mt-4">
       <div class="flex align-items-center gap-2 mb-2">
