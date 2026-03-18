@@ -1760,6 +1760,8 @@
       "sales_report": "Rapport de Ventes",
       "orders": "Commandes",
       "users": "Utilisateurs",
+      "users_map": "Carte des Clients",
+      "drivers": "Chauffeurs",
       "products": "Produits",
       "categories": "Catégories",
       "brands": "Marques",
@@ -1769,7 +1771,10 @@
       "reports": "Rapports",
       "settings": "Paramètres",
       "shipping": "Livraison",
-      "batching": "Groupage de trajet"
+      "batching": "Groupage de trajet",
+      "stock": "Stock",
+      "logs": "Journaux",
+      "system": "Système"
     },
     "brands": {
       "title": "Marques",

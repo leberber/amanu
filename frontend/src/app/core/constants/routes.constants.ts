@@ -82,7 +82,8 @@ export const ROUTES = {
     DRIVER_CONFIG: '/admin/drivers/config',
     LOGS: '/admin/logs',
     SYSTEM: '/admin/system',
-    SALES_REPORT: '/admin/sales-report'
+    SALES_REPORT: '/admin/sales-report',
+    STOCK: '/admin/stock'
   }
 } as const;
 

@@ -82,9 +82,21 @@ export const ADMIN_NAV_ITEMS: AdminNavItem[] = [
     adminOnly: true
   },
   {
+    labelKey: 'admin.navigation.users_map',
+    icon: 'pi pi-map-marker',
+    route: ROUTES.ADMIN.USERS_MAP,
+    adminOnly: true
+  },
+  {
     labelKey: 'admin.navigation.user_groups',
     icon: 'pi pi-th-large',
     route: ROUTES.ADMIN.USER_GROUPS,
+    adminOnly: true
+  },
+  {
+    labelKey: 'admin.navigation.drivers',
+    icon: 'pi pi-car',
+    route: ROUTES.ADMIN.DRIVER_MANAGEMENT,
     adminOnly: true
   },
   {
@@ -103,6 +115,24 @@ export const ADMIN_NAV_ITEMS: AdminNavItem[] = [
     labelKey: 'admin.navigation.batching',
     icon: 'pi pi-sitemap',
     route: ROUTES.ADMIN.BATCHING,
+    adminOnly: true
+  },
+  {
+    labelKey: 'admin.navigation.stock',
+    icon: 'pi pi-box',
+    route: ROUTES.ADMIN.STOCK,
+    adminOnly: true
+  },
+  {
+    labelKey: 'admin.navigation.logs',
+    icon: 'pi pi-file',
+    route: ROUTES.ADMIN.LOGS,
+    adminOnly: true
+  },
+  {
+    labelKey: 'admin.navigation.system',
+    icon: 'pi pi-server',
+    route: ROUTES.ADMIN.SYSTEM,
     adminOnly: true
   }
 ];

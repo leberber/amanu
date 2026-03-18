@@ -254,10 +254,12 @@ export const routes: Routes = [
     data: { hideBottomNav: true }
   },
 
-  // Stock Page (public - no auth required)
+  // Stock Page (admin only)
   {
-    path: 'stock',
-    loadComponent: () => import('./pages/stock/stock.component').then(m => m.StockComponent)
+    path: 'admin/stock',
+    loadComponent: () => import('./pages/stock/stock.component').then(m => m.StockComponent),
+    canActivate: [adminGuard],
+    data: { hideBottomNav: true }
   },
 
   // Graph Builder (public - for adding missing roads)

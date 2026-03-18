@@ -1761,6 +1761,7 @@
       "sales_report": "Sales Report",
       "orders": "Orders",
       "users": "Users",
+      "users_map": "Customers Map",
       "drivers": "Drivers",
       "products": "Products",
       "categories": "Categories",
@@ -1771,7 +1772,10 @@
       "reports": "Reports",
       "settings": "Settings",
       "shipping": "Shipping",
-      "batching": "Batching"
+      "batching": "Batching",
+      "stock": "Stock",
+      "logs": "Logs",
+      "system": "System"
     },
     "brands": {
       "title": "Brands",
