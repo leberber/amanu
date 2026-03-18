@@ -309,7 +309,7 @@ export class StockComponent implements OnInit, OnDestroy {
     const groups = new Map<string, RestockRow[]>();
 
     rows.forEach(row => {
-      const supplier = row.supplier || 'Non spécifié';
+      const supplier = row.supplier || '';
       if (!groups.has(supplier)) {
         groups.set(supplier, []);
       }

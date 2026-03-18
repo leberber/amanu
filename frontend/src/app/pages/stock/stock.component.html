@@ -729,64 +729,65 @@
             </button>
           </div>
         } @else {
-          <!-- Cart Items Grouped by Supplier -->
+          <!-- Cart Items with PrimeNG Table -->
           <div class="cart-content">
-            @for (entry of cartGroupedBySupplier() | keyvalue; track entry.key) {
-              <div class="supplier-group">
-                <div class="supplier-header">
-                  <h3><i class="pi pi-truck"></i> {{ entry.key }}</h3>
-                  @if (entry.value[0].phone) {
-                    <span class="supplier-phone"><i class="pi pi-phone"></i> {{ entry.value[0].phone }}</span>
-                  }
-                  <span class="supplier-total">{{ getSupplierTotal(entry.value) | number:'1.0-0' }} DA</span>
-                </div>
-                <table class="cart-table">
-                  <thead>
-                    <tr>
-                      <th class="col-image">Image</th>
-                      <th>Produit</th>
-                      <th>Marque</th>
-                      <th class="text-center">Qté</th>
-                      <th class="text-right">Prix/Carton</th>
-                      <th class="text-right">Total</th>
-                      <th class="col-actions"></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    @for (row of entry.value; track row.id) {
-                      <tr>
-                        <td class="col-image">
-                          <img
-                            [src]="row.image"
-                            [alt]="row.name"
-                            class="product-thumbnail"
-                            loading="lazy"
-                            (error)="onImageError($event)"
-                          />
-                        </td>
-                        <td>{{ row.name }}</td>
-                        <td>
-                          <span class="brand-pill small" [style.background]="getBrandColor(row.brand).bg" [style.color]="getBrandColor(row.brand).text">{{ row.brand }}</span>
-                        </td>
-                        <td class="text-center">{{ row.nmbCarton }}</td>
-                        <td class="text-right">{{ row.prixCarton | number:'1.0-0' }}</td>
-                        <td class="text-right font-semibold">{{ row.prixCarton * row.nmbCarton | number:'1.0-0' }}</td>
-                        <td class="col-actions">
-                          <button class="btn-remove" (click)="removeFromCart(row)" pTooltip="Retirer">
-                            <i class="pi pi-times"></i>
-                          </button>
-                        </td>
-                      </tr>
-                    }
-                  </tbody>
-                </table>
-              </div>
-            }
-
-            <!-- Grand Total -->
-            <div class="cart-grand-total">
-              <span>Total Général:</span>
-              <span class="total-value">{{ cartTotalValue() | number:'1.0-0' }} DA</span>
+            <div class="cart-table-wrapper">
+            <p-table
+              [value]="cartItems()"
+              [scrollable]="true"
+              scrollHeight="calc(100vh - 100px)"
+              styleClass="p-datatable-sm cart-table-prime"
+            >
+              <ng-template pTemplate="header">
+                <tr>
+                  <th style="width: 70px">Image</th>
+                  <th>Produit</th>
+                  <th>Marque</th>
+                  <th class="text-center" style="width: 80px">Qté</th>
+                  <th class="text-right" style="width: 120px">Prix/Carton</th>
+                  <th class="text-right" style="width: 120px">Total</th>
+                  <th style="width: 50px"></th>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="body" let-row>
+                <tr>
+                  <td>
+                    <img
+                      [src]="row.image"
+                      [alt]="row.name"
+                      class="product-thumbnail"
+                      loading="lazy"
+                      (error)="onImageError($event)"
+                    />
+                  </td>
+                  <td>{{ row.name }}</td>
+                  <td>
+                    <span class="brand-pill small" [style.background]="getBrandColor(row.brand).bg" [style.color]="getBrandColor(row.brand).text">{{ row.brand }}</span>
+                  </td>
+                  <td class="text-center">{{ row.nmbCarton }}</td>
+                  <td class="text-right">{{ row.prixCarton | number:'1.0-0' }}</td>
+                  <td class="text-right font-semibold">{{ row.prixCarton * row.nmbCarton | number:'1.0-0' }} DA</td>
+                  <td>
+                    <button class="btn-remove" (click)="removeFromCart(row)" pTooltip="Retirer">
+                      <i class="pi pi-times"></i>
+                    </button>
+                  </td>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="footer">
+                <tr>
+                  <td colspan="7">
+                    <div class="cart-table-footer">
+                      <span class="cart-footer-count">{{ cartCount() }} produits</span>
+                      <div class="cart-footer-total">
+                        <span class="label">Total Général</span>
+                        <span class="value">{{ cartTotalValue() | number:'1.0-0' }} DA</span>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              </ng-template>
+            </p-table>
             </div>
           </div>
         }
