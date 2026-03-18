@@ -7,6 +7,7 @@ from datetime import datetime, timezone
 from collections import defaultdict
 
 from sqlmodel import Session, select
+from sqlalchemy.orm import selectinload
 
 from app.models.order import Order, OrderStatus, DeliveryType
 from app.models.trip import Trip, TripStop, TripStatus, StopStatus
@@ -128,9 +129,11 @@ def get_pending_batchable_orders(session: Session) -> list[Order]:
     """
     Get all orders that can be batched.
     These are STANDARD delivery orders that are CONFIRMED and not assigned.
+    Eagerly loads user relationship to avoid N+1 queries.
     """
     orders = session.exec(
         select(Order)
+        .options(selectinload(Order.user))  # Eagerly load users in one query
         .where(Order.status == OrderStatus.CONFIRMED)
         .where(Order.driver_id == None)
         .where(Order.trip_id == None)
@@ -181,8 +184,8 @@ def create_trips_from_clusters(
                 continue
 
             # Calculate totals
-            total_weight = sum(calculate_order_weight(o, session) for o in batch)
-            total_volume = sum(calculate_order_volume(o, session) for o in batch)
+            total_weight = sum(o.total_weight_kg or 0 for o in batch)
+            total_volume = sum(o.total_volume or 0 for o in batch)
             total_earnings = sum(o.shipping_cost for o in batch)
 
             # Create trip
@@ -302,7 +305,7 @@ def preview_batching(session: Session) -> dict:
                     })
                 continue
 
-            total_weight = sum(calculate_order_weight(o, session) for o in batch)
+            total_weight = sum(o.total_weight_kg or 0 for o in batch)
             total_earnings = sum(o.shipping_cost for o in batch)
             batched_count += len(batch)
 
@@ -366,15 +369,18 @@ def get_pending_orders_with_details(
         else:
             orders = orders[:limit]
 
+    # Fetch all routes in ONE query (avoid N+1)
+    user_ids = [order.user_id for order in orders if order.user_id]
+    routes = session.exec(
+        select(CustomerRoute).where(CustomerRoute.user_id.in_(user_ids))
+    ).all() if user_ids else []
+    route_map = {route.user_id: route for route in routes}
+
     result = []
     for order in orders:
-        weight_kg = calculate_order_weight(order, session)
+        weight_kg = order.total_weight_kg or 0
         zone = get_order_h3_zone(order, session)
-
-        # Get customer route data
-        route = session.exec(
-            select(CustomerRoute).where(CustomerRoute.user_id == order.user_id)
-        ).first()
+        route = route_map.get(order.user_id)
 
         result.append({
             "id": order.id,
@@ -468,8 +474,8 @@ def create_trips_from_custom_batches(
         batch_orders = [valid_order_map[oid] for oid in order_ids]
 
         # Calculate totals
-        total_weight = sum(calculate_order_weight(o, session) for o in batch_orders)
-        total_volume = sum(calculate_order_volume(o, session) for o in batch_orders)
+        total_weight = sum(o.total_weight_kg or 0 for o in batch_orders)
+        total_volume = sum(o.total_volume or 0 for o in batch_orders)
         total_earnings = sum(o.shipping_cost for o in batch_orders)
 
         # Determine zone (use first order's zone or mixed)
