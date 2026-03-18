@@ -793,9 +793,14 @@
                   <p-select
                     [options]="supplierOptions()"
                     [(ngModel)]="selectedSupplier"
+                    optionLabel="label"
+                    optionValue="value"
                     placeholder="Tous les fournisseurs"
                     [showClear]="true"
                     [editable]="true"
+                    [filter]="true"
+                    filterPlaceholder="Rechercher..."
+                    appendTo="body"
                     styleClass="w-full"
                   />
                 </div>

@@ -59,6 +59,68 @@ interface CategoryOption {
   name: string;
 }
 
+interface SupplierDetails {
+  name: string;
+  address: string;
+  phone: string;
+  email?: string;
+  city?: string;
+}
+
+// Sample supplier details dictionary
+const SUPPLIER_DETAILS: Record<string, SupplierDetails> = {
+  'Cevital': {
+    name: 'Cevital SPA',
+    address: 'Zone Industrielle, Bejaia',
+    phone: '034 20 50 00',
+    email: 'contact@cevital.com',
+    city: 'Bejaia'
+  },
+  'Condor': {
+    name: 'Condor Electronics',
+    address: 'Zone Industrielle Taharacht, Bordj Bou Arréridj',
+    phone: '035 68 20 00',
+    email: 'info@condor.dz',
+    city: 'Bordj Bou Arréridj'
+  },
+  'Candia': {
+    name: 'Tchin-Lait Candia',
+    address: 'Zone Industrielle, Bejaia',
+    phone: '034 21 50 50',
+    city: 'Bejaia'
+  },
+  'Soummam': {
+    name: 'Laiterie Soummam',
+    address: 'Zone Industrielle Taharacht, Akbou',
+    phone: '034 35 40 00',
+    city: 'Akbou'
+  },
+  'Ifri': {
+    name: 'SARL Ibrahim & Fils (IFRI)',
+    address: 'Ighzer Amokrane, Ifri Ouzellaguen',
+    phone: '034 35 10 10',
+    city: 'Bejaia'
+  },
+  'Hamoud Boualem': {
+    name: 'Hamoud Boualem SPA',
+    address: 'Route Nationale N°5, Hussein Dey',
+    phone: '021 77 20 20',
+    city: 'Alger'
+  },
+  'La Belle': {
+    name: 'La Belle SPA',
+    address: 'Zone Industrielle, Rouiba',
+    phone: '021 85 30 30',
+    city: 'Alger'
+  },
+  'Amor Benamor': {
+    name: 'Groupe Amor Benamor',
+    address: 'Route de Constantine, Guelma',
+    phone: '037 20 10 10',
+    city: 'Guelma'
+  }
+};
+
 @Component({
   selector: 'app-stock',
   standalone: true,
@@ -332,12 +394,26 @@ export class StockComponent implements OnInit, OnDestroy {
 
   supplierOptions = computed(() => {
     const suppliers = new Set<string>();
+
+    // Add suppliers from cart items
     this.cartItems().forEach(item => {
       if (item.supplier) {
         suppliers.add(item.supplier);
       }
     });
-    return Array.from(suppliers).map(s => ({ label: s, value: s }));
+
+    // Add all suppliers from SUPPLIER_DETAILS dictionary
+    Object.keys(SUPPLIER_DETAILS).forEach(supplier => {
+      suppliers.add(supplier);
+    });
+
+    return Array.from(suppliers).sort().map(s => {
+      const details = SUPPLIER_DETAILS[s];
+      return {
+        label: details ? `${s} - ${details.city || ''}` : s,
+        value: s
+      };
+    });
   });
 
   getSupplierItemCount(supplier: string): number {
@@ -381,25 +457,8 @@ export class StockComponent implements OnInit, OnDestroy {
       const pageWidth = doc.internal.pageSize.getWidth();
       const today = new Date();
 
-      // Filter by supplier if selected
-      const items = this.selectedSupplier
-        ? this.cartItems().filter(item => item.supplier === this.selectedSupplier)
-        : this.cartItems();
-
-      if (items.length === 0) {
-        this.toast.showWarn('Aucun produit pour ce fournisseur');
-        return;
-      }
-
-      // Group items by supplier
-      const groups = new Map<string, RestockRow[]>();
-      items.forEach(row => {
-        const supplier = row.supplier?.trim() || '';
-        if (!groups.has(supplier)) {
-          groups.set(supplier, []);
-        }
-        groups.get(supplier)!.push(row);
-      });
+      // Use all cart items (no filtering)
+      const items = this.cartItems();
 
       // Header
       doc.setFontSize(20);
@@ -410,67 +469,94 @@ export class StockComponent implements OnInit, OnDestroy {
       doc.setFont('helvetica', 'normal');
       doc.text(`Date: ${this.formatDate(today.toISOString())}`, 14, 28);
 
-      let yPosition = 40;
+      let yPosition = 38;
 
-      groups.forEach((rows, supplier) => {
-        if (yPosition > 250) {
-          doc.addPage();
-          yPosition = 20;
+      // Add selected supplier details at the top if one is selected
+      if (this.selectedSupplier) {
+        const supplierInfo = SUPPLIER_DETAILS[this.selectedSupplier];
+
+        yPosition = 40;
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'bold');
+        doc.text(`Fournisseur: ${supplierInfo?.name || this.selectedSupplier}`, 14, yPosition);
+
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'normal');
+        yPosition += 6;
+
+        if (supplierInfo?.address) {
+          doc.text(`Adresse: ${supplierInfo.address}${supplierInfo.city ? ', ' + supplierInfo.city : ''}`, 14, yPosition);
+          yPosition += 5;
         }
 
-        // Only show supplier header if supplier name exists
-        if (supplier) {
-          doc.setFontSize(12);
-          doc.setFont('helvetica', 'bold');
-          doc.text(`Fournisseur: ${supplier}`, 14, yPosition);
-
-          const phone = rows[0]?.phone;
-          if (phone) {
-            doc.setFontSize(10);
-            doc.setFont('helvetica', 'normal');
-            doc.text(`Tél: ${phone}`, 14, yPosition + 6);
-            yPosition += 6;
-          }
-
-          yPosition += 10;
+        if (supplierInfo?.phone) {
+          doc.text(`Tél: ${supplierInfo.phone}`, 14, yPosition);
+          yPosition += 5;
         }
 
-        const tableData = rows.map(row => [
-          row.name,
-          row.brand,
-          row.nmbCarton.toString(),
-          this.formatNumber(row.prixCarton),
-          this.formatNumber(row.prixCarton * row.nmbCarton)
-        ]);
+        if (supplierInfo?.email) {
+          doc.text(`Email: ${supplierInfo.email}`, 14, yPosition);
+          yPosition += 5;
+        }
 
-        const supplierTotal = rows.reduce((sum, r) => sum + (r.prixCarton * r.nmbCarton), 0);
+        yPosition += 8;
+      } else {
+        yPosition = 40;
+      }
 
-        autoTable(doc, {
-          startY: yPosition,
-          head: [['Produit', 'Marque', 'Qté', 'Prix/Carton', 'Total']],
-          body: tableData,
-          foot: [['', '', '', 'Total:', this.formatNumber(supplierTotal)]],
-          theme: 'striped',
-          headStyles: { fillColor: [59, 130, 246] },
-          footStyles: { fillColor: [240, 240, 240], textColor: [0, 0, 0], fontStyle: 'bold' },
-          margin: { left: 14, right: 14 },
-          styles: { fontSize: 9 },
-          columnStyles: {
-            0: { cellWidth: 60 },
-            1: { cellWidth: 40 },
-            2: { cellWidth: 20, halign: 'center' },
-            3: { cellWidth: 30, halign: 'right' },
-            4: { cellWidth: 30, halign: 'right' }
-          }
-        });
-
-        yPosition = (doc as any).lastAutoTable.finalY + 15;
-      });
+      // Create table data from all cart items
+      const tableData = items.map(row => [
+        row.name,
+        row.brand,
+        row.nmbCarton.toString(),
+        this.formatNumber(row.prixCarton),
+        this.formatNumber(row.prixCarton * row.nmbCarton)
+      ]);
 
       const totalValue = items.reduce((sum, r) => sum + (r.prixCarton * r.nmbCarton), 0);
-      doc.setFontSize(14);
-      doc.setFont('helvetica', 'bold');
-      doc.text(`Total Général: ${this.formatNumber(totalValue)} DA`, pageWidth - 14, yPosition, { align: 'right' });
+
+      autoTable(doc, {
+        startY: yPosition,
+        head: [['Produit', 'Marque', 'Qté', 'Prix/Carton', 'Total']],
+        body: tableData,
+        foot: [['', '', '', 'Total:', this.formatNumber(totalValue)]],
+        theme: 'plain',
+        headStyles: {
+          fillColor: [245, 245, 245],
+          textColor: [40, 40, 40],
+          fontStyle: 'bold',
+          lineWidth: 0.5,
+          lineColor: [200, 200, 200]
+        },
+        bodyStyles: {
+          lineWidth: 0.25,
+          lineColor: [220, 220, 220]
+        },
+        footStyles: {
+          fillColor: [250, 250, 250],
+          textColor: [30, 30, 30],
+          fontStyle: 'bold',
+          lineWidth: 0.5,
+          lineColor: [200, 200, 200]
+        },
+        alternateRowStyles: {
+          fillColor: [252, 252, 252]
+        },
+        margin: { left: 14, right: 14 },
+        styles: {
+          fontSize: 9,
+          cellPadding: 4,
+          lineColor: [220, 220, 220],
+          lineWidth: 0.25
+        },
+        columnStyles: {
+          0: { cellWidth: 60 },
+          1: { cellWidth: 40 },
+          2: { cellWidth: 20, halign: 'center' },
+          3: { cellWidth: 30, halign: 'right' },
+          4: { cellWidth: 30, halign: 'right' }
+        }
+      });
 
       // Show preview
       this.pdfDoc = doc;
@@ -1520,19 +1606,34 @@ export class StockComponent implements OnInit, OnDestroy {
           yPosition = 20;
         }
 
+        // Get supplier details from dictionary or use defaults
+        const supplierInfo = SUPPLIER_DETAILS[supplier];
+
         doc.setFontSize(12);
         doc.setFont('helvetica', 'bold');
-        doc.text(`Fournisseur: ${supplier}`, 14, yPosition);
+        doc.text(`Fournisseur: ${supplierInfo?.name || supplier}`, 14, yPosition);
 
-        const phone = rows[0]?.phone;
-        if (phone) {
-          doc.setFontSize(10);
-          doc.setFont('helvetica', 'normal');
-          doc.text(`Tél: ${phone}`, 14, yPosition + 6);
-          yPosition += 6;
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'normal');
+        let detailsY = yPosition + 6;
+
+        if (supplierInfo?.address) {
+          doc.text(`Adresse: ${supplierInfo.address}${supplierInfo.city ? ', ' + supplierInfo.city : ''}`, 14, detailsY);
+          detailsY += 5;
         }
 
-        yPosition += 10;
+        const phone = supplierInfo?.phone || rows[0]?.phone;
+        if (phone) {
+          doc.text(`Tél: ${phone}`, 14, detailsY);
+          detailsY += 5;
+        }
+
+        if (supplierInfo?.email) {
+          doc.text(`Email: ${supplierInfo.email}`, 14, detailsY);
+          detailsY += 5;
+        }
+
+        yPosition = detailsY + 5;
 
         const tableData = rows.map(row => [
           row.name,
@@ -1549,11 +1650,35 @@ export class StockComponent implements OnInit, OnDestroy {
           head: [['Produit', 'Marque', 'Qté', 'Prix/Carton', 'Total']],
           body: tableData,
           foot: [['', '', '', 'Total:', this.formatNumber(supplierTotal)]],
-          theme: 'striped',
-          headStyles: { fillColor: [59, 130, 246] },
-          footStyles: { fillColor: [240, 240, 240], textColor: [0, 0, 0], fontStyle: 'bold' },
+          theme: 'plain',
+          headStyles: {
+            fillColor: [245, 245, 245],
+            textColor: [40, 40, 40],
+            fontStyle: 'bold',
+            lineWidth: 0.5,
+            lineColor: [200, 200, 200]
+          },
+          bodyStyles: {
+            lineWidth: 0.25,
+            lineColor: [220, 220, 220]
+          },
+          footStyles: {
+            fillColor: [250, 250, 250],
+            textColor: [30, 30, 30],
+            fontStyle: 'bold',
+            lineWidth: 0.5,
+            lineColor: [200, 200, 200]
+          },
+          alternateRowStyles: {
+            fillColor: [252, 252, 252]
+          },
           margin: { left: 14, right: 14 },
-          styles: { fontSize: 9 },
+          styles: {
+            fontSize: 9,
+            cellPadding: 4,
+            lineColor: [220, 220, 220],
+            lineWidth: 0.25
+          },
           columnStyles: {
             0: { cellWidth: 60 },
             1: { cellWidth: 40 },
