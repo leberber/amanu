@@ -81,10 +81,16 @@
         </div>
       </div>
 
-      <button class="btn-add" (click)="createNewUser()">
-        <i class="pi pi-plus"></i>
-        <span>{{ 'admin.users.add_user' | translate }}</span>
-      </button>
+      <div class="flex align-items-center gap-2">
+        <button class="btn-secondary" (click)="goToMapView()" [pTooltip]="'admin.users.map.view_on_map' | translate">
+          <i class="pi pi-map-marker"></i>
+          <span class="hidden md:inline">{{ 'admin.users.map.title' | translate }}</span>
+        </button>
+        <button class="btn-add" (click)="createNewUser()">
+          <i class="pi pi-plus"></i>
+          <span>{{ 'admin.users.add_user' | translate }}</span>
+        </button>
+      </div>
     </div>
   </div>
 

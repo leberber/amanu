@@ -165,6 +165,12 @@ export const routes: Routes = [
     canActivate: [adminOnlyGuard]
   },
   {
+    path: 'admin/users/map',
+    loadComponent: () => import('./pages/admin/admin-users-map/admin-users-map.component').then(m => m.AdminUsersMapComponent),
+    canActivate: [adminOnlyGuard],
+    data: { hideBottomNav: true }
+  },
+  {
     path: 'admin/users/:id/edit',
     loadComponent: () => import('./pages/admin/admin-edit-user/admin-edit-user.component').then(m => m.AdminEditUserComponent),
     canActivate: [adminOnlyGuard],

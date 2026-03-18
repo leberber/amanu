@@ -1382,7 +1382,19 @@
       "load_error": "Échec du chargement des utilisateurs",
       "permission_error": "Vous n'avez pas la permission d'accéder à cette page",
       "table_options": "Options du Tableau",
-      "visible_columns": "Colonnes Visibles"
+      "visible_columns": "Colonnes Visibles",
+      "map": {
+        "title": "Carte des Clients",
+        "subtitle": "Voir les emplacements des clients sur la carte",
+        "mobile_title": "Emplacements Clients",
+        "view_on_map": "Voir sur la Carte",
+        "on_map": "sur la carte",
+        "with_location": "avec localisation",
+        "without_location": "sans localisation",
+        "filter_status": "Statut",
+        "list_view": "Vue Liste",
+        "user_details": "Détails du Client"
+      }
     },
     "user_groups": {
       "title": "Groupes d'Utilisateurs",

@@ -1380,7 +1380,19 @@
       "load_error": "Failed to load users",
       "permission_error": "You do not have permission to access this page",
       "table_options": "Table Options",
-      "visible_columns": "Visible Columns"
+      "visible_columns": "Visible Columns",
+      "map": {
+        "title": "Customers Map",
+        "subtitle": "View customer locations on the map",
+        "mobile_title": "Customer Locations",
+        "view_on_map": "View on Map",
+        "on_map": "on map",
+        "with_location": "with location",
+        "without_location": "without location",
+        "filter_status": "Status",
+        "list_view": "List View",
+        "user_details": "Customer Details"
+      }
     },
     "user_groups": {
       "title": "User Groups",

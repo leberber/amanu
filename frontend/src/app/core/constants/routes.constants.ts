@@ -69,6 +69,7 @@ export const ROUTES = {
     ORDERS: '/admin/orders',
     ORDER_DETAIL: '/admin/orders/:id',
     USERS: '/admin/users',
+    USERS_MAP: '/admin/users/map',
     ADD_USER: '/admin/users/add',
     EDIT_USER: '/admin/users/edit/:id',
     USER_GROUPS: '/admin/user-groups',

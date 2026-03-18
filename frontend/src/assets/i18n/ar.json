@@ -1383,7 +1383,19 @@
       "load_error": "فشل تحميل المستخدمين",
       "permission_error": "ليس لديك صلاحية للوصول إلى هذه الصفحة",
       "table_options": "خيارات الجدول",
-      "visible_columns": "الأعمدة المرئية"
+      "visible_columns": "الأعمدة المرئية",
+      "map": {
+        "title": "خريطة العملاء",
+        "subtitle": "عرض مواقع العملاء على الخريطة",
+        "mobile_title": "مواقع العملاء",
+        "view_on_map": "عرض على الخريطة",
+        "on_map": "على الخريطة",
+        "with_location": "مع موقع",
+        "without_location": "بدون موقع",
+        "filter_status": "الحالة",
+        "list_view": "عرض القائمة",
+        "user_details": "تفاصيل العميل"
+      }
     },
     "user_groups": {
       "title": "مجموعات المستخدمين",

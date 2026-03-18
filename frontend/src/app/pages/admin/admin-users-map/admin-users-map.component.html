@@ -1,0 +1,169 @@
+<app-page-layout
+  title="admin.users.map.title"
+  subtitle="admin.users.map.subtitle"
+  mobileTitle="admin.users.map.mobile_title"
+  icon="pi pi-map-marker"
+  [showBackButton]="true"
+  [backRoute]="ROUTES.ADMIN.USERS"
+  [fullscreen]="true"
+  [hideMobileIcon]="true">
+
+  <div class="users-map-container" @fadeIn>
+    <!-- Top Stats Bar -->
+    <div class="map-stats-bar">
+      <div class="stats-left">
+        <div class="stat-item">
+          <i class="pi pi-users"></i>
+          <span class="stat-value">{{ filteredCustomersCount() }}</span>
+          <span class="stat-label">{{ 'admin.users.map.on_map' | translate }}</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item stat-item--muted">
+          <span class="stat-value">{{ customersWithLocationCount() }}</span>
+          <span class="stat-label">{{ 'admin.users.map.with_location' | translate }}</span>
+        </div>
+        <div class="stat-item stat-item--muted">
+          <span class="stat-value">{{ totalCustomersCount() - customersWithLocationCount() }}</span>
+          <span class="stat-label">{{ 'admin.users.map.without_location' | translate }}</span>
+        </div>
+      </div>
+
+      <div class="stats-right">
+        <button pButton
+          class="p-button-text p-button-sm"
+          icon="pi pi-list"
+          [label]="'admin.users.map.list_view' | translate"
+          (click)="goToUsersList()">
+        </button>
+      </div>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="map-filter-bar">
+      <!-- Status Filter -->
+      <div class="filter-group">
+        <span class="filter-label">{{ 'admin.users.map.filter_status' | translate }}:</span>
+        <div class="filter-buttons">
+          <button
+            class="filter-btn"
+            [class.filter-btn--active]="statusFilter() === 'all'"
+            (click)="setStatusFilter('all')">
+            {{ 'common.all' | translate }}
+            <span class="filter-count">{{ customersWithLocationCount() }}</span>
+          </button>
+          <button
+            class="filter-btn"
+            [class.filter-btn--active]="statusFilter() === 'active'"
+            (click)="setStatusFilter('active')">
+            {{ 'common.active' | translate }}
+            <span class="filter-count">{{ activeCustomersCount() }}</span>
+          </button>
+          <button
+            class="filter-btn"
+            [class.filter-btn--active]="statusFilter() === 'inactive'"
+            (click)="setStatusFilter('inactive')">
+            {{ 'common.inactive' | translate }}
+            <span class="filter-count">{{ inactiveCustomersCount() }}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Map Container -->
+    <div class="map-wrapper">
+      @if (loading()) {
+        <div class="map-loading">
+          <i class="pi pi-spin pi-spinner"></i>
+          <span>{{ 'common.loading' | translate }}</span>
+        </div>
+      }
+      <div id="users-map" class="map-container"></div>
+    </div>
+  </div>
+
+  <!-- Customer Detail Drawer -->
+  <p-drawer
+    [(visible)]="drawerVisible"
+    position="right"
+    [style]="{ width: '360px' }"
+    [showCloseIcon]="true"
+    (onHide)="closeDrawer()">
+    <ng-template pTemplate="header">
+      <span class="drawer-title">{{ 'admin.users.map.user_details' | translate }}</span>
+    </ng-template>
+
+    @if (selectedUser()) {
+      <div class="user-detail">
+        <!-- User Avatar & Name -->
+        <div class="user-header">
+          <div class="user-avatar" style="background-color: #22c55e">
+            {{ selectedUser()!.full_name?.charAt(0)?.toUpperCase() || '?' }}
+          </div>
+          <div class="user-info">
+            <h3 class="user-name">{{ selectedUser()!.full_name }}</h3>
+            <p class="user-email">{{ selectedUser()!.email }}</p>
+          </div>
+        </div>
+
+        <!-- Tags -->
+        <div class="user-tags">
+          <p-tag [value]="'admin.users.roles.customer' | translate" severity="success" />
+          <p-tag
+            [value]="selectedUser()!.is_active ? ('common.active' | translate) : ('common.inactive' | translate)"
+            [severity]="getStatusSeverity(selectedUser()!.is_active)" />
+        </div>
+
+        <!-- Details -->
+        <div class="user-details-list">
+          @if (selectedUser()!.phone) {
+            <div class="detail-row">
+              <i class="pi pi-phone"></i>
+              <span>{{ selectedUser()!.phone }}</span>
+            </div>
+          }
+
+          @if (selectedUser()!.store_name) {
+            <div class="detail-row">
+              <i class="pi pi-building"></i>
+              <span>{{ selectedUser()!.store_name }}</span>
+            </div>
+          }
+
+          @if (selectedUser()!.address) {
+            <div class="detail-row">
+              <i class="pi pi-map-marker"></i>
+              <span>{{ selectedUser()!.address }}</span>
+            </div>
+          }
+
+          @if (selectedUser()!.wilaya || selectedUser()!.commune) {
+            <div class="detail-row">
+              <i class="pi pi-globe"></i>
+              <span>
+                @if (selectedUser()!.commune) { {{ selectedUser()!.commune }}, }
+                @if (selectedUser()!.daira) { {{ selectedUser()!.daira }}, }
+                {{ selectedUser()!.wilaya }}
+              </span>
+            </div>
+          }
+
+          <div class="detail-row">
+            <i class="pi pi-calendar"></i>
+            <span>{{ selectedUser()!.created_at | date:'dd/MM/yyyy HH:mm' }}</span>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="user-actions">
+          <button pButton
+            class="p-button-outlined w-full"
+            icon="pi pi-pencil"
+            [label]="'common.edit' | translate"
+            (click)="editUser(selectedUser()!)">
+          </button>
+        </div>
+      </div>
+    }
+  </p-drawer>
+
+</app-page-layout>

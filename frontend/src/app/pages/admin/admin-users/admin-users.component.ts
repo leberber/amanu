@@ -210,6 +210,10 @@ export class AdminUsersComponent extends BaseAdminListComponent implements OnIni
     this.baseRouter.navigate([ROUTES.ADMIN.USERS, user.id, 'edit']);
   }
 
+  goToMapView(): void {
+    this.baseRouter.navigate([ROUTES.ADMIN.USERS_MAP]);
+  }
+
   // User deletion
   confirmDeleteUser(user: UserManage): void {
     this.confirmDialog.confirmDelete(
