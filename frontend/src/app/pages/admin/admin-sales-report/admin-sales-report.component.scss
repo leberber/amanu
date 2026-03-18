@@ -69,7 +69,7 @@
   display: grid;
   grid-template-columns: 1.3fr 0.7fr;
   gap: 16px;
-  height: calc(100vh - 200px);
+  height: calc(100vh - 180px);
   min-height: 400px;
 
   @media (max-width: 991px) {
