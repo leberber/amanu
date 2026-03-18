@@ -297,10 +297,16 @@
 
 // Responsive
 @media (max-width: 768px) {
+  :host ::ng-deep .page-content {
+    padding-top: 64px !important;
+  }
+
   .users-map-container {
-    height: calc(100vh - 56px) !important;
-    margin: 0 -1rem !important;
-    width: calc(100% + 2rem) !important;
+    height: calc(100dvh - 64px) !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100vw !important;
+    margin-left: calc(-50vw + 50%) !important;
   }
 
   .map-stats-bar {
@@ -313,5 +319,10 @@
 
   .map-wrapper {
     flex: 1;
+    height: 100%;
+  }
+
+  .map-container {
+    height: 100% !important;
   }
 }

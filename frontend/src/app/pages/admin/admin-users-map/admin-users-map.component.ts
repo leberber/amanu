@@ -145,14 +145,14 @@ export class AdminUsersMapComponent implements OnInit, OnDestroy {
     this.map = L.map('users-map', {
       center: [MAP_DEFAULTS.LATITUDE, MAP_DEFAULTS.LONGITUDE],
       zoom: MAP_DEFAULTS.OVERVIEW_ZOOM,
-      zoomControl: true
+      zoomControl: false
     });
 
-    // Add tile layer
-    this.currentTileLayer = L.tileLayer(LEAFLET_TILES.CARTODB_LIGHT.URL, {
-      maxZoom: LEAFLET_TILES.CARTODB_LIGHT.MAX_ZOOM,
-      subdomains: LEAFLET_TILES.CARTODB_LIGHT.SUBDOMAINS,
-      attribution: LEAFLET_TILES.CARTODB_LIGHT.ATTRIBUTION
+    // Add Google tile layer
+    this.currentTileLayer = L.tileLayer(LEAFLET_TILES.GOOGLE.URL, {
+      maxZoom: LEAFLET_TILES.GOOGLE.MAX_ZOOM,
+      subdomains: LEAFLET_TILES.GOOGLE.SUBDOMAINS,
+      attribution: LEAFLET_TILES.GOOGLE.ATTRIBUTION
     }).addTo(this.map);
 
     // Add markers layer
