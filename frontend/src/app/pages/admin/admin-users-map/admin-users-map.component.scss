@@ -218,6 +218,65 @@
   pointer-events: none;
 }
 
+// Mobile Filter Button
+.mobile-filter {
+  display: none;
+  position: absolute;
+  bottom: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+}
+
+.mobile-filter-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1rem;
+  background: var(--surface-card);
+  border: 1px solid var(--surface-border);
+  border-radius: 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-color);
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  i {
+    font-size: 0.875rem;
+    color: var(--text-color-secondary);
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+
+  &--active {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    color: white;
+
+    i {
+      color: white;
+    }
+
+    .mobile-filter-count {
+      background: rgba(255, 255, 255, 0.25);
+      color: white;
+    }
+  }
+}
+
+.mobile-filter-count {
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.125rem 0.5rem;
+  background: var(--surface-ground);
+  border-radius: 1rem;
+  color: var(--text-color-secondary);
+}
+
 // User Popover
 .user-popover {
   width: 280px;
@@ -431,6 +490,11 @@
 
   .map-container {
     height: 100% !important;
+  }
+
+  // Show mobile filter button
+  .mobile-filter {
+    display: block;
   }
 
   // Mobile popover adjustments

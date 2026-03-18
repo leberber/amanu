@@ -72,6 +72,18 @@
       }
       <div id="users-map" class="map-container"></div>
 
+      <!-- Mobile Filter Button -->
+      <div class="mobile-filter">
+        <button
+          class="mobile-filter-btn"
+          [class.mobile-filter-btn--active]="routeFilter() === 'without_route'"
+          (click)="toggleMobileFilter()">
+          <i class="pi pi-filter"></i>
+          <span>{{ 'admin.users.map.without_route' | translate }}</span>
+          <span class="mobile-filter-count">{{ customersWithoutRouteCount() }}</span>
+        </button>
+      </div>
+
       <!-- Hidden target for popover positioning -->
       <div #popoverTarget class="popover-target"></div>
     </div>

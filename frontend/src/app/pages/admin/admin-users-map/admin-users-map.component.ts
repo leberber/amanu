@@ -324,6 +324,11 @@ export class AdminUsersMapComponent implements OnInit, OnDestroy {
     this.fitBoundsToMarkers();
   }
 
+  toggleMobileFilter(): void {
+    const newFilter = this.routeFilter() === 'all' ? 'without_route' : 'all';
+    this.setRouteFilter(newFilter);
+  }
+
   // User selection
   selectUser(user: UserManage, event?: Event): void {
     // Close any existing popover first
