@@ -216,6 +216,7 @@
   right: 15px;
   z-index: 1000;
   overflow: hidden;
+   margin-right: 100px;
 
   &__scroll {
     display: flex;
@@ -224,6 +225,7 @@
     padding-bottom: 4px;
     scrollbar-width: none;
     -ms-overflow-style: none;
+   
 
     &::-webkit-scrollbar {
       display: none;
