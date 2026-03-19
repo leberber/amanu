@@ -152,6 +152,9 @@
                   }
                   <th class="text-right">P.U</th>
                   <th class="text-right">Total</th>
+                  @if (editMode()) {
+                    <th class="text-center"></th>
+                  }
                 </tr>
               </thead>
               <tbody>
@@ -188,17 +191,32 @@
                     }
                     <td class="text-right">{{ formatCurrency(item.unit_price) }}</td>
                     <td class="text-right font-semibold">{{ formatCurrency(item.total_price) }}</td>
+                    @if (editMode()) {
+                      <td class="text-center">
+                        <button
+                          class="btn-delete-item"
+                          (click)="deleteItem(item.id!)"
+                          [disabled]="saving()"
+                          pTooltip="Supprimer cet article"
+                        >
+                          <i class="pi pi-trash"></i>
+                        </button>
+                      </td>
+                    }
                   </tr>
                 }
               </tbody>
               <tfoot>
                 <tr>
-                  <td [attr.colspan]="editMode() || order()!.status === 'delivered' ? 6 : 5" class="text-right font-semibold">
+                  <td [attr.colspan]="editMode() ? 7 : (order()!.status === 'delivered' ? 6 : 5)" class="text-right font-semibold">
                     Total
                   </td>
                   <td class="text-right font-bold total-cell">
                     {{ formatCurrency(order()!.total_amount) }}
                   </td>
+                  @if (editMode()) {
+                    <td></td>
+                  }
                 </tr>
               </tfoot>
             </table>
@@ -213,6 +231,19 @@
               Notes
             </h3>
             <p class="notes-content">{{ order()!.notes }}</p>
+          </div>
+        }
+
+        <!-- Delivery Warning -->
+        @if (deliveryWarning()) {
+          <div class="delivery-warning">
+            <div class="warning-content">
+              <i class="pi pi-exclamation-triangle"></i>
+              <span>{{ deliveryWarning() }}</span>
+            </div>
+            <button class="warning-dismiss" (click)="dismissWarning()">
+              <i class="pi pi-times"></i>
+            </button>
           </div>
         }
 

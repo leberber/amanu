@@ -479,13 +479,13 @@ export class StockComponent implements OnInit, OnDestroy {
 
     // Build order items with product_id for stock sync
     const orderItems: PurchaseOrderItemCreate[] = items.map(row => ({
-      product_id: row.productId ?? undefined,  // Link to products table for stock sync
-      product_name: row.name,
-      brand: row.brand,
-      units_per_carton: row.uniteParCarton,
-      quantity_ordered: row.nmbCarton,
-      unit_price: row.prixCarton,
-      total_price: row.prixCarton * row.nmbCarton
+      product_id: row.productId || undefined,  // Link to products table for stock sync (undefined = omit from JSON)
+      product_name: row.name || '',
+      brand: row.brand || '',
+      units_per_carton: row.uniteParCarton || 1,
+      quantity_ordered: row.nmbCarton || 1,
+      unit_price: row.prixCarton || 0,
+      total_price: (row.prixCarton || 0) * (row.nmbCarton || 1)
     }));
 
     // Build order

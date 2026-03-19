@@ -140,6 +140,10 @@ export class PurchaseOrderService {
     return this.api.delete<void>(`/purchase-orders/${id}`);
   }
 
+  deleteItem(orderId: number, itemId: number): Observable<PurchaseOrder> {
+    return this.api.delete<PurchaseOrder>(`/purchase-orders/${orderId}/items/${itemId}`);
+  }
+
   // ---------------------------------------------------------------------------
   // Status Operations
   // ---------------------------------------------------------------------------

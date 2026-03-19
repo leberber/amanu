@@ -60,6 +60,7 @@ export class AdminPurchaseOrderDetailComponent implements OnInit {
   saving = signal(false);
   order = signal<PurchaseOrder | null>(null);
   editMode = signal(false);
+  deliveryWarning = signal<string | null>(null);
 
   // Editable items (for delivery confirmation)
   editableItems = signal<EditableItem[]>([]);
@@ -174,6 +175,9 @@ export class AdminPurchaseOrderDetailComponent implements OnInit {
     const order = this.order();
     if (!order) return;
 
+    // Clear any previous warning
+    this.deliveryWarning.set(null);
+
     const deliveryData = {
       items: this.editableItems().map(item => ({
         item_id: item.id!,
@@ -191,10 +195,47 @@ export class AdminPurchaseOrderDetailComponent implements OnInit {
         this.order.set(updated);
         this.initEditableItems(updated.items);
         this.editMode.set(false);
+        this.deliveryWarning.set(null);
         this.toast.showSuccess('Livraison confirmée - Stock mis à jour');
       },
-      error: () => {
-        this.toast.showError('Erreur lors de la confirmation de livraison');
+      error: (err) => {
+        // Check if it's a validation error (400) with unlinked items
+        if (err.status === 400 && err.error?.detail) {
+          this.deliveryWarning.set(err.error.detail);
+        } else {
+          this.toast.showError('Erreur lors de la confirmation de livraison');
+        }
+      }
+    });
+  }
+
+  dismissWarning(): void {
+    this.deliveryWarning.set(null);
+  }
+
+  deleteItem(itemId: number): void {
+    const order = this.order();
+    if (!order) return;
+
+    this.saving.set(true);
+    this.orderService.deleteItem(order.id, itemId).pipe(
+      takeUntilDestroyed(this.destroyRef),
+      finalize(() => this.saving.set(false))
+    ).subscribe({
+      next: (updated) => {
+        this.order.set(updated);
+        this.initEditableItems(updated.items);
+        this.deliveryWarning.set(null);
+        this.toast.showSuccess('Article supprimé');
+      },
+      error: (err) => {
+        // Check if order was deleted (last item)
+        if (err.status === 200 && err.error?.order_deleted) {
+          this.toast.showSuccess('Commande supprimée (dernier article)');
+          this.router.navigate([ROUTES.ADMIN.PURCHASE_ORDERS]);
+        } else {
+          this.toast.showError('Erreur lors de la suppression');
+        }
       }
     });
   }

@@ -322,6 +322,9 @@ async def confirm_delivery(
     """
     Confirm delivery with received quantities.
     Updates stock in the products table for linked products.
+
+    VALIDATION: All items must have a valid product_id linked to an existing product.
+    If any item is not linked, the delivery will be rejected.
     """
     order = session.get(PurchaseOrder, order_id)
     if not order:
@@ -335,6 +338,22 @@ async def confirm_delivery(
         )
 
     try:
+        # VALIDATION: Check all items have valid product_id linked to existing products
+        unlinked_items = []
+        for item in order.items:
+            if not item.product_id:
+                unlinked_items.append(f"'{item.product_name}' (pas de produit lié)")
+            else:
+                product = session.get(Product, item.product_id)
+                if not product:
+                    unlinked_items.append(f"'{item.product_name}' (produit ID {item.product_id} introuvable)")
+
+        if unlinked_items:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Impossible de confirmer la livraison. Produits non liés au catalogue: {', '.join(unlinked_items)}. Supprimez ces articles ou liez-les à des produits existants."
+            )
+
         # Create a map of item_id -> quantity_received
         received_map = {item.item_id: item.quantity_received for item in delivery.items}
 
@@ -344,14 +363,14 @@ async def confirm_delivery(
                 quantity_received = received_map[item.id]
                 item.quantity_received = quantity_received
 
-                # Sync stock to products table if product_id is set
-                if item.product_id:
-                    product = session.get(Product, item.product_id)
-                    if product:
-                        # Add received cartons to stock
-                        product.stock_quantity = (product.stock_quantity or 0) + quantity_received
-                        product.updated_at = datetime.now(timezone.utc)
-                        session.add(product)
+                # Sync stock to products table (already validated above)
+                product = session.get(Product, item.product_id)
+                if product:
+                    # Add received units to stock (cartons × units per carton)
+                    units_to_add = quantity_received * item.units_per_carton
+                    product.stock_quantity = (product.stock_quantity or 0) + units_to_add
+                    product.updated_at = datetime.now(timezone.utc)
+                    session.add(product)
 
                 session.add(item)
 
@@ -363,6 +382,66 @@ async def confirm_delivery(
         if delivery.notes:
             existing_notes = order.notes or ""
             order.notes = f"{existing_notes}\n[Livraison] {delivery.notes}".strip()
+
+        session.add(order)
+        session.commit()
+        session.refresh(order)
+
+        return order_to_response(order)
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        session.rollback()
+        raise HTTPException(status_code=422, detail=str(e))
+
+
+@router.delete("/{order_id}/items/{item_id}", response_model=PurchaseOrderResponse)
+async def delete_purchase_order_item(
+    order_id: int,
+    item_id: int,
+    session: Session = Depends(get_session)
+):
+    """
+    Delete an item from a purchase order.
+    Allowed for draft and confirmed orders.
+    If this is the last item, the entire order is deleted.
+    """
+    order = session.get(PurchaseOrder, order_id)
+    if not order:
+        raise HTTPException(status_code=404, detail="Purchase order not found")
+
+    # Only allow deleting items from draft or confirmed orders
+    if order.status not in [PurchaseOrderStatus.DRAFT, PurchaseOrderStatus.CONFIRMED]:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Cannot delete items from order with status '{order.status.value}'"
+        )
+
+    # Find the item
+    item = session.get(PurchaseOrderItem, item_id)
+    if not item or item.purchase_order_id != order_id:
+        raise HTTPException(status_code=404, detail="Item not found in this order")
+
+    try:
+        # If this is the last item, delete the entire order
+        if len(order.items) <= 1:
+            session.delete(order)
+            session.commit()
+            # Return empty response with 204 No Content would be ideal,
+            # but we need to indicate the order was deleted
+            raise HTTPException(
+                status_code=200,
+                detail={"message": "Order deleted (was the last item)", "order_deleted": True}
+            )
+
+        # Delete the item
+        session.delete(item)
+        session.flush()
+
+        # Recalculate total
+        order.total_amount = sum(i.total_price for i in order.items if i.id != item_id)
+        order.updated_at = datetime.now(timezone.utc)
 
         session.add(order)
         session.commit()
