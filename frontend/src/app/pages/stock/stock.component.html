@@ -11,8 +11,8 @@
           </div>
         </div>
         <div class="title-text">
-          <h1>Gestion du Stock</h1>
-          <p>Suivre l'inventaire et gérer les niveaux de stock</p>
+          <h1>Gestion Achats</h1>
+          <p>Gérer les achats et créer les bons de commande</p>
         </div>
       </div>
     </div>
@@ -809,6 +809,10 @@
                 <button class="btn-preview" (click)="generateBonDeCommande()">
                   <i class="pi pi-eye"></i>
                   Aperçu
+                </button>
+                <button class="btn-orders" routerLink="/admin/purchase-orders">
+                  <i class="pi pi-list"></i>
+                  Voir les commandes
                 </button>
 
                 <a class="btn-clear-link" (click)="clearCart()">

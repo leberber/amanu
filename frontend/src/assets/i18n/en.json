@@ -1773,7 +1773,8 @@
       "settings": "Settings",
       "shipping": "Shipping",
       "batching": "Batching",
-      "stock": "Stock",
+      "stock": "Purchasing",
+      "purchase_orders": "Purchase Orders",
       "logs": "Logs",
       "system": "System"
     },

@@ -1772,7 +1772,8 @@
       "settings": "Paramètres",
       "shipping": "Livraison",
       "batching": "Groupage de trajet",
-      "stock": "Stock",
+      "stock": "Gestion Achats",
+      "purchase_orders": "Bons de Commande",
       "logs": "Journaux",
       "system": "Système"
     },

@@ -83,7 +83,7 @@ export const ROUTES = {
     LOGS: '/admin/logs',
     SYSTEM: '/admin/system',
     SALES_REPORT: '/admin/sales-report',
-    STOCK: '/admin/stock',
+    STOCK: '/admin/purchasing',
     PURCHASE_ORDERS: '/admin/purchase-orders'
   }
 } as const;

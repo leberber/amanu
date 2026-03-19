@@ -124,6 +124,12 @@ export const ADMIN_NAV_ITEMS: AdminNavItem[] = [
     adminOnly: true
   },
   {
+    labelKey: 'admin.navigation.purchase_orders',
+    icon: 'pi pi-file-edit',
+    route: ROUTES.ADMIN.PURCHASE_ORDERS,
+    adminOnly: true
+  },
+  {
     labelKey: 'admin.navigation.logs',
     icon: 'pi pi-file',
     route: ROUTES.ADMIN.LOGS,

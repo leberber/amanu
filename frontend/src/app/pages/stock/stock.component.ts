@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy, inject, signal, computed, DestroyRef, eff
 import { DecimalPipe } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { catchError, of, finalize, forkJoin } from 'rxjs';
@@ -132,6 +133,7 @@ const SUPPLIER_DETAILS: Record<string, SupplierDetails> = {
   imports: [
     ...ADMIN_LIST_IMPORTS,
     FormsModule,
+    RouterLink,
     DecimalPipe,
     InputNumberModule,
     MultiSelectModule,
