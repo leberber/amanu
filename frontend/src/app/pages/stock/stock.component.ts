@@ -539,6 +539,7 @@ export class StockComponent implements OnInit, OnDestroy {
         (index + 1).toString(),
         this.normalizeText(row.name),
         this.normalizeText(row.brand),
+        row.uniteParCarton.toString(),
         row.nmbCarton.toString(),
         this.formatNumber(row.prixCarton),
         this.formatNumber(row.prixCarton * row.nmbCarton)
@@ -553,6 +554,7 @@ export class StockComponent implements OnInit, OnDestroy {
           { content: '#', styles: { halign: 'center' } },
           { content: 'Designation', styles: { halign: 'left' } },
           { content: 'Marque', styles: { halign: 'left' } },
+          { content: 'U/C', styles: { halign: 'center' } },
           { content: 'Qte', styles: { halign: 'center' } },
           { content: 'P.U', styles: { halign: 'right' } },
           { content: 'Total', styles: { halign: 'right' } }
@@ -579,10 +581,11 @@ export class StockComponent implements OnInit, OnDestroy {
         columnStyles: {
           0: { cellWidth: 10, halign: 'center' },
           1: { cellWidth: 'auto' },
-          2: { cellWidth: 35 },
-          3: { cellWidth: 15, halign: 'center' },
-          4: { cellWidth: 25, halign: 'right' },
-          5: { cellWidth: 28, halign: 'right', fontStyle: 'bold' }
+          2: { cellWidth: 30 },
+          3: { cellWidth: 12, halign: 'center' },
+          4: { cellWidth: 12, halign: 'center' },
+          5: { cellWidth: 22, halign: 'right' },
+          6: { cellWidth: 25, halign: 'right', fontStyle: 'bold' }
         }
       });
 

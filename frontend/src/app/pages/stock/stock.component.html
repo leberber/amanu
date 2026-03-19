@@ -717,6 +717,7 @@
                       <th style="width: 70px">Image</th>
                       <th>Produit</th>
                       <th>Marque</th>
+                      <th class="text-center" style="width: 80px">U/Carton</th>
                       <th class="text-center" style="width: 80px">Qté</th>
                       <th class="text-right" style="width: 120px">Prix/Carton</th>
                       <th class="text-right" style="width: 120px">Total</th>
@@ -738,6 +739,7 @@
                       <td>
                         <span class="brand-pill small" [style.background]="getBrandColor(row.brand).bg" [style.color]="getBrandColor(row.brand).text">{{ row.brand }}</span>
                       </td>
+                      <td class="text-center">{{ row.uniteParCarton }}</td>
                       <td class="text-center">{{ row.nmbCarton }}</td>
                       <td class="text-right">{{ row.prixCarton | number:'1.0-0' }}</td>
                       <td class="text-right font-semibold">{{ row.prixCarton * row.nmbCarton | number:'1.0-0' }} DA</td>
@@ -750,7 +752,7 @@
                   </ng-template>
                   <ng-template pTemplate="footer">
                     <tr>
-                      <td colspan="7">
+                      <td colspan="8">
                         <div class="cart-table-footer">
                           <span class="cart-footer-count">{{ cartCount() }} produits</span>
                           <div class="cart-footer-total">
