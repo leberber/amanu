@@ -797,9 +797,18 @@
                   </div>
                 </div>
 
-                <button class="btn-generate" (click)="generateBonDeCommande()">
-                  <i class="pi pi-file-pdf"></i>
-                  Générer PDF
+                <button class="btn-generate" (click)="saveBonDeCommande()" [disabled]="savingOrder()">
+                  @if (savingOrder()) {
+                    <i class="pi pi-spin pi-spinner"></i>
+                    Enregistrement...
+                  } @else {
+                    <i class="pi pi-save"></i>
+                    Enregistrer & PDF
+                  }
+                </button>
+                <button class="btn-preview" (click)="generateBonDeCommande()">
+                  <i class="pi pi-eye"></i>
+                  Aperçu
                 </button>
 
                 <a class="btn-clear-link" (click)="clearCart()">

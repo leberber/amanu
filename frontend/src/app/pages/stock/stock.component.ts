@@ -18,6 +18,8 @@ import { TableSkeletonComponent, SkeletonColumn } from '../../shared/components/
 import { AgroclikPageContainerComponent } from '../../shared/components/agroclik-page-container/agroclik-page-container.component';
 import { ToastMessageService } from '../../core/services/toast-message.service';
 import { ApiService } from '../../services/api.service';
+import { AdminService } from '../../services/admin.service';
+import { PurchaseOrderCreate, PurchaseOrderItemCreate } from '../../models/admin.model';
 
 interface RestockRow {
   id: number;
@@ -152,6 +154,7 @@ export class StockComponent implements OnInit, OnDestroy {
   private http = inject(HttpClient);
   private toast = inject(ToastMessageService);
   private destroyRef = inject(DestroyRef);
+  private adminService = inject(AdminService);
 
   loading = signal(true);
   savingRow = signal<number | null>(null);
@@ -191,6 +194,8 @@ export class StockComponent implements OnInit, OnDestroy {
 
   // Cart functionality
   cartItemIds = signal<Set<number>>(new Set());
+  savingOrder = signal(false);
+  lastSavedOrderRef = signal<string | null>(null);
 
   priorityOptions = [
     { label: '-', value: 0 },
@@ -457,7 +462,66 @@ export class StockComponent implements OnInit, OnDestroy {
     }
   }
 
+  saveBonDeCommande(): void {
+    if (this.cartCount() === 0) {
+      this.toast.showWarn('Le panier est vide');
+      return;
+    }
+
+    const items = this.cartItems();
+    const supplierKey = this.selectedSupplier || 'Cevital';
+    const supplierInfo = SUPPLIER_DETAILS[supplierKey];
+
+    // Build order items
+    const orderItems: PurchaseOrderItemCreate[] = items.map(row => ({
+      product_name: row.name,
+      brand: row.brand,
+      units_per_carton: row.uniteParCarton,
+      quantity: row.nmbCarton,
+      unit_price: row.prixCarton,
+      total_price: row.prixCarton * row.nmbCarton
+    }));
+
+    // Build order
+    const orderData: PurchaseOrderCreate = {
+      supplier_name: supplierInfo?.name || supplierKey,
+      supplier_address: supplierInfo?.address,
+      supplier_phone: supplierInfo?.phone,
+      supplier_email: supplierInfo?.email,
+      supplier_city: supplierInfo?.city,
+      items: orderItems
+    };
+
+    this.savingOrder.set(true);
+
+    this.adminService.createPurchaseOrder(orderData).pipe(
+      takeUntilDestroyed(this.destroyRef),
+      finalize(() => this.savingOrder.set(false))
+    ).subscribe({
+      next: (order) => {
+        this.lastSavedOrderRef.set(order.reference);
+        this.toast.showSuccess(`Commande ${order.reference} enregistrée`);
+        // Generate PDF with the saved reference
+        this.generateBonDeCommandeWithRef(order.reference);
+      },
+      error: (err) => {
+        this.toast.showError('Erreur lors de l\'enregistrement');
+      }
+    });
+  }
+
+  generateBonDeCommandeWithRef(reference: string): void {
+    this.generateBonDeCommandeInternal(reference);
+  }
+
   generateBonDeCommande(): void {
+    // Generate a temporary reference for preview (not saved)
+    const today = new Date();
+    const tempRef = `BC-${today.getFullYear()}${String(today.getMonth() + 1).padStart(2, '0')}${String(today.getDate()).padStart(2, '0')}-XXX`;
+    this.generateBonDeCommandeInternal(tempRef);
+  }
+
+  private generateBonDeCommandeInternal(orderRef: string): void {
     if (this.cartCount() === 0) {
       this.toast.showWarn('Le panier est vide');
       return;
@@ -470,7 +534,6 @@ export class StockComponent implements OnInit, OnDestroy {
       const margin = 12;
       const today = new Date();
       const items = this.cartItems();
-      const orderRef = `BC-${today.getFullYear()}${String(today.getMonth() + 1).padStart(2, '0')}${String(today.getDate()).padStart(2, '0')}-${String(Math.floor(Math.random() * 1000)).padStart(3, '0')}`;
 
       // ===== HEADER =====
       // Logo on the right

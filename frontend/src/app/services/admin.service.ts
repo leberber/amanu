@@ -17,7 +17,10 @@ import {
   SystemMetrics,
   SystemHealth,
   CustomerRoute,
-  SystemErrorsResponse
+  SystemErrorsResponse,
+  PurchaseOrder,
+  PurchaseOrderCreate,
+  PurchaseOrdersResponse
 } from '../models/admin.model';
 import {
   DriverProfileWithFlags,
@@ -189,5 +192,29 @@ export class AdminService {
 
   clearSystemErrors(): Observable<void> {
     return this.apiService.delete<void>('/admin/system/errors');
+  }
+
+  // Purchase Orders (Bon de Commande)
+  getPurchaseOrders(status?: string, supplier?: string, skip = 0, limit = 50): Observable<PurchaseOrdersResponse> {
+    const params: Record<string, string | number> = { skip, limit };
+    if (status) params['status'] = status;
+    if (supplier) params['supplier'] = supplier;
+    return this.apiService.get<PurchaseOrdersResponse>('/purchase-orders', { params });
+  }
+
+  getPurchaseOrder(orderId: number): Observable<PurchaseOrder> {
+    return this.apiService.get<PurchaseOrder>(`/purchase-orders/${orderId}`);
+  }
+
+  createPurchaseOrder(data: PurchaseOrderCreate): Observable<PurchaseOrder> {
+    return this.apiService.post<PurchaseOrder>('/purchase-orders', data);
+  }
+
+  updatePurchaseOrderStatus(orderId: number, status: string): Observable<PurchaseOrder> {
+    return this.apiService.patch<PurchaseOrder>(`/purchase-orders/${orderId}/status`, null, { params: { status } });
+  }
+
+  deletePurchaseOrder(orderId: number): Observable<void> {
+    return this.apiService.delete<void>(`/purchase-orders/${orderId}`);
   }
 }

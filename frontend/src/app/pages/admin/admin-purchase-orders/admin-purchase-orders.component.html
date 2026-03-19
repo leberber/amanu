@@ -1,0 +1,346 @@
+<app-agroclik-page-container>
+  <p-confirmDialog></p-confirmDialog>
+
+  <!-- Top Section: Header + Filters -->
+  <div pageTop [class.initialized]="tableInitialized()">
+    <!-- Page Header -->
+    <div class="admin-list-header animate-item" style="--item-delay: 0ms;">
+      <div class="header-title">
+        <div class="admin-icon-wrapper">
+          <div class="icon-bg"></div>
+          <div class="icon-circle">
+            <i class="pi pi-file-edit"></i>
+          </div>
+        </div>
+        <div class="title-text">
+          <h1>Bons de Commande</h1>
+          <p>Historique des commandes fournisseurs</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Status Segmented Control -->
+    <div class="flex align-items-center justify-content-between gap-3 flex-wrap mt-3 mb-4 animate-item" style="--item-delay: 50ms;">
+      <div class="segment-control segment-control--glass">
+        <button
+          class="segment-control__item"
+          [class.active]="statusFilter === 'all'"
+          (click)="onStatusFilterChange('all')">
+          <span>Tous</span>
+          <span class="count">{{ allOrders().length }}</span>
+        </button>
+        <button
+          class="segment-control__item"
+          [class.active]="statusFilter === 'draft'"
+          (click)="onStatusFilterChange('draft')">
+          <span>Brouillon</span>
+          <span class="count">{{ draftCount() }}</span>
+        </button>
+        <button
+          class="segment-control__item"
+          [class.active]="statusFilter === 'sent'"
+          (click)="onStatusFilterChange('sent')">
+          <span>Envoyées</span>
+          <span class="count active">{{ sentCount() }}</span>
+        </button>
+        <button
+          class="segment-control__item"
+          [class.active]="statusFilter === 'confirmed'"
+          (click)="onStatusFilterChange('confirmed')">
+          <span>Confirmées</span>
+          <span class="count">{{ confirmedCount() }}</span>
+        </button>
+        <button
+          class="segment-control__item"
+          [class.active]="statusFilter === 'delivered'"
+          (click)="onStatusFilterChange('delivered')">
+          <span>Livrées</span>
+          <span class="count inactive">{{ deliveredCount() }}</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Section: Table -->
+  <div pageMain>
+    <!-- Loading State - Skeleton Table -->
+    @if (loading) {
+      <app-table-skeleton
+        [columns]="skeletonColumns"
+        [rows]="6"
+        [actionCount]="2"
+      />
+    } @else if (orders().length === 0 && !hasActiveFilters()) {
+      <!-- Empty State - No Orders -->
+      <div class="empty-state animate-item" style="--item-delay: 100ms;">
+        <div class="empty-state__icon">
+          <i class="pi pi-file-edit"></i>
+        </div>
+        <h3 class="empty-state__title">Aucun bon de commande</h3>
+        <p class="empty-state__description">Les bons de commande créés depuis la gestion de stock apparaîtront ici.</p>
+      </div>
+    } @else {
+      <!-- Orders Table -->
+      <div class="table-container animate-item" [class.fullscreen]="isFullscreen()" style="--item-delay: 100ms;">
+        <div class="table-header">
+          <app-table-search
+            [(query)]="searchQuery"
+            (search)="onSearchInput()"
+            (clear)="filterItems()"
+          />
+          <div class="table-actions">
+            @if (hasActiveFilters()) {
+              <button class="clear-filters-btn" (click)="clearFilters()" pTooltip="Effacer les filtres">
+                <i class="pi pi-filter-slash"></i>
+              </button>
+            }
+            <button class="table-action-btn refresh-btn" (click)="loadOrders()" pTooltip="Actualiser">
+              <i class="pi pi-refresh"></i>
+            </button>
+            <button class="table-action-btn" (click)="toggleFullscreen()" [pTooltip]="isFullscreen() ? 'Réduire' : 'Plein écran'">
+              <i [class]="isFullscreen() ? 'pi pi-window-minimize' : 'pi pi-window-maximize'"></i>
+            </button>
+          </div>
+        </div>
+
+        @if (orders().length === 0) {
+          <!-- Empty State - No Match -->
+          <div class="empty-state">
+            <div class="empty-state__icon empty-state__icon--warning">
+              <i class="pi pi-filter"></i>
+            </div>
+            <h3 class="empty-state__title">Aucun résultat</h3>
+            <p class="empty-state__description">Essayez d'autres critères de recherche</p>
+            <button class="btn-secondary" (click)="clearFilters()">
+              <i class="pi pi-filter-slash"></i>
+              Effacer les filtres
+            </button>
+          </div>
+        } @else {
+          <div class="table-wrapper">
+            <table class="table">
+              <thead>
+                <tr>
+                  @if (isColumnVisible('reference')) { <th style="width: 12%">Référence</th> }
+                  @if (isColumnVisible('supplier')) { <th style="width: 20%">Fournisseur</th> }
+                  @if (isColumnVisible('status')) { <th style="width: 12%" class="text-center">Statut</th> }
+                  @if (isColumnVisible('total')) { <th style="width: 15%" class="text-right">Total</th> }
+                  @if (isColumnVisible('items')) { <th style="width: 12%" class="text-center">Produits</th> }
+                  @if (isColumnVisible('date')) { <th style="width: 12%">Date</th> }
+                  @if (isColumnVisible('actions')) { <th style="width: 17%" class="text-center">Actions</th> }
+                </tr>
+              </thead>
+              <tbody>
+                @for (order of paginatedOrders(); track order.id; let i = $index) {
+                  <tr class="table-row-animate clickable-row" [style.--row-delay]="(i * 40) + 'ms'" (click)="viewOrder(order)">
+                    <!-- Reference -->
+                    @if (isColumnVisible('reference')) {
+                      <td>
+                        <span class="reference-badge">{{ order.reference }}</span>
+                      </td>
+                    }
+
+                    <!-- Supplier -->
+                    @if (isColumnVisible('supplier')) {
+                      <td>
+                        <div class="info-display">
+                          <span class="info-display__name">{{ order.supplier_name }}</span>
+                          @if (order.supplier_city) {
+                            <span class="info-display__secondary">{{ order.supplier_city }}</span>
+                          }
+                        </div>
+                      </td>
+                    }
+
+                    <!-- Status -->
+                    @if (isColumnVisible('status')) {
+                      <td class="text-center" (click)="$event.stopPropagation()">
+                        <p-tag [value]="getStatusLabel(order.status)" [severity]="getStatusSeverity(order.status)" />
+                      </td>
+                    }
+
+                    <!-- Total -->
+                    @if (isColumnVisible('total')) {
+                      <td class="text-right">
+                        <span class="total-amount">{{ formatCurrency(order.total_amount) }}</span>
+                      </td>
+                    }
+
+                    <!-- Item Count -->
+                    @if (isColumnVisible('items')) {
+                      <td class="text-center">
+                        <span class="pill purple">
+                          <i class="pi pi-box"></i>
+                          {{ order.item_count }}
+                        </span>
+                      </td>
+                    }
+
+                    <!-- Date -->
+                    @if (isColumnVisible('date')) {
+                      <td>
+                        <span class="date-display">{{ formatDate(order.created_at) }}</span>
+                      </td>
+                    }
+
+                    <!-- Actions -->
+                    @if (isColumnVisible('actions')) {
+                      <td class="text-center" (click)="$event.stopPropagation()">
+                        <div class="table-cell-actions justify-content-center">
+                          <button class="action-btn view" (click)="viewOrder(order)" pTooltip="Voir détails" tooltipPosition="top">
+                            <i class="pi pi-eye"></i>
+                          </button>
+                          @if (order.status === 'draft') {
+                            <button class="action-btn edit" (click)="updateStatus(order, 'sent')" pTooltip="Marquer envoyée" tooltipPosition="top">
+                              <i class="pi pi-send"></i>
+                            </button>
+                          }
+                          @if (order.status === 'sent') {
+                            <button class="action-btn success" (click)="updateStatus(order, 'confirmed')" pTooltip="Marquer confirmée" tooltipPosition="top">
+                              <i class="pi pi-check"></i>
+                            </button>
+                          }
+                          @if (order.status === 'confirmed') {
+                            <button class="action-btn success" (click)="updateStatus(order, 'delivered')" pTooltip="Marquer livrée" tooltipPosition="top">
+                              <i class="pi pi-truck"></i>
+                            </button>
+                          }
+                          <button class="action-btn delete" (click)="confirmDeleteOrder(order)" pTooltip="Supprimer" tooltipPosition="top">
+                            <i class="pi pi-trash"></i>
+                          </button>
+                        </div>
+                      </td>
+                    }
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Pagination -->
+          @if (orders().length > rows) {
+            <div class="table-footer">
+              <p-paginator
+                [first]="first"
+                [rows]="rows"
+                [totalRecords]="orders().length"
+                (onPageChange)="onPageChange($event)"
+                [showCurrentPageReport]="true"
+                currentPageReportTemplate="Affichage {first} - {last} sur {totalRecords}"
+              ></p-paginator>
+            </div>
+          }
+
+          <!-- Results Info -->
+          @if (orders().length <= rows) {
+            <div class="table-footer results-info">
+              <span>{{ orders().length }} commande(s) sur {{ allOrders().length }}</span>
+            </div>
+          }
+        }
+      </div>
+    }
+  </div>
+</app-agroclik-page-container>
+
+<!-- Order Detail Dialog -->
+<p-dialog
+  header="Détails du Bon de Commande"
+  [(visible)]="showDetailDialog"
+  [modal]="true"
+  [style]="{ width: '90vw', maxWidth: '800px' }"
+  [contentStyle]="{ padding: '1.5rem' }"
+  (onHide)="closeDetailDialog()">
+
+  @if (selectedOrder()) {
+    <div class="order-detail">
+      <!-- Header Info -->
+      <div class="detail-header">
+        <div class="detail-header-left">
+          <h3 class="detail-reference">{{ selectedOrder()!.reference }}</h3>
+          <p-tag [value]="getStatusLabel(selectedOrder()!.status)" [severity]="getStatusSeverity(selectedOrder()!.status)" />
+        </div>
+        <div class="detail-header-right">
+          <span class="detail-date">{{ formatDate(selectedOrder()!.created_at) }}</span>
+        </div>
+      </div>
+
+      <!-- Supplier Info -->
+      <div class="detail-section">
+        <h4>Fournisseur</h4>
+        <div class="supplier-info">
+          <p class="supplier-name">{{ selectedOrder()!.supplier_name }}</p>
+          @if (selectedOrder()!.supplier_address) {
+            <p class="supplier-detail">{{ selectedOrder()!.supplier_address }}</p>
+          }
+          @if (selectedOrder()!.supplier_city) {
+            <p class="supplier-detail">{{ selectedOrder()!.supplier_city }}</p>
+          }
+          @if (selectedOrder()!.supplier_phone) {
+            <p class="supplier-detail"><i class="pi pi-phone"></i> {{ selectedOrder()!.supplier_phone }}</p>
+          }
+        </div>
+      </div>
+
+      <!-- Items Table -->
+      <div class="detail-section">
+        <h4>Produits ({{ selectedOrder()!.items.length }})</h4>
+        <table class="detail-table">
+          <thead>
+            <tr>
+              <th>Produit</th>
+              <th>Marque</th>
+              <th class="text-center">U/C</th>
+              <th class="text-center">Qté</th>
+              <th class="text-right">P.U</th>
+              <th class="text-right">Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of selectedOrder()!.items; track item.id) {
+              <tr>
+                <td>{{ item.product_name }}</td>
+                <td>{{ item.brand }}</td>
+                <td class="text-center">{{ item.units_per_carton }}</td>
+                <td class="text-center">{{ item.quantity }}</td>
+                <td class="text-right">{{ formatCurrency(item.unit_price) }}</td>
+                <td class="text-right font-semibold">{{ formatCurrency(item.total_price) }}</td>
+              </tr>
+            }
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="5" class="text-right font-semibold">Total</td>
+              <td class="text-right font-bold total-cell">{{ formatCurrency(selectedOrder()!.total_amount) }}</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+
+      <!-- Status Actions -->
+      <div class="detail-actions">
+        @if (selectedOrder()!.status === 'draft') {
+          <button class="btn-primary" (click)="updateStatus(selectedOrder()!, 'sent'); closeDetailDialog()">
+            <i class="pi pi-send"></i>
+            Marquer comme envoyée
+          </button>
+        }
+        @if (selectedOrder()!.status === 'sent') {
+          <button class="btn-primary" (click)="updateStatus(selectedOrder()!, 'confirmed'); closeDetailDialog()">
+            <i class="pi pi-check"></i>
+            Marquer comme confirmée
+          </button>
+        }
+        @if (selectedOrder()!.status === 'confirmed') {
+          <button class="btn-primary" (click)="updateStatus(selectedOrder()!, 'delivered'); closeDetailDialog()">
+            <i class="pi pi-truck"></i>
+            Marquer comme livrée
+          </button>
+        }
+        <button class="btn-secondary" (click)="closeDetailDialog()">
+          Fermer
+        </button>
+      </div>
+    </div>
+  }
+</p-dialog>

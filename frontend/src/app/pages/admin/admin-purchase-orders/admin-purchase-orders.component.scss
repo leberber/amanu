@@ -1,0 +1,177 @@
+// Purchase Orders page styles
+
+.reference-badge {
+  font-family: 'SF Mono', Monaco, monospace;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--primary-color);
+  background: rgba(var(--primary-color-rgb), 0.1);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
+
+.total-amount {
+  font-weight: 600;
+  color: #000;
+}
+
+.action-btn.view {
+  color: var(--primary-color);
+  background: rgba(var(--primary-color-rgb), 0.1);
+
+  &:hover {
+    background: rgba(var(--primary-color-rgb), 0.2);
+  }
+}
+
+.action-btn.success {
+  color: #22c55e;
+  background: rgba(34, 197, 94, 0.1);
+
+  &:hover {
+    background: rgba(34, 197, 94, 0.2);
+  }
+}
+
+// Order Detail Dialog Styles
+.order-detail {
+  .detail-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border-color, #e2e8f0);
+
+    .detail-header-left {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .detail-reference {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin: 0;
+      font-family: 'SF Mono', Monaco, monospace;
+    }
+
+    .detail-date {
+      font-size: 0.875rem;
+      color: var(--text-secondary, #64748b);
+    }
+  }
+
+  .detail-section {
+    margin-bottom: 1.5rem;
+
+    h4 {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-secondary, #64748b);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.75rem;
+    }
+  }
+
+  .supplier-info {
+    background: var(--surface-ground, #f8fafc);
+    padding: 1rem;
+    border-radius: 0.5rem;
+
+    .supplier-name {
+      font-weight: 600;
+      font-size: 1rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .supplier-detail {
+      font-size: 0.875rem;
+      color: var(--text-secondary, #64748b);
+      margin: 0.25rem 0;
+
+      i {
+        margin-right: 0.5rem;
+      }
+    }
+  }
+
+  .detail-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+
+    th, td {
+      padding: 0.75rem;
+      border-bottom: 1px solid var(--border-color, #e2e8f0);
+    }
+
+    th {
+      font-weight: 600;
+      color: var(--text-secondary, #64748b);
+      text-align: left;
+      background: var(--surface-ground, #f8fafc);
+    }
+
+    tbody tr:hover {
+      background: var(--surface-hover, #f1f5f9);
+    }
+
+    tfoot {
+      td {
+        border-top: 2px solid var(--border-color, #e2e8f0);
+        border-bottom: none;
+        padding-top: 1rem;
+      }
+
+      .total-cell {
+        font-size: 1rem;
+        color: #000;
+      }
+    }
+  }
+
+  .detail-actions {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: flex-end;
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color, #e2e8f0);
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.25rem;
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      color: white;
+      border: none;
+      border-radius: 0.5rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+
+      &:hover {
+        filter: brightness(1.1);
+        transform: translateY(-1px);
+      }
+    }
+
+    .btn-secondary {
+      padding: 0.75rem 1.25rem;
+      background: transparent;
+      color: var(--text-secondary, #64748b);
+      border: 1px solid var(--border-color, #e2e8f0);
+      border-radius: 0.5rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+
+      &:hover {
+        background: var(--surface-hover, #f1f5f9);
+      }
+    }
+  }
+}

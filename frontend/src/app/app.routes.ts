@@ -262,6 +262,14 @@ export const routes: Routes = [
     data: { hideBottomNav: true }
   },
 
+  // Purchase Orders (admin only)
+  {
+    path: 'admin/purchase-orders',
+    loadComponent: () => import('./pages/admin/admin-purchase-orders/admin-purchase-orders.component').then(m => m.AdminPurchaseOrdersComponent),
+    canActivate: [adminGuard],
+    data: { hideBottomNav: true }
+  },
+
   // Graph Builder (public - for adding missing roads)
   {
     path: 'graph-builder',

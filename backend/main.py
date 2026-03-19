@@ -36,6 +36,7 @@ from app.models.trip import Trip, TripStop  # Register models for table creation
 from app.models.order import Order  # Ensure Order model with new columns is registered
 from app.models.customer_route import CustomerRoute  # Register model for table creation
 from app.models.major_road import MajorRoad  # Register model for table creation
+from app.models.purchase_order import PurchaseOrder, PurchaseOrderItem  # Register models for table creation
 
 app = FastAPI(
     title=settings.PROJECT_NAME,

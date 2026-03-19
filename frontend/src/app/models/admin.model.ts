@@ -269,3 +269,58 @@ export interface DashboardStats {
     errors: ApiError[];
     total_errors: number;
   }
+
+  // Purchase Orders (Bon de Commande)
+  export interface PurchaseOrderItem {
+    id: number;
+    product_name: string;
+    brand: string;
+    units_per_carton: number;
+    quantity: number;
+    unit_price: number;
+    total_price: number;
+  }
+
+  export interface PurchaseOrder {
+    id: number;
+    reference: string;
+    supplier_name: string;
+    supplier_address?: string;
+    supplier_phone?: string;
+    supplier_email?: string;
+    supplier_city?: string;
+    status: 'draft' | 'sent' | 'confirmed' | 'delivered' | 'cancelled';
+    total_amount: number;
+    notes?: string;
+    created_at: string;
+    updated_at?: string;
+    sent_at?: string;
+    confirmed_at?: string;
+    delivered_at?: string;
+    items: PurchaseOrderItem[];
+    item_count: number;
+  }
+
+  export interface PurchaseOrderItemCreate {
+    product_name: string;
+    brand: string;
+    units_per_carton: number;
+    quantity: number;
+    unit_price: number;
+    total_price: number;
+  }
+
+  export interface PurchaseOrderCreate {
+    supplier_name: string;
+    supplier_address?: string;
+    supplier_phone?: string;
+    supplier_email?: string;
+    supplier_city?: string;
+    notes?: string;
+    items: PurchaseOrderItemCreate[];
+  }
+
+  export interface PurchaseOrdersResponse {
+    orders: PurchaseOrder[];
+    total: number;
+  }
