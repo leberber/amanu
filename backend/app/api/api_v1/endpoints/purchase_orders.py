@@ -7,8 +7,10 @@ from app.database import get_session
 from app.models.purchase_order import (
     PurchaseOrder, PurchaseOrderItem, PurchaseOrderStatus,
     PurchaseOrderCreate, PurchaseOrderUpdate,
-    PurchaseOrderResponse, PurchaseOrderItemResponse, PurchaseOrderListResponse
+    PurchaseOrderResponse, PurchaseOrderItemResponse, PurchaseOrderListResponse,
+    DeliveryConfirmation
 )
+from app.models.product import Product
 
 router = APIRouter()
 
@@ -37,10 +39,12 @@ def order_to_response(order: PurchaseOrder) -> PurchaseOrderResponse:
     items = [
         PurchaseOrderItemResponse(
             id=item.id,
+            product_id=item.product_id,
             product_name=item.product_name,
             brand=item.brand,
             units_per_carton=item.units_per_carton,
-            quantity=item.quantity,
+            quantity_ordered=item.quantity_ordered,
+            quantity_received=item.quantity_received,
             unit_price=item.unit_price,
             total_price=item.total_price
         )
@@ -148,10 +152,12 @@ async def create_purchase_order(
         for item_data in data.items:
             item = PurchaseOrderItem(
                 purchase_order_id=order.id,
+                product_id=item_data.product_id,
                 product_name=item_data.product_name,
                 brand=item_data.brand,
                 units_per_carton=item_data.units_per_carton,
-                quantity=item_data.quantity,
+                quantity_ordered=item_data.quantity_ordered,
+                quantity_received=0,
                 unit_price=item_data.unit_price,
                 total_price=item_data.total_price
             )
@@ -173,13 +179,20 @@ async def update_purchase_order(
     data: PurchaseOrderUpdate,
     session: Session = Depends(get_session)
 ):
-    """Update a purchase order"""
+    """Update a purchase order (including items)"""
     order = session.get(PurchaseOrder, order_id)
     if not order:
         raise HTTPException(status_code=404, detail="Purchase order not found")
 
+    # Only allow editing draft or confirmed orders
+    if order.status not in [PurchaseOrderStatus.DRAFT, PurchaseOrderStatus.CONFIRMED]:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Cannot edit order with status '{order.status.value}'"
+        )
+
     try:
-        # Update fields
+        # Update supplier info
         if data.supplier_name is not None:
             order.supplier_name = data.supplier_name
         if data.supplier_address is not None:
@@ -193,25 +206,66 @@ async def update_purchase_order(
         if data.notes is not None:
             order.notes = data.notes
 
-        # Handle status change with timestamps
-        if data.status is not None:
-            order.status = data.status
-            now = datetime.now(timezone.utc)
+        # Update items if provided
+        if data.items is not None:
+            # Update existing items or create new ones
+            existing_item_ids = {item.id for item in order.items}
+            updated_item_ids = set()
 
-            if data.status == PurchaseOrderStatus.SENT:
-                order.sent_at = now
-            elif data.status == PurchaseOrderStatus.CONFIRMED:
-                order.confirmed_at = now
-            elif data.status == PurchaseOrderStatus.DELIVERED:
-                order.delivered_at = now
+            for item_data in data.items:
+                if item_data.id and item_data.id in existing_item_ids:
+                    # Update existing item
+                    item = session.get(PurchaseOrderItem, item_data.id)
+                    if item:
+                        if item_data.product_id is not None:
+                            item.product_id = item_data.product_id
+                        if item_data.product_name is not None:
+                            item.product_name = item_data.product_name
+                        if item_data.brand is not None:
+                            item.brand = item_data.brand
+                        if item_data.units_per_carton is not None:
+                            item.units_per_carton = item_data.units_per_carton
+                        if item_data.quantity_ordered is not None:
+                            item.quantity_ordered = item_data.quantity_ordered
+                        if item_data.quantity_received is not None:
+                            item.quantity_received = item_data.quantity_received
+                        if item_data.unit_price is not None:
+                            item.unit_price = item_data.unit_price
+                        if item_data.total_price is not None:
+                            item.total_price = item_data.total_price
+                        session.add(item)
+                        updated_item_ids.add(item.id)
+                else:
+                    # Create new item
+                    new_item = PurchaseOrderItem(
+                        purchase_order_id=order.id,
+                        product_id=item_data.product_id,
+                        product_name=item_data.product_name or "",
+                        brand=item_data.brand or "",
+                        units_per_carton=item_data.units_per_carton or 1,
+                        quantity_ordered=item_data.quantity_ordered or 1,
+                        quantity_received=item_data.quantity_received or 0,
+                        unit_price=item_data.unit_price or 0,
+                        total_price=item_data.total_price or 0
+                    )
+                    session.add(new_item)
 
+            # Note: We don't delete items that weren't in the update
+            # If deletion is needed, it should be explicit
+
+        # Recalculate total
+        session.flush()
+        order.total_amount = sum(item.total_price for item in order.items)
         order.updated_at = datetime.now(timezone.utc)
+
         session.add(order)
         session.commit()
         session.refresh(order)
 
         return order_to_response(order)
 
+    except HTTPException:
+        raise
     except Exception as e:
         session.rollback()
         raise HTTPException(status_code=422, detail=str(e))
@@ -259,15 +313,86 @@ async def update_purchase_order_status(
         raise HTTPException(status_code=422, detail=str(e))
 
 
+@router.post("/{order_id}/deliver", response_model=PurchaseOrderResponse)
+async def confirm_delivery(
+    order_id: int,
+    delivery: DeliveryConfirmation,
+    session: Session = Depends(get_session)
+):
+    """
+    Confirm delivery with received quantities.
+    Updates stock in the products table for linked products.
+    """
+    order = session.get(PurchaseOrder, order_id)
+    if not order:
+        raise HTTPException(status_code=404, detail="Purchase order not found")
+
+    # Only allow delivery confirmation for confirmed orders
+    if order.status != PurchaseOrderStatus.CONFIRMED:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Can only deliver confirmed orders. Current status: '{order.status.value}'"
+        )
+
+    try:
+        # Create a map of item_id -> quantity_received
+        received_map = {item.item_id: item.quantity_received for item in delivery.items}
+
+        # Update each item and sync stock
+        for item in order.items:
+            if item.id in received_map:
+                quantity_received = received_map[item.id]
+                item.quantity_received = quantity_received
+
+                # Sync stock to products table if product_id is set
+                if item.product_id:
+                    product = session.get(Product, item.product_id)
+                    if product:
+                        # Add received cartons to stock
+                        product.stock_quantity = (product.stock_quantity or 0) + quantity_received
+                        product.updated_at = datetime.now(timezone.utc)
+                        session.add(product)
+
+                session.add(item)
+
+        # Update order status and notes
+        order.status = PurchaseOrderStatus.DELIVERED
+        order.delivered_at = datetime.now(timezone.utc)
+        order.updated_at = datetime.now(timezone.utc)
+
+        if delivery.notes:
+            existing_notes = order.notes or ""
+            order.notes = f"{existing_notes}\n[Livraison] {delivery.notes}".strip()
+
+        session.add(order)
+        session.commit()
+        session.refresh(order)
+
+        return order_to_response(order)
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        session.rollback()
+        raise HTTPException(status_code=422, detail=str(e))
+
+
 @router.delete("/{order_id}")
 async def delete_purchase_order(
     order_id: int,
     session: Session = Depends(get_session)
 ):
-    """Delete a purchase order"""
+    """Delete a purchase order (only drafts can be deleted)"""
     order = session.get(PurchaseOrder, order_id)
     if not order:
         raise HTTPException(status_code=404, detail="Purchase order not found")
+
+    # Only allow deleting drafts
+    if order.status != PurchaseOrderStatus.DRAFT:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Cannot delete order with status '{order.status.value}'. Only drafts can be deleted."
+        )
 
     try:
         session.delete(order)

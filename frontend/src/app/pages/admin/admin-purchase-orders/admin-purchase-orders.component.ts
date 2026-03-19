@@ -1,25 +1,27 @@
 import { Component, OnInit, inject, DestroyRef, signal, computed } from '@angular/core';
+import { Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ConfirmationService } from 'primeng/api';
 import { PopoverModule } from 'primeng/popover';
-import { DialogModule } from 'primeng/dialog';
 
-import { ADMIN_LIST_IMPORTS, ADMIN_DIALOG_IMPORTS } from '../../../shared/imports/admin-shared.imports';
+import { ADMIN_LIST_IMPORTS } from '../../../shared/imports/admin-shared.imports';
 import { TableSkeletonComponent, SkeletonColumn } from '../../../shared/components/table-skeleton/table-skeleton.component';
 import { AgroclikPageContainerComponent } from '../../../shared/components/agroclik-page-container/agroclik-page-container.component';
 import { ConfirmationDialogService } from '../../../core/services/confirmation-dialog.service';
 import { BaseAdminListComponent, ColumnOption } from '../../../shared/base/base-admin-list.component';
-import { AdminService } from '../../../services/admin.service';
-import { PurchaseOrder } from '../../../models/admin.model';
+import { RouteHelpers, ROUTES } from '../../../core/constants/routes.constants';
+import {
+  PurchaseOrderService,
+  PurchaseOrder,
+  PurchaseOrderStatus
+} from '../../../services/purchase-order.service';
 
 @Component({
   selector: 'app-admin-purchase-orders',
   standalone: true,
   imports: [
     ...ADMIN_LIST_IMPORTS,
-    ...ADMIN_DIALOG_IMPORTS,
     PopoverModule,
-    DialogModule,
     TableSkeletonComponent,
     AgroclikPageContainerComponent
   ],
@@ -38,10 +40,6 @@ export class AdminPurchaseOrdersComponent extends BaseAdminListComponent impleme
   sentCount = computed(() => this.allOrders().filter(o => o.status === 'sent').length);
   confirmedCount = computed(() => this.allOrders().filter(o => o.status === 'confirmed').length);
   deliveredCount = computed(() => this.allOrders().filter(o => o.status === 'delivered').length);
-
-  // Detail dialog
-  showDetailDialog = signal(false);
-  selectedOrder = signal<PurchaseOrder | null>(null);
 
   // Skeleton configuration
   skeletonColumns: SkeletonColumn[] = [
@@ -65,7 +63,8 @@ export class AdminPurchaseOrdersComponent extends BaseAdminListComponent impleme
     { field: 'actions', label: 'Actions', visible: true }
   ];
 
-  private adminService = inject(AdminService);
+  private router = inject(Router);
+  private orderService = inject(PurchaseOrderService);
   private confirmationService = inject(ConfirmationService);
   private confirmDialog = inject(ConfirmationDialogService);
   private destroyRef = inject(DestroyRef);
@@ -76,7 +75,7 @@ export class AdminPurchaseOrdersComponent extends BaseAdminListComponent impleme
 
   loadOrders(): void {
     this.loading = true;
-    this.adminService.getPurchaseOrders()
+    this.orderService.getOrders()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
@@ -136,17 +135,11 @@ export class AdminPurchaseOrdersComponent extends BaseAdminListComponent impleme
   }
 
   viewOrder(order: PurchaseOrder): void {
-    this.selectedOrder.set(order);
-    this.showDetailDialog.set(true);
+    this.router.navigate([RouteHelpers.adminPurchaseOrderDetail(order.id)]);
   }
 
-  closeDetailDialog(): void {
-    this.showDetailDialog.set(false);
-    this.selectedOrder.set(null);
-  }
-
-  updateStatus(order: PurchaseOrder, newStatus: string): void {
-    this.adminService.updatePurchaseOrderStatus(order.id, newStatus)
+  updateStatus(order: PurchaseOrder, newStatus: PurchaseOrderStatus): void {
+    this.orderService.updateStatus(order.id, newStatus)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (updated) => {
@@ -155,7 +148,7 @@ export class AdminPurchaseOrdersComponent extends BaseAdminListComponent impleme
             orders.map(o => o.id === updated.id ? updated : o)
           );
           this.filterItems();
-          this.baseToast.showSuccess(`Statut mis à jour: ${this.getStatusLabel(newStatus)}`);
+          this.baseToast.showSuccess(`Statut mis à jour: ${this.orderService.getStatusLabel(newStatus)}`);
         },
         error: () => {
           this.baseToast.showError('Erreur lors de la mise à jour du statut');
@@ -164,6 +157,10 @@ export class AdminPurchaseOrdersComponent extends BaseAdminListComponent impleme
   }
 
   confirmDeleteOrder(order: PurchaseOrder): void {
+    if (!this.orderService.canDelete(order)) {
+      this.baseToast.showError('Seuls les brouillons peuvent être supprimés');
+      return;
+    }
     this.confirmDialog.confirmDelete(
       this.confirmationService,
       order.reference,
@@ -172,7 +169,7 @@ export class AdminPurchaseOrdersComponent extends BaseAdminListComponent impleme
   }
 
   deleteOrder(order: PurchaseOrder): void {
-    this.adminService.deletePurchaseOrder(order.id)
+    this.orderService.deleteOrder(order.id)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
@@ -186,26 +183,16 @@ export class AdminPurchaseOrdersComponent extends BaseAdminListComponent impleme
       });
   }
 
-  getStatusLabel(status: string): string {
-    const labels: Record<string, string> = {
-      'draft': 'Brouillon',
-      'sent': 'Envoyée',
-      'confirmed': 'Confirmée',
-      'delivered': 'Livrée',
-      'cancelled': 'Annulée'
-    };
-    return labels[status] || status;
+  getStatusLabel(status: PurchaseOrderStatus): string {
+    return this.orderService.getStatusLabel(status);
   }
 
-  getStatusSeverity(status: string): 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contrast' {
-    const severities: Record<string, 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contrast'> = {
-      'draft': 'secondary',
-      'sent': 'info',
-      'confirmed': 'warn',
-      'delivered': 'success',
-      'cancelled': 'danger'
-    };
-    return severities[status] || 'secondary';
+  getStatusSeverity(status: PurchaseOrderStatus): 'success' | 'info' | 'warn' | 'danger' | 'secondary' {
+    return this.orderService.getStatusSeverity(status);
+  }
+
+  canDelete(order: PurchaseOrder): boolean {
+    return this.orderService.canDelete(order);
   }
 
   override formatDate(dateString: string): string {

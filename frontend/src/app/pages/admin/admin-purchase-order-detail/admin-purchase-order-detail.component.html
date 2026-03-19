@@ -1,0 +1,270 @@
+<app-agroclik-page-container>
+  <p-confirmDialog></p-confirmDialog>
+
+  <div pageTop>
+    <app-back-button [route]="'/admin/purchase-orders'" label="Retour aux commandes" />
+  </div>
+
+  <div pageMain>
+    @if (loading()) {
+      <div class="loading-state">
+        <i class="pi pi-spin pi-spinner"></i>
+        <span>Chargement...</span>
+      </div>
+    } @else if (order()) {
+      <div class="order-detail-page">
+        <!-- Header -->
+        <div class="order-header">
+          <div class="order-header-left">
+            <h1 class="order-reference">{{ order()!.reference }}</h1>
+            <p-tag
+              [value]="getStatusLabel(order()!.status)"
+              [severity]="getStatusSeverity(order()!.status)"
+            />
+          </div>
+          <div class="order-header-right">
+            <span class="order-date">Créée le {{ formatDate(order()!.created_at) }}</span>
+          </div>
+        </div>
+
+        <!-- Status Timeline -->
+        <div class="status-timeline">
+          <div class="timeline-step" [class.active]="true" [class.completed]="order()!.status !== 'draft'">
+            <div class="step-dot"></div>
+            <span class="step-label">Brouillon</span>
+            @if (order()!.created_at) {
+              <span class="step-date">{{ formatDate(order()!.created_at) }}</span>
+            }
+          </div>
+          <div class="timeline-connector" [class.active]="order()!.status !== 'draft'"></div>
+          <div class="timeline-step" [class.active]="order()!.sent_at" [class.completed]="order()!.confirmed_at">
+            <div class="step-dot"></div>
+            <span class="step-label">Envoyée</span>
+            @if (order()!.sent_at; as sentAt) {
+              <span class="step-date">{{ formatDate(sentAt) }}</span>
+            }
+          </div>
+          <div class="timeline-connector" [class.active]="order()!.confirmed_at"></div>
+          <div class="timeline-step" [class.active]="order()!.confirmed_at" [class.completed]="order()!.delivered_at">
+            <div class="step-dot"></div>
+            <span class="step-label">Confirmée</span>
+            @if (order()!.confirmed_at; as confirmedAt) {
+              <span class="step-date">{{ formatDate(confirmedAt) }}</span>
+            }
+          </div>
+          <div class="timeline-connector" [class.active]="order()!.delivered_at"></div>
+          <div class="timeline-step" [class.active]="order()!.delivered_at">
+            <div class="step-dot"></div>
+            <span class="step-label">Livrée</span>
+            @if (order()!.delivered_at; as deliveredAt) {
+              <span class="step-date">{{ formatDate(deliveredAt) }}</span>
+            }
+          </div>
+        </div>
+
+        <!-- Content Grid -->
+        <div class="order-content">
+          <!-- Supplier Info -->
+          <div class="info-card">
+            <h3 class="card-title">
+              <i class="pi pi-building"></i>
+              Fournisseur
+            </h3>
+            <div class="supplier-details">
+              <p class="supplier-name">{{ order()!.supplier_name }}</p>
+              @if (order()!.supplier_address) {
+                <p class="supplier-info">{{ order()!.supplier_address }}</p>
+              }
+              @if (order()!.supplier_city) {
+                <p class="supplier-info">{{ order()!.supplier_city }}</p>
+              }
+              @if (order()!.supplier_phone) {
+                <p class="supplier-info">
+                  <i class="pi pi-phone"></i>
+                  {{ order()!.supplier_phone }}
+                </p>
+              }
+              @if (order()!.supplier_email) {
+                <p class="supplier-info">
+                  <i class="pi pi-envelope"></i>
+                  {{ order()!.supplier_email }}
+                </p>
+              }
+            </div>
+          </div>
+
+          <!-- Order Summary -->
+          <div class="info-card">
+            <h3 class="card-title">
+              <i class="pi pi-chart-bar"></i>
+              Résumé
+            </h3>
+            <div class="summary-grid">
+              <div class="summary-item">
+                <span class="summary-label">Produits</span>
+                <span class="summary-value">{{ order()!.item_count }}</span>
+              </div>
+              <div class="summary-item">
+                <span class="summary-label">Cartons commandés</span>
+                <span class="summary-value">{{ totalOrdered() }}</span>
+              </div>
+              @if (order()!.status === 'delivered') {
+                <div class="summary-item">
+                  <span class="summary-label">Cartons reçus</span>
+                  <span class="summary-value" [class.partial]="totalReceived() < totalOrdered()">
+                    {{ totalReceived() }}
+                  </span>
+                </div>
+              }
+              <div class="summary-item total">
+                <span class="summary-label">Total</span>
+                <span class="summary-value">{{ formatCurrency(order()!.total_amount) }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Items Table -->
+        <div class="items-section">
+          <div class="section-header">
+            <h3 class="section-title">
+              <i class="pi pi-box"></i>
+              Produits ({{ order()!.item_count }})
+            </h3>
+            @if (order()!.status === 'confirmed' && !editMode()) {
+              <button class="btn-edit" (click)="toggleEditMode()">
+                <i class="pi pi-pencil"></i>
+                Modifier les quantités reçues
+              </button>
+            }
+          </div>
+
+          <div class="items-table-wrapper">
+            <table class="items-table">
+              <thead>
+                <tr>
+                  <th>Produit</th>
+                  <th>Marque</th>
+                  <th class="text-center">U/Carton</th>
+                  <th class="text-center">Commandé</th>
+                  @if (editMode() || order()!.status === 'delivered') {
+                    <th class="text-center">Reçu</th>
+                  }
+                  <th class="text-right">P.U</th>
+                  <th class="text-right">Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (item of editableItems(); track item.id; let i = $index) {
+                  <tr>
+                    <td>{{ item.product_name }}</td>
+                    <td>{{ item.brand }}</td>
+                    <td class="text-center">{{ item.units_per_carton }}</td>
+                    <td class="text-center">{{ item.quantity_ordered }}</td>
+                    @if (editMode()) {
+                      <td class="text-center">
+                        <p-inputNumber
+                          [(ngModel)]="editableItems()[i].quantity_received"
+                          [min]="0"
+                          [max]="item.quantity_ordered"
+                          [showButtons]="true"
+                          buttonLayout="horizontal"
+                          incrementButtonIcon="pi pi-plus"
+                          decrementButtonIcon="pi pi-minus"
+                          [inputStyle]="{ width: '60px', textAlign: 'center' }"
+                        />
+                      </td>
+                    } @else if (order()!.status === 'delivered') {
+                      <td class="text-center">
+                        <span [class.partial]="item.quantity_received < item.quantity_ordered">
+                          {{ item.quantity_received }}
+                        </span>
+                        @if (item.quantity_received < item.quantity_ordered) {
+                          <span class="partial-badge" pTooltip="Livraison partielle">
+                            {{ item.quantity_received }}/{{ item.quantity_ordered }}
+                          </span>
+                        }
+                      </td>
+                    }
+                    <td class="text-right">{{ formatCurrency(item.unit_price) }}</td>
+                    <td class="text-right font-semibold">{{ formatCurrency(item.total_price) }}</td>
+                  </tr>
+                }
+              </tbody>
+              <tfoot>
+                <tr>
+                  <td [attr.colspan]="editMode() || order()!.status === 'delivered' ? 6 : 5" class="text-right font-semibold">
+                    Total
+                  </td>
+                  <td class="text-right font-bold total-cell">
+                    {{ formatCurrency(order()!.total_amount) }}
+                  </td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+
+        <!-- Notes -->
+        @if (order()!.notes) {
+          <div class="notes-section">
+            <h3 class="section-title">
+              <i class="pi pi-comment"></i>
+              Notes
+            </h3>
+            <p class="notes-content">{{ order()!.notes }}</p>
+          </div>
+        }
+
+        <!-- Actions -->
+        <div class="actions-section">
+          @if (editMode()) {
+            <!-- Edit Mode Actions -->
+            <button class="btn-cancel" (click)="toggleEditMode()">
+              Annuler
+            </button>
+            <button class="btn-confirm-delivery" (click)="confirmDelivery()" [disabled]="saving()">
+              @if (saving()) {
+                <i class="pi pi-spin pi-spinner"></i>
+              } @else {
+                <i class="pi pi-check"></i>
+              }
+              Confirmer la livraison
+            </button>
+          } @else {
+            <!-- Normal Actions -->
+            @if (canDelete()) {
+              <button class="btn-delete" (click)="confirmDelete()" [disabled]="saving()">
+                <i class="pi pi-trash"></i>
+                Supprimer
+              </button>
+            }
+
+            @if (nextStatus()) {
+              @switch (order()!.status) {
+                @case ('draft') {
+                  <button class="btn-action btn-send" (click)="updateStatus('sent')" [disabled]="saving()">
+                    <i class="pi pi-send"></i>
+                    Marquer comme envoyée
+                  </button>
+                }
+                @case ('sent') {
+                  <button class="btn-action btn-confirm" (click)="updateStatus('confirmed')" [disabled]="saving()">
+                    <i class="pi pi-check"></i>
+                    Marquer comme confirmée
+                  </button>
+                }
+                @case ('confirmed') {
+                  <button class="btn-action btn-deliver" (click)="toggleEditMode()" [disabled]="saving()">
+                    <i class="pi pi-truck"></i>
+                    Réceptionner la livraison
+                  </button>
+                }
+              }
+            }
+          }
+        </div>
+      </div>
+    }
+  </div>
+</app-agroclik-page-container>

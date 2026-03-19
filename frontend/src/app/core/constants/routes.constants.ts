@@ -103,7 +103,8 @@ export const RouteHelpers = {
   adminEditVolumeDiscount: (id: number | string) => `/admin/volume-discounts/edit/${id}`,
   adminEditUser: (id: number | string) => `/admin/users/${id}/edit`,
   adminEditUserGroup: (id: number | string) => `/admin/user-groups/edit/${id}`,
-  driverTripDetail: (id: number | string) => `/driver/trip/${id}`
+  driverTripDetail: (id: number | string) => `/driver/trip/${id}`,
+  adminPurchaseOrderDetail: (id: number | string) => `/admin/purchase-orders/${id}`
 };
 
 /**

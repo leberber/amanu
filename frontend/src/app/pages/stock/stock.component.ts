@@ -18,8 +18,11 @@ import { TableSkeletonComponent, SkeletonColumn } from '../../shared/components/
 import { AgroclikPageContainerComponent } from '../../shared/components/agroclik-page-container/agroclik-page-container.component';
 import { ToastMessageService } from '../../core/services/toast-message.service';
 import { ApiService } from '../../services/api.service';
-import { AdminService } from '../../services/admin.service';
-import { PurchaseOrderCreate, PurchaseOrderItemCreate } from '../../models/admin.model';
+import {
+  PurchaseOrderService,
+  PurchaseOrderCreate,
+  PurchaseOrderItemCreate
+} from '../../services/purchase-order.service';
 
 interface RestockRow {
   id: number;
@@ -154,7 +157,7 @@ export class StockComponent implements OnInit, OnDestroy {
   private http = inject(HttpClient);
   private toast = inject(ToastMessageService);
   private destroyRef = inject(DestroyRef);
-  private adminService = inject(AdminService);
+  private orderService = inject(PurchaseOrderService);
 
   loading = signal(true);
   savingRow = signal<number | null>(null);
@@ -472,12 +475,13 @@ export class StockComponent implements OnInit, OnDestroy {
     const supplierKey = this.selectedSupplier || 'Cevital';
     const supplierInfo = SUPPLIER_DETAILS[supplierKey];
 
-    // Build order items
+    // Build order items with product_id for stock sync
     const orderItems: PurchaseOrderItemCreate[] = items.map(row => ({
+      product_id: row.productId ?? undefined,  // Link to products table for stock sync
       product_name: row.name,
       brand: row.brand,
       units_per_carton: row.uniteParCarton,
-      quantity: row.nmbCarton,
+      quantity_ordered: row.nmbCarton,
       unit_price: row.prixCarton,
       total_price: row.prixCarton * row.nmbCarton
     }));
@@ -494,7 +498,7 @@ export class StockComponent implements OnInit, OnDestroy {
 
     this.savingOrder.set(true);
 
-    this.adminService.createPurchaseOrder(orderData).pipe(
+    this.orderService.createOrder(orderData).pipe(
       takeUntilDestroyed(this.destroyRef),
       finalize(() => this.savingOrder.set(false))
     ).subscribe({
@@ -504,7 +508,7 @@ export class StockComponent implements OnInit, OnDestroy {
         // Generate PDF with the saved reference
         this.generateBonDeCommandeWithRef(order.reference);
       },
-      error: (err) => {
+      error: () => {
         this.toast.showError('Erreur lors de l\'enregistrement');
       }
     });

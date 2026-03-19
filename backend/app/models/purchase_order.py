@@ -4,6 +4,9 @@ from datetime import datetime, timezone
 from enum import Enum
 from pydantic import BaseModel
 
+if TYPE_CHECKING:
+    from app.models.product import Product
+
 
 class PurchaseOrderStatus(str, Enum):
     """Purchase order status enumeration"""
@@ -25,16 +28,25 @@ class PurchaseOrderItem(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     purchase_order_id: int = Field(foreign_key="purchase_orders.id", index=True)
 
+    # Link to products table (for stock sync)
+    product_id: Optional[int] = Field(default=None, foreign_key="products.id", index=True)
+
     # Product info (stored at time of order)
     product_name: str
     brand: str = ""
     units_per_carton: int = 1
-    quantity: int = 1  # Number of cartons
-    unit_price: float = 0  # Price per carton
-    total_price: float = 0  # quantity * unit_price
+
+    # Quantities
+    quantity_ordered: int = 1      # Original quantity ordered (cartons)
+    quantity_received: int = 0     # Actual quantity received (for partial deliveries)
+
+    # Pricing
+    unit_price: float = 0          # Price per carton
+    total_price: float = 0         # quantity_ordered * unit_price
 
     # Relationship
     purchase_order: "PurchaseOrder" = Relationship(back_populates="items")
+    product: Optional["Product"] = Relationship()
 
 
 class PurchaseOrder(SQLModel, table=True):
@@ -76,10 +88,11 @@ class PurchaseOrder(SQLModel, table=True):
 
 class PurchaseOrderItemCreate(BaseModel):
     """Model for creating a purchase order item"""
+    product_id: Optional[int] = None
     product_name: str
     brand: str = ""
     units_per_carton: int = 1
-    quantity: int = 1
+    quantity_ordered: int = 1
     unit_price: float = 0
     total_price: float = 0
 
@@ -95,6 +108,19 @@ class PurchaseOrderCreate(BaseModel):
     items: List[PurchaseOrderItemCreate]
 
 
+class PurchaseOrderItemUpdate(BaseModel):
+    """Model for updating a purchase order item"""
+    id: Optional[int] = None
+    product_id: Optional[int] = None
+    product_name: Optional[str] = None
+    brand: Optional[str] = None
+    units_per_carton: Optional[int] = None
+    quantity_ordered: Optional[int] = None
+    quantity_received: Optional[int] = None
+    unit_price: Optional[float] = None
+    total_price: Optional[float] = None
+
+
 class PurchaseOrderUpdate(BaseModel):
     """Model for updating a purchase order"""
     supplier_name: Optional[str] = None
@@ -102,17 +128,31 @@ class PurchaseOrderUpdate(BaseModel):
     supplier_phone: Optional[str] = None
     supplier_email: Optional[str] = None
     supplier_city: Optional[str] = None
-    status: Optional[PurchaseOrderStatus] = None
+    notes: Optional[str] = None
+    items: Optional[List[PurchaseOrderItemUpdate]] = None
+
+
+class DeliveryItemConfirmation(BaseModel):
+    """Model for confirming delivery of a single item"""
+    item_id: int
+    quantity_received: int
+
+
+class DeliveryConfirmation(BaseModel):
+    """Model for confirming delivery with received quantities"""
+    items: List[DeliveryItemConfirmation]
     notes: Optional[str] = None
 
 
 class PurchaseOrderItemResponse(BaseModel):
     """Response model for purchase order item"""
     id: int
+    product_id: Optional[int] = None
     product_name: str
     brand: str
     units_per_carton: int
-    quantity: int
+    quantity_ordered: int
+    quantity_received: int
     unit_price: float
     total_price: float
 

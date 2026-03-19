@@ -201,13 +201,15 @@
                             </button>
                           }
                           @if (order.status === 'confirmed') {
-                            <button class="action-btn success" (click)="updateStatus(order, 'delivered')" pTooltip="Marquer livrée" tooltipPosition="top">
+                            <button class="action-btn success" (click)="viewOrder(order)" pTooltip="Réceptionner" tooltipPosition="top">
                               <i class="pi pi-truck"></i>
                             </button>
                           }
-                          <button class="action-btn delete" (click)="confirmDeleteOrder(order)" pTooltip="Supprimer" tooltipPosition="top">
-                            <i class="pi pi-trash"></i>
-                          </button>
+                          @if (canDelete(order)) {
+                            <button class="action-btn delete" (click)="confirmDeleteOrder(order)" pTooltip="Supprimer" tooltipPosition="top">
+                              <i class="pi pi-trash"></i>
+                            </button>
+                          }
                         </div>
                       </td>
                     }
@@ -242,105 +244,3 @@
     }
   </div>
 </app-agroclik-page-container>
-
-<!-- Order Detail Dialog -->
-<p-dialog
-  header="Détails du Bon de Commande"
-  [(visible)]="showDetailDialog"
-  [modal]="true"
-  [style]="{ width: '90vw', maxWidth: '800px' }"
-  [contentStyle]="{ padding: '1.5rem' }"
-  (onHide)="closeDetailDialog()">
-
-  @if (selectedOrder()) {
-    <div class="order-detail">
-      <!-- Header Info -->
-      <div class="detail-header">
-        <div class="detail-header-left">
-          <h3 class="detail-reference">{{ selectedOrder()!.reference }}</h3>
-          <p-tag [value]="getStatusLabel(selectedOrder()!.status)" [severity]="getStatusSeverity(selectedOrder()!.status)" />
-        </div>
-        <div class="detail-header-right">
-          <span class="detail-date">{{ formatDate(selectedOrder()!.created_at) }}</span>
-        </div>
-      </div>
-
-      <!-- Supplier Info -->
-      <div class="detail-section">
-        <h4>Fournisseur</h4>
-        <div class="supplier-info">
-          <p class="supplier-name">{{ selectedOrder()!.supplier_name }}</p>
-          @if (selectedOrder()!.supplier_address) {
-            <p class="supplier-detail">{{ selectedOrder()!.supplier_address }}</p>
-          }
-          @if (selectedOrder()!.supplier_city) {
-            <p class="supplier-detail">{{ selectedOrder()!.supplier_city }}</p>
-          }
-          @if (selectedOrder()!.supplier_phone) {
-            <p class="supplier-detail"><i class="pi pi-phone"></i> {{ selectedOrder()!.supplier_phone }}</p>
-          }
-        </div>
-      </div>
-
-      <!-- Items Table -->
-      <div class="detail-section">
-        <h4>Produits ({{ selectedOrder()!.items.length }})</h4>
-        <table class="detail-table">
-          <thead>
-            <tr>
-              <th>Produit</th>
-              <th>Marque</th>
-              <th class="text-center">U/C</th>
-              <th class="text-center">Qté</th>
-              <th class="text-right">P.U</th>
-              <th class="text-right">Total</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (item of selectedOrder()!.items; track item.id) {
-              <tr>
-                <td>{{ item.product_name }}</td>
-                <td>{{ item.brand }}</td>
-                <td class="text-center">{{ item.units_per_carton }}</td>
-                <td class="text-center">{{ item.quantity }}</td>
-                <td class="text-right">{{ formatCurrency(item.unit_price) }}</td>
-                <td class="text-right font-semibold">{{ formatCurrency(item.total_price) }}</td>
-              </tr>
-            }
-          </tbody>
-          <tfoot>
-            <tr>
-              <td colspan="5" class="text-right font-semibold">Total</td>
-              <td class="text-right font-bold total-cell">{{ formatCurrency(selectedOrder()!.total_amount) }}</td>
-            </tr>
-          </tfoot>
-        </table>
-      </div>
-
-      <!-- Status Actions -->
-      <div class="detail-actions">
-        @if (selectedOrder()!.status === 'draft') {
-          <button class="btn-primary" (click)="updateStatus(selectedOrder()!, 'sent'); closeDetailDialog()">
-            <i class="pi pi-send"></i>
-            Marquer comme envoyée
-          </button>
-        }
-        @if (selectedOrder()!.status === 'sent') {
-          <button class="btn-primary" (click)="updateStatus(selectedOrder()!, 'confirmed'); closeDetailDialog()">
-            <i class="pi pi-check"></i>
-            Marquer comme confirmée
-          </button>
-        }
-        @if (selectedOrder()!.status === 'confirmed') {
-          <button class="btn-primary" (click)="updateStatus(selectedOrder()!, 'delivered'); closeDetailDialog()">
-            <i class="pi pi-truck"></i>
-            Marquer comme livrée
-          </button>
-        }
-        <button class="btn-secondary" (click)="closeDetailDialog()">
-          Fermer
-        </button>
-      </div>
-    </div>
-  }
-</p-dialog>
