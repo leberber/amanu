@@ -57,6 +57,46 @@
   }
 }
 
+// Back button (matches shared back-button component)
+.btn-back {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2, 0.5rem);
+  padding: var(--space-3, 0.75rem) var(--space-4, 1rem);
+  border: none;
+  border-radius: var(--radius-lg, 0.5rem);
+  background: rgba(var(--primary-color-rgb, 59, 130, 246), 0.08);
+  color: var(--primary-color);
+  font-weight: 500;
+  font-size: var(--font-size-sm, 0.875rem);
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+
+  i {
+    font-size: 1rem;
+    transition: transform 0.25s ease;
+  }
+
+  &:hover {
+    background: rgba(var(--primary-color-rgb, 59, 130, 246), 0.15);
+
+    i {
+      transform: translateX(-2px);
+    }
+  }
+
+  &:active {
+    transform: scale(0.97);
+  }
+}
+
+.table-header-right {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 // Add row button in header
 .btn-add {
   display: flex;

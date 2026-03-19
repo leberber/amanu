@@ -670,7 +670,7 @@
         <!-- Cart Tab (Bon de Commande) -->
         @if (currentTab() === 'cart') {
         <div class="cart-tab">
-        <!-- Cart Header with Segment Control -->
+        <!-- Cart Header with Back Button -->
         <div class="table-header">
           <div class="table-header-left">
             <h2 class="cart-title">
@@ -679,29 +679,11 @@
               <span class="cart-count-label">{{ cartCount() }} produits</span>
             </h2>
           </div>
-          <div class="table-actions">
-            <div class="segment-control segment-control--glass" style="margin-right: 40px;">
-              <button
-                class="segment-control__item"
-                (click)="currentView.set('active'); currentTab.set('stock')">
-                <span>Actif</span>
-                <span class="count active">{{ activeCount() }}</span>
-              </button>
-              <button
-                class="segment-control__item"
-                (click)="currentView.set('inactive'); currentTab.set('stock')">
-                <span>Inactif</span>
-                <span class="count inactive">{{ hiddenCount() }}</span>
-              </button>
-              <button
-                class="segment-control__item active"
-                (click)="currentTab.set('cart')">
-                <span>Commande</span>
-                @if (cartCount() > 0) {
-                  <span class="count cart">{{ cartCount() }}</span>
-                }
-              </button>
-            </div>
+          <div class="table-header-right">
+            <button class="btn-back" (click)="currentTab.set('stock')">
+              <i class="pi pi-arrow-left"></i>
+              <span>Retour</span>
+            </button>
           </div>
         </div>
 

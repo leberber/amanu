@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, inject, signal, computed, DestroyRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, computed, DestroyRef, effect } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
@@ -142,6 +142,7 @@ const SUPPLIER_DETAILS: Record<string, SupplierDetails> = {
 export class StockComponent implements OnInit, OnDestroy {
   private readonly DEFAULT_COLOR = { bg: 'rgba(100, 116, 139, 0.12)', text: '#64748b' };
   private readonly CART_STORAGE_KEY = 'stock_cart_items';
+  private readonly ROWS_STORAGE_KEY = 'stock_rows_data';
 
   // Color caches to avoid recalculating on every change detection
   private readonly brandColorCache = new Map<string, { bg: string; text: string }>();
@@ -167,6 +168,15 @@ export class StockComponent implements OnInit, OnDestroy {
   private flashingRows = new Set<number>();
   syncDirtyRows = signal<Set<number>>(new Set()); // Tracks rows edited after sync
   allRows = signal<RestockRow[]>([]);
+
+  // Auto-save rows to localStorage when they change
+  private rowsSaveEffect = effect(() => {
+    const rows = this.allRows();
+    if (rows.length > 0) {
+      this.saveRowsToStorage();
+    }
+  });
+
   brandsList = signal<BrandOption[]>([]);
   categoriesList = signal<CategoryOption[]>([]);
   categoryFilter = signal<string[]>([]);
@@ -675,6 +685,24 @@ export class StockComponent implements OnInit, OnDestroy {
     localStorage.setItem(this.CART_STORAGE_KEY, JSON.stringify(ids));
   }
 
+  // Rows persistence methods
+  private loadRowsFromStorage(): RestockRow[] | null {
+    try {
+      const stored = localStorage.getItem(this.ROWS_STORAGE_KEY);
+      if (stored) {
+        return JSON.parse(stored) as RestockRow[];
+      }
+    } catch {
+      // Ignore parse errors
+    }
+    return null;
+  }
+
+  private saveRowsToStorage(): void {
+    const rows = this.allRows();
+    localStorage.setItem(this.ROWS_STORAGE_KEY, JSON.stringify(rows));
+  }
+
   addToCart(row: RestockRow): void {
     this.cartItemIds.update(set => {
       const newSet = new Set(set);
@@ -715,6 +743,9 @@ export class StockComponent implements OnInit, OnDestroy {
   loadData(): void {
     this.loading.set(true);
 
+    // Try to load rows from localStorage first
+    const cachedRows = this.loadRowsFromStorage();
+
     forkJoin({
       restock: this.api.get<RestockData>('/restock').pipe(catchError(() => of({ items: [] }))),
       brands: this.api.get<BrandOption[]>('/brands').pipe(catchError(() => of([]))),
@@ -726,37 +757,51 @@ export class StockComponent implements OnInit, OnDestroy {
         this.brandsList.set(brands);
         this.categoriesList.set(categories);
 
-        const rows: RestockRow[] = restock.items.map(item => ({
-          id: item.id,
-          productId: item.productId ?? null,
-          brandId: item.brandId ?? null,
-          categoryId: item.categoryId ?? null,
-          brand: item.brand || '-',
-          category: item.category || '-',
-          name: item.name || '',
-          image: item.image || '',
-          description: item.description || '',
-          supplier: item.supplier || '',
-          phone: item.phone || '',
-          productUnit: item.productUnit || 'piece',
-          packageType: item.packageType || 'Carton',
-          volume: item.volume ?? null,
-          weight: item.weight ?? null,
-          prixUniteAchat: item.prixUniteAchat || 0,
-          uniteParCarton: item.uniteParCarton || 1,
-          prixCarton: item.prixCarton || 0,
-          nmbCarton: item.nmbCarton || 0,
-          carry: item.carry ?? false,
-          priority: item.priority || 0,
-          hidden: item.hidden ?? false,
-          synced: item.synced ?? false
-        }));
+        // Use cached rows if available, otherwise use API data
+        if (cachedRows && cachedRows.length > 0) {
+          this.allRows.set(cachedRows);
+        } else {
+          const rows: RestockRow[] = restock.items.map(item => ({
+            id: item.id,
+            productId: item.productId ?? null,
+            brandId: item.brandId ?? null,
+            categoryId: item.categoryId ?? null,
+            brand: item.brand || '-',
+            category: item.category || '-',
+            name: item.name || '',
+            image: item.image || '',
+            description: item.description || '',
+            supplier: item.supplier || '',
+            phone: item.phone || '',
+            productUnit: item.productUnit || 'piece',
+            packageType: item.packageType || 'Carton',
+            volume: item.volume ?? null,
+            weight: item.weight ?? null,
+            prixUniteAchat: item.prixUniteAchat || 0,
+            uniteParCarton: item.uniteParCarton || 1,
+            prixCarton: item.prixCarton || 0,
+            nmbCarton: item.nmbCarton || 0,
+            carry: item.carry ?? false,
+            priority: item.priority || 0,
+            hidden: item.hidden ?? false,
+            synced: item.synced ?? false
+          }));
 
-        this.allRows.set(rows);
+          this.allRows.set(rows);
+          this.saveRowsToStorage();
+        }
+
         this.loading.set(false);
         this.tableInitialized.set(true);
       },
       error: () => {
+        // If API fails, try to use cached data
+        if (cachedRows && cachedRows.length > 0) {
+          this.allRows.set(cachedRows);
+          this.loading.set(false);
+          this.tableInitialized.set(true);
+          return;
+        }
         this.toast.showError('Échec du chargement des données');
         this.loading.set(false);
       }
