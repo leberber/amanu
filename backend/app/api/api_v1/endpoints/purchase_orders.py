@@ -435,15 +435,17 @@ async def delete_purchase_order_item(
                 detail={"message": "Order deleted (was the last item)", "order_deleted": True}
             )
 
+        # Calculate new total BEFORE deleting (exclude the item being deleted)
+        new_total = sum(i.total_price for i in order.items if i.id != item_id)
+
         # Delete the item
         session.delete(item)
-        session.flush()
 
-        # Recalculate total
-        order.total_amount = sum(i.total_price for i in order.items if i.id != item_id)
+        # Update order
+        order.total_amount = new_total
         order.updated_at = datetime.now(timezone.utc)
-
         session.add(order)
+
         session.commit()
         session.refresh(order)
 
