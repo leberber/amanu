@@ -43,7 +43,7 @@
             }
           </div>
           <div class="table-actions">
-            <div class="segment-control segment-control--glass" style="margin-right: 40px;">
+            <div class="segment-control segment-control--glass" style="margin-right: 16px;">
               <button
                 class="segment-control__item"
                 [class.active]="currentView() === 'active' && currentTab() === 'stock'"
@@ -58,16 +58,13 @@
                 <span>Inactif</span>
                 <span class="count inactive">{{ hiddenCount() }}</span>
               </button>
-              <button
-                class="segment-control__item"
-                [class.active]="currentTab() === 'cart'"
-                (click)="currentTab.set('cart')">
-                <span>Commande</span>
-                @if (cartCount() > 0) {
-                  <span class="count cart">{{ cartCount() }}</span>
-                }
-              </button>
             </div>
+            <button class="btn-cart" (click)="currentTab.set('cart')" pTooltip="Bon de Commande">
+              <i class="pi pi-shopping-cart"></i>
+              @if (cartCount() > 0) {
+                <span class="cart-badge">{{ cartCount() }}</span>
+              }
+            </button>
             <button class="btn-add" (click)="addRow()" pTooltip="Ajouter une ligne">
               <i class="pi pi-plus"></i>
               <span class="btn-text">Ajouter</span>
@@ -720,7 +717,7 @@
                       <th class="text-center" style="width: 80px">U/Carton</th>
                       <th class="text-center" style="width: 80px">Qté</th>
                       <th class="text-right" style="width: 120px">Prix/Carton</th>
-                      <th class="text-right" style="width: 120px">Total</th>
+                      <th class="text-right" style="width: 150px">Total</th>
                       <th style="width: 50px"></th>
                     </tr>
                   </ng-template>
@@ -742,7 +739,7 @@
                       <td class="text-center">{{ row.uniteParCarton }}</td>
                       <td class="text-center">{{ row.nmbCarton }}</td>
                       <td class="text-right">{{ row.prixCarton | number:'1.0-0' }}</td>
-                      <td class="text-right font-semibold">{{ row.prixCarton * row.nmbCarton | number:'1.0-0' }} DA</td>
+                      <td class="text-right font-semibold" style="color: #000">{{ row.prixCarton * row.nmbCarton | number:'1.0-0' }} DA</td>
                       <td>
                         <button class="btn-remove" (click)="removeFromCart(row)" pTooltip="Retirer">
                           <i class="pi pi-times"></i>
@@ -757,7 +754,7 @@
                           <span class="cart-footer-count">{{ cartCount() }} produits</span>
                           <div class="cart-footer-total">
                             <span class="label">Total Général</span>
-                            <span class="value">{{ cartTotalValue() | number:'1.0-0' }} DA</span>
+                            <span class="value" style="color: #000">{{ cartTotalValue() | number:'1.0-0' }} DA</span>
                           </div>
                         </div>
                       </td>
@@ -796,7 +793,7 @@
                   </div>
                   <div class="summary-row total">
                     <span>Total</span>
-                    <span>{{ selectedSupplier ? getSupplierTotalValue(selectedSupplier) : cartTotalValue() | number:'1.0-0' }} DA</span>
+                    <span style="color: #000">{{ selectedSupplier ? getSupplierTotalValue(selectedSupplier) : cartTotalValue() | number:'1.0-0' }} DA</span>
                   </div>
                 </div>
 
