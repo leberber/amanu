@@ -1837,6 +1837,27 @@ $group-border: rgba(59, 130, 246, 0.2);
   }
 }
 
+.add-supplier-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+  color: var(--primary-color);
+  text-decoration: none;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+
+  &:hover {
+    opacity: 0.8;
+    text-decoration: underline;
+  }
+
+  i {
+    font-size: 0.7rem;
+  }
+}
+
 .sidebar-summary {
   background: #f8fafc;
   border-radius: 0.75rem;
