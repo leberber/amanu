@@ -12,62 +12,29 @@
         <span class="text-secondary">Chargement...</span>
       </div>
     } @else if (order()) {
-      <div class="order-detail-page">
-        <!-- Header -->
-        <div class="detail-header">
-          <div class="detail-header__left">
-            <div class="detail-icon">
-              <i class="pi pi-file-edit"></i>
+      <div class="order-detail-layout">
+        <!-- Main Content -->
+        <div class="order-detail-main">
+          <!-- Header -->
+          <div class="detail-header">
+            <div class="detail-header__left">
+              <div class="detail-icon">
+                <i class="pi pi-file-edit"></i>
+              </div>
+              <div class="detail-title">
+                <h1>{{ order()!.reference }}</h1>
+                <p-tag
+                  [value]="getStatusLabel(order()!.status)"
+                  [severity]="getStatusSeverity(order()!.status)"
+                />
+              </div>
             </div>
-            <div class="detail-title">
-              <h1>{{ order()!.reference }}</h1>
-              <p-tag
-                [value]="getStatusLabel(order()!.status)"
-                [severity]="getStatusSeverity(order()!.status)"
-              />
+            <div class="detail-header__right">
+              <span class="detail-date">{{ formatDate(order()!.created_at) }}</span>
             </div>
           </div>
-          <div class="detail-header__right">
-            <span class="detail-date">{{ formatDate(order()!.created_at) }}</span>
-          </div>
-        </div>
 
-        <!-- Status Timeline -->
-        <div class="status-timeline-card">
-          <div class="timeline-step" [class.active]="true" [class.completed]="order()!.status !== 'draft'">
-            <div class="timeline-step__dot">
-              <i class="pi pi-pencil"></i>
-            </div>
-            <span class="timeline-step__label">Brouillon</span>
-            @if (order()!.created_at) {
-              <span class="timeline-step__date">{{ formatDate(order()!.created_at) }}</span>
-            }
-          </div>
-          <div class="timeline-line" [class.active]="order()!.status !== 'draft'"></div>
-          <div class="timeline-step" [class.active]="order()!.sent_at" [class.completed]="order()!.delivered_at">
-            <div class="timeline-step__dot">
-              <i class="pi pi-send"></i>
-            </div>
-            <span class="timeline-step__label">Envoyée</span>
-            @if (order()!.sent_at; as sentAt) {
-              <span class="timeline-step__date">{{ formatDate(sentAt) }}</span>
-            }
-          </div>
-          <div class="timeline-line" [class.active]="order()!.delivered_at"></div>
-          <div class="timeline-step" [class.active]="order()!.delivered_at">
-            <div class="timeline-step__dot">
-              <i class="pi pi-check"></i>
-            </div>
-            <span class="timeline-step__label">Livrée</span>
-            @if (order()!.delivered_at; as deliveredAt) {
-              <span class="timeline-step__date">{{ formatDate(deliveredAt) }}</span>
-            }
-          </div>
-        </div>
-
-        <!-- Info Cards Grid -->
-        <div class="info-cards-grid">
-          <!-- Supplier Info -->
+          <!-- Supplier Info Card -->
           <div class="info-card">
             <div class="info-card__header">
               <i class="pi pi-building"></i>
@@ -95,37 +62,6 @@
               }
             </div>
           </div>
-
-          <!-- Order Summary -->
-          <div class="info-card">
-            <div class="info-card__header">
-              <i class="pi pi-chart-bar"></i>
-              <span>Résumé</span>
-            </div>
-            <div class="info-card__body">
-              <div class="summary-row">
-                <span class="summary-row__label">Produits</span>
-                <span class="summary-row__value">{{ order()!.item_count }}</span>
-              </div>
-              <div class="summary-row">
-                <span class="summary-row__label">Cartons commandés</span>
-                <span class="summary-row__value">{{ totalOrdered() }}</span>
-              </div>
-              @if (order()!.status === 'delivered') {
-                <div class="summary-row">
-                  <span class="summary-row__label">Cartons reçus</span>
-                  <span class="summary-row__value" [class.text-warning]="totalReceived() < totalOrdered()">
-                    {{ totalReceived() }}
-                  </span>
-                </div>
-              }
-              <div class="summary-row summary-row--total">
-                <span class="summary-row__label">Total</span>
-                <span class="summary-row__value">{{ formatCurrency(order()!.total_amount) }}</span>
-              </div>
-            </div>
-          </div>
-        </div>
 
         <!-- Items Table -->
         <div class="table-container">
@@ -276,40 +212,113 @@
           </div>
         }
 
-        <!-- Actions -->
-        <div class="actions-bar">
-          @if (canDelete()) {
-            <p-button
-              label="Supprimer"
-              icon="pi pi-trash"
-              severity="danger"
-              [outlined]="true"
-              (onClick)="confirmDelete()"
-              [disabled]="saving()"
-            />
-          }
-
-          <div class="flex-1"></div>
-
-          @switch (order()!.status) {
-            @case ('draft') {
+          <!-- Actions -->
+          <div class="actions-bar">
+            @if (canDelete()) {
               <p-button
-                label="Marquer comme envoyée"
-                icon="pi pi-send"
-                (onClick)="updateStatus('sent')"
+                label="Supprimer"
+                icon="pi pi-trash"
+                severity="danger"
+                [outlined]="true"
+                (onClick)="confirmDelete()"
                 [disabled]="saving()"
               />
             }
-            @case ('sent') {
-              <p-button
-                label="Confirmer la livraison"
-                icon="pi pi-truck"
-                severity="success"
-                (onClick)="confirmDelivery()"
-                [loading]="saving()"
-              />
+
+            <div class="flex-1"></div>
+
+            @switch (order()!.status) {
+              @case ('draft') {
+                <p-button
+                  label="Marquer comme envoyée"
+                  icon="pi pi-send"
+                  (onClick)="updateStatus('sent')"
+                  [disabled]="saving()"
+                />
+              }
+              @case ('sent') {
+                <p-button
+                  label="Confirmer la livraison"
+                  icon="pi pi-truck"
+                  severity="success"
+                  (onClick)="confirmDelivery()"
+                  [loading]="saving()"
+                />
+              }
             }
-          }
+          </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="order-detail-sidebar">
+          <div class="sidebar-card">
+            <div class="sidebar-card__header">
+              <i class="pi pi-clock"></i>
+              <span>Statut</span>
+            </div>
+            <div class="sidebar-card__body">
+              <!-- Vertical Timeline -->
+              <div class="vertical-timeline">
+                <div class="timeline-item" [class.active]="true" [class.completed]="order()!.status !== 'draft'">
+                  <div class="timeline-item__dot">
+                    <i class="pi pi-pencil"></i>
+                  </div>
+                  <div class="timeline-item__content">
+                    <span class="timeline-item__label">Brouillon</span>
+                    @if (order()!.created_at) {
+                      <span class="timeline-item__date">{{ formatDate(order()!.created_at) }}</span>
+                    }
+                  </div>
+                </div>
+
+                <div class="timeline-item" [class.active]="order()!.sent_at" [class.completed]="order()!.delivered_at">
+                  <div class="timeline-item__dot">
+                    <i class="pi pi-send"></i>
+                  </div>
+                  <div class="timeline-item__content">
+                    <span class="timeline-item__label">Envoyée</span>
+                    @if (order()!.sent_at; as sentAt) {
+                      <span class="timeline-item__date">{{ formatDate(sentAt) }}</span>
+                    }
+                  </div>
+                </div>
+
+                <div class="timeline-item" [class.active]="order()!.delivered_at">
+                  <div class="timeline-item__dot">
+                    <i class="pi pi-check"></i>
+                  </div>
+                  <div class="timeline-item__content">
+                    <span class="timeline-item__label">Livrée</span>
+                    @if (order()!.delivered_at; as deliveredAt) {
+                      <span class="timeline-item__date">{{ formatDate(deliveredAt) }}</span>
+                    }
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Stats -->
+          <div class="sidebar-card">
+            <div class="sidebar-card__header">
+              <i class="pi pi-chart-bar"></i>
+              <span>Résumé</span>
+            </div>
+            <div class="sidebar-card__body">
+              <div class="stat-row">
+                <span class="stat-row__label">Produits</span>
+                <span class="stat-row__value">{{ order()!.item_count }}</span>
+              </div>
+              <div class="stat-row">
+                <span class="stat-row__label">Cartons</span>
+                <span class="stat-row__value">{{ totalOrdered() }}</span>
+              </div>
+              <div class="stat-row stat-row--highlight">
+                <span class="stat-row__label">Total</span>
+                <span class="stat-row__value">{{ formatCurrency(order()!.total_amount) }}</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     }

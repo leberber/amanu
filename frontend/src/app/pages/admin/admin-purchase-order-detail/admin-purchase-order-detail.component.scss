@@ -2,13 +2,37 @@
 // PURCHASE ORDER DETAIL PAGE
 // =============================================================================
 
-.order-detail-page {
-  max-width: 1100px;
+// =============================================================================
+// LAYOUT
+// =============================================================================
+
+.order-detail-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-5);
+  max-width: 1400px;
   margin: 0 auto;
   padding: var(--space-4);
 
-  @media (min-width: 768px) {
+  @media (min-width: 1024px) {
+    grid-template-columns: 1fr 280px;
     padding: var(--space-6);
+  }
+}
+
+.order-detail-main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.order-detail-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+
+  @media (max-width: 1023px) {
+    order: -1;
   }
 }
 
@@ -20,7 +44,6 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: var(--space-6);
   gap: var(--space-4);
 
   &__left {
@@ -70,117 +93,8 @@
 }
 
 // =============================================================================
-// STATUS TIMELINE
+// INFO CARD
 // =============================================================================
-
-.status-timeline-card {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  padding: var(--space-5);
-  background: var(--glass-bg);
-  backdrop-filter: var(--glass-blur);
-  border-radius: var(--radius-xl);
-  border: var(--border-width) solid var(--border-color-light);
-  margin-bottom: var(--space-6);
-  overflow-x: auto;
-  gap: var(--space-2);
-}
-
-.timeline-step {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-2);
-  min-width: 90px;
-  flex-shrink: 0;
-
-  &__dot {
-    width: 40px;
-    height: 40px;
-    border-radius: var(--radius-full);
-    background: var(--surface-card);
-    border: 2px solid var(--border-color);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all var(--transition-base);
-
-    i {
-      font-size: 0.875rem;
-      color: var(--text-color-secondary);
-    }
-  }
-
-  &__label {
-    font-size: var(--font-size-xs);
-    font-weight: var(--font-weight-semibold);
-    color: var(--text-color-secondary);
-    text-align: center;
-  }
-
-  &__date {
-    font-size: 0.65rem;
-    color: var(--text-color-secondary);
-    text-align: center;
-  }
-
-  &.active {
-    .timeline-step__dot {
-      background: var(--primary-color);
-      border-color: var(--primary-color);
-      box-shadow: 0 0 0 4px rgba(var(--primary-rgb), 0.2);
-
-      i {
-        color: white;
-      }
-    }
-
-    .timeline-step__label {
-      color: var(--primary-color);
-    }
-  }
-
-  &.completed {
-    .timeline-step__dot {
-      background: rgba(var(--color-success-rgb), 0.1);
-      border-color: var(--color-success);
-
-      i {
-        color: var(--color-success);
-      }
-    }
-  }
-}
-
-.timeline-line {
-  flex: 1;
-  height: 3px;
-  background: var(--border-color);
-  margin-top: 18px;
-  min-width: 20px;
-  border-radius: 2px;
-  transition: background var(--transition-base);
-
-  &.active {
-    background: var(--color-success);
-  }
-}
-
-// =============================================================================
-// INFO CARDS
-// =============================================================================
-
-.info-cards-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--space-4);
-  margin-bottom: var(--space-6);
-
-  @media (min-width: 768px) {
-    grid-template-columns: 1fr 1fr;
-  }
-}
 
 .info-card {
   background: var(--glass-bg);
@@ -238,10 +152,163 @@
 }
 
 // =============================================================================
-// SUMMARY ROWS
+// SIDEBAR CARDS
 // =============================================================================
 
-.summary-row {
+.sidebar-card {
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  border-radius: var(--radius-xl);
+  border: var(--border-width) solid var(--border-color-light);
+  overflow: hidden;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-4);
+    background: var(--surface-ground);
+    border-bottom: var(--border-width) solid var(--border-color-light);
+
+    i {
+      font-size: 1rem;
+      color: var(--primary-color);
+    }
+
+    span {
+      font-size: var(--font-size-sm);
+      font-weight: var(--font-weight-semibold);
+      text-transform: uppercase;
+      letter-spacing: var(--letter-spacing-wide);
+      color: var(--text-color-secondary);
+    }
+  }
+
+  &__body {
+    padding: var(--space-4);
+  }
+}
+
+// =============================================================================
+// VERTICAL TIMELINE
+// =============================================================================
+
+.vertical-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.timeline-item {
+  display: flex;
+  gap: var(--space-4);
+  position: relative;
+  padding-bottom: var(--space-5);
+
+  &:last-child {
+    padding-bottom: 0;
+
+    &::before {
+      display: none;
+    }
+  }
+
+  // Connector line
+  &::before {
+    content: '';
+    position: absolute;
+    left: 15px;
+    top: 36px;
+    bottom: 0;
+    width: 2px;
+    background: var(--border-color);
+    transition: background var(--transition-base);
+  }
+
+  &.completed::before {
+    background: var(--color-success);
+  }
+
+  &__dot {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-full);
+    background: var(--surface-card);
+    border: 2px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+    transition: all var(--transition-base);
+
+    i {
+      font-size: 0.75rem;
+      color: var(--text-color-secondary);
+      transition: color var(--transition-base);
+    }
+  }
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    padding-top: var(--space-2);
+  }
+
+  &__label {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-color-secondary);
+    transition: color var(--transition-base);
+  }
+
+  &__date {
+    font-size: var(--font-size-xs);
+    color: var(--text-color-secondary);
+  }
+
+  // Active state
+  &.active {
+    .timeline-item__dot {
+      background: var(--primary-color);
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 4px rgba(var(--primary-rgb), 0.15);
+
+      i {
+        color: white;
+      }
+    }
+
+    .timeline-item__label {
+      color: var(--primary-color);
+    }
+  }
+
+  // Completed state
+  &.completed {
+    .timeline-item__dot {
+      background: rgba(var(--color-success-rgb), 0.1);
+      border-color: var(--color-success);
+      box-shadow: none;
+
+      i {
+        color: var(--color-success);
+      }
+    }
+
+    .timeline-item__label {
+      color: var(--color-success);
+    }
+  }
+}
+
+// =============================================================================
+// STAT ROWS
+// =============================================================================
+
+.stat-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -263,14 +330,14 @@
     color: var(--text-color);
   }
 
-  &--total {
+  &--highlight {
     padding-top: var(--space-4);
     margin-top: var(--space-2);
     border-top: 2px solid var(--border-color);
     border-bottom: none;
 
-    .summary-row__value {
-      font-size: 1.25rem;
+    .stat-row__value {
+      font-size: 1.1rem;
       font-weight: var(--font-weight-bold);
       color: var(--primary-color);
     }
@@ -282,7 +349,7 @@
 // =============================================================================
 
 .table-container {
-  margin-bottom: var(--space-6);
+  // Use default styles
 }
 
 .edit-hint-badge {
@@ -324,7 +391,6 @@
   backdrop-filter: var(--glass-blur);
   border-radius: var(--radius-xl);
   border: var(--border-width) solid var(--border-color-light);
-  margin-bottom: var(--space-6);
   overflow: hidden;
 
   &__header {
@@ -372,7 +438,6 @@
   background: rgba(245, 158, 11, 0.1);
   border: var(--border-width) solid rgba(245, 158, 11, 0.3);
   border-radius: var(--radius-lg);
-  margin-bottom: var(--space-6);
 
   &__content {
     display: flex;
