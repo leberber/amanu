@@ -10,7 +10,8 @@ from app.models.purchase_order import (
     PurchaseOrderResponse, PurchaseOrderItemResponse, PurchaseOrderListResponse,
     DeliveryConfirmation
 )
-from app.models.product import Product
+from app.models.product import Product, ProductUnit
+from app.models.restock import RestockItem
 
 router = APIRouter()
 
@@ -321,10 +322,8 @@ async def confirm_delivery(
 ):
     """
     Confirm delivery with received quantities.
-    Updates stock in the products table for linked products.
-
-    VALIDATION: All items must have a valid product_id linked to an existing product.
-    If any item is not linked, the delivery will be rejected.
+    Updates stock in the products table for linked products only.
+    Items without product_id are still marked as delivered but don't update stock.
     """
     order = session.get(PurchaseOrder, order_id)
     if not order:
@@ -338,22 +337,6 @@ async def confirm_delivery(
         )
 
     try:
-        # VALIDATION: Check all items have valid product_id linked to existing products
-        unlinked_items = []
-        for item in order.items:
-            if not item.product_id:
-                unlinked_items.append(f"'{item.product_name}' (pas de produit lié)")
-            else:
-                product = session.get(Product, item.product_id)
-                if not product:
-                    unlinked_items.append(f"'{item.product_name}' (produit ID {item.product_id} introuvable)")
-
-        if unlinked_items:
-            raise HTTPException(
-                status_code=400,
-                detail=f"Impossible de confirmer la livraison. Produits non liés au catalogue: {', '.join(unlinked_items)}. Supprimez ces articles ou liez-les à des produits existants."
-            )
-
         # Create a map of item_id -> quantity_received
         received_map = {item.item_id: item.quantity_received for item in delivery.items}
 
@@ -363,10 +346,61 @@ async def confirm_delivery(
                 quantity_received = received_map[item.id]
                 item.quantity_received = quantity_received
 
-                # Sync stock to products table (already validated above)
-                product = session.get(Product, item.product_id)
+                product = None
+
+                # If item has product_id, get existing product
+                if item.product_id:
+                    product = session.get(Product, item.product_id)
+
+                # If no product exists, try to create one from restock item
+                if not product:
+                    # Find matching restock item by name
+                    restock_item = session.exec(
+                        select(RestockItem).where(RestockItem.name == item.product_name)
+                    ).first()
+
+                    if restock_item and restock_item.category_id:
+                        # Map unit string to ProductUnit enum
+                        unit_str = (restock_item.product_unit or "piece").lower()
+                        try:
+                            unit = ProductUnit(unit_str)
+                        except ValueError:
+                            unit = ProductUnit.PIECE
+
+                        # Check if brand exists, skip if not
+                        brand_id = None
+                        if restock_item.brand_id:
+                            from app.models.brand import Brand
+                            brand = session.get(Brand, restock_item.brand_id)
+                            if brand:
+                                brand_id = restock_item.brand_id
+
+                        # Create product from restock item data
+                        product = Product(
+                            name=restock_item.name,
+                            price=0,
+                            unit=unit,
+                            pieces_per_box=restock_item.unite_par_carton or item.units_per_carton,
+                            stock_quantity=0,
+                            is_active=False,
+                            category_id=restock_item.category_id,
+                            brand_id=brand_id,
+                            description=restock_item.description,
+                            image_url=restock_item.image,
+                            created_at=datetime.now(timezone.utc)
+                        )
+                        session.add(product)
+                        session.flush()  # Get the product ID
+
+                        # Link order item to new product
+                        item.product_id = product.id
+
+                        # Also link restock item to product
+                        restock_item.product_id = product.id
+                        session.add(restock_item)
+
+                # Update stock if product exists
                 if product:
-                    # Add received units to stock (cartons × units per carton)
                     units_to_add = quantity_received * item.units_per_carton
                     product.stock_quantity = (product.stock_quantity or 0) + units_to_add
                     product.updated_at = datetime.now(timezone.utc)
@@ -393,6 +427,8 @@ async def confirm_delivery(
         raise
     except Exception as e:
         session.rollback()
+        import traceback
+        traceback.print_exc()
         raise HTTPException(status_code=422, detail=str(e))
 
 
