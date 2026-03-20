@@ -13,6 +13,7 @@ import { PageLayoutComponent } from '../../../shared/components/page-layout/page
 import { ToastMessageService } from '../../../core/services/toast-message.service';
 import { ConfirmationDialogService } from '../../../core/services/confirmation-dialog.service';
 import { DateService } from '../../../core/services/date.service';
+import { CurrencyService } from '../../../core/services/currency.service';
 import { ROUTES } from '../../../core/constants/routes.constants';
 import {
   PurchaseOrderService,
@@ -44,6 +45,7 @@ export class AdminPurchaseOrderDetailComponent implements OnInit {
   private confirmDialog = inject(ConfirmationDialogService);
   private orderService = inject(PurchaseOrderService);
   private dateService = inject(DateService);
+  private currencyService = inject(CurrencyService);
 
   // State
   loading = signal(true);
@@ -236,19 +238,13 @@ export class AdminPurchaseOrderDetailComponent implements OnInit {
     });
   }
 
-  // Formatting - cached formatter for performance
-  private readonly currencyFormatter = new Intl.NumberFormat('fr-FR', {
-    style: 'decimal',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0
-  });
-
+  // Formatting - delegates to shared services
   formatDate(dateString: string): string {
     return this.dateService.formatDate(dateString);
   }
 
   formatCurrency(amount: number): string {
-    return this.currencyFormatter.format(amount) + ' DA';
+    return this.currencyService.formatCurrency(amount);
   }
 }
 

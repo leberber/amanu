@@ -3,6 +3,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { USER_ROLES } from '../constants/user.constants';
 import { ORDER_STATUS, ORDER_STATUS_CONFIG, PAYMENT_STATUS } from '../constants/order.constants';
 import { PROMOTION_STATUS } from '../constants/promotion.constants';
+import { PURCHASE_ORDER_STATUS_CONFIG } from '../constants/purchase-order.constants';
 
 @Injectable({
   providedIn: 'root'
@@ -108,5 +109,29 @@ export class StatusSeverityService {
       case PAYMENT_STATUS.REFUNDED: return 'info';
       default: return 'secondary';
     }
+  }
+
+  // ---------------------------------------------------------------------------
+  // Purchase Order Status Methods
+  // ---------------------------------------------------------------------------
+
+  getPurchaseOrderStatusSeverity(status: string): "success" | "secondary" | "info" | "warn" | "danger" | "contrast" {
+    const config = PURCHASE_ORDER_STATUS_CONFIG[status as keyof typeof PURCHASE_ORDER_STATUS_CONFIG];
+    return config?.severity || 'secondary';
+  }
+
+  getPurchaseOrderStatusLabel(status: string): string {
+    const config = PURCHASE_ORDER_STATUS_CONFIG[status as keyof typeof PURCHASE_ORDER_STATUS_CONFIG];
+    return config?.label || status;
+  }
+
+  getPurchaseOrderStatusIcon(status: string): string {
+    const config = PURCHASE_ORDER_STATUS_CONFIG[status as keyof typeof PURCHASE_ORDER_STATUS_CONFIG];
+    return config?.icon || 'pi pi-info-circle';
+  }
+
+  getPurchaseOrderStatusColor(status: string): string {
+    const config = PURCHASE_ORDER_STATUS_CONFIG[status as keyof typeof PURCHASE_ORDER_STATUS_CONFIG];
+    return config?.color || '#607D8B';
   }
 }

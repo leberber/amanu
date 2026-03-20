@@ -7,6 +7,7 @@ import { ADMIN_LIST_IMPORTS } from '../../../shared/imports/admin-shared.imports
 import { TableSkeletonComponent, SkeletonColumn } from '../../../shared/components/table-skeleton/table-skeleton.component';
 import { AgroclikPageContainerComponent } from '../../../shared/components/agroclik-page-container/agroclik-page-container.component';
 import { ConfirmationDialogService } from '../../../core/services/confirmation-dialog.service';
+import { CurrencyService } from '../../../core/services/currency.service';
 import { BaseAdminListComponent, ColumnOption } from '../../../shared/base/base-admin-list.component';
 import { RouteHelpers } from '../../../core/constants/routes.constants';
 import {
@@ -75,13 +76,7 @@ export class AdminPurchaseOrdersComponent extends BaseAdminListComponent impleme
   private confirmationService = inject(ConfirmationService);
   private confirmDialog = inject(ConfirmationDialogService);
   private destroyRef = inject(DestroyRef);
-
-  // Cached formatter for performance
-  private readonly currencyFormatter = new Intl.NumberFormat('fr-FR', {
-    style: 'decimal',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0
-  });
+  private currencyService = inject(CurrencyService);
 
   ngOnInit() {
     this.loadOrders();
@@ -192,6 +187,6 @@ export class AdminPurchaseOrdersComponent extends BaseAdminListComponent impleme
   }
 
   formatCurrency(amount: number): string {
-    return this.currencyFormatter.format(amount) + ' DA';
+    return this.currencyService.formatCurrency(amount);
   }
 }

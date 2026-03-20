@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from './api.service';
+import { StatusSeverityService } from '../core/services/status-severity.service';
 
 // ============================================================================
 // Models
@@ -104,6 +105,7 @@ export interface DeliveryConfirmation {
 })
 export class PurchaseOrderService {
   private api = inject(ApiService);
+  private statusSeverity = inject(StatusSeverityService);
 
   // ---------------------------------------------------------------------------
   // CRUD Operations
@@ -167,29 +169,15 @@ export class PurchaseOrderService {
   }
 
   // ---------------------------------------------------------------------------
-  // Helpers
+  // Helpers (delegating to StatusSeverityService)
   // ---------------------------------------------------------------------------
 
   getStatusLabel(status: PurchaseOrderStatus): string {
-    const labels: Record<PurchaseOrderStatus, string> = {
-      'draft': 'Brouillon',
-      'sent': 'Envoyée',
-      'confirmed': 'Confirmée',
-      'delivered': 'Livrée',
-      'cancelled': 'Annulée'
-    };
-    return labels[status] || status;
+    return this.statusSeverity.getPurchaseOrderStatusLabel(status);
   }
 
   getStatusSeverity(status: PurchaseOrderStatus): 'success' | 'info' | 'warn' | 'danger' | 'secondary' {
-    const severities: Record<PurchaseOrderStatus, 'success' | 'info' | 'warn' | 'danger' | 'secondary'> = {
-      'draft': 'secondary',
-      'sent': 'info',
-      'confirmed': 'warn',
-      'delivered': 'success',
-      'cancelled': 'danger'
-    };
-    return severities[status] || 'secondary';
+    return this.statusSeverity.getPurchaseOrderStatusSeverity(status) as 'success' | 'info' | 'warn' | 'danger' | 'secondary';
   }
 
   canDelete(order: PurchaseOrder): boolean {
