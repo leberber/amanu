@@ -7,77 +7,88 @@
 
   <div pageMain>
     @if (loading()) {
-      <div class="loading-state">
-        <i class="pi pi-spin pi-spinner"></i>
-        <span>Chargement...</span>
+      <div class="flex align-items-center justify-content-center gap-3 p-6">
+        <i class="pi pi-spin pi-spinner text-xl text-secondary"></i>
+        <span class="text-secondary">Chargement...</span>
       </div>
     } @else if (order()) {
       <div class="order-detail-page">
         <!-- Header -->
-        <div class="order-header">
-          <div class="order-header-left">
-            <h1 class="order-reference">{{ order()!.reference }}</h1>
-            <p-tag
-              [value]="getStatusLabel(order()!.status)"
-              [severity]="getStatusSeverity(order()!.status)"
-            />
+        <div class="detail-header">
+          <div class="detail-header__left">
+            <div class="detail-icon">
+              <i class="pi pi-file-edit"></i>
+            </div>
+            <div class="detail-title">
+              <h1>{{ order()!.reference }}</h1>
+              <p-tag
+                [value]="getStatusLabel(order()!.status)"
+                [severity]="getStatusSeverity(order()!.status)"
+              />
+            </div>
           </div>
-          <div class="order-header-right">
-            <span class="order-date">Créée le {{ formatDate(order()!.created_at) }}</span>
+          <div class="detail-header__right">
+            <span class="detail-date">{{ formatDate(order()!.created_at) }}</span>
           </div>
         </div>
 
         <!-- Status Timeline -->
-        <div class="status-timeline">
+        <div class="status-timeline-card">
           <div class="timeline-step" [class.active]="true" [class.completed]="order()!.status !== 'draft'">
-            <div class="step-dot"></div>
-            <span class="step-label">Brouillon</span>
+            <div class="timeline-step__dot">
+              <i class="pi pi-pencil"></i>
+            </div>
+            <span class="timeline-step__label">Brouillon</span>
             @if (order()!.created_at) {
-              <span class="step-date">{{ formatDate(order()!.created_at) }}</span>
+              <span class="timeline-step__date">{{ formatDate(order()!.created_at) }}</span>
             }
           </div>
-          <div class="timeline-connector" [class.active]="order()!.status !== 'draft'"></div>
+          <div class="timeline-line" [class.active]="order()!.status !== 'draft'"></div>
           <div class="timeline-step" [class.active]="order()!.sent_at" [class.completed]="order()!.delivered_at">
-            <div class="step-dot"></div>
-            <span class="step-label">Envoyée</span>
+            <div class="timeline-step__dot">
+              <i class="pi pi-send"></i>
+            </div>
+            <span class="timeline-step__label">Envoyée</span>
             @if (order()!.sent_at; as sentAt) {
-              <span class="step-date">{{ formatDate(sentAt) }}</span>
+              <span class="timeline-step__date">{{ formatDate(sentAt) }}</span>
             }
           </div>
-          <div class="timeline-connector" [class.active]="order()!.delivered_at"></div>
+          <div class="timeline-line" [class.active]="order()!.delivered_at"></div>
           <div class="timeline-step" [class.active]="order()!.delivered_at">
-            <div class="step-dot"></div>
-            <span class="step-label">Livrée</span>
+            <div class="timeline-step__dot">
+              <i class="pi pi-check"></i>
+            </div>
+            <span class="timeline-step__label">Livrée</span>
             @if (order()!.delivered_at; as deliveredAt) {
-              <span class="step-date">{{ formatDate(deliveredAt) }}</span>
+              <span class="timeline-step__date">{{ formatDate(deliveredAt) }}</span>
             }
           </div>
         </div>
 
-        <!-- Content Grid -->
-        <div class="order-content">
+        <!-- Info Cards Grid -->
+        <div class="info-cards-grid">
           <!-- Supplier Info -->
           <div class="info-card">
-            <h3 class="card-title">
+            <div class="info-card__header">
               <i class="pi pi-building"></i>
-              Fournisseur
-            </h3>
-            <div class="supplier-details">
-              <p class="supplier-name">{{ order()!.supplier_name }}</p>
+              <span>Fournisseur</span>
+            </div>
+            <div class="info-card__body">
+              <p class="info-card__title">{{ order()!.supplier_name }}</p>
               @if (order()!.supplier_address) {
-                <p class="supplier-info">{{ order()!.supplier_address }}</p>
+                <p class="info-card__text">{{ order()!.supplier_address }}</p>
               }
               @if (order()!.supplier_city) {
-                <p class="supplier-info">{{ order()!.supplier_city }}</p>
+                <p class="info-card__text">{{ order()!.supplier_city }}</p>
               }
               @if (order()!.supplier_phone) {
-                <p class="supplier-info">
+                <p class="info-card__text">
                   <i class="pi pi-phone"></i>
                   {{ order()!.supplier_phone }}
                 </p>
               }
               @if (order()!.supplier_email) {
-                <p class="supplier-info">
+                <p class="info-card__text">
                   <i class="pi pi-envelope"></i>
                   {{ order()!.supplier_email }}
                 </p>
@@ -87,109 +98,135 @@
 
           <!-- Order Summary -->
           <div class="info-card">
-            <h3 class="card-title">
+            <div class="info-card__header">
               <i class="pi pi-chart-bar"></i>
-              Résumé
-            </h3>
-            <div class="summary-grid">
-              <div class="summary-item">
-                <span class="summary-label">Produits</span>
-                <span class="summary-value">{{ order()!.item_count }}</span>
+              <span>Résumé</span>
+            </div>
+            <div class="info-card__body">
+              <div class="summary-row">
+                <span class="summary-row__label">Produits</span>
+                <span class="summary-row__value">{{ order()!.item_count }}</span>
               </div>
-              <div class="summary-item">
-                <span class="summary-label">Cartons commandés</span>
-                <span class="summary-value">{{ totalOrdered() }}</span>
+              <div class="summary-row">
+                <span class="summary-row__label">Cartons commandés</span>
+                <span class="summary-row__value">{{ totalOrdered() }}</span>
               </div>
               @if (order()!.status === 'delivered') {
-                <div class="summary-item">
-                  <span class="summary-label">Cartons reçus</span>
-                  <span class="summary-value" [class.partial]="totalReceived() < totalOrdered()">
+                <div class="summary-row">
+                  <span class="summary-row__label">Cartons reçus</span>
+                  <span class="summary-row__value" [class.text-warning]="totalReceived() < totalOrdered()">
                     {{ totalReceived() }}
                   </span>
                 </div>
               }
-              <div class="summary-item total">
-                <span class="summary-label">Total</span>
-                <span class="summary-value">{{ formatCurrency(order()!.total_amount) }}</span>
+              <div class="summary-row summary-row--total">
+                <span class="summary-row__label">Total</span>
+                <span class="summary-row__value">{{ formatCurrency(order()!.total_amount) }}</span>
               </div>
             </div>
           </div>
         </div>
 
         <!-- Items Table -->
-        <div class="items-section">
-          <div class="section-header">
-            <h3 class="section-title">
+        <div class="table-container">
+          <div class="table-header">
+            <div class="table-header__title">
               <i class="pi pi-box"></i>
-              Produits ({{ order()!.item_count }})
-            </h3>
+              <span>Produits ({{ order()!.item_count }})</span>
+            </div>
             @if (order()!.status === 'sent') {
-              <span class="edit-hint">
+              <div class="edit-hint-badge">
                 <i class="pi pi-info-circle"></i>
-                Ajustez les quantités reçues avant de confirmer
-              </span>
+                <span>Ajustez les quantités reçues avant de confirmer</span>
+              </div>
             }
           </div>
 
-          <div class="items-table-wrapper">
-            <table class="items-table">
+          <div class="table-wrapper">
+            <table class="table">
               <thead>
                 <tr>
-                  <th>Produit</th>
-                  <th>Marque</th>
-                  <th class="text-center">U/Carton</th>
-                  <th class="text-center">Commandé</th>
+                  <th style="width: 25%">Produit</th>
+                  <th style="width: 15%">Marque</th>
+                  <th style="width: 10%" class="text-center">U/Carton</th>
+                  <th style="width: 12%" class="text-center">Commandé</th>
                   @if (order()!.status === 'sent' || order()!.status === 'delivered') {
-                    <th class="text-center">Reçu</th>
+                    <th style="width: 15%" class="text-center">Reçu</th>
                   }
-                  <th class="text-right">P.U</th>
-                  <th class="text-right">Total</th>
+                  <th style="width: 12%" class="text-right">P.U</th>
+                  <th style="width: 12%" class="text-right">Total</th>
                   @if (order()!.status === 'sent') {
-                    <th class="text-center"></th>
+                    <th style="width: 8%" class="text-center"></th>
                   }
                 </tr>
               </thead>
               <tbody>
                 @for (item of editableItems(); track item.id; let i = $index) {
-                  <tr>
-                    <td>{{ item.product_name }}</td>
-                    <td>{{ item.brand }}</td>
-                    <td class="text-center">{{ item.units_per_carton }}</td>
-                    <td class="text-center">{{ item.quantity_ordered }}</td>
+                  <tr class="table-row-animate" [style.--row-delay]="(i * 40) + 'ms'">
+                    <td>
+                      <div class="info-display">
+                        <span class="info-display__name">{{ item.product_name }}</span>
+                      </div>
+                    </td>
+                    <td>
+                      <span class="pill purple">{{ item.brand }}</span>
+                    </td>
+                    <td class="text-center">
+                      <span class="text-secondary">{{ item.units_per_carton }}</span>
+                    </td>
+                    <td class="text-center">
+                      <span class="font-semibold">{{ item.quantity_ordered }}</span>
+                    </td>
                     @if (order()!.status === 'sent') {
                       <td class="text-center">
-                        <p-inputNumber
-                          [(ngModel)]="editableItems()[i].quantity_received"
-                          [min]="0"
-                          [max]="item.quantity_ordered"
-                          [showButtons]="true"
-                          buttonLayout="horizontal"
-                          incrementButtonIcon="pi pi-plus"
-                          decrementButtonIcon="pi pi-minus"
-                          [inputStyle]="{ width: '60px', textAlign: 'center' }"
-                        />
+                        <div class="quantity-controls quantity-controls--sm">
+                          <p-button
+                            icon="pi pi-minus"
+                            [rounded]="true"
+                            [text]="true"
+                            severity="secondary"
+                            (onClick)="decrementQuantity(i)"
+                            [disabled]="editableItems()[i].quantity_received <= 0"
+                          />
+                          <div class="quantity-display quantity-display--sm">
+                            <span class="quantity-display__primary">{{ editableItems()[i].quantity_received }}</span>
+                          </div>
+                          <p-button
+                            icon="pi pi-plus"
+                            [rounded]="true"
+                            [text]="true"
+                            severity="secondary"
+                            (onClick)="incrementQuantity(i)"
+                            [disabled]="editableItems()[i].quantity_received >= item.quantity_ordered"
+                          />
+                        </div>
                       </td>
                     } @else if (order()!.status === 'delivered') {
                       <td class="text-center">
-                        <span [class.partial]="item.quantity_received < item.quantity_ordered">
+                        <span class="font-semibold" [class.text-warning]="item.quantity_received < item.quantity_ordered">
                           {{ item.quantity_received }}
                         </span>
                         @if (item.quantity_received < item.quantity_ordered) {
-                          <span class="partial-badge" pTooltip="Livraison partielle">
+                          <span class="partial-badge">
                             {{ item.quantity_received }}/{{ item.quantity_ordered }}
                           </span>
                         }
                       </td>
                     }
-                    <td class="text-right">{{ formatCurrency(item.unit_price) }}</td>
-                    <td class="text-right font-semibold">{{ formatCurrency(item.total_price) }}</td>
+                    <td class="text-right">
+                      <span class="text-secondary">{{ formatCurrency(item.unit_price) }}</span>
+                    </td>
+                    <td class="text-right">
+                      <span class="font-bold">{{ formatCurrency(item.total_price) }}</span>
+                    </td>
                     @if (order()!.status === 'sent') {
                       <td class="text-center">
                         <button
-                          class="btn-delete-item"
+                          class="action-btn delete"
                           (click)="deleteItem(item.id!)"
                           [disabled]="saving()"
-                          pTooltip="Supprimer cet article"
+                          pTooltip="Supprimer"
+                          tooltipPosition="top"
                         >
                           <i class="pi pi-trash"></i>
                         </button>
@@ -200,11 +237,11 @@
               </tbody>
               <tfoot>
                 <tr>
-                  <td [attr.colspan]="order()!.status === 'sent' ? 7 : (order()!.status === 'delivered' ? 6 : 5)" class="text-right font-semibold">
-                    Total
+                  <td [attr.colspan]="order()!.status === 'sent' ? 6 : (order()!.status === 'delivered' ? 5 : 4)" class="text-right">
+                    <span class="font-semibold">Total</span>
                   </td>
-                  <td class="text-right font-bold total-cell">
-                    {{ formatCurrency(order()!.total_amount) }}
+                  <td class="text-right">
+                    <span class="font-bold text-lg">{{ formatCurrency(order()!.total_amount) }}</span>
                   </td>
                   @if (order()!.status === 'sent') {
                     <td></td>
@@ -217,53 +254,60 @@
 
         <!-- Notes -->
         @if (order()!.notes) {
-          <div class="notes-section">
-            <h3 class="section-title">
+          <div class="notes-card">
+            <div class="notes-card__header">
               <i class="pi pi-comment"></i>
-              Notes
-            </h3>
-            <p class="notes-content">{{ order()!.notes }}</p>
+              <span>Notes</span>
+            </div>
+            <p class="notes-card__content">{{ order()!.notes }}</p>
           </div>
         }
 
         <!-- Delivery Warning -->
         @if (deliveryWarning()) {
-          <div class="delivery-warning">
-            <div class="warning-content">
+          <div class="warning-banner">
+            <div class="warning-banner__content">
               <i class="pi pi-exclamation-triangle"></i>
               <span>{{ deliveryWarning() }}</span>
             </div>
-            <button class="warning-dismiss" (click)="dismissWarning()">
+            <button class="warning-banner__dismiss" (click)="dismissWarning()">
               <i class="pi pi-times"></i>
             </button>
           </div>
         }
 
         <!-- Actions -->
-        <div class="actions-section">
+        <div class="actions-bar">
           @if (canDelete()) {
-            <button class="btn-delete" (click)="confirmDelete()" [disabled]="saving()">
-              <i class="pi pi-trash"></i>
-              Supprimer
-            </button>
+            <p-button
+              label="Supprimer"
+              icon="pi pi-trash"
+              severity="danger"
+              [outlined]="true"
+              (onClick)="confirmDelete()"
+              [disabled]="saving()"
+            />
           }
+
+          <div class="flex-1"></div>
 
           @switch (order()!.status) {
             @case ('draft') {
-              <button class="btn-action btn-send" (click)="updateStatus('sent')" [disabled]="saving()">
-                <i class="pi pi-send"></i>
-                Marquer comme envoyée
-              </button>
+              <p-button
+                label="Marquer comme envoyée"
+                icon="pi pi-send"
+                (onClick)="updateStatus('sent')"
+                [disabled]="saving()"
+              />
             }
             @case ('sent') {
-              <button class="btn-confirm-delivery" (click)="confirmDelivery()" [disabled]="saving()">
-                @if (saving()) {
-                  <i class="pi pi-spin pi-spinner"></i>
-                } @else {
-                  <i class="pi pi-truck"></i>
-                }
-                Confirmer la livraison
-              </button>
+              <p-button
+                label="Confirmer la livraison"
+                icon="pi pi-truck"
+                severity="success"
+                (onClick)="confirmDelivery()"
+                [loading]="saving()"
+              />
             }
           }
         </div>

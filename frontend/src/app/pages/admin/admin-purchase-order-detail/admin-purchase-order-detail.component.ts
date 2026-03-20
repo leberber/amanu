@@ -200,6 +200,33 @@ export class AdminPurchaseOrderDetailComponent implements OnInit {
     this.deliveryWarning.set(null);
   }
 
+  // Quantity controls
+  incrementQuantity(index: number): void {
+    this.editableItems.update(items => {
+      const updated = [...items];
+      if (updated[index].quantity_received < updated[index].quantity_ordered) {
+        updated[index] = {
+          ...updated[index],
+          quantity_received: updated[index].quantity_received + 1
+        };
+      }
+      return updated;
+    });
+  }
+
+  decrementQuantity(index: number): void {
+    this.editableItems.update(items => {
+      const updated = [...items];
+      if (updated[index].quantity_received > 0) {
+        updated[index] = {
+          ...updated[index],
+          quantity_received: updated[index].quantity_received - 1
+        };
+      }
+      return updated;
+    });
+  }
+
   deleteItem(itemId: number): void {
     const order = this.order();
     if (!order) return;
