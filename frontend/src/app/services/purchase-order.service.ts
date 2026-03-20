@@ -154,18 +154,6 @@ export class PurchaseOrderService {
     });
   }
 
-  markAsSent(id: number): Observable<PurchaseOrder> {
-    return this.updateStatus(id, 'sent');
-  }
-
-  markAsConfirmed(id: number): Observable<PurchaseOrder> {
-    return this.updateStatus(id, 'confirmed');
-  }
-
-  markAsCancelled(id: number): Observable<PurchaseOrder> {
-    return this.updateStatus(id, 'cancelled');
-  }
-
   // ---------------------------------------------------------------------------
   // Delivery Operations (with stock sync)
   // ---------------------------------------------------------------------------
@@ -202,26 +190,6 @@ export class PurchaseOrderService {
       'cancelled': 'danger'
     };
     return severities[status] || 'secondary';
-  }
-
-  getNextStatus(currentStatus: PurchaseOrderStatus): PurchaseOrderStatus | null {
-    const flow: Record<PurchaseOrderStatus, PurchaseOrderStatus | null> = {
-      'draft': 'sent',
-      'sent': 'delivered',
-      'confirmed': 'delivered', // Legacy support
-      'delivered': null,
-      'cancelled': null
-    };
-    return flow[currentStatus];
-  }
-
-  getNextStatusLabel(currentStatus: PurchaseOrderStatus): string | null {
-    const next = this.getNextStatus(currentStatus);
-    return next ? this.getStatusLabel(next) : null;
-  }
-
-  canEdit(order: PurchaseOrder): boolean {
-    return order.status === 'draft' || order.status === 'sent';
   }
 
   canDelete(order: PurchaseOrder): boolean {

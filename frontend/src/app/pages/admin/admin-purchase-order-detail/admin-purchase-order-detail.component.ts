@@ -12,6 +12,7 @@ import { ConfirmationService } from 'primeng/api';
 import { PageLayoutComponent } from '../../../shared/components/page-layout/page-layout.component';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
 import { ConfirmationDialogService } from '../../../core/services/confirmation-dialog.service';
+import { DateService } from '../../../core/services/date.service';
 import { ROUTES } from '../../../core/constants/routes.constants';
 import {
   PurchaseOrderService,
@@ -42,6 +43,7 @@ export class AdminPurchaseOrderDetailComponent implements OnInit {
   private confirmationService = inject(ConfirmationService);
   private confirmDialog = inject(ConfirmationDialogService);
   private orderService = inject(PurchaseOrderService);
+  private dateService = inject(DateService);
 
   // State
   loading = signal(true);
@@ -101,7 +103,7 @@ export class AdminPurchaseOrderDetailComponent implements OnInit {
     ).subscribe({
       next: (updated) => {
         this.order.set(updated);
-        this.toast.showSuccess(`Statut mis à jour: ${this.getStatusLabel(newStatus)}`);
+        this.toast.showSuccess(`Statut mis à jour: ${this.orderService.getStatusLabel(newStatus)}`);
       },
       error: () => {
         this.toast.showError('Erreur lors de la mise à jour du statut');
@@ -234,23 +236,15 @@ export class AdminPurchaseOrderDetailComponent implements OnInit {
     });
   }
 
-  // Formatting - cached formatters for performance
+  // Formatting - cached formatter for performance
   private readonly currencyFormatter = new Intl.NumberFormat('fr-FR', {
     style: 'decimal',
     minimumFractionDigits: 0,
     maximumFractionDigits: 0
   });
 
-  private readonly dateFormatter = new Intl.DateTimeFormat('fr-FR', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  });
-
   formatDate(dateString: string): string {
-    return this.dateFormatter.format(new Date(dateString));
+    return this.dateService.formatDate(dateString);
   }
 
   formatCurrency(amount: number): string {

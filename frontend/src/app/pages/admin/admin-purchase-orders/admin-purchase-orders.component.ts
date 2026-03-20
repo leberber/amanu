@@ -2,14 +2,13 @@ import { Component, OnInit, inject, DestroyRef, signal, computed } from '@angula
 import { Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ConfirmationService } from 'primeng/api';
-import { PopoverModule } from 'primeng/popover';
 
 import { ADMIN_LIST_IMPORTS } from '../../../shared/imports/admin-shared.imports';
 import { TableSkeletonComponent, SkeletonColumn } from '../../../shared/components/table-skeleton/table-skeleton.component';
 import { AgroclikPageContainerComponent } from '../../../shared/components/agroclik-page-container/agroclik-page-container.component';
 import { ConfirmationDialogService } from '../../../core/services/confirmation-dialog.service';
 import { BaseAdminListComponent, ColumnOption } from '../../../shared/base/base-admin-list.component';
-import { RouteHelpers, ROUTES } from '../../../core/constants/routes.constants';
+import { RouteHelpers } from '../../../core/constants/routes.constants';
 import {
   PurchaseOrderService,
   PurchaseOrder,
@@ -21,7 +20,6 @@ import {
   standalone: true,
   imports: [
     ...ADMIN_LIST_IMPORTS,
-    PopoverModule,
     TableSkeletonComponent,
     AgroclikPageContainerComponent
   ],
@@ -78,19 +76,11 @@ export class AdminPurchaseOrdersComponent extends BaseAdminListComponent impleme
   private confirmDialog = inject(ConfirmationDialogService);
   private destroyRef = inject(DestroyRef);
 
-  // Cached formatters for performance
+  // Cached formatter for performance
   private readonly currencyFormatter = new Intl.NumberFormat('fr-FR', {
     style: 'decimal',
     minimumFractionDigits: 0,
     maximumFractionDigits: 0
-  });
-
-  private readonly dateFormatter = new Intl.DateTimeFormat('fr-FR', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
   });
 
   ngOnInit() {
@@ -199,10 +189,6 @@ export class AdminPurchaseOrdersComponent extends BaseAdminListComponent impleme
 
   canDelete(order: PurchaseOrder): boolean {
     return this.orderService.canDelete(order);
-  }
-
-  override formatDate(dateString: string): string {
-    return this.dateFormatter.format(new Date(dateString));
   }
 
   formatCurrency(amount: number): string {
