@@ -208,55 +208,31 @@ async def update_purchase_order(
         if data.notes is not None:
             order.notes = data.notes
 
-        # Update items if provided
+        # Update items if provided - replace all items (simpler for draft editing)
         if data.items is not None:
-            # Update existing items or create new ones
-            existing_item_ids = {item.id for item in order.items}
-            updated_item_ids = set()
+            # Delete all existing items
+            for item in order.items:
+                session.delete(item)
+            session.flush()
 
+            # Create new items from the update
             for item_data in data.items:
-                if item_data.id and item_data.id in existing_item_ids:
-                    # Update existing item
-                    item = session.get(PurchaseOrderItem, item_data.id)
-                    if item:
-                        if item_data.product_id is not None:
-                            item.product_id = item_data.product_id
-                        if item_data.product_name is not None:
-                            item.product_name = item_data.product_name
-                        if item_data.brand is not None:
-                            item.brand = item_data.brand
-                        if item_data.units_per_carton is not None:
-                            item.units_per_carton = item_data.units_per_carton
-                        if item_data.quantity_ordered is not None:
-                            item.quantity_ordered = item_data.quantity_ordered
-                        if item_data.quantity_received is not None:
-                            item.quantity_received = item_data.quantity_received
-                        if item_data.unit_price is not None:
-                            item.unit_price = item_data.unit_price
-                        if item_data.total_price is not None:
-                            item.total_price = item_data.total_price
-                        session.add(item)
-                        updated_item_ids.add(item.id)
-                else:
-                    # Create new item
-                    new_item = PurchaseOrderItem(
-                        purchase_order_id=order.id,
-                        product_id=item_data.product_id,
-                        product_name=item_data.product_name or "",
-                        brand=item_data.brand or "",
-                        units_per_carton=item_data.units_per_carton or 1,
-                        quantity_ordered=item_data.quantity_ordered or 1,
-                        quantity_received=item_data.quantity_received or 0,
-                        unit_price=item_data.unit_price or 0,
-                        total_price=item_data.total_price or 0
-                    )
-                    session.add(new_item)
+                new_item = PurchaseOrderItem(
+                    purchase_order_id=order.id,
+                    product_id=item_data.product_id,
+                    product_name=item_data.product_name or "",
+                    brand=item_data.brand or "",
+                    units_per_carton=item_data.units_per_carton or 1,
+                    quantity_ordered=item_data.quantity_ordered or 1,
+                    quantity_received=item_data.quantity_received or 0,
+                    unit_price=item_data.unit_price or 0,
+                    total_price=item_data.total_price or 0
+                )
+                session.add(new_item)
 
-            # Note: We don't delete items that weren't in the update
-            # If deletion is needed, it should be explicit
-
-        # Recalculate total
+        # Recalculate total - refresh order to get updated items
         session.flush()
+        session.refresh(order)
         order.total_amount = sum(item.total_price for item in order.items)
         order.updated_at = datetime.now(timezone.utc)
 
