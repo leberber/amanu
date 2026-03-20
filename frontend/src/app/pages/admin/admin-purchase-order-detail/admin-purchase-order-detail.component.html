@@ -23,7 +23,7 @@
               <span>Produits ({{ order()!.item_count }})</span>
             </div>
             @if (order()!.status === 'sent') {
-              <div class="edit-hint-badge">
+              <div class="pill primary">
                 <i class="pi pi-info-circle"></i>
                 <span>Ajustez les quantités reçues avant de confirmer</span>
               </div>
@@ -91,11 +91,11 @@
                       </td>
                     } @else if (order()!.status === 'delivered') {
                       <td class="text-center">
-                        <span class="font-semibold" [class.text-warning]="item.quantity_received < item.quantity_ordered">
+                        <span class="font-semibold" [class.text-warn]="item.quantity_received < item.quantity_ordered">
                           {{ item.quantity_received }}
                         </span>
                         @if (item.quantity_received < item.quantity_ordered) {
-                          <span class="partial-badge">
+                          <span class="stock-pill stock-pill--warning">
                             {{ item.quantity_received }}/{{ item.quantity_ordered }}
                           </span>
                         }
@@ -137,23 +137,27 @@
 
         <!-- Notes -->
         @if (order()!.notes) {
-          <div class="notes-card">
-            <div class="notes-card__header">
+          <div class="sidebar-card">
+            <div class="sidebar-card__header">
               <i class="pi pi-comment"></i>
               <span>Notes</span>
             </div>
-            <p class="notes-card__content">{{ order()!.notes }}</p>
+            <div class="sidebar-card__body">
+              <p class="notes-content">{{ order()!.notes }}</p>
+            </div>
           </div>
         }
 
         <!-- Delivery Warning -->
         @if (deliveryWarning()) {
-          <div class="warning-banner">
-            <div class="warning-banner__content">
+          <div class="info-box info-box--warning">
+            <div class="info-box__icon">
               <i class="pi pi-exclamation-triangle"></i>
-              <span>{{ deliveryWarning() }}</span>
             </div>
-            <button class="warning-banner__dismiss" (click)="dismissWarning()">
+            <div class="info-box__content">
+              <p>{{ deliveryWarning() }}</p>
+            </div>
+            <button class="btn-icon btn-icon--sm" (click)="dismissWarning()">
               <i class="pi pi-times"></i>
             </button>
           </div>
