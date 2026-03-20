@@ -21,18 +21,19 @@ router = APIRouter()
 # =============================================================================
 
 def generate_reference(session: Session) -> str:
-    """Generate a unique reference number for purchase order"""
-    year = datetime.now().year
+    """Generate a unique reference number for purchase order (YYYY-MM-DD-NNN)"""
+    now = datetime.now()
+    date_prefix = now.strftime("%Y-%m-%d")
 
-    # Get the count of orders this year
+    # Get the count of orders created today
     count = session.exec(
         select(func.count(PurchaseOrder.id)).where(
-            PurchaseOrder.reference.like(f"BC-{year}-%")
+            PurchaseOrder.reference.like(f"{date_prefix}-%")
         )
     ).one()
 
     next_num = count + 1
-    return f"BC-{year}-{next_num:03d}"
+    return f"{date_prefix}-{next_num:04d}"
 
 
 def order_to_response(order: PurchaseOrder) -> PurchaseOrderResponse:
