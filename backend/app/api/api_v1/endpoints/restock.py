@@ -587,17 +587,17 @@ async def sync_restock_item(item_id: int, session: Session = Depends(get_session
             package_type=restock_item.package_type or "Carton"
         )
 
-        # Create new product
+        # Create new product (inactive with 0 stock/price until delivery)
         product = Product(
             name=restock_item.name,
-            price=restock_item.prix_unite_achat,
+            price=0,
             unit=map_product_unit(restock_item.product_unit or "piece"),
             pieces_per_box=restock_item.unite_par_carton,
             packaging_type=map_package_type(restock_item.package_type or "Carton"),
             volume=restock_item.volume,
             weight=restock_item.weight,
-            stock_quantity=restock_item.nmb_carton,
-            is_active=not restock_item.hidden,
+            stock_quantity=0,
+            is_active=False,
             category_id=restock_item.category_id,
             brand_id=restock_item.brand_id,
             description=restock_item.description,

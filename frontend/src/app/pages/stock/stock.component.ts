@@ -75,31 +75,31 @@ interface SupplierDetails {
 
 // Sample supplier details dictionary
 const SUPPLIER_DETAILS: Record<string, SupplierDetails> = {
-  'Cevital': {
-    name: 'Cevital SPA',
-    address: 'Zone Industrielle, Bejaia',
-    phone: '034 20 50 00',
-    email: 'contact@cevital.com',
-    city: 'Bejaia'
+  '1001': {
+    name: '1001',
+    address: 'Ben Talha',
+    phone: '0540 207824',
+    email: '',
+    city: 'Ben Talha'
   },
-  'Condor': {
-    name: 'Condor Electronics',
-    address: 'Zone Industrielle Taharacht, Bordj Bou Arréridj',
-    phone: '035 68 20 00',
-    email: 'info@condor.dz',
-    city: 'Bordj Bou Arréridj'
+  'SIM': {
+    name: 'Ben Ferah Farid',
+    address: 'anar Amalal Tizi Ouzou',
+    phone: '',
+    email: '',
+    city: 'Tizi Ouzou'
   },
-  'Candia': {
-    name: 'Tchin-Lait Candia',
-    address: 'Zone Industrielle, Bejaia',
-    phone: '034 21 50 50',
-    city: 'Bejaia'
+  'IZDIHAR': {
+    name: 'SARL SOMAF',
+    address: 'Khemis El Khechna',
+    phone: '0550 83 79 56',
+    city: 'Alger'
   },
-  'Soummam': {
-    name: 'Laiterie Soummam',
-    address: 'Zone Industrielle Taharacht, Akbou',
-    phone: '034 35 40 00',
-    city: 'Akbou'
+  'AGRODIV': {
+    name: 'Nordine Atti',
+    address: 'Tamda',
+    phone: '000 00 00 00',
+    city: 'Tizi Oozou'
   },
   'Ifri': {
     name: 'SARL Ibrahim & Fils (IFRI)',
@@ -507,8 +507,6 @@ export class StockComponent implements OnInit, OnDestroy {
       next: (order) => {
         this.lastSavedOrderRef.set(order.reference);
         this.toast.showSuccess(`Commande ${order.reference} enregistrée`);
-        // Generate PDF with the saved reference
-        this.generateBonDeCommandeWithRef(order.reference);
       },
       error: () => {
         this.toast.showError('Erreur lors de l\'enregistrement');
@@ -815,8 +813,8 @@ export class StockComponent implements OnInit, OnDestroy {
   loadData(): void {
     this.loading.set(true);
 
-    // Try to load rows from localStorage first
-    const cachedRows = this.loadRowsFromStorage();
+    // Clear localStorage to always fetch fresh data
+    localStorage.removeItem(this.ROWS_STORAGE_KEY);
 
     forkJoin({
       restock: this.api.get<RestockData>('/restock').pipe(catchError(() => of({ items: [] }))),
@@ -829,11 +827,8 @@ export class StockComponent implements OnInit, OnDestroy {
         this.brandsList.set(brands);
         this.categoriesList.set(categories);
 
-        // Use cached rows if available, otherwise use API data
-        if (cachedRows && cachedRows.length > 0) {
-          this.allRows.set(cachedRows);
-        } else {
-          const rows: RestockRow[] = restock.items.map(item => ({
+        // Always use fresh API data
+        const rows: RestockRow[] = restock.items.map(item => ({
             id: item.id,
             productId: item.productId ?? null,
             brandId: item.brandId ?? null,
@@ -860,20 +855,11 @@ export class StockComponent implements OnInit, OnDestroy {
           }));
 
           this.allRows.set(rows);
-          this.saveRowsToStorage();
-        }
 
         this.loading.set(false);
         this.tableInitialized.set(true);
       },
       error: () => {
-        // If API fails, try to use cached data
-        if (cachedRows && cachedRows.length > 0) {
-          this.allRows.set(cachedRows);
-          this.loading.set(false);
-          this.tableInitialized.set(true);
-          return;
-        }
         this.toast.showError('Échec du chargement des données');
         this.loading.set(false);
       }
