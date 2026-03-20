@@ -180,19 +180,9 @@
                     @if (isColumnVisible('actions')) {
                       <td class="text-center" (click)="$event.stopPropagation()">
                         <div class="table-cell-actions justify-content-center">
-                          <button class="action-btn view" (click)="viewOrder(order)" pTooltip="Voir détails" tooltipPosition="top">
-                            <i class="pi pi-eye"></i>
+                          <button class="action-btn edit" (click)="viewOrder(order)" pTooltip="Modifier" tooltipPosition="top">
+                            <i class="pi pi-pencil"></i>
                           </button>
-                          @if (order.status === 'draft') {
-                            <button class="action-btn edit" (click)="updateStatus(order, 'sent')" pTooltip="Marquer envoyée" tooltipPosition="top">
-                              <i class="pi pi-send"></i>
-                            </button>
-                          }
-                          @if (order.status === 'sent') {
-                            <button class="action-btn success" (click)="viewOrder(order)" pTooltip="Réceptionner" tooltipPosition="top">
-                              <i class="pi pi-truck"></i>
-                            </button>
-                          }
                           @if (canDelete(order)) {
                             <button class="action-btn delete" (click)="confirmDeleteOrder(order)" pTooltip="Supprimer" tooltipPosition="top">
                               <i class="pi pi-trash"></i>
