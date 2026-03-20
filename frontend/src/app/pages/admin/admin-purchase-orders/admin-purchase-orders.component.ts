@@ -7,7 +7,6 @@ import { ADMIN_LIST_IMPORTS } from '../../../shared/imports/admin-shared.imports
 import { TableSkeletonComponent, SkeletonColumn } from '../../../shared/components/table-skeleton/table-skeleton.component';
 import { AgroclikPageContainerComponent } from '../../../shared/components/agroclik-page-container/agroclik-page-container.component';
 import { ConfirmationDialogService } from '../../../core/services/confirmation-dialog.service';
-import { CurrencyService } from '../../../core/services/currency.service';
 import { BaseAdminListComponent, ColumnOption } from '../../../shared/base/base-admin-list.component';
 import { RouteHelpers } from '../../../core/constants/routes.constants';
 import {
@@ -76,7 +75,6 @@ export class AdminPurchaseOrdersComponent extends BaseAdminListComponent impleme
   private confirmationService = inject(ConfirmationService);
   private confirmDialog = inject(ConfirmationDialogService);
   private destroyRef = inject(DestroyRef);
-  private currencyService = inject(CurrencyService);
 
   ngOnInit() {
     this.loadOrders();
@@ -160,18 +158,13 @@ export class AdminPurchaseOrdersComponent extends BaseAdminListComponent impleme
   }
 
   deleteOrder(order: PurchaseOrder): void {
-    this.orderService.deleteOrder(order.id)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: () => {
-          this.allOrders.update(orders => orders.filter(o => o.id !== order.id));
-          this.filterItems();
-          this.baseToast.showSuccess('Commande supprimée');
-        },
-        error: () => {
-          this.baseToast.showError('Erreur lors de la suppression');
-        }
-      });
+    this.handleDeleteWithSignal(
+      () => this.orderService.deleteOrder(order.id),
+      this.allOrders,
+      order.id,
+      'Commande supprimée',
+      'Erreur lors de la suppression'
+    );
   }
 
   getStatusLabel(status: PurchaseOrderStatus): string {
@@ -184,9 +177,5 @@ export class AdminPurchaseOrdersComponent extends BaseAdminListComponent impleme
 
   canDelete(order: PurchaseOrder): boolean {
     return this.orderService.canDelete(order);
-  }
-
-  formatCurrency(amount: number): string {
-    return this.currencyService.formatCurrency(amount);
   }
 }

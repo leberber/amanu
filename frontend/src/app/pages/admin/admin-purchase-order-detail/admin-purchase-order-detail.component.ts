@@ -12,8 +12,8 @@ import { ConfirmationService } from 'primeng/api';
 import { PageLayoutComponent } from '../../../shared/components/page-layout/page-layout.component';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
 import { ConfirmationDialogService } from '../../../core/services/confirmation-dialog.service';
-import { DateService } from '../../../core/services/date.service';
-import { CurrencyService } from '../../../core/services/currency.service';
+import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
+import { DateFormatPipe } from '../../../shared/pipes/date-format.pipe';
 import { ROUTES } from '../../../core/constants/routes.constants';
 import {
   PurchaseOrderService,
@@ -30,7 +30,9 @@ import {
     ButtonModule,
     TooltipModule,
     ConfirmDialogModule,
-    PageLayoutComponent
+    PageLayoutComponent,
+    CurrencyPipe,
+    DateFormatPipe
   ],
   providers: [ConfirmationService],
   templateUrl: './admin-purchase-order-detail.component.html',
@@ -44,8 +46,6 @@ export class AdminPurchaseOrderDetailComponent implements OnInit {
   private confirmationService = inject(ConfirmationService);
   private confirmDialog = inject(ConfirmationDialogService);
   private orderService = inject(PurchaseOrderService);
-  private dateService = inject(DateService);
-  private currencyService = inject(CurrencyService);
 
   // State
   loading = signal(true);
@@ -236,15 +236,6 @@ export class AdminPurchaseOrderDetailComponent implements OnInit {
         this.toast.showError('Erreur lors de la suppression');
       }
     });
-  }
-
-  // Formatting - delegates to shared services
-  formatDate(dateString: string): string {
-    return this.dateService.formatDate(dateString);
-  }
-
-  formatCurrency(amount: number): string {
-    return this.currencyService.formatCurrency(amount);
   }
 }
 

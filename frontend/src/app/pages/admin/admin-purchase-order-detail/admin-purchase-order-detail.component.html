@@ -102,10 +102,10 @@
                       </td>
                     }
                     <td class="text-right">
-                      <span class="text-secondary">{{ formatCurrency(item.unit_price) }}</span>
+                      <span class="text-secondary">{{ item.unit_price | appCurrency }}</span>
                     </td>
                     <td class="text-right">
-                      <span class="font-bold">{{ formatCurrency(item.total_price) }}</span>
+                      <span class="font-bold">{{ item.total_price | appCurrency }}</span>
                     </td>
                     @if (order()!.status === 'sent') {
                       <td class="text-center">
@@ -130,7 +130,7 @@
           <div class="table-footer">
             <div class="table-footer__total">
               <span class="table-footer__label">Total</span>
-              <span class="table-footer__value">{{ formatCurrency(order()!.total_amount) }}</span>
+              <span class="table-footer__value">{{ order()!.total_amount | appCurrency }}</span>
             </div>
           </div>
         </div>
@@ -217,7 +217,7 @@
                 <div class="timeline-item__content">
                   <span class="timeline-item__label">Brouillon</span>
                   @if (order()!.created_at) {
-                    <span class="timeline-item__date">{{ formatDate(order()!.created_at) }}</span>
+                    <span class="timeline-item__date">{{ order()!.created_at | appDate }}</span>
                   }
                 </div>
               </div>
@@ -229,7 +229,7 @@
                 <div class="timeline-item__content">
                   <span class="timeline-item__label">Envoyée</span>
                   @if (order()!.sent_at; as sentAt) {
-                    <span class="timeline-item__date">{{ formatDate(sentAt) }}</span>
+                    <span class="timeline-item__date">{{ sentAt | appDate }}</span>
                   }
                 </div>
               </div>
@@ -241,7 +241,7 @@
                 <div class="timeline-item__content">
                   <span class="timeline-item__label">Livrée</span>
                   @if (order()!.delivered_at; as deliveredAt) {
-                    <span class="timeline-item__date">{{ formatDate(deliveredAt) }}</span>
+                    <span class="timeline-item__date">{{ deliveredAt | appDate }}</span>
                   }
                 </div>
               </div>

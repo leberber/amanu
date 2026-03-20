@@ -155,7 +155,7 @@
                     <!-- Total -->
                     @if (isColumnVisible('total')) {
                       <td class="text-right">
-                        <span class="font-semibold">{{ formatCurrency(order.total_amount) }}</span>
+                        <span class="font-semibold">{{ order.total_amount | appCurrency }}</span>
                       </td>
                     }
 
@@ -172,7 +172,7 @@
                     <!-- Date -->
                     @if (isColumnVisible('date')) {
                       <td>
-                        <span class="date-display">{{ formatDate(order.created_at) }}</span>
+                        <span class="date-display">{{ order.created_at | appDate }}</span>
                       </td>
                     }
 
