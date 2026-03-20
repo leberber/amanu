@@ -276,6 +276,26 @@ export const routes: Routes = [
     data: { hideBottomNav: true }
   },
 
+  // Suppliers Routes
+  {
+    path: 'admin/suppliers',
+    loadComponent: () => import('./pages/admin/admin-suppliers/admin-suppliers.component').then(m => m.AdminSuppliersComponent),
+    canActivate: [adminGuard],
+    data: { hideBottomNav: true }
+  },
+  {
+    path: 'admin/suppliers/new',
+    loadComponent: () => import('./pages/admin/admin-add-supplier/admin-add-supplier.component').then(m => m.AdminAddSupplierComponent),
+    canActivate: [adminGuard],
+    data: { mode: 'add', hideBottomNav: true }
+  },
+  {
+    path: 'admin/suppliers/:id/edit',
+    loadComponent: () => import('./pages/admin/admin-add-supplier/admin-add-supplier.component').then(m => m.AdminAddSupplierComponent),
+    canActivate: [adminGuard],
+    data: { mode: 'edit', hideBottomNav: true }
+  },
+
   // Graph Builder (public - for adding missing roads)
   {
     path: 'graph-builder',

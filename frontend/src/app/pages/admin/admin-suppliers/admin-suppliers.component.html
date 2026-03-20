@@ -1,0 +1,228 @@
+<app-agroclik-page-container>
+  <p-confirmDialog></p-confirmDialog>
+
+  <!-- Top Section: Header + Filters -->
+  <div pageTop [class.initialized]="tableInitialized()">
+    <!-- Page Header -->
+    <div class="admin-list-header animate-item" style="--item-delay: 0ms;">
+      <div class="header-title">
+        <div class="admin-icon-wrapper">
+          <div class="icon-bg"></div>
+          <div class="icon-circle">
+            <i class="pi pi-truck"></i>
+          </div>
+        </div>
+        <div class="title-text">
+          <h1>{{ 'admin.suppliers.title' | translate }}</h1>
+          <p>{{ 'admin.suppliers.subtitle' | translate }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Status Segmented Control + Add Button -->
+    <div class="flex align-items-center justify-content-between gap-3 flex-wrap mt-3 mb-4 animate-item" style="--item-delay: 50ms;">
+      <div class="segment-control segment-control--glass">
+        <button
+          class="segment-control__item"
+          [class.active]="statusFilter === 'all'"
+          (click)="onStatusFilterChange('all')">
+          <span>{{ 'common.all' | translate }}</span>
+          <span class="count">{{ allSuppliers().length }}</span>
+        </button>
+        <button
+          class="segment-control__item"
+          [class.active]="statusFilter === 'active'"
+          (click)="onStatusFilterChange('active')">
+          <span>{{ 'common.active' | translate }}</span>
+          <span class="count active">{{ activeCount() }}</span>
+        </button>
+        <button
+          class="segment-control__item"
+          [class.active]="statusFilter === 'inactive'"
+          (click)="onStatusFilterChange('inactive')">
+          <span>{{ 'common.inactive' | translate }}</span>
+          <span class="count inactive">{{ inactiveCount() }}</span>
+        </button>
+      </div>
+
+      <button class="btn-add" (click)="createNewSupplier()">
+        <i class="pi pi-plus"></i>
+        <span>{{ 'admin.suppliers.add_supplier' | translate }}</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Main Section: Table -->
+  <div pageMain>
+    <!-- Loading State - Skeleton Table -->
+    @if (loading) {
+      <app-table-skeleton
+        [columns]="skeletonColumns"
+        [rows]="6"
+        [actionCount]="2"
+      />
+    } @else if (suppliers().length === 0 && !hasActiveFilters()) {
+      <!-- Empty State - No Suppliers -->
+      <div class="empty-state animate-item" style="--item-delay: 100ms;">
+        <div class="empty-state__icon">
+          <i class="pi pi-truck"></i>
+        </div>
+        <h3 class="empty-state__title">{{ 'admin.suppliers.no_suppliers' | translate }}</h3>
+        <p class="empty-state__description">{{ 'admin.suppliers.no_suppliers_desc' | translate }}</p>
+        <button class="btn-primary" (click)="createNewSupplier()">
+          <i class="pi pi-plus"></i>
+          <span>{{ 'admin.suppliers.add_first_supplier' | translate }}</span>
+        </button>
+      </div>
+    } @else {
+      <!-- Suppliers Table -->
+      <div class="table-container animate-item" [class.fullscreen]="isFullscreen()" style="--item-delay: 100ms;">
+        <div class="table-header">
+          <app-table-search
+            [(query)]="searchQuery"
+            (search)="onSearchInput()"
+            (clear)="filterItems()"
+          />
+          <div class="table-actions">
+            @if (hasActiveFilters()) {
+              <button class="clear-filters-btn" (click)="clearFilters()" [pTooltip]="'admin.suppliers.clear_filters' | translate">
+                <i class="pi pi-filter-slash"></i>
+              </button>
+            }
+            <button class="table-action-btn refresh-btn" (click)="loadSuppliers()" [pTooltip]="'admin.suppliers.refresh' | translate">
+              <i class="pi pi-refresh"></i>
+            </button>
+            <button class="table-action-btn" (click)="toggleFullscreen()" [pTooltip]="isFullscreen() ? ('common.exit_fullscreen' | translate) : ('common.fullscreen' | translate)">
+              <i [class]="isFullscreen() ? 'pi pi-window-minimize' : 'pi pi-window-maximize'"></i>
+            </button>
+          </div>
+        </div>
+
+        @if (suppliers().length === 0) {
+          <!-- Empty State - No Match -->
+          <div class="empty-state">
+            <div class="empty-state__icon empty-state__icon--warning">
+              <i class="pi pi-filter"></i>
+            </div>
+            <h3 class="empty-state__title">{{ 'admin.suppliers.no_results' | translate }}</h3>
+            <p class="empty-state__description">{{ 'admin.suppliers.no_results_desc' | translate }}</p>
+            <button class="btn-secondary" (click)="clearFilters()">
+              <i class="pi pi-filter-slash"></i>
+              {{ 'admin.suppliers.clear_filters' | translate }}
+            </button>
+          </div>
+        } @else {
+          <div class="table-wrapper">
+            <table class="table">
+              <thead>
+                <tr>
+                  @if (isColumnVisible('name')) { <th style="width: 20%">{{ 'admin.suppliers.table.name' | translate }}</th> }
+                  @if (isColumnVisible('contact')) { <th style="width: 15%">{{ 'admin.suppliers.table.contact' | translate }}</th> }
+                  @if (isColumnVisible('phone')) { <th style="width: 15%">{{ 'admin.suppliers.table.phone' | translate }}</th> }
+                  @if (isColumnVisible('city')) { <th style="width: 15%">{{ 'admin.suppliers.table.city' | translate }}</th> }
+                  @if (isColumnVisible('status')) { <th style="width: 10%" class="text-center">{{ 'admin.suppliers.table.status' | translate }}</th> }
+                  @if (isColumnVisible('actions')) { <th style="width: 15%" class="text-center">{{ 'admin.suppliers.table.actions' | translate }}</th> }
+                </tr>
+              </thead>
+              <tbody>
+                @for (supplier of paginatedSuppliers(); track supplier.id; let i = $index) {
+                  <tr class="table-row-animate clickable-row" [style.--row-delay]="(i * 40) + 'ms'" (click)="editSupplier(supplier)">
+                    <!-- Name -->
+                    @if (isColumnVisible('name')) {
+                      <td>
+                        <div class="info-display">
+                          <span class="info-display__name">{{ supplier.name }}</span>
+                          @if (supplier.address) {
+                            <span class="info-display__secondary">{{ supplier.address }}</span>
+                          }
+                        </div>
+                      </td>
+                    }
+
+                    <!-- Contact Person -->
+                    @if (isColumnVisible('contact')) {
+                      <td>
+                        @if (supplier.contact_person) {
+                          <span>{{ supplier.contact_person }}</span>
+                        } @else {
+                          <span class="text-muted">-</span>
+                        }
+                      </td>
+                    }
+
+                    <!-- Phone -->
+                    @if (isColumnVisible('phone')) {
+                      <td>
+                        @if (supplier.phone) {
+                          <span>{{ supplier.phone | appPhone }}</span>
+                        } @else {
+                          <span class="text-muted">-</span>
+                        }
+                      </td>
+                    }
+
+                    <!-- City -->
+                    @if (isColumnVisible('city')) {
+                      <td>
+                        @if (supplier.city) {
+                          <span class="pill primary">{{ supplier.city }}</span>
+                        } @else {
+                          <span class="text-muted">-</span>
+                        }
+                      </td>
+                    }
+
+                    <!-- Status -->
+                    @if (isColumnVisible('status')) {
+                      <td class="text-center">
+                        <p-tag
+                          [value]="supplier.is_active ? ('common.active' | translate) : ('common.inactive' | translate)"
+                          [severity]="supplier.is_active ? 'success' : 'warning'"
+                        />
+                      </td>
+                    }
+
+                    <!-- Actions -->
+                    @if (isColumnVisible('actions')) {
+                      <td class="text-center" (click)="$event.stopPropagation()">
+                        <div class="table-cell-actions justify-content-center">
+                          <button class="action-btn edit" (click)="editSupplier(supplier)" [pTooltip]="'common.edit' | translate" tooltipPosition="top">
+                            <i class="pi pi-pencil"></i>
+                          </button>
+                          <button class="action-btn delete" (click)="confirmDeleteSupplier(supplier)" [pTooltip]="'common.delete' | translate" tooltipPosition="top">
+                            <i class="pi pi-trash"></i>
+                          </button>
+                        </div>
+                      </td>
+                    }
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Pagination -->
+          @if (suppliers().length > rows) {
+            <div class="table-footer">
+              <p-paginator
+                [first]="first"
+                [rows]="rows"
+                [totalRecords]="suppliers().length"
+                (onPageChange)="onPageChange($event)"
+                [showCurrentPageReport]="true"
+                currentPageReportTemplate="{{ 'admin.suppliers.showing' | translate }} {first} - {last} {{ 'admin.suppliers.of' | translate }} {totalRecords}"
+              ></p-paginator>
+            </div>
+          }
+
+          <!-- Results Info -->
+          @if (suppliers().length <= rows) {
+            <div class="table-footer results-info">
+              <span>{{ 'admin.suppliers.showing_suppliers' | translate: { count: suppliers().length, total: allSuppliers().length } }}</span>
+            </div>
+          }
+        }
+      </div>
+    }
+  </div>
+</app-agroclik-page-container>

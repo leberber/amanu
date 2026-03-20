@@ -77,7 +77,9 @@
     "units": "وحدات",
     "expand": "توسيع",
     "collapse": "طي",
-    "store": "المتجر"
+    "store": "المتجر",
+    "create": "إنشاء",
+    "save_changes": "حفظ التغييرات"
   },
   "lightbox": {
     "packaging_type": "التغليف",
@@ -1762,6 +1764,7 @@
       "batching": "التجميع",
       "stock": "إدارة المشتريات",
       "purchase_orders": "طلبات الشراء",
+      "suppliers": "الموردون",
       "logs": "السجلات",
       "system": "النظام"
     },
@@ -1831,6 +1834,64 @@
         "confirmed": "مؤكد",
         "delivered": "تم التسليم",
         "cancelled": "ملغى"
+      }
+    },
+    "suppliers": {
+      "title": "الموردون",
+      "subtitle": "إدارة الموردين",
+      "supplier": "المورد",
+      "add_supplier": "إضافة مورد",
+      "add_first_supplier": "إضافة أول مورد",
+      "no_suppliers": "لا يوجد موردون",
+      "no_suppliers_desc": "ابدأ بإضافة أول مورد.",
+      "no_results": "لا توجد نتائج",
+      "no_results_desc": "جرب معايير بحث مختلفة",
+      "clear_filters": "مسح الفلاتر",
+      "refresh": "تحديث",
+      "showing": "عرض",
+      "of": "من",
+      "showing_suppliers": "{{count}} مورد(ون) من {{total}}",
+      "load_error": "خطأ في تحميل الموردين",
+      "create_success": "تم إنشاء المورد بنجاح",
+      "create_error": "خطأ في إنشاء المورد",
+      "update_success": "تم تحديث المورد بنجاح",
+      "update_error": "خطأ في تحديث المورد",
+      "delete_success": "تم حذف المورد بنجاح",
+      "delete_error": "خطأ في حذف المورد",
+      "table": {
+        "name": "الاسم",
+        "contact": "جهة الاتصال",
+        "phone": "الهاتف",
+        "city": "المدينة",
+        "status": "الحالة",
+        "actions": "الإجراءات"
+      },
+      "form": {
+        "add_title": "مورد جديد",
+        "add_subtitle": "إضافة مورد جديد",
+        "edit_title": "تعديل المورد",
+        "edit_subtitle": "تعديل معلومات المورد",
+        "basic_info": "المعلومات الأساسية",
+        "address_info": "العنوان",
+        "name": "اسم المورد",
+        "name_placeholder": "اسم الشركة",
+        "name_required": "الاسم مطلوب",
+        "contact_person": "شخص الاتصال",
+        "contact_person_placeholder": "اسم جهة الاتصال",
+        "phone": "الهاتف",
+        "phone_placeholder": "رقم الهاتف",
+        "email": "البريد الإلكتروني",
+        "email_placeholder": "عنوان البريد الإلكتروني",
+        "email_invalid": "بريد إلكتروني غير صالح",
+        "address": "العنوان",
+        "address_placeholder": "العنوان الكامل",
+        "city": "المدينة",
+        "city_placeholder": "اسم المدينة",
+        "notes": "ملاحظات",
+        "notes_placeholder": "ملاحظات إضافية...",
+        "is_active": "مورد نشط",
+        "supplier_active": "هذا المورد نشط ويمكن اختياره",
+        "supplier_inactive": "هذا المورد غير نشط"
       }
     },
     "brands": {

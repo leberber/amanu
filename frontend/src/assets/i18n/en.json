@@ -77,7 +77,9 @@
     "units": "units",
     "expand": "Expand",
     "collapse": "Collapse",
-    "store": "Store"
+    "store": "Store",
+    "create": "Create",
+    "save_changes": "Save Changes"
   },
   "lightbox": {
     "packaging_type": "Packaging",
@@ -1775,6 +1777,7 @@
       "batching": "Batching",
       "stock": "Purchasing",
       "purchase_orders": "Purchase Orders",
+      "suppliers": "Suppliers",
       "logs": "Logs",
       "system": "System"
     },
@@ -1844,6 +1847,64 @@
         "confirmed": "Confirmed",
         "delivered": "Delivered",
         "cancelled": "Cancelled"
+      }
+    },
+    "suppliers": {
+      "title": "Suppliers",
+      "subtitle": "Manage your suppliers",
+      "supplier": "Supplier",
+      "add_supplier": "Add Supplier",
+      "add_first_supplier": "Add First Supplier",
+      "no_suppliers": "No suppliers",
+      "no_suppliers_desc": "Start by adding your first supplier.",
+      "no_results": "No results",
+      "no_results_desc": "Try different search criteria",
+      "clear_filters": "Clear filters",
+      "refresh": "Refresh",
+      "showing": "Showing",
+      "of": "of",
+      "showing_suppliers": "{{count}} supplier(s) of {{total}}",
+      "load_error": "Error loading suppliers",
+      "create_success": "Supplier created successfully",
+      "create_error": "Error creating supplier",
+      "update_success": "Supplier updated successfully",
+      "update_error": "Error updating supplier",
+      "delete_success": "Supplier deleted successfully",
+      "delete_error": "Error deleting supplier",
+      "table": {
+        "name": "Name",
+        "contact": "Contact",
+        "phone": "Phone",
+        "city": "City",
+        "status": "Status",
+        "actions": "Actions"
+      },
+      "form": {
+        "add_title": "New Supplier",
+        "add_subtitle": "Add a new supplier",
+        "edit_title": "Edit Supplier",
+        "edit_subtitle": "Edit supplier information",
+        "basic_info": "Basic Information",
+        "address_info": "Address",
+        "name": "Supplier Name",
+        "name_placeholder": "Company name",
+        "name_required": "Name is required",
+        "contact_person": "Contact Person",
+        "contact_person_placeholder": "Contact name",
+        "phone": "Phone",
+        "phone_placeholder": "Phone number",
+        "email": "Email",
+        "email_placeholder": "Email address",
+        "email_invalid": "Invalid email",
+        "address": "Address",
+        "address_placeholder": "Full address",
+        "city": "City",
+        "city_placeholder": "City name",
+        "notes": "Notes",
+        "notes_placeholder": "Additional notes...",
+        "is_active": "Active Supplier",
+        "supplier_active": "This supplier is active and can be selected",
+        "supplier_inactive": "This supplier is inactive"
       }
     },
     "brands": {

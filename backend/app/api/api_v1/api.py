@@ -4,7 +4,7 @@ from app.api.api_v1.endpoints import (
     auth, users, categories, brands, products, orders, admin, promotions,
     cross_sell_promotions, volume_discounts, push, user_notifications,
     user_groups, restock, drivers, shipping, driver_trips, driver_admin,
-    admin_batching, customer_routes, roads, purchase_orders
+    admin_batching, customer_routes, roads, purchase_orders, suppliers
 )
 
 api_router = APIRouter()
@@ -31,3 +31,4 @@ api_router.include_router(admin_batching.router, prefix="/admin/batching", tags=
 api_router.include_router(customer_routes.router, prefix="/admin/routes", tags=["Customer Routes"])
 api_router.include_router(roads.router, prefix="/roads", tags=["Roads"])
 api_router.include_router(purchase_orders.router, prefix="/purchase-orders", tags=["Purchase Orders"])
+api_router.include_router(suppliers.router, prefix="/suppliers", tags=["Suppliers"])

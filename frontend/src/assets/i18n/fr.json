@@ -77,7 +77,9 @@
     "units": "unités",
     "expand": "Agrandir",
     "collapse": "Réduire",
-    "store": "Boutique"
+    "store": "Boutique",
+    "create": "Créer",
+    "save_changes": "Enregistrer les modifications"
   },
   "lightbox": {
     "packaging_type": "Emballage",
@@ -1774,6 +1776,7 @@
       "batching": "Groupage de trajet",
       "stock": "Gestion Achats",
       "purchase_orders": "Bons de Commande",
+      "suppliers": "Fournisseurs",
       "logs": "Journaux",
       "system": "Système"
     },
@@ -1843,6 +1846,64 @@
         "confirmed": "Confirmée",
         "delivered": "Livrée",
         "cancelled": "Annulée"
+      }
+    },
+    "suppliers": {
+      "title": "Fournisseurs",
+      "subtitle": "Gérez vos fournisseurs",
+      "supplier": "Fournisseur",
+      "add_supplier": "Ajouter un fournisseur",
+      "add_first_supplier": "Ajouter le premier fournisseur",
+      "no_suppliers": "Aucun fournisseur",
+      "no_suppliers_desc": "Commencez par ajouter votre premier fournisseur.",
+      "no_results": "Aucun résultat",
+      "no_results_desc": "Essayez d'autres critères de recherche",
+      "clear_filters": "Effacer les filtres",
+      "refresh": "Actualiser",
+      "showing": "Affichage de",
+      "of": "sur",
+      "showing_suppliers": "{{count}} fournisseur(s) sur {{total}}",
+      "load_error": "Erreur lors du chargement des fournisseurs",
+      "create_success": "Fournisseur créé avec succès",
+      "create_error": "Erreur lors de la création du fournisseur",
+      "update_success": "Fournisseur mis à jour avec succès",
+      "update_error": "Erreur lors de la mise à jour du fournisseur",
+      "delete_success": "Fournisseur supprimé avec succès",
+      "delete_error": "Erreur lors de la suppression du fournisseur",
+      "table": {
+        "name": "Nom",
+        "contact": "Contact",
+        "phone": "Téléphone",
+        "city": "Ville",
+        "status": "Statut",
+        "actions": "Actions"
+      },
+      "form": {
+        "add_title": "Nouveau fournisseur",
+        "add_subtitle": "Ajouter un nouveau fournisseur",
+        "edit_title": "Modifier le fournisseur",
+        "edit_subtitle": "Modifier les informations du fournisseur",
+        "basic_info": "Informations générales",
+        "address_info": "Adresse",
+        "name": "Nom du fournisseur",
+        "name_placeholder": "Nom de l'entreprise",
+        "name_required": "Le nom est requis",
+        "contact_person": "Personne de contact",
+        "contact_person_placeholder": "Nom du contact",
+        "phone": "Téléphone",
+        "phone_placeholder": "Numéro de téléphone",
+        "email": "Email",
+        "email_placeholder": "Adresse email",
+        "email_invalid": "Email invalide",
+        "address": "Adresse",
+        "address_placeholder": "Adresse complète",
+        "city": "Ville",
+        "city_placeholder": "Nom de la ville",
+        "notes": "Notes",
+        "notes_placeholder": "Notes supplémentaires...",
+        "is_active": "Fournisseur actif",
+        "supplier_active": "Ce fournisseur est actif et peut être sélectionné",
+        "supplier_inactive": "Ce fournisseur est inactif"
       }
     },
     "brands": {

@@ -53,3 +53,6 @@ from app.models.restock import RestockItem
 
 # Customer route models (for delivery optimization)
 from app.models.customer_route import CustomerRoute
+
+# Supplier models
+from app.models.supplier import Supplier, SupplierCreate, SupplierUpdate, SupplierRead

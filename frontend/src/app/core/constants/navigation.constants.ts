@@ -130,6 +130,12 @@ export const ADMIN_NAV_ITEMS: AdminNavItem[] = [
     adminOnly: true
   },
   {
+    labelKey: 'admin.navigation.suppliers',
+    icon: 'pi pi-id-card',
+    route: ROUTES.ADMIN.SUPPLIERS,
+    adminOnly: true
+  },
+  {
     labelKey: 'admin.navigation.logs',
     icon: 'pi pi-file',
     route: ROUTES.ADMIN.LOGS,

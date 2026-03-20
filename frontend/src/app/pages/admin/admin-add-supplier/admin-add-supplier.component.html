@@ -1,0 +1,221 @@
+<app-page-layout
+  [title]="pageTitle()"
+  [subtitle]="pageSubtitle()"
+  mobileTitle="admin.suppliers.supplier"
+  icon="pi pi-truck"
+  [showBackButton]="true"
+  [backRoute]="ROUTES.ADMIN.SUPPLIERS"
+  [fullscreen]="true">
+
+  @if (!formInitialized()) {
+    <div class="mt-6">
+      <div class="grid">
+        @for (i of [0, 1]; track $index) {
+          <div class="col-12 lg:col-6 item-animate" [style.animation-delay]="($index * 50) + 'ms'">
+            <div class="skeleton-card form-card">
+              <div class="card-header">
+                <div class="skeleton skeleton-avatar"></div>
+                <div class="skeleton skeleton-text skeleton-text--w70"></div>
+              </div>
+              <div class="card-body">
+                @for (j of [0, 1, 2]; track $index) {
+                  <div class="field-box mb-4">
+                    <div class="skeleton skeleton-avatar"></div>
+                    <div class="flex-1">
+                      <div class="skeleton skeleton-text skeleton-text--w40 mb-2"></div>
+                      <div class="skeleton skeleton-input"></div>
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  @if (formInitialized()) {
+    <form [formGroup]="supplierForm" (ngSubmit)="onSubmit()">
+      <div class="form-wizard form-wizard--fullpage">
+        <div class="form-wizard__body">
+          <div class="grid">
+            <!-- Basic Information -->
+            <div class="col-12 lg:col-6 item-animate">
+              <div class="form-card">
+                <div class="card-header">
+                  <div class="card-header__icon card-header__icon--primary">
+                    <i class="pi pi-truck"></i>
+                  </div>
+                  <h3 class="card-header__title">{{ 'admin.suppliers.form.basic_info' | translate }}</h3>
+                </div>
+                <div class="card-body">
+                  <!-- Name -->
+                  <div class="form-field">
+                    <div class="field-box" [class.filled]="supplierForm.get('name')?.value">
+                      <div class="field-box__icon field-box__icon--primary">
+                        <i class="pi pi-building"></i>
+                      </div>
+                      <div class="field-box__content">
+                        <label>{{ 'admin.suppliers.form.name' | translate }} <span class="required">*</span></label>
+                        <input type="text" formControlName="name" [placeholder]="'admin.suppliers.form.name_placeholder' | translate">
+                      </div>
+                    </div>
+                    @if (supplierForm.get('name')?.invalid && supplierForm.get('name')?.touched) {
+                      <span class="field-error">{{ 'admin.suppliers.form.name_required' | translate }}</span>
+                    }
+                  </div>
+
+                  <!-- Contact Person -->
+                  <div class="form-field">
+                    <div class="field-box" [class.filled]="supplierForm.get('contact_person')?.value">
+                      <div class="field-box__icon field-box__icon--info">
+                        <i class="pi pi-user"></i>
+                      </div>
+                      <div class="field-box__content">
+                        <label>{{ 'admin.suppliers.form.contact_person' | translate }}</label>
+                        <input type="text" formControlName="contact_person" [placeholder]="'admin.suppliers.form.contact_person_placeholder' | translate">
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Phone -->
+                  <div class="form-field">
+                    <div class="field-box" [class.filled]="supplierForm.get('phone')?.value">
+                      <div class="field-box__icon field-box__icon--success">
+                        <i class="pi pi-phone"></i>
+                      </div>
+                      <div class="field-box__content">
+                        <label>{{ 'admin.suppliers.form.phone' | translate }}</label>
+                        <input type="tel" formControlName="phone" [placeholder]="'admin.suppliers.form.phone_placeholder' | translate">
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Email -->
+                  <div class="form-field">
+                    <div class="field-box" [class.filled]="supplierForm.get('email')?.value">
+                      <div class="field-box__icon field-box__icon--warning">
+                        <i class="pi pi-envelope"></i>
+                      </div>
+                      <div class="field-box__content">
+                        <label>{{ 'admin.suppliers.form.email' | translate }}</label>
+                        <input type="email" formControlName="email" [placeholder]="'admin.suppliers.form.email_placeholder' | translate">
+                      </div>
+                    </div>
+                    @if (supplierForm.get('email')?.invalid && supplierForm.get('email')?.touched) {
+                      <span class="field-error">{{ 'admin.suppliers.form.email_invalid' | translate }}</span>
+                    }
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Address Information -->
+            <div class="col-12 lg:col-6 item-animate" [style.animation-delay]="'100ms'">
+              <div class="form-card">
+                <div class="card-header">
+                  <div class="card-header__icon card-header__icon--purple">
+                    <i class="pi pi-map-marker"></i>
+                  </div>
+                  <h3 class="card-header__title">{{ 'admin.suppliers.form.address_info' | translate }}</h3>
+                </div>
+                <div class="card-body">
+                  <!-- Address -->
+                  <div class="form-field">
+                    <div class="field-box" [class.filled]="supplierForm.get('address')?.value">
+                      <div class="field-box__icon field-box__icon--purple">
+                        <i class="pi pi-home"></i>
+                      </div>
+                      <div class="field-box__content">
+                        <label>{{ 'admin.suppliers.form.address' | translate }}</label>
+                        <input type="text" formControlName="address" [placeholder]="'admin.suppliers.form.address_placeholder' | translate">
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- City -->
+                  <div class="form-field">
+                    <div class="field-box" [class.filled]="supplierForm.get('city')?.value">
+                      <div class="field-box__icon field-box__icon--info">
+                        <i class="pi pi-map"></i>
+                      </div>
+                      <div class="field-box__content">
+                        <label>{{ 'admin.suppliers.form.city' | translate }}</label>
+                        <input type="text" formControlName="city" [placeholder]="'admin.suppliers.form.city_placeholder' | translate">
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Notes -->
+                  <div class="form-field">
+                    <div class="field-box align-items-start" [class.filled]="supplierForm.get('notes')?.value">
+                      <div class="field-box__icon field-box__icon--warning">
+                        <i class="pi pi-comment"></i>
+                      </div>
+                      <div class="field-box__content">
+                        <label>{{ 'admin.suppliers.form.notes' | translate }}</label>
+                        <textarea pInputTextarea formControlName="notes" rows="3" [placeholder]="'admin.suppliers.form.notes_placeholder' | translate"></textarea>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Active Status -->
+                  <div class="active-switch-container mt-4">
+                    <div
+                      class="active-switch"
+                      [class.active-switch--on]="supplierForm.get('is_active')?.value"
+                      (click)="supplierForm.get('is_active')?.setValue(!supplierForm.get('is_active')?.value)"
+                      (keydown.enter)="supplierForm.get('is_active')?.setValue(!supplierForm.get('is_active')?.value)"
+                      (keydown.space)="supplierForm.get('is_active')?.setValue(!supplierForm.get('is_active')?.value); $event.preventDefault()"
+                      role="switch"
+                      [attr.aria-checked]="supplierForm.get('is_active')?.value"
+                      [attr.aria-label]="'admin.suppliers.form.is_active' | translate"
+                      tabindex="0">
+                      <div class="active-switch__track">
+                        <div class="active-switch__thumb">
+                          <i [class]="supplierForm.get('is_active')?.value ? 'pi pi-check' : 'pi pi-times'"></i>
+                        </div>
+                      </div>
+                      <div class="active-switch__label">
+                        <span class="active-switch__title">{{ 'admin.suppliers.form.is_active' | translate }}</span>
+                        <span class="active-switch__description">{{ supplierForm.get('is_active')?.value ? ('admin.suppliers.form.supplier_active' | translate) : ('admin.suppliers.form.supplier_inactive' | translate) }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-wizard__footer">
+          <span class="chip chip--primary">
+            <i class="pi pi-truck"></i>
+            {{ 'admin.suppliers.supplier' | translate }}
+          </span>
+          <div class="step-nav">
+            <button type="submit" class="step-nav__btn step-nav__btn--finish" [disabled]="supplierForm.invalid || loading()">
+              @if (loading()) {
+                <i class="pi pi-spin pi-spinner"></i>
+              } @else {
+                <i class="pi pi-check"></i>
+              }
+              <span>{{ submitButtonLabel() | translate }}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </form>
+  }
+
+  @if (loading() && isEditMode()) {
+    <div class="admin-loading-overlay">
+      <div class="loading-content">
+        <i class="pi pi-spin pi-spinner"></i>
+        <span>{{ 'common.loading' | translate }}</span>
+      </div>
+    </div>
+  }
+
+</app-page-layout>
