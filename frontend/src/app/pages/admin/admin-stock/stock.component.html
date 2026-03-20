@@ -795,17 +795,6 @@
                   </a>
                 </div>
 
-                <div class="sidebar-summary">
-                  <div class="summary-row">
-                    <span>Produits</span>
-                    <span>{{ cartService.selectedSupplier() ? cartService.getSupplierItemCount(cartService.selectedSupplier()!) : cartService.cartCount() }}</span>
-                  </div>
-                  <div class="summary-row total">
-                    <span>Total</span>
-                    <span style="color: #000">{{ cartService.selectedSupplier() ? cartService.getSupplierTotalValue(cartService.selectedSupplier()!) : cartService.cartTotalValue() | number:'1.0-0' }} DA</span>
-                  </div>
-                </div>
-
                 <button class="btn-generate" (click)="cartService.saveOrder()" [disabled]="cartService.savingOrder()">
                   @if (cartService.savingOrder()) {
                     <i class="pi pi-spin pi-spinner"></i>
