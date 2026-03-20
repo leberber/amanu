@@ -35,10 +35,20 @@ export class AdminPurchaseOrdersComponent extends BaseAdminListComponent impleme
   orders = signal<PurchaseOrder[]>([]);
   paginatedOrders = signal<PurchaseOrder[]>([]);
 
-  // Computed counts
-  draftCount = computed(() => this.allOrders().filter(o => o.status === 'draft').length);
-  sentCount = computed(() => this.allOrders().filter(o => o.status === 'sent').length);
-  deliveredCount = computed(() => this.allOrders().filter(o => o.status === 'delivered').length);
+  // Computed counts - single pass through orders
+  private statusCounts = computed(() => {
+    const counts = { draft: 0, sent: 0, delivered: 0 };
+    for (const order of this.allOrders()) {
+      if (order.status in counts) {
+        counts[order.status as keyof typeof counts]++;
+      }
+    }
+    return counts;
+  });
+
+  draftCount = computed(() => this.statusCounts().draft);
+  sentCount = computed(() => this.statusCounts().sent);
+  deliveredCount = computed(() => this.statusCounts().delivered);
 
   // Skeleton configuration
   skeletonColumns: SkeletonColumn[] = [
@@ -67,6 +77,21 @@ export class AdminPurchaseOrdersComponent extends BaseAdminListComponent impleme
   private confirmationService = inject(ConfirmationService);
   private confirmDialog = inject(ConfirmationDialogService);
   private destroyRef = inject(DestroyRef);
+
+  // Cached formatters for performance
+  private readonly currencyFormatter = new Intl.NumberFormat('fr-FR', {
+    style: 'decimal',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0
+  });
+
+  private readonly dateFormatter = new Intl.DateTimeFormat('fr-FR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
 
   ngOnInit() {
     this.loadOrders();
@@ -137,24 +162,6 @@ export class AdminPurchaseOrdersComponent extends BaseAdminListComponent impleme
     this.router.navigate([RouteHelpers.adminPurchaseOrderDetail(order.id)]);
   }
 
-  updateStatus(order: PurchaseOrder, newStatus: PurchaseOrderStatus): void {
-    this.orderService.updateStatus(order.id, newStatus)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (updated) => {
-          // Update local state
-          this.allOrders.update(orders =>
-            orders.map(o => o.id === updated.id ? updated : o)
-          );
-          this.filterItems();
-          this.baseToast.showSuccess(`Statut mis à jour: ${this.orderService.getStatusLabel(newStatus)}`);
-        },
-        error: () => {
-          this.baseToast.showError('Erreur lors de la mise à jour du statut');
-        }
-      });
-  }
-
   confirmDeleteOrder(order: PurchaseOrder): void {
     if (!this.orderService.canDelete(order)) {
       this.baseToast.showError('Seuls les brouillons peuvent être supprimés');
@@ -195,21 +202,10 @@ export class AdminPurchaseOrdersComponent extends BaseAdminListComponent impleme
   }
 
   override formatDate(dateString: string): string {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('fr-FR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
+    return this.dateFormatter.format(new Date(dateString));
   }
 
   formatCurrency(amount: number): string {
-    return new Intl.NumberFormat('fr-FR', {
-      style: 'decimal',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(amount) + ' DA';
+    return this.currencyFormatter.format(amount) + ' DA';
   }
 }

@@ -1,15 +1,10 @@
 import { Component, OnInit, inject, signal, computed, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs';
 
 import { ButtonModule } from 'primeng/button';
-import { TagModule } from 'primeng/tag';
-import { InputNumberModule } from 'primeng/inputnumber';
-import { InputTextModule } from 'primeng/inputtext';
-import { TextareaModule } from 'primeng/textarea';
 import { TooltipModule } from 'primeng/tooltip';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService } from 'primeng/api';
@@ -30,12 +25,7 @@ import {
   standalone: true,
   imports: [
     CommonModule,
-    FormsModule,
     ButtonModule,
-    TagModule,
-    InputNumberModule,
-    InputTextModule,
-    TextareaModule,
     TooltipModule,
     ConfirmDialogModule,
     PageLayoutComponent
@@ -58,37 +48,12 @@ export class AdminPurchaseOrderDetailComponent implements OnInit {
   saving = signal(false);
   order = signal<PurchaseOrder | null>(null);
   deliveryWarning = signal<string | null>(null);
-
-  // Editable items (for delivery confirmation)
   editableItems = signal<EditableItem[]>([]);
 
-  // Computed
-  canEdit = computed(() => {
-    const o = this.order();
-    return o ? this.orderService.canEdit(o) : false;
-  });
-
+  // Computed - only keep what's used in template
   canDelete = computed(() => {
     const o = this.order();
-    return o ? this.orderService.canDelete(o) : false;
-  });
-
-  nextStatus = computed(() => {
-    const o = this.order();
-    return o ? this.orderService.getNextStatus(o.status) : null;
-  });
-
-  nextStatusLabel = computed(() => {
-    const o = this.order();
-    return o ? this.orderService.getNextStatusLabel(o.status) : null;
-  });
-
-  totalReceived = computed(() => {
-    return this.editableItems().reduce((sum, item) => sum + (item.quantity_received || 0), 0);
-  });
-
-  totalOrdered = computed(() => {
-    return this.editableItems().reduce((sum, item) => sum + item.quantity_ordered, 0);
+    return o?.status === 'draft';
   });
 
   ngOnInit(): void {
@@ -120,24 +85,11 @@ export class AdminPurchaseOrderDetailComponent implements OnInit {
   initEditableItems(items: PurchaseOrderItem[]): void {
     this.editableItems.set(items.map(item => ({
       ...item,
-      quantity_received: item.quantity_received || item.quantity_ordered // Default to full quantity
+      quantity_received: item.quantity_received ?? item.quantity_ordered
     })));
   }
 
-  // Status helpers
-  getStatusLabel(status: PurchaseOrderStatus): string {
-    return this.orderService.getStatusLabel(status);
-  }
-
-  getStatusSeverity(status: PurchaseOrderStatus): 'success' | 'info' | 'warn' | 'danger' | 'secondary' {
-    return this.orderService.getStatusSeverity(status);
-  }
-
   // Actions
-  goBack(): void {
-    this.router.navigate([ROUTES.ADMIN.PURCHASE_ORDERS]);
-  }
-
   updateStatus(newStatus: PurchaseOrderStatus): void {
     const order = this.order();
     if (!order) return;
@@ -282,24 +234,27 @@ export class AdminPurchaseOrderDetailComponent implements OnInit {
     });
   }
 
-  // Formatting
+  // Formatting - cached formatters for performance
+  private readonly currencyFormatter = new Intl.NumberFormat('fr-FR', {
+    style: 'decimal',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0
+  });
+
+  private readonly dateFormatter = new Intl.DateTimeFormat('fr-FR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+
   formatDate(dateString: string): string {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('fr-FR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
+    return this.dateFormatter.format(new Date(dateString));
   }
 
   formatCurrency(amount: number): string {
-    return new Intl.NumberFormat('fr-FR', {
-      style: 'decimal',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(amount) + ' DA';
+    return this.currencyFormatter.format(amount) + ' DA';
   }
 }
 
