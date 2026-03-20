@@ -354,6 +354,10 @@ export class PurchasingCartService {
         finalize(() => this.savingOrder.set(false))
       ).subscribe({
         next: (order) => {
+          // Switch to editing mode for the new draft (prevents duplicates)
+          this.editingDraftId.set(order.id);
+          this.editingDraftRef.set(order.reference);
+          this.hasUnsavedChanges.set(false);
           this.lastSavedOrderRef.set(order.reference);
           this.toast.showSuccess(`Commande ${order.reference} enregistrée`);
         },
