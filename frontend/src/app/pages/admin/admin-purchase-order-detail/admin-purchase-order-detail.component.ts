@@ -59,7 +59,6 @@ export class AdminPurchaseOrderDetailComponent implements OnInit {
   loading = signal(true);
   saving = signal(false);
   order = signal<PurchaseOrder | null>(null);
-  editMode = signal(false);
   deliveryWarning = signal<string | null>(null);
 
   // Editable items (for delivery confirmation)
@@ -141,17 +140,6 @@ export class AdminPurchaseOrderDetailComponent implements OnInit {
     this.router.navigate([ROUTES.ADMIN.PURCHASE_ORDERS]);
   }
 
-  toggleEditMode(): void {
-    this.editMode.update(v => !v);
-    if (!this.editMode()) {
-      // Reset editable items when exiting edit mode
-      const order = this.order();
-      if (order) {
-        this.initEditableItems(order.items);
-      }
-    }
-  }
-
   updateStatus(newStatus: PurchaseOrderStatus): void {
     const order = this.order();
     if (!order) return;
@@ -194,7 +182,6 @@ export class AdminPurchaseOrderDetailComponent implements OnInit {
       next: (updated) => {
         this.order.set(updated);
         this.initEditableItems(updated.items);
-        this.editMode.set(false);
         this.deliveryWarning.set(null);
         this.toast.showSuccess('Livraison confirmée - Stock mis à jour');
       },

@@ -207,8 +207,8 @@ export class PurchaseOrderService {
   getNextStatus(currentStatus: PurchaseOrderStatus): PurchaseOrderStatus | null {
     const flow: Record<PurchaseOrderStatus, PurchaseOrderStatus | null> = {
       'draft': 'sent',
-      'sent': 'confirmed',
-      'confirmed': 'delivered',
+      'sent': 'delivered',
+      'confirmed': 'delivered', // Legacy support
       'delivered': null,
       'cancelled': null
     };
@@ -221,7 +221,7 @@ export class PurchaseOrderService {
   }
 
   canEdit(order: PurchaseOrder): boolean {
-    return order.status === 'draft' || order.status === 'confirmed';
+    return order.status === 'draft' || order.status === 'sent';
   }
 
   canDelete(order: PurchaseOrder): boolean {

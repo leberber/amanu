@@ -38,7 +38,6 @@ export class AdminPurchaseOrdersComponent extends BaseAdminListComponent impleme
   // Computed counts
   draftCount = computed(() => this.allOrders().filter(o => o.status === 'draft').length);
   sentCount = computed(() => this.allOrders().filter(o => o.status === 'sent').length);
-  confirmedCount = computed(() => this.allOrders().filter(o => o.status === 'confirmed').length);
   deliveredCount = computed(() => this.allOrders().filter(o => o.status === 'delivered').length);
 
   // Skeleton configuration

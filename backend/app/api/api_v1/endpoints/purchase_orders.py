@@ -185,8 +185,8 @@ async def update_purchase_order(
     if not order:
         raise HTTPException(status_code=404, detail="Purchase order not found")
 
-    # Only allow editing draft or confirmed orders
-    if order.status not in [PurchaseOrderStatus.DRAFT, PurchaseOrderStatus.CONFIRMED]:
+    # Only allow editing draft or sent orders
+    if order.status not in [PurchaseOrderStatus.DRAFT, PurchaseOrderStatus.SENT]:
         raise HTTPException(
             status_code=400,
             detail=f"Cannot edit order with status '{order.status.value}'"
@@ -329,11 +329,11 @@ async def confirm_delivery(
     if not order:
         raise HTTPException(status_code=404, detail="Purchase order not found")
 
-    # Only allow delivery confirmation for confirmed orders
-    if order.status != PurchaseOrderStatus.CONFIRMED:
+    # Only allow delivery confirmation for sent orders
+    if order.status != PurchaseOrderStatus.SENT:
         raise HTTPException(
             status_code=400,
-            detail=f"Can only deliver confirmed orders. Current status: '{order.status.value}'"
+            detail=f"Can only deliver sent orders. Current status: '{order.status.value}'"
         )
 
     try:
@@ -447,8 +447,8 @@ async def delete_purchase_order_item(
     if not order:
         raise HTTPException(status_code=404, detail="Purchase order not found")
 
-    # Only allow deleting items from draft or confirmed orders
-    if order.status not in [PurchaseOrderStatus.DRAFT, PurchaseOrderStatus.CONFIRMED]:
+    # Only allow deleting items from draft or sent orders
+    if order.status not in [PurchaseOrderStatus.DRAFT, PurchaseOrderStatus.SENT]:
         raise HTTPException(
             status_code=400,
             detail=f"Cannot delete items from order with status '{order.status.value}'"

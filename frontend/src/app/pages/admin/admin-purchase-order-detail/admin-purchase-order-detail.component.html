@@ -37,19 +37,11 @@
             }
           </div>
           <div class="timeline-connector" [class.active]="order()!.status !== 'draft'"></div>
-          <div class="timeline-step" [class.active]="order()!.sent_at" [class.completed]="order()!.confirmed_at">
+          <div class="timeline-step" [class.active]="order()!.sent_at" [class.completed]="order()!.delivered_at">
             <div class="step-dot"></div>
             <span class="step-label">Envoyée</span>
             @if (order()!.sent_at; as sentAt) {
               <span class="step-date">{{ formatDate(sentAt) }}</span>
-            }
-          </div>
-          <div class="timeline-connector" [class.active]="order()!.confirmed_at"></div>
-          <div class="timeline-step" [class.active]="order()!.confirmed_at" [class.completed]="order()!.delivered_at">
-            <div class="step-dot"></div>
-            <span class="step-label">Confirmée</span>
-            @if (order()!.confirmed_at; as confirmedAt) {
-              <span class="step-date">{{ formatDate(confirmedAt) }}</span>
             }
           </div>
           <div class="timeline-connector" [class.active]="order()!.delivered_at"></div>
@@ -131,11 +123,11 @@
               <i class="pi pi-box"></i>
               Produits ({{ order()!.item_count }})
             </h3>
-            @if (order()!.status === 'confirmed' && !editMode()) {
-              <button class="btn-edit" (click)="toggleEditMode()">
-                <i class="pi pi-pencil"></i>
-                Modifier les quantités reçues
-              </button>
+            @if (order()!.status === 'sent') {
+              <span class="edit-hint">
+                <i class="pi pi-info-circle"></i>
+                Ajustez les quantités reçues avant de confirmer
+              </span>
             }
           </div>
 
@@ -147,12 +139,12 @@
                   <th>Marque</th>
                   <th class="text-center">U/Carton</th>
                   <th class="text-center">Commandé</th>
-                  @if (editMode() || order()!.status === 'delivered') {
+                  @if (order()!.status === 'sent' || order()!.status === 'delivered') {
                     <th class="text-center">Reçu</th>
                   }
                   <th class="text-right">P.U</th>
                   <th class="text-right">Total</th>
-                  @if (editMode()) {
+                  @if (order()!.status === 'sent') {
                     <th class="text-center"></th>
                   }
                 </tr>
@@ -164,7 +156,7 @@
                     <td>{{ item.brand }}</td>
                     <td class="text-center">{{ item.units_per_carton }}</td>
                     <td class="text-center">{{ item.quantity_ordered }}</td>
-                    @if (editMode()) {
+                    @if (order()!.status === 'sent') {
                       <td class="text-center">
                         <p-inputNumber
                           [(ngModel)]="editableItems()[i].quantity_received"
@@ -191,7 +183,7 @@
                     }
                     <td class="text-right">{{ formatCurrency(item.unit_price) }}</td>
                     <td class="text-right font-semibold">{{ formatCurrency(item.total_price) }}</td>
-                    @if (editMode()) {
+                    @if (order()!.status === 'sent') {
                       <td class="text-center">
                         <button
                           class="btn-delete-item"
@@ -208,13 +200,13 @@
               </tbody>
               <tfoot>
                 <tr>
-                  <td [attr.colspan]="editMode() ? 7 : (order()!.status === 'delivered' ? 6 : 5)" class="text-right font-semibold">
+                  <td [attr.colspan]="order()!.status === 'sent' ? 7 : (order()!.status === 'delivered' ? 6 : 5)" class="text-right font-semibold">
                     Total
                   </td>
                   <td class="text-right font-bold total-cell">
                     {{ formatCurrency(order()!.total_amount) }}
                   </td>
-                  @if (editMode()) {
+                  @if (order()!.status === 'sent') {
                     <td></td>
                   }
                 </tr>
@@ -249,49 +241,29 @@
 
         <!-- Actions -->
         <div class="actions-section">
-          @if (editMode()) {
-            <!-- Edit Mode Actions -->
-            <button class="btn-cancel" (click)="toggleEditMode()">
-              Annuler
+          @if (canDelete()) {
+            <button class="btn-delete" (click)="confirmDelete()" [disabled]="saving()">
+              <i class="pi pi-trash"></i>
+              Supprimer
             </button>
-            <button class="btn-confirm-delivery" (click)="confirmDelivery()" [disabled]="saving()">
-              @if (saving()) {
-                <i class="pi pi-spin pi-spinner"></i>
-              } @else {
-                <i class="pi pi-check"></i>
-              }
-              Confirmer la livraison
-            </button>
-          } @else {
-            <!-- Normal Actions -->
-            @if (canDelete()) {
-              <button class="btn-delete" (click)="confirmDelete()" [disabled]="saving()">
-                <i class="pi pi-trash"></i>
-                Supprimer
+          }
+
+          @switch (order()!.status) {
+            @case ('draft') {
+              <button class="btn-action btn-send" (click)="updateStatus('sent')" [disabled]="saving()">
+                <i class="pi pi-send"></i>
+                Marquer comme envoyée
               </button>
             }
-
-            @if (nextStatus()) {
-              @switch (order()!.status) {
-                @case ('draft') {
-                  <button class="btn-action btn-send" (click)="updateStatus('sent')" [disabled]="saving()">
-                    <i class="pi pi-send"></i>
-                    Marquer comme envoyée
-                  </button>
+            @case ('sent') {
+              <button class="btn-confirm-delivery" (click)="confirmDelivery()" [disabled]="saving()">
+                @if (saving()) {
+                  <i class="pi pi-spin pi-spinner"></i>
+                } @else {
+                  <i class="pi pi-truck"></i>
                 }
-                @case ('sent') {
-                  <button class="btn-action btn-confirm" (click)="updateStatus('confirmed')" [disabled]="saving()">
-                    <i class="pi pi-check"></i>
-                    Marquer comme confirmée
-                  </button>
-                }
-                @case ('confirmed') {
-                  <button class="btn-action btn-deliver" (click)="toggleEditMode()" [disabled]="saving()">
-                    <i class="pi pi-truck"></i>
-                    Réceptionner la livraison
-                  </button>
-                }
-              }
+                Confirmer la livraison
+              </button>
             }
           }
         </div>

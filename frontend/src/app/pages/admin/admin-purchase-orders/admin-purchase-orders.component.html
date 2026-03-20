@@ -45,13 +45,6 @@
         </button>
         <button
           class="segment-control__item"
-          [class.active]="statusFilter === 'confirmed'"
-          (click)="onStatusFilterChange('confirmed')">
-          <span>Confirmées</span>
-          <span class="count">{{ confirmedCount() }}</span>
-        </button>
-        <button
-          class="segment-control__item"
           [class.active]="statusFilter === 'delivered'"
           (click)="onStatusFilterChange('delivered')">
           <span>Livrées</span>
@@ -196,11 +189,6 @@
                             </button>
                           }
                           @if (order.status === 'sent') {
-                            <button class="action-btn success" (click)="updateStatus(order, 'confirmed')" pTooltip="Marquer confirmée" tooltipPosition="top">
-                              <i class="pi pi-check"></i>
-                            </button>
-                          }
-                          @if (order.status === 'confirmed') {
                             <button class="action-btn success" (click)="viewOrder(order)" pTooltip="Réceptionner" tooltipPosition="top">
                               <i class="pi pi-truck"></i>
                             </button>
