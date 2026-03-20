@@ -36,120 +36,6 @@
   }
 }
 
-// =============================================================================
-// HEADER
-// =============================================================================
-
-.detail-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: var(--space-4);
-
-  &__left {
-    display: flex;
-    align-items: center;
-    gap: var(--space-4);
-  }
-
-  &__right {
-    text-align: right;
-  }
-}
-
-.detail-icon {
-  width: 56px;
-  height: 56px;
-  border-radius: var(--radius-xl);
-  background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.1) 0%, rgba(var(--primary-rgb), 0.2) 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-
-  i {
-    font-size: 1.5rem;
-    color: var(--primary-color);
-  }
-}
-
-.detail-title {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-
-  h1 {
-    font-size: 1.5rem;
-    font-weight: 700;
-    font-family: 'SF Mono', Monaco, monospace;
-    margin: 0;
-    color: var(--text-color);
-  }
-}
-
-.detail-date {
-  font-size: var(--font-size-sm);
-  color: var(--text-color-secondary);
-}
-
-// =============================================================================
-// INFO CARD
-// =============================================================================
-
-.info-card {
-  background: var(--glass-bg);
-  backdrop-filter: var(--glass-blur);
-  border-radius: var(--radius-xl);
-  border: var(--border-width) solid var(--border-color-light);
-  overflow: hidden;
-
-  &__header {
-    display: flex;
-    align-items: center;
-    gap: var(--space-3);
-    padding: var(--space-4);
-    background: var(--surface-ground);
-    border-bottom: var(--border-width) solid var(--border-color-light);
-
-    i {
-      font-size: 1rem;
-      color: var(--primary-color);
-    }
-
-    span {
-      font-size: var(--font-size-sm);
-      font-weight: var(--font-weight-semibold);
-      text-transform: uppercase;
-      letter-spacing: var(--letter-spacing-wide);
-      color: var(--text-color-secondary);
-    }
-  }
-
-  &__body {
-    padding: var(--space-4);
-  }
-
-  &__title {
-    font-size: 1.1rem;
-    font-weight: var(--font-weight-semibold);
-    margin: 0 0 var(--space-2) 0;
-    color: var(--text-color);
-  }
-
-  &__text {
-    font-size: var(--font-size-sm);
-    color: var(--text-color-secondary);
-    margin: var(--space-1) 0;
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-
-    i {
-      font-size: 0.75rem;
-      color: var(--text-color-secondary);
-    }
-  }
-}
 
 // =============================================================================
 // SIDEBAR CARDS
@@ -304,45 +190,6 @@
   }
 }
 
-// =============================================================================
-// STAT ROWS
-// =============================================================================
-
-.stat-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: var(--space-3) 0;
-  border-bottom: var(--border-width) solid var(--border-color-light);
-
-  &:last-child {
-    border-bottom: none;
-  }
-
-  &__label {
-    font-size: var(--font-size-sm);
-    color: var(--text-color-secondary);
-  }
-
-  &__value {
-    font-size: var(--font-size-base);
-    font-weight: var(--font-weight-semibold);
-    color: var(--text-color);
-  }
-
-  &--highlight {
-    padding-top: var(--space-4);
-    margin-top: var(--space-2);
-    border-top: 2px solid var(--border-color);
-    border-bottom: none;
-
-    .stat-row__value {
-      font-size: 1.1rem;
-      font-weight: var(--font-weight-bold);
-      color: var(--primary-color);
-    }
-  }
-}
 
 // =============================================================================
 // TABLE OVERRIDES
@@ -492,4 +339,29 @@
 
 .flex-1 {
   flex: 1;
+}
+
+// =============================================================================
+// SUPPLIER INFO (IN SIDEBAR)
+// =============================================================================
+
+.supplier-name {
+  font-size: 1rem;
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-color);
+  margin: 0 0 var(--space-3) 0;
+}
+
+.supplier-info {
+  font-size: var(--font-size-sm);
+  color: var(--text-color-secondary);
+  margin: var(--space-2) 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+
+  i {
+    font-size: 0.75rem;
+    color: var(--text-color-secondary);
+  }
 }

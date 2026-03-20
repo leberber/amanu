@@ -1,68 +1,20 @@
-<app-agroclik-page-container>
+<app-page-layout
+  [title]="order()?.reference || 'Commande'"
+  icon="pi pi-file-edit"
+  [showBackButton]="true"
+  [backRoute]="'/admin/purchase-orders'">
+
   <p-confirmDialog></p-confirmDialog>
 
-  <div pageTop>
-    <app-back-button [route]="'/admin/purchase-orders'" label="Retour aux commandes" />
-  </div>
-
-  <div pageMain>
-    @if (loading()) {
-      <div class="flex align-items-center justify-content-center gap-3 p-6">
-        <i class="pi pi-spin pi-spinner text-xl text-secondary"></i>
-        <span class="text-secondary">Chargement...</span>
-      </div>
-    } @else if (order()) {
-      <div class="order-detail-layout">
-        <!-- Main Content -->
-        <div class="order-detail-main">
-          <!-- Header -->
-          <div class="detail-header">
-            <div class="detail-header__left">
-              <div class="detail-icon">
-                <i class="pi pi-file-edit"></i>
-              </div>
-              <div class="detail-title">
-                <h1>{{ order()!.reference }}</h1>
-                <p-tag
-                  [value]="getStatusLabel(order()!.status)"
-                  [severity]="getStatusSeverity(order()!.status)"
-                />
-              </div>
-            </div>
-            <div class="detail-header__right">
-              <span class="detail-date">{{ formatDate(order()!.created_at) }}</span>
-            </div>
-          </div>
-
-          <!-- Supplier Info Card -->
-          <div class="info-card">
-            <div class="info-card__header">
-              <i class="pi pi-building"></i>
-              <span>Fournisseur</span>
-            </div>
-            <div class="info-card__body">
-              <p class="info-card__title">{{ order()!.supplier_name }}</p>
-              @if (order()!.supplier_address) {
-                <p class="info-card__text">{{ order()!.supplier_address }}</p>
-              }
-              @if (order()!.supplier_city) {
-                <p class="info-card__text">{{ order()!.supplier_city }}</p>
-              }
-              @if (order()!.supplier_phone) {
-                <p class="info-card__text">
-                  <i class="pi pi-phone"></i>
-                  {{ order()!.supplier_phone }}
-                </p>
-              }
-              @if (order()!.supplier_email) {
-                <p class="info-card__text">
-                  <i class="pi pi-envelope"></i>
-                  {{ order()!.supplier_email }}
-                </p>
-              }
-            </div>
-          </div>
-
+  @if (loading()) {
+    <div class="flex align-items-center justify-content-center gap-3 p-6">
+      <i class="pi pi-spin pi-spinner text-xl text-secondary"></i>
+      <span class="text-secondary">Chargement...</span>
+    </div>
+  } @else if (order()) {
+    <div class="order-detail-layout">
+      <!-- Main Content -->
+      <div class="order-detail-main">
         <!-- Items Table -->
         <div class="table-container">
           <div class="table-header">
@@ -212,115 +164,125 @@
           </div>
         }
 
-          <!-- Actions -->
-          <div class="actions-bar">
-            @if (canDelete()) {
+        <!-- Actions -->
+        <div class="actions-bar">
+          @if (canDelete()) {
+            <p-button
+              label="Supprimer"
+              icon="pi pi-trash"
+              severity="danger"
+              [outlined]="true"
+              (onClick)="confirmDelete()"
+              [disabled]="saving()"
+            />
+          }
+
+          <div class="flex-1"></div>
+
+          @switch (order()!.status) {
+            @case ('draft') {
               <p-button
-                label="Supprimer"
-                icon="pi pi-trash"
-                severity="danger"
-                [outlined]="true"
-                (onClick)="confirmDelete()"
+                label="Marquer comme envoyée"
+                icon="pi pi-send"
+                (onClick)="updateStatus('sent')"
                 [disabled]="saving()"
               />
             }
+            @case ('sent') {
+              <p-button
+                label="Confirmer la livraison"
+                icon="pi pi-truck"
+                severity="success"
+                (onClick)="confirmDelivery()"
+                [loading]="saving()"
+              />
+            }
+          }
+        </div>
+      </div>
 
-            <div class="flex-1"></div>
+      <!-- Sidebar -->
+      <div class="order-detail-sidebar">
+        <div class="sidebar-card">
+          <div class="sidebar-card__header">
+            <i class="pi pi-clock"></i>
+            <span>Statut</span>
+          </div>
+          <div class="sidebar-card__body">
+            <!-- Vertical Timeline -->
+            <div class="vertical-timeline">
+              <div class="timeline-item" [class.active]="true" [class.completed]="order()!.status !== 'draft'">
+                <div class="timeline-item__dot">
+                  <i class="pi pi-pencil"></i>
+                </div>
+                <div class="timeline-item__content">
+                  <span class="timeline-item__label">Brouillon</span>
+                  @if (order()!.created_at) {
+                    <span class="timeline-item__date">{{ formatDate(order()!.created_at) }}</span>
+                  }
+                </div>
+              </div>
 
-            @switch (order()!.status) {
-              @case ('draft') {
-                <p-button
-                  label="Marquer comme envoyée"
-                  icon="pi pi-send"
-                  (onClick)="updateStatus('sent')"
-                  [disabled]="saving()"
-                />
-              }
-              @case ('sent') {
-                <p-button
-                  label="Confirmer la livraison"
-                  icon="pi pi-truck"
-                  severity="success"
-                  (onClick)="confirmDelivery()"
-                  [loading]="saving()"
-                />
-              }
+              <div class="timeline-item" [class.active]="order()!.sent_at" [class.completed]="order()!.delivered_at">
+                <div class="timeline-item__dot">
+                  <i class="pi pi-send"></i>
+                </div>
+                <div class="timeline-item__content">
+                  <span class="timeline-item__label">Envoyée</span>
+                  @if (order()!.sent_at; as sentAt) {
+                    <span class="timeline-item__date">{{ formatDate(sentAt) }}</span>
+                  }
+                </div>
+              </div>
+
+              <div class="timeline-item" [class.active]="order()!.delivered_at">
+                <div class="timeline-item__dot">
+                  <i class="pi pi-check"></i>
+                </div>
+                <div class="timeline-item__content">
+                  <span class="timeline-item__label">Livrée</span>
+                  @if (order()!.delivered_at; as deliveredAt) {
+                    <span class="timeline-item__date">{{ formatDate(deliveredAt) }}</span>
+                  }
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Supplier Info -->
+        <div class="sidebar-card">
+          <div class="sidebar-card__header">
+            <i class="pi pi-building"></i>
+            <span>Fournisseur</span>
+          </div>
+          <div class="sidebar-card__body">
+            <p class="supplier-name">{{ order()!.supplier_name }}</p>
+            @if (order()!.supplier_address) {
+              <p class="supplier-info">
+                <i class="pi pi-map-marker"></i>
+                {{ order()!.supplier_address }}
+              </p>
+            }
+            @if (order()!.supplier_city) {
+              <p class="supplier-info">{{ order()!.supplier_city }}</p>
+            }
+            @if (order()!.supplier_phone) {
+              <p class="supplier-info">
+                <i class="pi pi-phone"></i>
+                {{ order()!.supplier_phone }}
+              </p>
+            }
+            @if (order()!.supplier_email) {
+              <p class="supplier-info">
+                <i class="pi pi-envelope"></i>
+                {{ order()!.supplier_email }}
+              </p>
             }
           </div>
         </div>
-
-        <!-- Sidebar -->
-        <div class="order-detail-sidebar">
-          <div class="sidebar-card">
-            <div class="sidebar-card__header">
-              <i class="pi pi-clock"></i>
-              <span>Statut</span>
-            </div>
-            <div class="sidebar-card__body">
-              <!-- Vertical Timeline -->
-              <div class="vertical-timeline">
-                <div class="timeline-item" [class.active]="true" [class.completed]="order()!.status !== 'draft'">
-                  <div class="timeline-item__dot">
-                    <i class="pi pi-pencil"></i>
-                  </div>
-                  <div class="timeline-item__content">
-                    <span class="timeline-item__label">Brouillon</span>
-                    @if (order()!.created_at) {
-                      <span class="timeline-item__date">{{ formatDate(order()!.created_at) }}</span>
-                    }
-                  </div>
-                </div>
-
-                <div class="timeline-item" [class.active]="order()!.sent_at" [class.completed]="order()!.delivered_at">
-                  <div class="timeline-item__dot">
-                    <i class="pi pi-send"></i>
-                  </div>
-                  <div class="timeline-item__content">
-                    <span class="timeline-item__label">Envoyée</span>
-                    @if (order()!.sent_at; as sentAt) {
-                      <span class="timeline-item__date">{{ formatDate(sentAt) }}</span>
-                    }
-                  </div>
-                </div>
-
-                <div class="timeline-item" [class.active]="order()!.delivered_at">
-                  <div class="timeline-item__dot">
-                    <i class="pi pi-check"></i>
-                  </div>
-                  <div class="timeline-item__content">
-                    <span class="timeline-item__label">Livrée</span>
-                    @if (order()!.delivered_at; as deliveredAt) {
-                      <span class="timeline-item__date">{{ formatDate(deliveredAt) }}</span>
-                    }
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Quick Stats -->
-          <div class="sidebar-card">
-            <div class="sidebar-card__header">
-              <i class="pi pi-chart-bar"></i>
-              <span>Résumé</span>
-            </div>
-            <div class="sidebar-card__body">
-              <div class="stat-row">
-                <span class="stat-row__label">Produits</span>
-                <span class="stat-row__value">{{ order()!.item_count }}</span>
-              </div>
-              <div class="stat-row">
-                <span class="stat-row__label">Cartons</span>
-                <span class="stat-row__value">{{ totalOrdered() }}</span>
-              </div>
-              <div class="stat-row stat-row--highlight">
-                <span class="stat-row__label">Total</span>
-                <span class="stat-row__value">{{ formatCurrency(order()!.total_amount) }}</span>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
-    }
-  </div>
-</app-agroclik-page-container>
+    </div>
+  }
+
+</app-page-layout>

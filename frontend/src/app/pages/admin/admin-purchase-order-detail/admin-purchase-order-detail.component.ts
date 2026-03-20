@@ -14,8 +14,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService } from 'primeng/api';
 
-import { AgroclikPageContainerComponent } from '../../../shared/components/agroclik-page-container/agroclik-page-container.component';
-import { BackButtonComponent } from '../../../shared/components/back-button/back-button.component';
+import { PageLayoutComponent } from '../../../shared/components/page-layout/page-layout.component';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
 import { ConfirmationDialogService } from '../../../core/services/confirmation-dialog.service';
 import { ROUTES } from '../../../core/constants/routes.constants';
@@ -39,8 +38,7 @@ import {
     TextareaModule,
     TooltipModule,
     ConfirmDialogModule,
-    AgroclikPageContainerComponent,
-    BackButtonComponent
+    PageLayoutComponent
   ],
   providers: [ConfirmationService],
   templateUrl: './admin-purchase-order-detail.component.html',
