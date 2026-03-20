@@ -1806,6 +1806,7 @@
       "minimize": "Réduire",
       "view": "Voir",
       "edit": "Modifier",
+      "edit_cart": "Modifier Panier",
       "delete": "Supprimer",
       "showing_orders": "{{count}} commande(s) sur {{total}}",
       "load_error": "Erreur lors du chargement des commandes",

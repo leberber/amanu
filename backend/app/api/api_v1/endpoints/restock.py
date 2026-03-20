@@ -415,6 +415,17 @@ async def sync_restock_item(item_id: int, session: Session = Depends(get_session
         if not restock_item.category_id:
             return SyncResult(success=False, restockId=item_id, message="Category is required")
 
+        # Validate category exists
+        category = session.get(Category, restock_item.category_id)
+        if not category:
+            return SyncResult(success=False, restockId=item_id, message=f"Category ID {restock_item.category_id} not found")
+
+        # Validate brand exists (if set)
+        if restock_item.brand_id:
+            brand_check = session.get(Brand, restock_item.brand_id)
+            if not brand_check:
+                return SyncResult(success=False, restockId=item_id, message=f"Brand ID {restock_item.brand_id} not found - please update the brand")
+
         # Get brand name for S3 operations
         new_brand_name = ""
         if restock_item.brand_id:
@@ -504,8 +515,9 @@ async def sync_restock_item(item_id: int, session: Session = Depends(get_session
                     product.weight = restock_item.weight
                     changes.append("weight")
 
-                if product.pieces_per_box != restock_item.unite_par_carton:
-                    product.pieces_per_box = restock_item.unite_par_carton
+                new_pieces_per_box = restock_item.unite_par_carton if restock_item.unite_par_carton and restock_item.unite_par_carton >= 1 else None
+                if product.pieces_per_box != new_pieces_per_box:
+                    product.pieces_per_box = new_pieces_per_box
                     changes.append("pieces_per_box")
 
                 if product.stock_quantity != restock_item.nmb_carton:
@@ -592,7 +604,7 @@ async def sync_restock_item(item_id: int, session: Session = Depends(get_session
             name=restock_item.name,
             price=0,
             unit=map_product_unit(restock_item.product_unit or "piece"),
-            pieces_per_box=restock_item.unite_par_carton,
+            pieces_per_box=restock_item.unite_par_carton if restock_item.unite_par_carton and restock_item.unite_par_carton >= 1 else None,
             packaging_type=map_package_type(restock_item.package_type or "Carton"),
             volume=restock_item.volume,
             weight=restock_item.weight,
@@ -627,6 +639,9 @@ async def sync_restock_item(item_id: int, session: Session = Depends(get_session
         raise
     except Exception as e:
         session.rollback()
+        import traceback
+        error_detail = f"{type(e).__name__}: {str(e)}\n{traceback.format_exc()}"
+        print(f"Sync error for item {item_id}: {error_detail}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -732,8 +747,9 @@ async def sync_all_restock(session: Session = Depends(get_session)):
                             product.weight = restock_item.weight
                             changes.append("weight")
 
-                        if product.pieces_per_box != restock_item.unite_par_carton:
-                            product.pieces_per_box = restock_item.unite_par_carton
+                        new_pieces_per_box = restock_item.unite_par_carton if restock_item.unite_par_carton and restock_item.unite_par_carton >= 1 else None
+                        if product.pieces_per_box != new_pieces_per_box:
+                            product.pieces_per_box = new_pieces_per_box
                             changes.append("pieces_per_box")
 
                         if product.stock_quantity != restock_item.nmb_carton:
@@ -817,7 +833,7 @@ async def sync_all_restock(session: Session = Depends(get_session)):
                     name=restock_item.name,
                     price=restock_item.prix_unite_achat,
                     unit=map_product_unit(restock_item.product_unit or "piece"),
-                    pieces_per_box=restock_item.unite_par_carton,
+                    pieces_per_box=restock_item.unite_par_carton if restock_item.unite_par_carton and restock_item.unite_par_carton >= 1 else None,
                     packaging_type=map_package_type(restock_item.package_type or "Carton"),
                     volume=restock_item.volume,
                     weight=restock_item.weight,

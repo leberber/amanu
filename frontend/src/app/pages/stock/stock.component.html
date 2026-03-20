@@ -61,8 +61,8 @@
             </div>
             <button class="btn-cart" (click)="currentTab.set('cart')" pTooltip="Bon de Commande">
               <i class="pi pi-shopping-cart"></i>
-              @if (cartCount() > 0) {
-                <span class="cart-badge">{{ cartCount() }}</span>
+              @if (cartService.cartCount() > 0) {
+                <span class="cart-badge">{{ cartService.cartCount() }}</span>
               }
             </button>
             <button class="btn-add" (click)="addRow()" pTooltip="Ajouter une ligne">
@@ -615,11 +615,11 @@
                       <div class="action-buttons">
                         <button
                           class="btn-cart"
-                          [class.in-cart]="isInCart(row.id)"
-                          (click)="toggleCart(row)"
-                          [pTooltip]="isInCart(row.id) ? 'Retirer du panier' : 'Ajouter au panier'"
+                          [class.in-cart]="cartService.isInCart(row.id)"
+                          (click)="cartService.toggleCart(row)"
+                          [pTooltip]="cartService.isInCart(row.id) ? 'Retirer du panier' : 'Ajouter au panier'"
                         >
-                          <i class="pi" [class.pi-shopping-cart]="!isInCart(row.id)" [class.pi-check]="isInCart(row.id)"></i>
+                          <i class="pi" [class.pi-shopping-cart]="!cartService.isInCart(row.id)" [class.pi-check]="cartService.isInCart(row.id)"></i>
                         </button>
                         <button class="btn-save-row" [class.dirty]="isRowDirty(row.id) || isNewRow(row)" (click)="saveRow(row)" [disabled]="savingRow() === row.id" pTooltip="Enregistrer">
                           @if (savingRow() === row.id) {
@@ -672,8 +672,12 @@
           <div class="table-header-left">
             <h2 class="cart-title">
               <i class="pi pi-shopping-cart"></i>
-              Bon de Commande
-              <span class="cart-count-label">{{ cartCount() }} produits</span>
+              @if (cartService.isEditingDraft()) {
+                Modifier {{ cartService.editingDraftRef() }}
+              } @else {
+                Bon de Commande
+              }
+              <span class="cart-count-label">{{ cartService.cartCount() }} produits</span>
             </h2>
           </div>
           <div class="table-header-right">
@@ -684,7 +688,7 @@
           </div>
         </div>
 
-        @if (cartCount() === 0) {
+        @if (cartService.cartCount() === 0) {
           <!-- Empty Cart State -->
           <div class="empty-state">
             <div class="empty-state__icon">
@@ -704,7 +708,7 @@
             <div class="cart-table-section">
               <div class="cart-table-wrapper">
                 <p-table
-                  [value]="cartItems()"
+                  [value]="cartService.cartItems()"
                   [scrollable]="true"
                   scrollHeight="calc(100vh - 115px)"
                   styleClass="p-datatable-sm cart-table-prime"
@@ -741,7 +745,7 @@
                       <td class="text-right">{{ row.prixCarton | number:'1.0-0' }}</td>
                       <td class="text-right font-semibold" style="color: #000">{{ row.prixCarton * row.nmbCarton | number:'1.0-0' }} DA</td>
                       <td>
-                        <button class="btn-remove" (click)="removeFromCart(row)" pTooltip="Retirer">
+                        <button class="btn-remove" (click)="cartService.removeFromCart(row)" pTooltip="Retirer">
                           <i class="pi pi-times"></i>
                         </button>
                       </td>
@@ -751,10 +755,10 @@
                     <tr>
                       <td colspan="8">
                         <div class="cart-table-footer">
-                          <span class="cart-footer-count">{{ cartCount() }} produits</span>
+                          <span class="cart-footer-count">{{ cartService.cartCount() }} produits</span>
                           <div class="cart-footer-total">
                             <span class="label">Total Général</span>
-                            <span class="value" style="color: #000">{{ cartTotalValue() | number:'1.0-0' }} DA</span>
+                            <span class="value" style="color: #000">{{ cartService.cartTotalValue() | number:'1.0-0' }} DA</span>
                           </div>
                         </div>
                       </td>
@@ -772,8 +776,9 @@
                 <div class="sidebar-field">
                   <label>Fournisseur</label>
                   <p-select
-                    [options]="supplierOptions()"
-                    [(ngModel)]="selectedSupplier"
+                    [options]="cartService.supplierOptions()"
+                    [ngModel]="cartService.selectedSupplier()"
+                    (ngModelChange)="cartService.selectedSupplier.set($event)"
                     optionLabel="label"
                     optionValue="value"
                     placeholder="Tous les fournisseurs"
@@ -789,21 +794,21 @@
                 <div class="sidebar-summary">
                   <div class="summary-row">
                     <span>Produits</span>
-                    <span>{{ selectedSupplier ? getSupplierItemCount(selectedSupplier) : cartCount() }}</span>
+                    <span>{{ cartService.selectedSupplier() ? cartService.getSupplierItemCount(cartService.selectedSupplier()!) : cartService.cartCount() }}</span>
                   </div>
                   <div class="summary-row total">
                     <span>Total</span>
-                    <span style="color: #000">{{ selectedSupplier ? getSupplierTotalValue(selectedSupplier) : cartTotalValue() | number:'1.0-0' }} DA</span>
+                    <span style="color: #000">{{ cartService.selectedSupplier() ? cartService.getSupplierTotalValue(cartService.selectedSupplier()!) : cartService.cartTotalValue() | number:'1.0-0' }} DA</span>
                   </div>
                 </div>
 
-                <button class="btn-generate" (click)="saveBonDeCommande()" [disabled]="savingOrder()">
-                  @if (savingOrder()) {
+                <button class="btn-generate" (click)="cartService.saveOrder()" [disabled]="cartService.savingOrder()">
+                  @if (cartService.savingOrder()) {
                     <i class="pi pi-spin pi-spinner"></i>
                     Enregistrement...
                   } @else {
                     <i class="pi pi-save"></i>
-                    Enregistrer
+                    {{ cartService.isEditingDraft() ? 'Mettre à jour' : 'Enregistrer' }}
                   }
                 </button>
                 <button class="btn-preview" (click)="generateBonDeCommande()">
@@ -815,10 +820,17 @@
                   Voir les commandes
                 </button>
 
-                <a class="btn-clear-link" (click)="clearCart()">
-                  <i class="pi pi-trash"></i>
-                  Vider le panier
-                </a>
+                @if (cartService.isEditingDraft()) {
+                  <a class="btn-clear-link" (click)="cartService.cancelEditing()">
+                    <i class="pi pi-times"></i>
+                    Annuler les modifications
+                  </a>
+                } @else {
+                  <a class="btn-clear-link" (click)="cartService.clearCart()">
+                    <i class="pi pi-trash"></i>
+                    Vider le panier
+                  </a>
+                }
               </div>
             </div>
           </div>
@@ -834,19 +846,20 @@
 <!-- PDF Preview Dialog -->
 <p-dialog
   header="Aperçu du Bon de Commande"
-  [(visible)]="showPdfPreview"
+  [visible]="pdfService.showPdfPreview()"
+  (visibleChange)="pdfService.showPdfPreview.set($event)"
   [modal]="true"
   [style]="{ width: '100vw', height: '100vh', maxHeight: '100vh' }"
   [contentStyle]="{ height: 'calc(100vh - 80px)', padding: '0' }"
   [closable]="true"
-  (onHide)="closePdfPreview()"
+  (onHide)="pdfService.closePdfPreview()"
 >
-  @if (pdfPreviewUrl()) {
-    <iframe [src]="pdfPreviewUrl()" style="width: 100%; height: 100%; border: none;"></iframe>
+  @if (pdfService.pdfPreviewUrl()) {
+    <iframe [src]="pdfService.pdfPreviewUrl()" style="width: 100%; height: 100%; border: none;"></iframe>
   }
   <ng-template pTemplate="footer">
-    <button pButton label="Fermer" icon="pi pi-times" class="p-button-secondary" (click)="closePdfPreview()"></button>
-    <button pButton label="Télécharger" icon="pi pi-download" (click)="downloadPdf()"></button>
+    <button pButton label="Fermer" icon="pi pi-times" class="p-button-secondary" (click)="pdfService.closePdfPreview()"></button>
+    <button pButton label="Télécharger" icon="pi pi-download" (click)="pdfService.downloadPdf(cartService.selectedSupplier() ?? undefined)"></button>
   </ng-template>
 </p-dialog>
 

@@ -1794,6 +1794,7 @@
       "minimize": "تصغير",
       "view": "عرض",
       "edit": "تعديل",
+      "edit_cart": "تعديل السلة",
       "delete": "حذف",
       "showing_orders": "{{count}} طلب(ات) من {{total}}",
       "load_error": "خطأ في تحميل الطلبات",

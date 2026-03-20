@@ -15,6 +15,7 @@ import {
   PurchaseOrder,
   PurchaseOrderStatus
 } from '../../../services/purchase-order.service';
+import { PurchasingCartService } from '../../../services/purchasing-cart.service';
 
 @Component({
   selector: 'app-admin-purchase-orders',
@@ -73,6 +74,7 @@ export class AdminPurchaseOrdersComponent extends BaseAdminListComponent impleme
 
   private router = inject(Router);
   private orderService = inject(PurchaseOrderService);
+  private cartService = inject(PurchasingCartService);
   private confirmationService = inject(ConfirmationService);
   private confirmDialog = inject(ConfirmationDialogService);
   private destroyRef = inject(DestroyRef);
@@ -145,6 +147,16 @@ export class AdminPurchaseOrdersComponent extends BaseAdminListComponent impleme
 
   viewOrder(order: PurchaseOrder): void {
     this.router.navigate([RouteHelpers.adminPurchaseOrderDetail(order.id)]);
+  }
+
+  editDraft(order: PurchaseOrder): void {
+    if (order.status === 'draft') {
+      this.cartService.navigateToEditDraft(order.id);
+    }
+  }
+
+  isDraft(order: PurchaseOrder): boolean {
+    return order.status === 'draft';
   }
 
   confirmDeleteOrder(order: PurchaseOrder): void {

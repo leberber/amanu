@@ -1807,6 +1807,7 @@
       "minimize": "Minimize",
       "view": "View",
       "edit": "Edit",
+      "edit_cart": "Edit Cart",
       "delete": "Delete",
       "showing_orders": "{{count}} order(s) of {{total}}",
       "load_error": "Error loading orders",

@@ -180,8 +180,13 @@
                     @if (isColumnVisible('actions')) {
                       <td class="text-center" (click)="$event.stopPropagation()">
                         <div class="table-cell-actions justify-content-center">
-                          <button class="action-btn edit" (click)="viewOrder(order)" [pTooltip]="'admin.purchase_orders.edit' | translate" tooltipPosition="top">
-                            <i class="pi pi-pencil"></i>
+                          @if (isDraft(order)) {
+                            <button class="action-btn success" (click)="editDraft(order)" [pTooltip]="'admin.purchase_orders.edit_cart' | translate" tooltipPosition="top">
+                              <i class="pi pi-shopping-cart"></i>
+                            </button>
+                          }
+                          <button class="action-btn edit" (click)="viewOrder(order)" [pTooltip]="'admin.purchase_orders.view' | translate" tooltipPosition="top">
+                            <i class="pi pi-eye"></i>
                           </button>
                           @if (canDelete(order)) {
                             <button class="action-btn delete" (click)="confirmDeleteOrder(order)" [pTooltip]="'admin.purchase_orders.delete' | translate" tooltipPosition="top">
