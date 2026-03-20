@@ -38,6 +38,7 @@ export class PurchasingCartService {
   // Draft editing state
   editingDraftId = signal<number | null>(null);
   editingDraftRef = signal<string | null>(null);
+  hasUnsavedChanges = signal(false);
 
   // Loading states
   savingOrder = signal(false);
@@ -167,6 +168,7 @@ export class PurchasingCartService {
       return newSet;
     });
     this.saveCartToStorage();
+    this.hasUnsavedChanges.set(true);
     this.toast.showSuccess(`${row.name} ajouté au panier`);
   }
 
@@ -177,6 +179,7 @@ export class PurchasingCartService {
       return newSet;
     });
     this.saveCartToStorage();
+    this.hasUnsavedChanges.set(true);
   }
 
   toggleCart(row: RestockRow): void {
@@ -261,6 +264,7 @@ export class PurchasingCartService {
 
         this.cartItemIds.set(newCartIds);
         this.saveCartToStorage();
+        this.hasUnsavedChanges.set(false);
 
         this.toast.showSuccess(`Brouillon ${order.reference} chargé`);
       },
@@ -271,6 +275,7 @@ export class PurchasingCartService {
   }
 
   cancelEditing(): void {
+    this.hasUnsavedChanges.set(false);
     this.editingDraftId.set(null);
     this.editingDraftRef.set(null);
     this.clearCart();
@@ -315,6 +320,7 @@ export class PurchasingCartService {
         next: (order) => {
           this.lastSavedOrderRef.set(order.reference);
           this.toast.showSuccess(`Commande ${order.reference} mise à jour`);
+          this.hasUnsavedChanges.set(false);
           this.editingDraftId.set(null);
           this.editingDraftRef.set(null);
         },

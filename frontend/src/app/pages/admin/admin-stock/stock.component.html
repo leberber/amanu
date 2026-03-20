@@ -795,10 +795,18 @@
                   </a>
                 </div>
 
-                <button class="btn-generate" (click)="cartService.saveOrder()" [disabled]="cartService.savingOrder()">
+                <button
+                  class="btn-generate"
+                  [class.saved]="cartService.isEditingDraft() && !cartService.hasUnsavedChanges()"
+                  (click)="cartService.saveOrder()"
+                  [disabled]="cartService.savingOrder() || (cartService.isEditingDraft() && !cartService.hasUnsavedChanges())"
+                >
                   @if (cartService.savingOrder()) {
                     <i class="pi pi-spin pi-spinner"></i>
                     Enregistrement...
+                  } @else if (cartService.isEditingDraft() && !cartService.hasUnsavedChanges()) {
+                    <i class="pi pi-check"></i>
+                    Enregistré
                   } @else {
                     <i class="pi pi-save"></i>
                     {{ cartService.isEditingDraft() ? 'Mettre à jour' : 'Enregistrer' }}

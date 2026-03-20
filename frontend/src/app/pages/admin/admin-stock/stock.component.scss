@@ -1916,6 +1916,16 @@ $group-border: rgba(59, 130, 246, 0.2);
     transform: none;
   }
 
+  &.saved {
+    background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+    color: #166534;
+    cursor: default;
+
+    &:disabled {
+      opacity: 1;
+    }
+  }
+
   i {
     font-size: 1.1rem;
   }
