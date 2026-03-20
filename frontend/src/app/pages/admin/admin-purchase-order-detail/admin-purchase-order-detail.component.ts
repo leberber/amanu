@@ -8,6 +8,7 @@ import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService } from 'primeng/api';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { PageLayoutComponent } from '../../../shared/components/page-layout/page-layout.component';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
@@ -30,6 +31,7 @@ import {
     ButtonModule,
     TooltipModule,
     ConfirmDialogModule,
+    TranslateModule,
     PageLayoutComponent,
     CurrencyPipe,
     DateFormatPipe
@@ -46,6 +48,7 @@ export class AdminPurchaseOrderDetailComponent implements OnInit {
   private confirmationService = inject(ConfirmationService);
   private confirmDialog = inject(ConfirmationDialogService);
   private orderService = inject(PurchaseOrderService);
+  private translate = inject(TranslateService);
 
   // State
   loading = signal(true);
@@ -80,7 +83,7 @@ export class AdminPurchaseOrderDetailComponent implements OnInit {
         this.initEditableItems(order.items);
       },
       error: () => {
-        this.toast.showError('Commande introuvable');
+        this.toast.showError(this.translate.instant('admin.purchase_orders.detail.not_found'));
         this.router.navigate([ROUTES.ADMIN.PURCHASE_ORDERS]);
       }
     });
@@ -105,10 +108,10 @@ export class AdminPurchaseOrderDetailComponent implements OnInit {
     ).subscribe({
       next: (updated) => {
         this.order.set(updated);
-        this.toast.showSuccess(`Statut mis à jour: ${this.orderService.getStatusLabel(newStatus)}`);
+        this.toast.showSuccess(this.translate.instant('admin.purchase_orders.detail.status_updated'));
       },
       error: () => {
-        this.toast.showError('Erreur lors de la mise à jour du statut');
+        this.toast.showError(this.translate.instant('admin.purchase_orders.detail.status_update_error'));
       }
     });
   }
@@ -137,14 +140,14 @@ export class AdminPurchaseOrderDetailComponent implements OnInit {
         this.order.set(updated);
         this.initEditableItems(updated.items);
         this.deliveryWarning.set(null);
-        this.toast.showSuccess('Livraison confirmée - Stock mis à jour');
+        this.toast.showSuccess(this.translate.instant('admin.purchase_orders.detail.delivery_confirmed'));
       },
       error: (err) => {
         // Check if it's a validation error (400) with unlinked items
         if (err.status === 400 && err.error?.detail) {
           this.deliveryWarning.set(err.error.detail);
         } else {
-          this.toast.showError('Erreur lors de la confirmation de livraison');
+          this.toast.showError(this.translate.instant('admin.purchase_orders.detail.delivery_error'));
         }
       }
     });
@@ -194,15 +197,15 @@ export class AdminPurchaseOrderDetailComponent implements OnInit {
         this.order.set(updated);
         this.initEditableItems(updated.items);
         this.deliveryWarning.set(null);
-        this.toast.showSuccess('Article supprimé');
+        this.toast.showSuccess(this.translate.instant('admin.purchase_orders.detail.item_deleted'));
       },
       error: (err) => {
         // Check if order was deleted (last item)
         if (err.status === 200 && err.error?.order_deleted) {
-          this.toast.showSuccess('Commande supprimée (dernier article)');
+          this.toast.showSuccess(this.translate.instant('admin.purchase_orders.detail.order_deleted_last_item'));
           this.router.navigate([ROUTES.ADMIN.PURCHASE_ORDERS]);
         } else {
-          this.toast.showError('Erreur lors de la suppression');
+          this.toast.showError(this.translate.instant('admin.purchase_orders.detail.item_delete_error'));
         }
       }
     });
@@ -229,11 +232,11 @@ export class AdminPurchaseOrderDetailComponent implements OnInit {
       finalize(() => this.saving.set(false))
     ).subscribe({
       next: () => {
-        this.toast.showSuccess('Commande supprimée');
+        this.toast.showSuccess(this.translate.instant('admin.purchase_orders.detail.order_deleted'));
         this.router.navigate([ROUTES.ADMIN.PURCHASE_ORDERS]);
       },
       error: () => {
-        this.toast.showError('Erreur lors de la suppression');
+        this.toast.showError(this.translate.instant('admin.purchase_orders.detail.order_delete_error'));
       }
     });
   }

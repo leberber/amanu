@@ -2,6 +2,7 @@ import { Component, OnInit, inject, DestroyRef, signal, computed } from '@angula
 import { Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ConfirmationService } from 'primeng/api';
+import { TranslateService } from '@ngx-translate/core';
 
 import { ADMIN_LIST_IMPORTS } from '../../../shared/imports/admin-shared.imports';
 import { TableSkeletonComponent, SkeletonColumn } from '../../../shared/components/table-skeleton/table-skeleton.component';
@@ -75,6 +76,7 @@ export class AdminPurchaseOrdersComponent extends BaseAdminListComponent impleme
   private confirmationService = inject(ConfirmationService);
   private confirmDialog = inject(ConfirmationDialogService);
   private destroyRef = inject(DestroyRef);
+  private translate = inject(TranslateService);
 
   ngOnInit() {
     this.loadOrders();
@@ -96,7 +98,7 @@ export class AdminPurchaseOrdersComponent extends BaseAdminListComponent impleme
           this.allOrders.set([]);
           this.orders.set([]);
           this.loading = false;
-          this.baseToast.showError('Erreur lors du chargement des commandes');
+          this.baseToast.showError(this.translate.instant('admin.purchase_orders.load_error'));
         }
       });
   }
@@ -147,7 +149,7 @@ export class AdminPurchaseOrdersComponent extends BaseAdminListComponent impleme
 
   confirmDeleteOrder(order: PurchaseOrder): void {
     if (!this.orderService.canDelete(order)) {
-      this.baseToast.showError('Seuls les brouillons peuvent être supprimés');
+      this.baseToast.showError(this.translate.instant('admin.purchase_orders.only_drafts_deletable'));
       return;
     }
     this.confirmDialog.confirmDelete(
@@ -162,8 +164,8 @@ export class AdminPurchaseOrdersComponent extends BaseAdminListComponent impleme
       () => this.orderService.deleteOrder(order.id),
       this.allOrders,
       order.id,
-      'Commande supprimée',
-      'Erreur lors de la suppression'
+      this.translate.instant('admin.purchase_orders.delete_success'),
+      this.translate.instant('admin.purchase_orders.delete_error')
     );
   }
 

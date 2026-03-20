@@ -1,5 +1,5 @@
 <app-page-layout
-  [title]="order()?.reference || 'Commande'"
+  [title]="order()?.reference || ('admin.purchase_orders.detail.title' | translate)"
   icon="pi pi-file-edit"
   [showBackButton]="true"
   [backRoute]="'/admin/purchase-orders'">
@@ -9,7 +9,7 @@
   @if (loading()) {
     <div class="flex align-items-center justify-content-center gap-3 p-6">
       <i class="pi pi-spin pi-spinner text-xl text-secondary"></i>
-      <span class="text-secondary">Chargement...</span>
+      <span class="text-secondary">{{ 'admin.purchase_orders.detail.loading' | translate }}</span>
     </div>
   } @else if (order()) {
     <div class="order-detail-layout">
@@ -20,12 +20,12 @@
           <div class="table-header">
             <div class="table-header__title">
               <i class="pi pi-box"></i>
-              <span>Produits ({{ order()!.item_count }})</span>
+              <span>{{ 'admin.purchase_orders.detail.products' | translate }} ({{ order()!.item_count }})</span>
             </div>
             @if (order()!.status === 'sent') {
               <div class="pill primary">
                 <i class="pi pi-info-circle"></i>
-                <span>Ajustez les quantités reçues avant de confirmer</span>
+                <span>{{ 'admin.purchase_orders.detail.adjust_quantities' | translate }}</span>
               </div>
             }
           </div>
@@ -34,15 +34,15 @@
             <table class="table">
               <thead>
                 <tr>
-                  <th style="width: 25%">Produit</th>
-                  <th style="width: 15%">Marque</th>
-                  <th style="width: 10%" class="text-center">U/Carton</th>
-                  <th style="width: 12%" class="text-center">Commandé</th>
+                  <th style="width: 25%">{{ 'admin.purchase_orders.detail.product' | translate }}</th>
+                  <th style="width: 15%">{{ 'admin.purchase_orders.detail.brand' | translate }}</th>
+                  <th style="width: 10%" class="text-center">{{ 'admin.purchase_orders.detail.units_per_carton' | translate }}</th>
+                  <th style="width: 12%" class="text-center">{{ 'admin.purchase_orders.detail.ordered' | translate }}</th>
                   @if (order()!.status === 'sent' || order()!.status === 'delivered') {
-                    <th style="width: 15%" class="text-center">Reçu</th>
+                    <th style="width: 15%" class="text-center">{{ 'admin.purchase_orders.detail.received' | translate }}</th>
                   }
-                  <th style="width: 12%" class="text-right">P.U</th>
-                  <th style="width: 12%" class="text-right">Total</th>
+                  <th style="width: 12%" class="text-right">{{ 'admin.purchase_orders.detail.unit_price' | translate }}</th>
+                  <th style="width: 12%" class="text-right">{{ 'admin.purchase_orders.detail.total_price' | translate }}</th>
                   @if (order()!.status === 'sent') {
                     <th style="width: 8%" class="text-center"></th>
                   }
@@ -113,7 +113,7 @@
                           class="action-btn delete"
                           (click)="deleteItem(item.id!)"
                           [disabled]="saving()"
-                          pTooltip="Supprimer"
+                          [pTooltip]="'admin.purchase_orders.delete' | translate"
                           tooltipPosition="top"
                         >
                           <i class="pi pi-trash"></i>
@@ -129,7 +129,7 @@
           <!-- Table Footer with Total -->
           <div class="table-footer">
             <div class="table-footer__total">
-              <span class="table-footer__label">Total</span>
+              <span class="table-footer__label">{{ 'admin.purchase_orders.total' | translate }}</span>
               <span class="table-footer__value">{{ order()!.total_amount | appCurrency }}</span>
             </div>
           </div>
@@ -140,7 +140,7 @@
           <div class="sidebar-card">
             <div class="sidebar-card__header">
               <i class="pi pi-comment"></i>
-              <span>Notes</span>
+              <span>{{ 'admin.purchase_orders.detail.notes' | translate }}</span>
             </div>
             <div class="sidebar-card__body">
               <p class="notes-content">{{ order()!.notes }}</p>
@@ -167,7 +167,7 @@
         <div class="actions-bar">
           @if (canDelete()) {
             <p-button
-              label="Supprimer"
+              [label]="'admin.purchase_orders.delete' | translate"
               icon="pi pi-trash"
               severity="danger"
               [outlined]="true"
@@ -181,7 +181,7 @@
           @switch (order()!.status) {
             @case ('draft') {
               <p-button
-                label="Marquer comme envoyée"
+                [label]="'admin.purchase_orders.detail.mark_as_sent' | translate"
                 icon="pi pi-send"
                 (onClick)="updateStatus('sent')"
                 [disabled]="saving()"
@@ -189,7 +189,7 @@
             }
             @case ('sent') {
               <p-button
-                label="Confirmer la livraison"
+                [label]="'admin.purchase_orders.detail.confirm_delivery' | translate"
                 icon="pi pi-truck"
                 severity="success"
                 (onClick)="confirmDelivery()"
@@ -205,7 +205,7 @@
         <div class="sidebar-card">
           <div class="sidebar-card__header">
             <i class="pi pi-clock"></i>
-            <span>Statut</span>
+            <span>{{ 'admin.purchase_orders.detail.status_timeline' | translate }}</span>
           </div>
           <div class="sidebar-card__body">
             <!-- Vertical Timeline -->
@@ -215,7 +215,7 @@
                   <i class="pi pi-pencil"></i>
                 </div>
                 <div class="timeline-item__content">
-                  <span class="timeline-item__label">Brouillon</span>
+                  <span class="timeline-item__label">{{ 'admin.purchase_orders.status_labels.draft' | translate }}</span>
                   @if (order()!.created_at) {
                     <span class="timeline-item__date">{{ order()!.created_at | appDate }}</span>
                   }
@@ -227,7 +227,7 @@
                   <i class="pi pi-send"></i>
                 </div>
                 <div class="timeline-item__content">
-                  <span class="timeline-item__label">Envoyée</span>
+                  <span class="timeline-item__label">{{ 'admin.purchase_orders.status_labels.sent' | translate }}</span>
                   @if (order()!.sent_at; as sentAt) {
                     <span class="timeline-item__date">{{ sentAt | appDate }}</span>
                   }
@@ -239,7 +239,7 @@
                   <i class="pi pi-check"></i>
                 </div>
                 <div class="timeline-item__content">
-                  <span class="timeline-item__label">Livrée</span>
+                  <span class="timeline-item__label">{{ 'admin.purchase_orders.status_labels.delivered' | translate }}</span>
                   @if (order()!.delivered_at; as deliveredAt) {
                     <span class="timeline-item__date">{{ deliveredAt | appDate }}</span>
                   }
@@ -253,7 +253,7 @@
         <div class="sidebar-card">
           <div class="sidebar-card__header">
             <i class="pi pi-building"></i>
-            <span>Fournisseur</span>
+            <span>{{ 'admin.purchase_orders.detail.supplier_info' | translate }}</span>
           </div>
           <div class="sidebar-card__body">
             <p class="supplier-name">{{ order()!.supplier_name }}</p>
