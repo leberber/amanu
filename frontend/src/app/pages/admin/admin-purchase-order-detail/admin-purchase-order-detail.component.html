@@ -123,20 +123,15 @@
                   </tr>
                 }
               </tbody>
-              <tfoot>
-                <tr>
-                  <td [attr.colspan]="order()!.status === 'sent' ? 6 : (order()!.status === 'delivered' ? 5 : 4)" class="text-right">
-                    <span class="font-semibold">Total</span>
-                  </td>
-                  <td class="text-right">
-                    <span class="font-bold text-lg">{{ formatCurrency(order()!.total_amount) }}</span>
-                  </td>
-                  @if (order()!.status === 'sent') {
-                    <td></td>
-                  }
-                </tr>
-              </tfoot>
             </table>
+          </div>
+
+          <!-- Table Footer with Total -->
+          <div class="table-footer">
+            <div class="table-footer__total">
+              <span class="table-footer__label">Total</span>
+              <span class="table-footer__value">{{ formatCurrency(order()!.total_amount) }}</span>
+            </div>
           </div>
         </div>
 

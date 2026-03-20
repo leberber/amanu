@@ -13,12 +13,12 @@
   max-width: 1400px;
   margin: 0 auto;
   padding: var(--space-4);
-  height: calc(100vh - 120px); // Full height minus header and padding
+  height: calc(100vh - 150px); // Full height minus header and padding
 
   @media (min-width: 1024px) {
     grid-template-columns: 1fr 280px;
     padding: var(--space-4) var(--space-6);
-    height: calc(100vh - 100px);
+    height: calc(100vh - 130px);
   }
 }
 
@@ -211,6 +211,7 @@
   backdrop-filter: var(--glass-blur);
   border-radius: var(--radius-xl);
   border: var(--border-width) solid var(--border-color-light);
+  padding: 0; // Ensure no padding
 }
 
 .table-header {
@@ -218,7 +219,7 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--space-3);
-  padding: var(--space-4);
+  padding: var(--space-6) var(--space-6);
   background: var(--surface-ground);
   border-bottom: var(--border-width) solid var(--border-color-light);
   flex-shrink: 0;
@@ -246,7 +247,70 @@
 .table-wrapper {
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
   min-height: 0;
+  padding: 0;
+  margin: 0;
+}
+
+// Override global table styles for this page
+.table-container .table {
+  width: 100%;
+  min-width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  margin: 0;
+
+  thead th,
+  tbody td {
+    padding: var(--space-4) var(--space-5);
+    font-size: var(--font-size-sm);
+  }
+
+  thead th {
+    font-size: var(--font-size-xs);
+  }
+
+  // First column
+  thead th:first-child,
+  tbody td:first-child {
+    padding-left: var(--space-6);
+  }
+
+  // Last column
+  thead th:last-child,
+  tbody td:last-child {
+    padding-right: var(--space-6);
+  }
+}
+
+// Table footer with total
+.table-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: var(--space-5) var(--space-6);
+  background: var(--surface-ground);
+  border-top: 2px solid var(--border-color);
+  flex-shrink: 0;
+
+  &__total {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+  }
+
+  &__label {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-color-secondary);
+  }
+
+  &__value {
+    font-size: 1.125rem;
+    font-weight: var(--font-weight-bold);
+    color: var(--text-color);
+  }
 }
 
 .edit-hint-badge {
