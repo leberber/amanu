@@ -257,7 +257,7 @@ export const routes: Routes = [
   // Purchasing Page (admin only)
   {
     path: 'admin/purchasing',
-    loadComponent: () => import('./pages/stock/stock.component').then(m => m.StockComponent),
+    loadComponent: () => import('./pages/admin/admin-stock/stock.component').then(m => m.StockComponent),
     canActivate: [adminGuard],
     data: { hideBottomNav: true }
   },

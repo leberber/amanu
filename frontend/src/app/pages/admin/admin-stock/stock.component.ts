@@ -11,19 +11,19 @@ import { SelectModule } from 'primeng/select';
 import { PopoverModule } from 'primeng/popover';
 import { DialogModule } from 'primeng/dialog';
 
-import { ADMIN_LIST_IMPORTS } from '../../shared/imports/admin-shared.imports';
-import { TableSkeletonComponent, SkeletonColumn } from '../../shared/components/table-skeleton/table-skeleton.component';
-import { AgroclikPageContainerComponent } from '../../shared/components/agroclik-page-container/agroclik-page-container.component';
-import { ToastMessageService } from '../../core/services/toast-message.service';
-import { ApiService } from '../../services/api.service';
+import { ADMIN_LIST_IMPORTS } from '../../../shared/imports/admin-shared.imports';
+import { TableSkeletonComponent, SkeletonColumn } from '../../../shared/components/table-skeleton/table-skeleton.component';
+import { AgroclikPageContainerComponent } from '../../../shared/components/agroclik-page-container/agroclik-page-container.component';
+import { ToastMessageService } from '../../../core/services/toast-message.service';
+import { ApiService } from '../../../services/api.service';
 
 // Models
-import { RestockRow, RestockData, BrandOption, CategoryOption } from '../../models/restock.model';
+import { RestockRow, RestockData, BrandOption, CategoryOption } from '../../../models/restock.model';
 
 // Services
-import { PurchasingCartService } from '../../services/purchasing-cart.service';
-import { PurchasingPdfService } from '../../services/purchasing-pdf.service';
-import { RowFlashService } from '../../services/row-flash.service';
+import { PurchasingCartService } from '../../../services/purchasing-cart.service';
+import { PurchasingPdfService } from '../../../services/purchasing-pdf.service';
+import { RowFlashService } from '../../../services/row-flash.service';
 
 // Utils
 import {
@@ -34,7 +34,7 @@ import {
   getPackageTypeColor,
   getUnitColor,
   getUnitLabel
-} from '../../shared/utils/color.utils';
+} from '../../../shared/utils/color.utils';
 
 @Component({
   selector: 'app-stock',
