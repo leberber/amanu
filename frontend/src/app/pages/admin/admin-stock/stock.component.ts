@@ -199,11 +199,13 @@ export class StockComponent implements OnInit, OnDestroy {
     }
 
     if (catFilter && catFilter.length > 0) {
-      rows = rows.filter(r => catFilter.includes(r.category));
+      const lowerCatFilter = catFilter.map(c => c.toLowerCase());
+      rows = rows.filter(r => lowerCatFilter.includes(r.category.toLowerCase()));
     }
 
     if (brandFilter && brandFilter.length > 0) {
-      rows = rows.filter(r => brandFilter.includes(r.brand));
+      const lowerBrandFilter = brandFilter.map(b => b.toLowerCase());
+      rows = rows.filter(r => lowerBrandFilter.includes(r.brand.toLowerCase()));
     }
 
     if (prioFilter && prioFilter.length > 0) {
@@ -323,8 +325,8 @@ export class StockComponent implements OnInit, OnDestroy {
 
     forkJoin({
       restock: this.api.get<RestockData>('/restock').pipe(catchError(() => of({ items: [] }))),
-      brands: this.api.get<BrandOption[]>('/brands').pipe(catchError(() => of([]))),
-      categories: this.api.get<CategoryOption[]>('/categories').pipe(catchError(() => of([])))
+      brands: this.api.get<BrandOption[]>('/brands?lang=fr').pipe(catchError(() => of([]))),
+      categories: this.api.get<CategoryOption[]>('/categories?lang=fr').pipe(catchError(() => of([])))
     }).pipe(
       takeUntilDestroyed(this.destroyRef)
     ).subscribe({
