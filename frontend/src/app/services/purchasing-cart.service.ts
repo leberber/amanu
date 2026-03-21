@@ -281,6 +281,31 @@ export class PurchasingCartService {
     this.clearCart();
   }
 
+  // Helper: Build order items from cart rows
+  private buildOrderItems(rows: RestockRow[]): PurchaseOrderItemCreate[] {
+    return rows.map(row => ({
+      product_id: row.productId || undefined,
+      product_name: row.name || '',
+      brand: row.brand || '',
+      units_per_carton: row.uniteParCarton || 1,
+      quantity_ordered: row.nmbCarton || 1,
+      unit_price: row.prixCarton || 0,
+      total_price: (row.prixCarton || 0) * (row.nmbCarton || 1)
+    }));
+  }
+
+  // Helper: Build supplier info for order
+  private buildSupplierInfo(supplierName: string): Pick<PurchaseOrderCreate, 'supplier_name' | 'supplier_address' | 'supplier_phone' | 'supplier_email' | 'supplier_city'> {
+    const details = this.getSupplierDetails(supplierName);
+    return {
+      supplier_name: details?.name || supplierName,
+      supplier_address: details?.address,
+      supplier_phone: details?.phone,
+      supplier_email: details?.email,
+      supplier_city: details?.city
+    };
+  }
+
   // Save order (create new or update existing draft)
   saveOrder(): void {
     if (this.cartCount() === 0) {
@@ -290,27 +315,16 @@ export class PurchasingCartService {
 
     const items = this.cartItems();
     const supplierName = this.selectedSupplier() || items[0]?.supplier || 'Inconnu';
-    const supplierDetails = this.getSupplierDetails(supplierName);
+    const orderItems = this.buildOrderItems(items);
+    const supplierInfo = this.buildSupplierInfo(supplierName);
 
     this.savingOrder.set(true);
 
     if (this.isEditingDraft()) {
       // Update existing draft
       const updateData: PurchaseOrderUpdate = {
-        supplier_name: supplierDetails?.name || supplierName,
-        supplier_address: supplierDetails?.address,
-        supplier_phone: supplierDetails?.phone,
-        supplier_email: supplierDetails?.email,
-        supplier_city: supplierDetails?.city,
-        items: items.map(row => ({
-          product_id: row.productId || undefined,
-          product_name: row.name || '',
-          brand: row.brand || '',
-          units_per_carton: row.uniteParCarton || 1,
-          quantity_ordered: row.nmbCarton || 1,
-          unit_price: row.prixCarton || 0,
-          total_price: (row.prixCarton || 0) * (row.nmbCarton || 1)
-        } as PurchaseOrderItemUpdate))
+        ...supplierInfo,
+        items: orderItems as PurchaseOrderItemUpdate[]
       };
 
       this.orderService.updateOrder(this.editingDraftId()!, updateData).pipe(
@@ -330,22 +344,8 @@ export class PurchasingCartService {
       });
     } else {
       // Create new order
-      const orderItems: PurchaseOrderItemCreate[] = items.map(row => ({
-        product_id: row.productId || undefined,
-        product_name: row.name || '',
-        brand: row.brand || '',
-        units_per_carton: row.uniteParCarton || 1,
-        quantity_ordered: row.nmbCarton || 1,
-        unit_price: row.prixCarton || 0,
-        total_price: (row.prixCarton || 0) * (row.nmbCarton || 1)
-      }));
-
       const orderData: PurchaseOrderCreate = {
-        supplier_name: supplierDetails?.name || supplierName,
-        supplier_address: supplierDetails?.address,
-        supplier_phone: supplierDetails?.phone,
-        supplier_email: supplierDetails?.email,
-        supplier_city: supplierDetails?.city,
+        ...supplierInfo,
         items: orderItems
       };
 
