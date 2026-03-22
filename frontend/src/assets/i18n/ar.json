@@ -1809,6 +1809,7 @@
         "product": "المنتج",
         "brand": "العلامة التجارية",
         "units_per_carton": "و/كرتون",
+        "quantity": "الكمية",
         "ordered": "المطلوب",
         "received": "المستلم",
         "unit_price": "س.و",

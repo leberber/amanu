@@ -1822,6 +1822,7 @@
         "product": "Product",
         "brand": "Brand",
         "units_per_carton": "U/Carton",
+        "quantity": "Quantity",
         "ordered": "Ordered",
         "received": "Received",
         "unit_price": "U.P",

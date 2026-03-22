@@ -126,7 +126,7 @@ export class AdminPurchaseOrderDetailComponent implements OnInit {
     const deliveryData = {
       items: this.editableItems().map(item => ({
         item_id: item.id!,
-        quantity_received: item.quantity_received || 0
+        quantity_received: item.quantity_ordered
       })),
       notes: undefined
     };
@@ -161,12 +161,12 @@ export class AdminPurchaseOrderDetailComponent implements OnInit {
   incrementQuantity(index: number): void {
     this.editableItems.update(items => {
       const updated = [...items];
-      if (updated[index].quantity_received < updated[index].quantity_ordered) {
-        updated[index] = {
-          ...updated[index],
-          quantity_received: updated[index].quantity_received + 1
-        };
-      }
+      const newQty = updated[index].quantity_ordered + 1;
+      updated[index] = {
+        ...updated[index],
+        quantity_ordered: newQty,
+        total_price: newQty * updated[index].unit_price
+      };
       return updated;
     });
   }
@@ -174,10 +174,12 @@ export class AdminPurchaseOrderDetailComponent implements OnInit {
   decrementQuantity(index: number): void {
     this.editableItems.update(items => {
       const updated = [...items];
-      if (updated[index].quantity_received > 0) {
+      if (updated[index].quantity_ordered > 1) {
+        const newQty = updated[index].quantity_ordered - 1;
         updated[index] = {
           ...updated[index],
-          quantity_received: updated[index].quantity_received - 1
+          quantity_ordered: newQty,
+          total_price: newQty * updated[index].unit_price
         };
       }
       return updated;
