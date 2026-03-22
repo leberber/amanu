@@ -527,12 +527,34 @@ def update_order(
             session.commit()
             session.refresh(order)
 
-        # Handle trip cleanup when order is cancelled
+        # Handle order cancellation: restore stock and cleanup trips
         if new_status == OrderStatus.CANCELLED:
+            _restore_order_stock(order, session)
             _handle_order_cancellation_trip_cleanup(order, session)
 
     # Include order items in response
     return order
+
+
+def _restore_order_stock(order: Order, session: Session) -> None:
+    """
+    Restore stock quantities when an order is cancelled.
+    Used by both admin and customer cancellation paths (DRY principle).
+    """
+    # Get order items
+    order_items = session.exec(
+        select(OrderItem).where(OrderItem.order_id == order.id)
+    ).all()
+
+    # Restore stock for each item
+    for item in order_items:
+        if item.product_id:
+            product = session.get(Product, item.product_id)
+            if product:
+                product.stock_quantity = (product.stock_quantity or 0) + item.quantity
+                session.add(product)
+
+    session.commit()
 
 
 def _handle_order_cancellation_trip_cleanup(order: Order, session: Session) -> None:
