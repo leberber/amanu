@@ -500,6 +500,7 @@ export class StockComponent implements OnInit, OnDestroy {
 
     const payload = {
       id: row.id > 0 ? row.id : null,
+      productId: row.productId,
       brandId: row.brandId,
       categoryId: row.categoryId,
       name: row.name,
@@ -520,7 +521,7 @@ export class StockComponent implements OnInit, OnDestroy {
       hidden: row.hidden
     };
 
-    this.api.post<{ success: boolean; id: number }>('/restock/item', payload).pipe(
+    this.api.post<{ success: boolean; id: number; productId?: number }>('/restock/item', payload).pipe(
       takeUntilDestroyed(this.destroyRef)
     ).subscribe({
       next: (response) => {
@@ -531,6 +532,10 @@ export class StockComponent implements OnInit, OnDestroy {
           this.rowFlash.flashRow(originalId, 'success', 'Enregistré');
           if (originalId < 0) {
             row.id = response.id;
+            // Set productId if returned (auto-created product)
+            if (response.productId) {
+              row.productId = response.productId;
+            }
             this.allRows.update(rows => [...rows]);
           }
         } else {

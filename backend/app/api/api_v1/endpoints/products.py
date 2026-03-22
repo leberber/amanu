@@ -10,6 +10,7 @@ from app.database import get_session
 from app.models.product import Product, ProductCreate, ProductUpdate, ProductRead, ProductPromotion
 from app.models.category import Category
 from app.models.promotion import Promotion, PromotionScope
+from app.models.restock import RestockItem
 from app.core.security import get_current_staff_user, get_current_active_user
 from app.core.translation import TranslationService
 from app.models.user import User
@@ -98,6 +99,7 @@ def create_product(
 ) -> Any:
     """
     Create new product (staff only).
+    Also creates a linked RestockItem so the product appears in the purchasing page.
     """
     # Check if category exists
     category = session.get(Category, product_in.category_id)
@@ -106,9 +108,27 @@ def create_product(
             status_code=404,
             detail="Category not found",
         )
-    
+
     product = Product.model_validate(product_in)
     session.add(product)
+    session.flush()  # Get product ID before creating RestockItem
+
+    # Auto-create RestockItem so product appears in purchasing page
+    restock_item = RestockItem(
+        product_id=product.id,
+        supplier="",
+        phone="",
+        prix_unite_achat=0,
+        unite_par_carton=product.pieces_per_box or 1,
+        prix_carton=0,
+        nmb_carton=0,
+        carry=False,
+        priority=0,
+        hidden=not product.is_active,
+        created_at=datetime.now(timezone.utc)
+    )
+    session.add(restock_item)
+
     session.commit()
     session.refresh(product)
     return product
@@ -272,6 +292,7 @@ def delete_product(
 ) -> Any:
     """
     Delete a product (staff only).
+    Also deletes the linked RestockItem.
     """
     product = session.get(Product, product_id)
     if not product:
@@ -279,19 +300,36 @@ def delete_product(
             status_code=404,
             detail="Product not found",
         )
-    
+
     # Check if product has related orders
     if product.order_items:
         # Instead of deleting, mark as inactive
         product.is_active = False
         product.updated_at = datetime.now(timezone.utc)
         session.add(product)
+
+        # Also mark RestockItem as hidden
+        restock_item = session.exec(
+            select(RestockItem).where(RestockItem.product_id == product_id)
+        ).first()
+        if restock_item:
+            restock_item.hidden = True
+            restock_item.updated_at = datetime.now(timezone.utc)
+            session.add(restock_item)
+
         session.commit()
     else:
-        # Delete product if no related records
+        # Delete RestockItem first (foreign key constraint)
+        restock_item = session.exec(
+            select(RestockItem).where(RestockItem.product_id == product_id)
+        ).first()
+        if restock_item:
+            session.delete(restock_item)
+
+        # Delete product
         session.delete(product)
         session.commit()
-    
+
     return None
 
 @router.get("/category/{category_id}", response_model=List[ProductRead])

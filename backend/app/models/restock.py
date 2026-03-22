@@ -3,29 +3,21 @@ from typing import Optional, TYPE_CHECKING
 from datetime import datetime, timezone
 
 if TYPE_CHECKING:
-    from app.models.category import Category
-    from app.models.brand import Brand
     from app.models.product import Product
 
 
 class RestockItemBase(SQLModel):
-    """Base restock item model"""
-    # Links
-    product_id: Optional[int] = Field(default=None, foreign_key="products.id", index=True)
-    brand_id: Optional[int] = Field(default=None, foreign_key="brands.id")
-    category_id: Optional[int] = Field(default=None, foreign_key="categories.id")
-    # Product info
-    name: str = Field(default="")
-    image: str = Field(default="")
-    description: str = Field(default="")
+    """Base restock item model - purchasing data only.
+
+    Product data (name, brand, category, image, etc.) is stored in the Products table.
+    This table only stores purchasing/supplier information.
+    """
+    # Link to product (required - all restock items must have a product)
+    product_id: int = Field(foreign_key="products.id", index=True)
     # Supplier info
     supplier: str = Field(default="")
     phone: str = Field(default="")
     # Pricing
-    product_unit: str = Field(default="piece")  # piece, bottle, can, box, sachet, kg, g, L, ml, carton, pack
-    package_type: str = Field(default="Carton")
-    volume: Optional[float] = Field(default=None)  # in liters (L)
-    weight: Optional[float] = Field(default=None)  # in kilograms (kg)
     prix_unite_achat: float = Field(default=0)  # Purchase price per unit
     unite_par_carton: int = Field(default=1)
     prix_carton: float = Field(default=0)
@@ -37,15 +29,14 @@ class RestockItemBase(SQLModel):
 
 
 class RestockItem(RestockItemBase, table=True):
-    """Database model for restock items"""
+    """Database model for restock items - purchasing data only"""
     __tablename__ = "restock_items"
     id: Optional[int] = Field(default=None, primary_key=True)
+    product_id: int = Field(foreign_key="products.id", index=True)
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: Optional[datetime] = Field(default=None)
 
-    # Relationships
-    brand: Optional["Brand"] = Relationship()
-    category: Optional["Category"] = Relationship()
+    # Relationship to product
     product: Optional["Product"] = Relationship()
 
 
@@ -57,17 +48,8 @@ class RestockItemCreate(RestockItemBase):
 class RestockItemUpdate(SQLModel):
     """Model for updating a restock item"""
     product_id: Optional[int] = None
-    brand_id: Optional[int] = None
-    category_id: Optional[int] = None
-    name: Optional[str] = None
-    image: Optional[str] = None
-    description: Optional[str] = None
     supplier: Optional[str] = None
     phone: Optional[str] = None
-    product_unit: Optional[str] = None
-    package_type: Optional[str] = None
-    volume: Optional[float] = None  # in liters (L)
-    weight: Optional[float] = None  # in kilograms (kg)
     prix_unite_achat: Optional[float] = None
     unite_par_carton: Optional[int] = None
     prix_carton: Optional[float] = None
@@ -78,11 +60,7 @@ class RestockItemUpdate(SQLModel):
 
 
 class RestockItemRead(RestockItemBase):
-    """Model for reading restock items with joined data"""
+    """Model for reading restock items with joined product data"""
     id: int
     created_at: datetime
     updated_at: Optional[datetime] = None
-    # Joined fields for display
-    brand_name: Optional[str] = None
-    category_name: Optional[str] = None
-    synced: bool = False  # True if product_id is set
