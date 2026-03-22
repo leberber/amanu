@@ -616,22 +616,26 @@ export class StockComponent implements OnInit, OnDestroy {
 
   deleteRow(row: RestockRow): void {
     if (this.isNewRow(row)) {
-      this.allRows.update(rows => rows.filter(r => r.id !== row.id));
-      this.toast.showSuccess('Produit supprimé');
+      this.rowFlash.flashRow(row.id, 'error', 'Supprimé');
+      setTimeout(() => {
+        this.allRows.update(rows => rows.filter(r => r.id !== row.id));
+      }, 800);
     } else {
       this.api.delete<{ success: boolean }>(`/restock/item/${row.id}`).pipe(
         takeUntilDestroyed(this.destroyRef)
       ).subscribe({
         next: () => {
-          this.allRows.update(rows => rows.filter(r => r.id !== row.id));
-          this.toast.showSuccess('Produit supprimé');
+          this.rowFlash.flashRow(row.id, 'error', 'Supprimé');
+          setTimeout(() => {
+            this.allRows.update(rows => rows.filter(r => r.id !== row.id));
+          }, 800);
         },
         error: (err) => {
           let errorMessage = 'Échec de la suppression';
           if (err.error?.detail) {
             errorMessage += ': ' + err.error.detail;
           }
-          this.toast.showError(errorMessage);
+          this.rowFlash.flashRow(row.id, 'error', errorMessage);
         }
       });
     }
