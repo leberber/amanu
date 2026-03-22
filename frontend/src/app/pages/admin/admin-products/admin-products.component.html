@@ -102,7 +102,7 @@
         </p-select>
       </div>
 
-      <button class="btn-add" (click)="createNewProduct()" [disabled]="true">
+      <button class="btn-add" (click)="createNewProduct()">
         <i class="pi pi-plus"></i>
         <span>{{ 'admin.products.add_product' | translate }}</span>
       </button>
@@ -133,7 +133,7 @@
           </button>
         }
         @if (!hasActiveFilters()) {
-          <button class="btn-primary" (click)="createNewProduct()" [disabled]="true">
+          <button class="btn-primary" (click)="createNewProduct()">
             <i class="pi pi-plus"></i>
             <span>{{ 'admin.products.add_first_product' | translate }}</span>
           </button>
