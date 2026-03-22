@@ -283,8 +283,8 @@ export class PurchasingPdfService {
           0: { cellWidth: 10, halign: 'center' },
           1: { cellWidth: 'auto' },
           2: { cellWidth: 30 },
-          3: { cellWidth: 12, halign: 'center' },
-          4: { cellWidth: 12, halign: 'center' },
+          3: { cellWidth: 18, halign: 'center' },
+          4: { cellWidth: 18, halign: 'center' },
           5: { cellWidth: 22, halign: 'right' },
           6: { cellWidth: 25, halign: 'right', fontStyle: 'bold' }
         }
@@ -435,9 +435,9 @@ export class PurchasingPdfService {
             lineWidth: 0.25
           },
           columnStyles: {
-            0: { cellWidth: 60 },
-            1: { cellWidth: 40 },
-            2: { cellWidth: 20, halign: 'center' },
+            0: { cellWidth: 55 },
+            1: { cellWidth: 35 },
+            2: { cellWidth: 25, halign: 'center' },
             3: { cellWidth: 30, halign: 'right' },
             4: { cellWidth: 30, halign: 'right' }
           }
