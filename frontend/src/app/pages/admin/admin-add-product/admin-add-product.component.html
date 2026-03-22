@@ -236,15 +236,44 @@
                     </div>
 
                     <div class="form-field mt-4">
-                      <div class="field-box" [class.filled]="productForm.get('image_url')?.value">
-                        <div class="field-box__icon field-box__icon--pink">
-                          <i class="pi pi-image"></i>
+                      <label class="field-label">
+                        <i class="pi pi-image"></i>
+                        {{ 'admin.products.form.image' | translate }}
+                      </label>
+                      @if (productForm.get('image_url')?.value) {
+                        <!-- Image Preview -->
+                        <div class="image-preview">
+                          <img [src]="productForm.get('image_url')?.value" alt="Product image" />
+                          <button type="button" class="image-preview__remove" (click)="removeImage()">
+                            <i class="pi pi-times"></i>
+                          </button>
                         </div>
-                        <div class="field-box__content">
-                          <label>{{ 'admin.products.form.image_url' | translate }}</label>
-                          <input pInputText type="url" formControlName="image_url" [placeholder]="'admin.products.form.image_placeholder' | translate">
+                      } @else {
+                        <!-- Upload Zone -->
+                        <div
+                          class="upload-zone"
+                          [class.upload-zone--dragging]="isDragging()"
+                          [class.upload-zone--uploading]="isUploading()"
+                          (dragover)="onDragOver($event)"
+                          (dragleave)="onDragLeave($event)"
+                          (drop)="onDrop($event)"
+                          (click)="fileInput.click()">
+                          <input
+                            #fileInput
+                            type="file"
+                            accept="image/*"
+                            (change)="onFileSelected($event)"
+                            style="display: none" />
+                          @if (isUploading()) {
+                            <i class="pi pi-spin pi-spinner upload-zone__icon"></i>
+                            <span class="upload-zone__text">{{ 'admin.products.form.uploading' | translate }}</span>
+                          } @else {
+                            <i class="pi pi-cloud-upload upload-zone__icon"></i>
+                            <span class="upload-zone__text">{{ 'admin.products.form.drop_image' | translate }}</span>
+                            <span class="upload-zone__hint">{{ 'admin.products.form.or_click' | translate }}</span>
+                          }
                         </div>
-                      </div>
+                      }
                     </div>
                   </div>
                 </div>

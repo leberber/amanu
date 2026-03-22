@@ -3,7 +3,7 @@ from typing import Any, List, Optional
 from datetime import datetime, timezone
 from pydantic import BaseModel
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile, File, Form
 from sqlmodel import Session, select, or_, func
 from sqlalchemy import Text
 
@@ -15,6 +15,7 @@ from app.models.restock import RestockItem
 from app.core.security import get_current_staff_user, get_current_active_user
 from app.core.translation import TranslationService
 from app.models.user import User
+from app.services.s3 import S3Service
 
 router = APIRouter()
 
@@ -458,3 +459,43 @@ def read_products_by_category(
 
     # Enrich products with promotion info
     return enrich_products_with_promotions(products, session)
+
+
+@router.post("/upload-image", response_model=dict)
+async def upload_product_image(
+    file: UploadFile = File(...),
+    brand: str = Form(...),
+    name: str = Form(...),
+    current_user: User = Depends(get_current_staff_user),
+):
+    """Upload product image to S3 and return the URL.
+
+    This endpoint is used by the admin add/edit product page.
+    It uploads the image and returns the URL without requiring a product_id.
+    """
+    allowed_types = {'image/jpeg', 'image/png', 'image/webp', 'image/gif'}
+    if file.content_type not in allowed_types:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid file type. Allowed: {', '.join(allowed_types)}"
+        )
+
+    image_data = await file.read()
+
+    if len(image_data) > 10 * 1024 * 1024:
+        raise HTTPException(status_code=400, detail="File too large. Max size: 10MB")
+
+    success, result, key = S3Service.upload_image(
+        image_data=image_data,
+        brand=brand,
+        product=name
+    )
+
+    if not success:
+        raise HTTPException(status_code=500, detail=result)
+
+    return {
+        "success": True,
+        "url": result,
+        "key": key
+    }

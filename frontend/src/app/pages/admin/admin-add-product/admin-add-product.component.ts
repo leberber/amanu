@@ -2,6 +2,8 @@ import { Component, OnInit, signal, inject, computed, DestroyRef } from '@angula
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
+import { finalize } from 'rxjs/operators';
 
 import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
@@ -58,8 +60,13 @@ export class AdminAddProductComponent implements OnInit {
   private readonly packagingTypeService = inject(PackagingTypeService);
   private readonly adminFormService = inject(AdminFormService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly http = inject(HttpClient);
 
   productForm!: FormGroup;
+
+  // Image upload state
+  readonly isDragging = signal(false);
+  readonly isUploading = signal(false);
 
   readonly loading = signal(false);
   readonly categoriesLoading = signal(false);
@@ -358,5 +365,86 @@ export class AdminAddProductComponent implements OnInit {
     this.cartonsInput.set(value || 0);
     const piecesToAdd = (value || 0) * this.piecesPerBox();
     this.productForm.patchValue({ stock_quantity: this.originalStock() + piecesToAdd });
+  }
+
+  // Image upload methods
+  onDragOver(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragging.set(true);
+  }
+
+  onDragLeave(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragging.set(false);
+  }
+
+  onDrop(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragging.set(false);
+
+    const files = event.dataTransfer?.files;
+    if (files && files.length > 0) {
+      this.uploadImage(files[0]);
+    }
+  }
+
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      this.uploadImage(input.files[0]);
+      input.value = '';
+    }
+  }
+
+  private uploadImage(file: File): void {
+    if (!file.type.startsWith('image/')) {
+      this.toast.showError('admin.products.form.invalid_image_type');
+      return;
+    }
+
+    if (file.size > 10 * 1024 * 1024) {
+      this.toast.showError('admin.products.form.image_too_large');
+      return;
+    }
+
+    const brand = this.brandOptions().find(b => b.value === this.productForm.get('brand_id')?.value)?.label || 'unknown';
+    const name = this.productForm.get('name_fr')?.value || this.productForm.get('name_en')?.value || 'product';
+
+    if (!brand || brand === 'unknown') {
+      this.toast.showError('admin.products.form.select_brand_first');
+      return;
+    }
+
+    this.isUploading.set(true);
+
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('brand', brand);
+    formData.append('name', name);
+
+    this.http.post<{ success: boolean; url: string; key: string }>('/api/v1/products/upload-image', formData)
+      .pipe(
+        finalize(() => this.isUploading.set(false)),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe({
+        next: (response) => {
+          if (response.success) {
+            const cacheBuster = '?t=' + Date.now();
+            this.productForm.patchValue({ image_url: response.url + cacheBuster });
+            this.toast.showSuccess('admin.products.form.image_uploaded');
+          }
+        },
+        error: () => {
+          this.toast.showError('admin.products.form.image_upload_failed');
+        }
+      });
+  }
+
+  removeImage(): void {
+    this.productForm.patchValue({ image_url: '' });
   }
 }
