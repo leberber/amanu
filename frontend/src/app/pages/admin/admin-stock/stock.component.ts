@@ -164,7 +164,6 @@ export class StockComponent implements OnInit, OnDestroy {
   ];
 
   columnOptions = [
-    { field: 'synced', label: 'Sync', visible: true },
     { field: 'priority', label: 'P', visible: true },
     { field: 'image', label: 'Image', visible: true },
     { field: 'name', label: 'Produit', visible: true },
@@ -444,7 +443,6 @@ export class StockComponent implements OnInit, OnDestroy {
 
   getLoadingColumns(): LoadingColumn[] {
     return [
-      { type: 'pill-sm', visible: this.isColumnVisible('synced') },
       { type: 'pill-sm', visible: this.isColumnVisible('priority') },
       { type: 'image', visible: this.isColumnVisible('image') },
       { type: 'text', visible: this.isColumnVisible('name') },

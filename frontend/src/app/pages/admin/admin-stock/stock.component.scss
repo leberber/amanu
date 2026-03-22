@@ -438,89 +438,6 @@
   }
 }
 
-// Sync column
-.col-sync {
-  width: 50px;
-  padding: 0.25rem !important;
-}
-
-// Sync badge (for synced items)
-.sync-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-
-  &.synced {
-    background: rgba(34, 197, 94, 0.1);
-    color: #22c55e;
-
-    i {
-      font-size: 1rem;
-    }
-  }
-}
-
-// Sync button (for unsynced items)
-.btn-sync {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  background: rgba(139, 92, 246, 0.1);
-  color: #8b5cf6;
-  border: 1px solid rgba(139, 92, 246, 0.2);
-  border-radius: 50%;
-  cursor: pointer;
-  transition: all 0.15s ease;
-
-  &:hover:not(:disabled) {
-    background: rgba(139, 92, 246, 0.2);
-    color: #7c3aed;
-    transform: scale(1.1);
-  }
-
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-
-  &.synced {
-    background: rgba(34, 197, 94, 0.1);
-    color: #22c55e;
-    border-color: rgba(34, 197, 94, 0.2);
-
-    &:hover:not(:disabled) {
-      background: rgba(34, 197, 94, 0.2);
-      color: #16a34a;
-    }
-  }
-
-  &.sync-dirty {
-    background: rgba(245, 158, 11, 0.15);
-    color: #f59e0b;
-    border-color: rgba(245, 158, 11, 0.3);
-    animation: syncDirtyPulse 2s ease-in-out infinite;
-
-    &:hover:not(:disabled) {
-      background: rgba(245, 158, 11, 0.25);
-      color: #d97706;
-    }
-  }
-
-  i {
-    font-size: 0.85rem;
-  }
-}
-
-@keyframes syncDirtyPulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); }
-  50% { box-shadow: 0 0 0 4px rgba(245, 158, 11, 0); }
-}
-
 // Download button in header
 .btn-download {
   display: flex;
@@ -1052,6 +969,10 @@
   background: var(--surface-card);
 }
 
+.footer-spacer {
+  width: 200px;
+}
+
 .stock-totals {
   display: flex;
   gap: 2rem;
@@ -1076,8 +997,7 @@
 
   &.total-main {
     font-size: 1.1rem;
-    margin-left: 350px;
-    margin-right: 120px;
+    width: 200px;
 
     span {
       font-size: 1.25rem;
