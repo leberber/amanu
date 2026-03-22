@@ -337,6 +337,10 @@ export class PurchasingCartService {
           this.hasUnsavedChanges.set(false);
           this.editingDraftId.set(null);
           this.editingDraftRef.set(null);
+          this.selectedSupplier.set(null);
+          // Clear cart after successful update
+          this.cartItemIds.set(new Set());
+          this.saveCartToStorage();
         },
         error: () => {
           this.toast.showError('Erreur lors de la mise à jour');
@@ -354,12 +358,15 @@ export class PurchasingCartService {
         finalize(() => this.savingOrder.set(false))
       ).subscribe({
         next: (order) => {
-          // Switch to editing mode for the new draft (prevents duplicates)
-          this.editingDraftId.set(order.id);
-          this.editingDraftRef.set(order.reference);
           this.hasUnsavedChanges.set(false);
           this.lastSavedOrderRef.set(order.reference);
           this.toast.showSuccess(`Commande ${order.reference} enregistrée`);
+          // Clear cart after successful save
+          this.editingDraftId.set(null);
+          this.editingDraftRef.set(null);
+          this.selectedSupplier.set(null);
+          this.cartItemIds.set(new Set());
+          this.saveCartToStorage();
         },
         error: () => {
           this.toast.showError('Erreur lors de l\'enregistrement');
