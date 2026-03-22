@@ -169,7 +169,6 @@ export class PurchasingCartService {
     });
     this.saveCartToStorage();
     this.hasUnsavedChanges.set(true);
-    this.toast.showSuccess(`${row.name} ajouté au panier`);
   }
 
   removeFromCart(row: RestockRow): void {

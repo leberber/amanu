@@ -26,6 +26,7 @@ import { RestockRow, RestockData, BrandOption, CategoryOption } from '../../../m
 import { PurchasingCartService } from '../../../services/purchasing-cart.service';
 import { PurchasingPdfService } from '../../../services/purchasing-pdf.service';
 import { RowFlashService } from '../../../services/row-flash.service';
+import { FlyToCartService } from '../../../core/services/fly-to-cart.service';
 
 // Utils
 import {
@@ -72,6 +73,7 @@ export class StockComponent implements OnInit, OnDestroy {
   cartService = inject(PurchasingCartService);
   pdfService = inject(PurchasingPdfService);
   private rowFlash = inject(RowFlashService);
+  private flyToCart = inject(FlyToCartService);
 
   // Component state
   loading = signal(true);
@@ -1010,5 +1012,103 @@ export class StockComponent implements OnInit, OnDestroy {
       this.cartService.cartTotalValue(),
       (name) => this.cartService.getSupplierDetails(name)
     );
+  }
+
+  // Fly to cart animation
+  onToggleCart(row: RestockRow, buttonElement: HTMLElement, imageUrl?: string): void {
+    const isAdding = !this.cartService.isInCart(row.id);
+
+    // Toggle the cart item
+    this.cartService.toggleCart(row);
+
+    // Fly animation only when adding
+    if (isAdding) {
+      this.flyToCartPurchasing(buttonElement, imageUrl);
+    }
+  }
+
+  private flyToCartPurchasing(sourceElement: HTMLElement, imageUrl?: string): void {
+    const cartIcon = document.querySelector('#purchasing-cart-icon') as HTMLElement;
+    if (!cartIcon) return;
+
+    const sourceRect = sourceElement.getBoundingClientRect();
+    const targetRect = cartIcon.getBoundingClientRect();
+
+    // Create flying element
+    const flyingElement = document.createElement('div');
+    flyingElement.style.cssText = `
+      position: fixed;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 99999;
+      transform: translate(-50%, -50%);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      will-change: left, top, transform, opacity;
+      transition: none;
+    `;
+
+    if (imageUrl && !imageUrl.includes('placeholder')) {
+      flyingElement.style.backgroundImage = `url(${imageUrl})`;
+      flyingElement.style.backgroundSize = 'cover';
+      flyingElement.style.backgroundPosition = 'center';
+      flyingElement.style.border = '2px solid var(--primary-color, #10b981)';
+      flyingElement.style.backgroundColor = '#fff';
+    } else {
+      flyingElement.style.backgroundColor = 'var(--primary-color, #10b981)';
+      flyingElement.style.display = 'flex';
+      flyingElement.style.alignItems = 'center';
+      flyingElement.style.justifyContent = 'center';
+      flyingElement.innerHTML = '<i class="pi pi-shopping-cart" style="color: white; font-size: 1rem;"></i>';
+    }
+
+    const startX = sourceRect.left + sourceRect.width / 2;
+    const startY = sourceRect.top + sourceRect.height / 2;
+    const endX = targetRect.left + targetRect.width / 2;
+    const endY = targetRect.top + targetRect.height / 2;
+
+    flyingElement.style.left = `${startX}px`;
+    flyingElement.style.top = `${startY}px`;
+
+    document.body.appendChild(flyingElement);
+    flyingElement.offsetHeight; // Force reflow
+
+    const duration = 500;
+    const startTime = performance.now();
+    const controlY = Math.min(startY, endY) - 80;
+
+    const animateFrame = (currentTime: number) => {
+      const elapsed = currentTime - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const easeProgress = 1 - Math.pow(1 - progress, 3);
+
+      const t = easeProgress;
+      const controlX = (startX + endX) / 2;
+      const x = Math.pow(1 - t, 2) * startX + 2 * (1 - t) * t * controlX + Math.pow(t, 2) * endX;
+      const y = Math.pow(1 - t, 2) * startY + 2 * (1 - t) * t * controlY + Math.pow(t, 2) * endY;
+
+      const scale = 1 - (easeProgress * 0.5);
+      const opacity = progress > 0.7 ? 1 - ((progress - 0.7) / 0.3) : 1;
+
+      flyingElement.style.left = `${x}px`;
+      flyingElement.style.top = `${y}px`;
+      flyingElement.style.transform = `translate(-50%, -50%) scale(${scale})`;
+      flyingElement.style.opacity = `${opacity}`;
+
+      if (progress < 1) {
+        requestAnimationFrame(animateFrame);
+      } else {
+        flyingElement.remove();
+        // Pulse the cart icon
+        cartIcon.style.transition = 'transform 0.15s ease';
+        cartIcon.style.transform = 'scale(1.3)';
+        setTimeout(() => {
+          cartIcon.style.transform = 'scale(1)';
+        }, 150);
+      }
+    };
+
+    requestAnimationFrame(animateFrame);
   }
 }

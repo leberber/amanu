@@ -59,7 +59,7 @@
                 <span class="count inactive">{{ hiddenCount() }}</span>
               </button>
             </div>
-            <button class="btn-cart" (click)="currentTab.set('cart')" pTooltip="Bon de Commande">
+            <button id="purchasing-cart-icon" class="btn-cart" (click)="currentTab.set('cart')" pTooltip="Bon de Commande">
               <i class="pi pi-shopping-cart"></i>
               @if (cartService.cartCount() > 0) {
                 <span class="cart-badge">{{ cartService.cartCount() }}</span>
@@ -593,9 +593,10 @@
                     <td class="col-actions">
                       <div class="action-buttons">
                         <button
+                          #cartBtn
                           class="btn-cart"
                           [class.in-cart]="cartService.isInCart(row.id)"
-                          (click)="cartService.toggleCart(row)"
+                          (click)="onToggleCart(row, cartBtn, row.image)"
                           [pTooltip]="cartService.isInCart(row.id) ? 'Retirer du panier' : 'Ajouter au panier'"
                         >
                           <i class="pi" [class.pi-shopping-cart]="!cartService.isInCart(row.id)" [class.pi-check]="cartService.isInCart(row.id)"></i>
