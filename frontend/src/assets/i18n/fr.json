@@ -1642,7 +1642,15 @@
         "weight": "Poids",
         "weight_placeholder": "ex: 0.5",
         "configure_packaging_first": "Configurez l'emballage d'abord",
-        "configure_packaging_hint": "Sélectionnez le type d'emballage et le nombre de pièces pour activer"
+        "configure_packaging_hint": "Sélectionnez le type d'emballage et le nombre de pièces pour activer",
+        "drop_image": "Glissez une image ici",
+        "or_click": "ou cliquez pour sélectionner",
+        "uploading": "Téléchargement...",
+        "image_uploaded": "Image téléchargée avec succès",
+        "image_upload_failed": "Échec du téléchargement de l'image",
+        "invalid_image_type": "Type de fichier invalide. Veuillez sélectionner une image",
+        "image_too_large": "L'image est trop grande (max 10MB)",
+        "select_brand_first": "Veuillez sélectionner une marque d'abord"
       },
       "units": {
         "kg": "Kilogramme (Kg)",

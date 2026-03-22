@@ -1631,7 +1631,15 @@
         "weight": "الوزن",
         "weight_placeholder": "مثال: 0.5",
         "configure_packaging_first": "قم بإعداد التغليف أولاً",
-        "configure_packaging_hint": "اختر نوع التغليف وعدد القطع للتفعيل"
+        "configure_packaging_hint": "اختر نوع التغليف وعدد القطع للتفعيل",
+        "drop_image": "اسحب صورة هنا",
+        "or_click": "أو انقر للاختيار",
+        "uploading": "جاري التحميل...",
+        "image_uploaded": "تم تحميل الصورة بنجاح",
+        "image_upload_failed": "فشل تحميل الصورة",
+        "invalid_image_type": "نوع الملف غير صالح. يرجى اختيار صورة",
+        "image_too_large": "الصورة كبيرة جداً (الحد الأقصى 10 ميجابايت)",
+        "select_brand_first": "يرجى اختيار علامة تجارية أولاً"
       },
       "units": {
         "kg": "كيلوغرام (كغ)",

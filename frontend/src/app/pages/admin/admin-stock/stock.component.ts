@@ -14,6 +14,8 @@ import { DialogModule } from 'primeng/dialog';
 import { ADMIN_LIST_IMPORTS } from '../../../shared/imports/admin-shared.imports';
 import { TableSkeletonComponent, SkeletonColumn } from '../../../shared/components/table-skeleton/table-skeleton.component';
 import { AgroclikPageContainerComponent } from '../../../shared/components/agroclik-page-container/agroclik-page-container.component';
+import { TableLoadingRowsComponent, LoadingColumn } from '../../../shared/components/table-loading-rows/table-loading-rows.component';
+import { InfiniteScrollDirective } from '../../../shared/directives/infinite-scroll.directive';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
 import { ApiService } from '../../../services/api.service';
 
@@ -50,7 +52,9 @@ import {
     PopoverModule,
     DialogModule,
     TableSkeletonComponent,
-    AgroclikPageContainerComponent
+    AgroclikPageContainerComponent,
+    TableLoadingRowsComponent,
+    InfiniteScrollDirective
   ],
   templateUrl: './stock.component.html',
   styleUrl: './stock.component.scss'
@@ -84,6 +88,11 @@ export class StockComponent implements OnInit, OnDestroy {
   syncingRow = signal<number | null>(null);
   syncDirtyRows = signal<Set<number>>(new Set());
   allRows = signal<RestockRow[]>([]);
+
+  // Infinite scroll state
+  private readonly PAGE_SIZE = 50;
+  displayLimit = signal(50);
+  loadingMore = signal(false);
 
   // Auto-save rows to localStorage when they change
   private rowsSaveEffect = effect(() => {
@@ -251,6 +260,10 @@ export class StockComponent implements OnInit, OnDestroy {
     return rows;
   });
 
+  // Displayed rows for infinite scroll (sliced from filteredRows)
+  displayedRows = computed(() => this.filteredRows().slice(0, this.displayLimit()));
+  hasMore = computed(() => this.displayLimit() < this.filteredRows().length);
+
   totalCartons = computed(() => this.filteredRows().reduce((sum, r) => sum + (r.nmbCarton || 0), 0));
   totalValue = computed(() => this.filteredRows().reduce((sum, r) => sum + ((r.prixCarton || 0) * (r.nmbCarton || 0)), 0));
 
@@ -376,14 +389,17 @@ export class StockComponent implements OnInit, OnDestroy {
   // Filter methods
   onCategoryChange(value: string[] | null): void {
     this.categoryFilter.set(value ?? []);
+    this.resetDisplayLimit();
   }
 
   onBrandChange(value: string[] | null): void {
     this.brandFilter.set(value ?? []);
+    this.resetDisplayLimit();
   }
 
   onPriorityChange(value: number[] | null): void {
     this.priorityFilter.set(value ?? []);
+    this.resetDisplayLimit();
   }
 
   clearFilters(): void {
@@ -391,18 +407,56 @@ export class StockComponent implements OnInit, OnDestroy {
     this.categoryFilter.set([]);
     this.brandFilter.set([]);
     this.priorityFilter.set([]);
+    this.resetDisplayLimit();
   }
 
   clearCategoryFilter(): void {
     this.categoryFilter.set([]);
+    this.resetDisplayLimit();
   }
 
   clearBrandFilter(): void {
     this.brandFilter.set([]);
+    this.resetDisplayLimit();
   }
 
   clearPriorityFilter(): void {
     this.priorityFilter.set([]);
+    this.resetDisplayLimit();
+  }
+
+  // Infinite scroll methods
+  loadMore(): void {
+    if (this.loadingMore() || !this.hasMore()) return;
+
+    this.loadingMore.set(true);
+
+    // Simulate small delay for smooth UX
+    setTimeout(() => {
+      this.displayLimit.update(limit => limit + this.PAGE_SIZE);
+      this.loadingMore.set(false);
+    }, 200);
+  }
+
+  resetDisplayLimit(): void {
+    this.displayLimit.set(this.PAGE_SIZE);
+  }
+
+  getLoadingColumns(): LoadingColumn[] {
+    return [
+      { type: 'pill-sm', visible: this.isColumnVisible('synced') },
+      { type: 'pill-sm', visible: this.isColumnVisible('priority') },
+      { type: 'image', visible: this.isColumnVisible('image') },
+      { type: 'text', visible: this.isColumnVisible('name') },
+      { type: 'pill', visible: this.isColumnVisible('brand') },
+      { type: 'pill', visible: this.isColumnVisible('category') },
+      { type: 'text-sm', visible: this.isColumnVisible('prixUniteAchat') },
+      { type: 'text-sm', visible: this.isColumnVisible('uniteParCarton') },
+      { type: 'text-sm', visible: this.isColumnVisible('prixCarton') },
+      { type: 'text-sm', visible: this.isColumnVisible('nmbCarton') },
+      { type: 'text-sm', visible: this.isColumnVisible('total') },
+      { type: 'actions', visible: true }
+    ];
   }
 
   hasActiveFilters(): boolean {

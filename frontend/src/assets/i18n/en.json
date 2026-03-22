@@ -1636,7 +1636,15 @@
         "weight": "Weight",
         "weight_placeholder": "e.g., 0.5",
         "configure_packaging_first": "Configure packaging first",
-        "configure_packaging_hint": "Select packaging type and pieces per package to enable"
+        "configure_packaging_hint": "Select packaging type and pieces per package to enable",
+        "drop_image": "Drop image here",
+        "or_click": "or click to select",
+        "uploading": "Uploading...",
+        "image_uploaded": "Image uploaded successfully",
+        "image_upload_failed": "Failed to upload image",
+        "invalid_image_type": "Invalid file type. Please select an image",
+        "image_too_large": "Image is too large (max 10MB)",
+        "select_brand_first": "Please select a brand first"
       },
       "units": {
         "kg": "Kilogram",
