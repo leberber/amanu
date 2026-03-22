@@ -624,11 +624,26 @@
                   </tr>
                 }
                 @if (loadingMore()) {
-                  <app-table-loading-rows
-                    [columns]="getLoadingColumns()"
-                    [rowCount]="3"
-                    [actionCount]="4"
-                  />
+                  @for (i of [1, 2, 3]; track i) {
+                    <tr class="skeleton-row-simple">
+                      <td [attr.colspan]="getVisibleColumnCount()">
+                        <div class="skeleton-cells">
+                          <div class="skeleton-cell" style="width: 28px; height: 28px; border-radius: 50%;"></div>
+                          <div class="skeleton-cell" style="width: 45px; height: 45px; border-radius: 8px;"></div>
+                          <div class="skeleton-cell" style="width: 180px; height: 14px;"></div>
+                          <div class="skeleton-cell" style="width: 90px; height: 26px; border-radius: 13px;"></div>
+                          <div class="skeleton-cell" style="width: 90px; height: 26px; border-radius: 13px;"></div>
+                          <div class="skeleton-cell" style="width: 50px; height: 26px; border-radius: 13px;"></div>
+                          <div class="skeleton-cell" style="width: 60px; height: 26px; border-radius: 13px;"></div>
+                          <div class="skeleton-cell" style="width: 40px; height: 26px; border-radius: 13px;"></div>
+                          <div class="skeleton-cell" style="width: 40px; height: 26px; border-radius: 13px;"></div>
+                          <div class="skeleton-cell" style="width: 60px; height: 32px; border-radius: 6px;"></div>
+                          <div class="skeleton-cell" style="width: 70px; height: 28px; border-radius: 6px;"></div>
+                          <div class="skeleton-cell" style="width: 100px; height: 28px; border-radius: 6px;"></div>
+                        </div>
+                      </td>
+                    </tr>
+                  }
                 }
               </tbody>
             </table>

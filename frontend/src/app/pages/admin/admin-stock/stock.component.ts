@@ -442,19 +442,29 @@ export class StockComponent implements OnInit, OnDestroy {
   }
 
   getLoadingColumns(): LoadingColumn[] {
+    const expanded = this.purchaseColumnsExpanded();
     return [
       { type: 'pill-sm', visible: this.isColumnVisible('priority') },
       { type: 'image', visible: this.isColumnVisible('image') },
       { type: 'text', visible: this.isColumnVisible('name') },
       { type: 'pill', visible: this.isColumnVisible('brand') },
       { type: 'pill', visible: this.isColumnVisible('category') },
-      { type: 'text-sm', visible: this.isColumnVisible('prixUniteAchat') },
+      { type: 'text-sm', visible: this.isColumnVisible('productUnit') && !expanded },
+      { type: 'text-sm', visible: this.isColumnVisible('packageType') && !expanded },
+      { type: 'text-sm', visible: this.isColumnVisible('volume') && !expanded },
+      { type: 'text-sm', visible: this.isColumnVisible('weight') && !expanded },
       { type: 'text-sm', visible: this.isColumnVisible('uniteParCarton') },
-      { type: 'text-sm', visible: this.isColumnVisible('prixCarton') },
-      { type: 'text-sm', visible: this.isColumnVisible('nmbCarton') },
-      { type: 'text-sm', visible: this.isColumnVisible('total') },
+      { type: 'pill-sm', visible: true }, // Achat toggle
+      { type: 'text-sm', visible: expanded && this.isColumnVisible('prixUniteAchat') },
+      { type: 'text-sm', visible: expanded && this.isColumnVisible('prixCarton') },
+      { type: 'text-sm', visible: expanded && this.isColumnVisible('nmbCarton') },
+      { type: 'text-sm', visible: expanded && this.isColumnVisible('total') },
       { type: 'actions', visible: true }
     ];
+  }
+
+  getVisibleColumnCount(): number {
+    return this.getLoadingColumns().filter(col => col.visible).length;
   }
 
   hasActiveFilters(): boolean {
