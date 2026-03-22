@@ -1,6 +1,7 @@
 # backend/app/api/api_v1/endpoints/products.py
 from typing import Any, List, Optional
 from datetime import datetime, timezone
+from pydantic import BaseModel
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlmodel import Session, select, or_, func
@@ -16,6 +17,16 @@ from app.core.translation import TranslationService
 from app.models.user import User
 
 router = APIRouter()
+
+
+class PaginatedProductsResponse(BaseModel):
+    """Paginated response with total counts for admin panel"""
+    items: List[ProductRead]
+    total: int
+    active_count: int
+    inactive_count: int
+    skip: int
+    limit: int
 
 
 def get_active_promotions(session: Session) -> List[Promotion]:
@@ -219,6 +230,89 @@ def read_products(
 
     # Enrich products with promotion info
     return enrich_products_with_promotions(products, session)
+
+
+@router.get("/admin/paginated", response_model=PaginatedProductsResponse)
+def read_products_paginated(
+    skip: int = Query(0, ge=0),
+    limit: int = Query(50, ge=1, le=200),
+    category_id: Optional[int] = None,
+    brand_id: Optional[int] = None,
+    status_filter: str = Query("all", enum=["all", "active", "inactive"]),
+    search: Optional[str] = None,
+    lang: str = Query("en", description="Language for translations (en, fr, ar)"),
+    current_user: User = Depends(get_current_staff_user),
+    session: Session = Depends(get_session),
+) -> Any:
+    """
+    Admin endpoint: Get paginated products with total counts.
+    Returns items, total count, active count, and inactive count.
+    """
+    # Base query for filtering
+    base_query = select(Product)
+
+    # Apply filters
+    if category_id:
+        base_query = base_query.where(Product.category_id == category_id)
+
+    if brand_id:
+        base_query = base_query.where(Product.brand_id == brand_id)
+
+    if search:
+        search_conditions = [
+            Product.name.ilike(f"%{search}%"),
+            Product.description.ilike(f"%{search}%")
+        ]
+        if lang and lang in TranslationService.SUPPORTED_LANGUAGES:
+            search_conditions.extend([
+                func.coalesce(
+                    func.json_extract_path_text(Product.name_translations, lang),
+                    Product.name
+                ).ilike(f"%{search}%"),
+            ])
+        base_query = base_query.where(or_(*search_conditions))
+
+    # Get total counts (before status filter)
+    count_query = select(func.count()).select_from(base_query.subquery())
+    total = session.exec(count_query).one()
+
+    # Count active/inactive
+    active_query = select(func.count()).select_from(
+        base_query.where(Product.is_active == True).subquery()
+    )
+    active_count = session.exec(active_query).one()
+    inactive_count = total - active_count
+
+    # Apply status filter for actual results
+    if status_filter == "active":
+        base_query = base_query.where(Product.is_active == True)
+    elif status_filter == "inactive":
+        base_query = base_query.where(Product.is_active == False)
+
+    # Get filtered total for pagination
+    filtered_count_query = select(func.count()).select_from(base_query.subquery())
+    filtered_total = session.exec(filtered_count_query).one()
+
+    # Apply sorting (newest first) and pagination
+    query = base_query.order_by(Product.created_at.desc()).offset(skip).limit(limit)
+    products = session.exec(query).all()
+
+    # Apply translations
+    for product in products:
+        TranslationService.apply_translations_to_model(product, lang)
+
+    # Enrich with promotions
+    enriched = enrich_products_with_promotions(products, session)
+
+    return PaginatedProductsResponse(
+        items=enriched,
+        total=filtered_total,
+        active_count=active_count,
+        inactive_count=inactive_count,
+        skip=skip,
+        limit=limit
+    )
+
 
 @router.get("/{product_id}", response_model=ProductRead)
 def read_product(

@@ -1527,6 +1527,8 @@
       "organic": "Organic",
       "per": "per",
       "products": "products",
+      "loading_more": "Loading more products...",
+      "scroll_for_more": "Scroll down for more products",
       "table_options": "Table Options",
       "rows_per_page": "Rows per page",
       "visible_columns": "Visible Columns",

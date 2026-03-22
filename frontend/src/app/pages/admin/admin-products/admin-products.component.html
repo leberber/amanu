@@ -29,7 +29,7 @@
             [class.active]="statusFilter === 'all'"
             (click)="onStatusFilterChange('all')">
             <span>{{ 'common.all' | translate }}</span>
-            <span class="count">{{ allProducts().length }}</span>
+            <span class="count">{{ allProductsCount() }}</span>
           </button>
           <button
             class="segment-control__item"
@@ -118,7 +118,7 @@
         [rows]="6"
         [actionCount]="3"
       />
-    } @else if (products().length === 0) {
+    } @else if (displayedProducts().length === 0) {
       <!-- Empty State -->
       <div class="empty-state animate-item" style="--item-delay: 100ms;">
         <div class="empty-state__icon">
@@ -141,7 +141,7 @@
       </div>
     } @else {
       <!-- Products Table -->
-      <div class="table-container animate-item" [class.fullscreen]="isFullscreen()" style="--item-delay: 100ms;">
+      <div class="table-container scrollable animate-item" [class.fullscreen]="isFullscreen()" style="--item-delay: 100ms;">
         <div class="table-header">
           <app-table-search
             [(query)]="searchQuery"
@@ -165,20 +165,6 @@
             </button>
             <p-popover #tableOptionsMenu>
               <div class="table-options-menu">
-                <div class="table-options-section">
-                  <span class="table-options-label">{{ 'admin.products.rows_per_page' | translate }}</span>
-                  <div class="table-options-rows">
-                    @for (option of rowsPerPageOptions; track option) {
-                      <button
-                        class="rows-option"
-                        [class.active]="rows === option"
-                        (click)="setRowsPerPage(option)">
-                        {{ option }}
-                      </button>
-                    }
-                  </div>
-                </div>
-                <div class="table-options-divider"></div>
                 <div class="table-options-section">
                   <span class="table-options-label">{{ 'admin.products.visible_columns' | translate }}</span>
                   <div class="table-options-columns">
@@ -214,7 +200,7 @@
               </tr>
             </thead>
             <tbody>
-              @for (product of paginatedProducts(); track product.id; let i = $index) {
+              @for (product of displayedProducts(); track product.id; let i = $index) {
                 <tr class="table-row-animate clickable-row" [style.--row-delay]="(i * 40) + 'ms'" (click)="editProduct(product)">
                   <!-- Product Image -->
                   @if (isColumnVisible('image')) {
@@ -429,26 +415,23 @@
           </table>
         </div>
 
-        <!-- Pagination (inside card) -->
-        @if (products().length > rows) {
-          <div class="table-footer">
-            <p-paginator
-              [first]="first"
-              [rows]="rows"
-              [totalRecords]="products().length"
-              (onPageChange)="onPageChange($event)"
-              [showCurrentPageReport]="true"
-              [currentPageReportTemplate]="getPaginationTemplate()"
-            ></p-paginator>
+        <!-- Infinite Scroll Footer -->
+        <div class="table-footer">
+          <div class="results-info">
+            <span>{{ 'admin.products.showing' | translate }} {{ displayedProducts().length }} {{ 'admin.products.of' | translate }} {{ totalProducts() }} {{ 'admin.products.products' | translate }}</span>
+            @if (loadingMore()) {
+              <span class="loading-indicator">
+                <p-progressSpinner [style]="{width: '16px', height: '16px'}" strokeWidth="4" />
+              </span>
+            }
           </div>
-        }
-
-        <!-- Results Count -->
-        @if (products().length <= rows) {
-          <div class="table-footer results-info">
-            <span>{{ 'admin.products.showing' | translate }} {{ products().length }} {{ 'admin.products.of' | translate }} {{ allProducts().length }} {{ 'admin.products.products' | translate }}</span>
-          </div>
-        }
+          @if (hasMore() && !loadingMore()) {
+            <div class="scroll-hint">
+              <i class="pi pi-angle-double-down"></i>
+              <span>{{ 'admin.products.scroll_for_more' | translate }}</span>
+            </div>
+          }
+        </div>
       </div>
     }
   </div>

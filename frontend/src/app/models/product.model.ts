@@ -51,3 +51,21 @@ export interface Product {
     limit?: number;
     skip?: number;
   }
+
+  export interface PaginatedProductsResponse {
+    items: Product[];
+    total: number;
+    active_count: number;
+    inactive_count: number;
+    skip: number;
+    limit: number;
+  }
+
+  export interface AdminProductFilter {
+    skip?: number;
+    limit?: number;
+    category_id?: number;
+    brand_id?: number;
+    status_filter?: 'all' | 'active' | 'inactive';
+    search?: string;
+  }

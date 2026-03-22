@@ -1531,6 +1531,8 @@
       "organic": "Bio",
       "per": "par",
       "products": "produits",
+      "loading_more": "Chargement de plus de produits...",
+      "scroll_for_more": "Faites défiler pour voir plus de produits",
       "table_options": "Options du Tableau",
       "rows_per_page": "Lignes par page",
       "visible_columns": "Colonnes Visibles",

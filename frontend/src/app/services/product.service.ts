@@ -3,7 +3,7 @@ import { Injectable, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { ApiService } from './api.service';
 import { TranslationService } from './translation.service';
-import { Product, Category, ProductFilter } from '../models/product.model';
+import { Product, Category, ProductFilter, PaginatedProductsResponse, AdminProductFilter } from '../models/product.model';
 
 @Injectable({
   providedIn: 'root'
@@ -112,5 +112,24 @@ export class ProductService {
   // Method to refresh data when language changes
   refreshDataForLanguage(): void {
     // This can be called when language changes to refresh any cached data
+  }
+
+  /**
+   * Admin endpoint: Get paginated products with total counts
+   * Returns items + total count + active/inactive counts
+   */
+  getProductsPaginated(filters: AdminProductFilter): Observable<PaginatedProductsResponse> {
+    const params: any = {
+      lang: this.translationService.getCurrentLanguage(),
+      skip: filters.skip ?? 0,
+      limit: filters.limit ?? 50,
+    };
+
+    if (filters.category_id) params.category_id = filters.category_id;
+    if (filters.brand_id) params.brand_id = filters.brand_id;
+    if (filters.status_filter) params.status_filter = filters.status_filter;
+    if (filters.search) params.search = filters.search;
+
+    return this.apiService.get<PaginatedProductsResponse>('/products/admin/paginated', { params });
   }
 }

@@ -1,8 +1,9 @@
-import { Component, OnInit, inject, DestroyRef, signal, computed } from '@angular/core';
+import { Component, OnInit, inject, DestroyRef, signal, computed, ElementRef, AfterViewInit, OnDestroy } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ConfirmationService } from 'primeng/api';
 import { SelectModule } from 'primeng/select';
 import { PopoverModule } from 'primeng/popover';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { TranslateService } from '@ngx-translate/core';
 
 import { ADMIN_LIST_IMPORTS, ADMIN_DIALOG_IMPORTS } from '../../../shared/imports/admin-shared.imports';
@@ -31,6 +32,7 @@ import { BreakpointService } from '../../../core/services/breakpoint.service';
     ...ADMIN_DIALOG_IMPORTS,
     SelectModule,
     PopoverModule,
+    ProgressSpinnerModule,
     TableSkeletonComponent,
     AgroclikPageContainerComponent
   ],
@@ -38,13 +40,26 @@ import { BreakpointService } from '../../../core/services/breakpoint.service';
   templateUrl: './admin-products.component.html',
   styleUrl: './admin-products.component.scss'
 })
-export class AdminProductsComponent extends BaseAdminListComponent implements OnInit {
-  // Data signals
-  allProducts = signal<Product[]>([]);
-  products = signal<Product[]>([]);
-  paginatedProducts = signal<Product[]>([]);
+export class AdminProductsComponent extends BaseAdminListComponent implements OnInit, AfterViewInit, OnDestroy {
+  // Infinite scroll configuration
+  private readonly BATCH_SIZE = 50;
+  private scrollContainer: HTMLElement | null = null;
+  private scrollListener: (() => void) | null = null;
+
+  // Data signals - products loaded from server
+  displayedProducts = signal<Product[]>([]);
   categories = signal<Category[]>([]);
   brands = signal<Brand[]>([]);
+
+  // Server-side pagination state
+  totalProducts = signal(0);
+  serverActiveCount = signal(0);
+  serverInactiveCount = signal(0);
+  currentSkip = signal(0);
+  loadingMore = signal(false);
+
+  // Computed: has more products to load from server
+  hasMore = computed(() => this.displayedProducts().length < this.totalProducts());
 
   // Category filter
   categoryFilter: number | null = null;
@@ -52,52 +67,31 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
   // Brand filter
   brandFilter: number | null = null;
 
-  // Pre-computed product counts - single pass O(N) instead of O(N×M) filtering
-  private productCounts = computed(() => {
-    const products = this.allProducts();
-    let active = 0, inactive = 0;
-    const byCategory = new Map<number, number>();
-    const byBrand = new Map<number, number>();
+  // Computed counts from server
+  activeCount = computed(() => this.serverActiveCount());
+  inactiveCount = computed(() => this.serverInactiveCount());
+  allProductsCount = computed(() => this.serverActiveCount() + this.serverInactiveCount());
 
-    for (const p of products) {
-      if (p.is_active) active++; else inactive++;
-      byCategory.set(p.category_id, (byCategory.get(p.category_id) || 0) + 1);
-      if (p.brand_id) {
-        byBrand.set(p.brand_id, (byBrand.get(p.brand_id) || 0) + 1);
-      }
-    }
-
-    return { active, inactive, byCategory, byBrand, total: products.length };
-  });
-
-  // Computed counts
-  activeCount = computed(() => this.productCounts().active);
-  inactiveCount = computed(() => this.productCounts().inactive);
-
-  // Computed category options - uses pre-computed counts
+  // Computed category options
   categoryOptions = computed(() => {
-    const counts = this.productCounts();
     const allLabel = this.translateService.instant('admin.products.filters.all_categories');
     return [
-      { label: allLabel, value: null as number | null, count: counts.total },
+      { label: allLabel, value: null as number | null },
       ...this.categories().map(cat => ({
         label: this.getCategoryName(cat.id),
-        value: cat.id as number | null,
-        count: counts.byCategory.get(cat.id) || 0
+        value: cat.id as number | null
       }))
     ];
   });
 
-  // Computed brand options - uses pre-computed counts
+  // Computed brand options
   brandOptions = computed(() => {
-    const counts = this.productCounts();
     const allLabel = this.translateService.instant('admin.products.filters.all_brands');
     return [
-      { label: allLabel, value: null as number | null, count: counts.total },
+      { label: allLabel, value: null as number | null },
       ...this.brands().map(brand => ({
         label: brand.name,
-        value: brand.id as number | null,
-        count: counts.byBrand.get(brand.id) || 0
+        value: brand.id as number | null
       }))
     ];
   });
@@ -163,15 +157,83 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
   private stockStatus = inject(StockStatusService);
   private destroyRef = inject(DestroyRef);
   private readonly breakpoint = inject(BreakpointService);
+  private elementRef = inject(ElementRef);
 
   ngOnInit() {
     this.columnOptions = this.getInitialColumnOptions();
     this.loadCategories();
     this.loadBrands();
-    this.loadAllProducts();
-    // On language change, just re-filter to trigger UI re-render
-    // No API reload needed - translations are embedded in name_translations
-    onLanguageChange(this.translateService, this.destroyRef, () => this.filterItems());
+    this.loadProducts(false);
+    // On language change, reload to get translations
+    onLanguageChange(this.translateService, this.destroyRef, () => this.loadProducts(false));
+  }
+
+  ngAfterViewInit() {
+    // Scroll listener will be set up after data loads
+  }
+
+  ngOnDestroy() {
+    this.removeScrollListener();
+  }
+
+  private setupScrollListener(): void {
+    // Remove any existing listener first
+    this.removeScrollListener();
+
+    // Find the scrollable container (table-wrapper)
+    setTimeout(() => {
+      this.scrollContainer = this.elementRef.nativeElement.querySelector('.table-wrapper');
+      if (this.scrollContainer) {
+        this.scrollListener = this.onScroll.bind(this);
+        this.scrollContainer.addEventListener('scroll', this.scrollListener);
+      }
+    }, 100);
+  }
+
+  private removeScrollListener(): void {
+    if (this.scrollContainer && this.scrollListener) {
+      this.scrollContainer.removeEventListener('scroll', this.scrollListener);
+    }
+  }
+
+  private onScroll(): void {
+    if (!this.scrollContainer || this.loadingMore() || !this.hasMore()) return;
+
+    const { scrollTop, scrollHeight, clientHeight } = this.scrollContainer;
+    const scrollThreshold = 200; // Load more when 200px from bottom
+
+    if (scrollTop + clientHeight >= scrollHeight - scrollThreshold) {
+      this.loadMoreProducts();
+    }
+  }
+
+  loadMoreProducts(): void {
+    if (this.loadingMore() || !this.hasMore()) return;
+
+    this.loadingMore.set(true);
+    const nextSkip = this.currentSkip() + this.BATCH_SIZE;
+
+    this.productService.getProductsPaginated({
+      skip: nextSkip,
+      limit: this.BATCH_SIZE,
+      category_id: this.categoryFilter ?? undefined,
+      brand_id: this.brandFilter ?? undefined,
+      status_filter: this.statusFilter as 'all' | 'active' | 'inactive',
+      search: this.searchQuery || undefined
+    })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          // Append new products to existing
+          this.displayedProducts.update(products => [...products, ...response.items]);
+          this.currentSkip.set(nextSkip);
+          this.loadingMore.set(false);
+        },
+        error: () => {
+          this.loadingMore.set(false);
+          this.baseToast.showError('admin.products.load_error');
+        }
+      });
   }
 
 
@@ -194,7 +256,7 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
 
   // Abstract method implementations
   updatePaginatedItems(): void {
-    this.paginatedProducts.set(this.products().slice(this.first, this.first + this.rows));
+    // Not used - using server-side pagination with infinite scroll
   }
 
   getSearchDebounceKey(): string {
@@ -232,7 +294,7 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
   }
 
   refreshProductData() {
-    this.loadAllProducts();
+    this.loadProducts(false);
   }
 
   // Inline status editing (using base class helpers)
@@ -255,15 +317,26 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
   }
 
   saveStatus(product: Product): void {
-    this.saveStatusChange(
-      this.statusEdit,
-      product,
-      (id, data) => this.productService.updateProduct(id, data),
-      this.allProducts,
-      'admin.products.status_activated',
-      'admin.products.status_deactivated',
-      'admin.products.status_update_failed'
-    );
+    if (!this.statusEdit.hasChanged(product.is_active)) {
+      this.statusEdit.cancel();
+      return;
+    }
+
+    const newStatus = this.statusEdit.value;
+    this.productService.updateProduct(product.id, { is_active: newStatus })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          // Reload to get updated counts and filtered results
+          this.loadProducts(false);
+          this.statusEdit.cancel();
+          this.baseToast.showSuccess(newStatus ? 'admin.products.status_activated' : 'admin.products.status_deactivated');
+        },
+        error: (error) => {
+          this.statusEdit.cancel();
+          this.baseToast.showApiError(error, 'admin.products.status_update_failed');
+        }
+      });
   }
 
   getCategoryName(categoryId: number): string {
@@ -331,10 +404,10 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
-          this.allProducts.update(products =>
+          // Update in displayed products
+          this.displayedProducts.update(products =>
             products.map(p => p.id === product.id ? { ...p, price: newPrice } : p)
           );
-          this.filterItems();
           this.priceEdit.cancel();
           this.baseToast.showSuccess('admin.products.price_updated');
         },
@@ -417,10 +490,10 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
-          this.allProducts.update(products =>
+          // Update in displayed products
+          this.displayedProducts.update(products =>
             products.map(p => p.id === product.id ? { ...p, stock_quantity: newStock } : p)
           );
-          this.filterItems();
           this.cancelEditStock();
           this.baseToast.showSuccess('admin.products.stock_updated');
         },
@@ -463,64 +536,60 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
       });
   }
 
-  private loadAllProducts(): void {
+  private loadProducts(resetScroll = true): void {
     this.loading = true;
-    this.productService.getProducts({ active_only: false })
+
+    this.productService.getProductsPaginated({
+      skip: 0,
+      limit: this.BATCH_SIZE,
+      category_id: this.categoryFilter ?? undefined,
+      brand_id: this.brandFilter ?? undefined,
+      status_filter: this.statusFilter as 'all' | 'active' | 'inactive',
+      search: this.searchQuery || undefined
+    })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (products) => {
-          const sorted = this.sortByCreatedAt(products);
-          this.allProducts.set(sorted);
-          this.products.set(sorted);
-          this.updatePaginatedItems();
+        next: (response) => {
+          this.displayedProducts.set(response.items);
+          this.totalProducts.set(response.total);
+          this.serverActiveCount.set(response.active_count);
+          this.serverInactiveCount.set(response.inactive_count);
+          this.currentSkip.set(0);
           this.loading = false;
           this.markTableInitialized();
+          // Set up scroll listener after table is rendered
+          this.setupScrollListener();
+          // Scroll to top when filters change
+          if (resetScroll && this.scrollContainer) {
+            this.scrollContainer.scrollTop = 0;
+          }
         },
         error: () => {
-          this.allProducts.set([]);
-          this.products.set([]);
+          this.displayedProducts.set([]);
+          this.totalProducts.set(0);
           this.loading = false;
         }
       });
   }
 
   filterItems(): void {
-    // Apply status filter using base class helper
-    let filtered = this.filterByActiveStatus(this.allProducts());
-
-    // Category filter
-    if (this.categoryFilter) {
-      filtered = filtered.filter(p => p.category_id === this.categoryFilter);
-    }
-
-    // Brand filter
-    if (this.brandFilter) {
-      filtered = filtered.filter(p => p.brand_id === this.brandFilter);
-    }
-
-    // Search filter
-    if (this.hasSearchQuery()) {
-      const search = this.searchQuery.toLowerCase();
-      filtered = filtered.filter(product =>
-        this.getProductName(product).toLowerCase().includes(search) ||
-        this.getProductDescription(product).toLowerCase().includes(search) ||
-        this.getCategoryName(product.category_id).toLowerCase().includes(search)
-      );
-    }
-
-    this.products.set(filtered);
-    this.resetPagination();
-    this.updatePaginatedItems();
+    // Reload from server with current filters
+    this.loadProducts(true);
   }
 
   private deleteProduct(product: Product): void {
-    this.handleDeleteWithSignal(
-      () => this.productService.deleteProduct(product.id),
-      this.allProducts,
-      product.id,
-      'admin.products.delete_success',
-      'admin.products.delete_failed'
-    );
+    this.productService.deleteProduct(product.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.baseToast.showSuccess('admin.products.delete_success');
+          // Reload to get updated counts
+          this.loadProducts(false);
+        },
+        error: (error) => {
+          this.baseToast.showApiError(error, 'admin.products.delete_failed');
+        }
+      });
   }
 
 }
