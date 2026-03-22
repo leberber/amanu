@@ -201,7 +201,7 @@
             </thead>
             <tbody>
               @for (product of displayedProducts(); track product.id; let i = $index) {
-                <tr class="table-row-animate clickable-row" [style.--row-delay]="(i * 40) + 'ms'" (click)="editProduct(product)">
+                <tr class="table-row-animate clickable-row" [style.--row-delay]="((i < 10 ? i : 10) * 40) + 'ms'" (click)="editProduct(product)">
                   <!-- Product Image -->
                   @if (isColumnVisible('image')) {
                     <td>
@@ -411,6 +411,52 @@
                   }
                 </tr>
               }
+              <!-- Loading skeleton rows -->
+              @if (loadingMore()) {
+                @for (i of [1, 2, 3]; track i) {
+                  <tr class="skeleton-row">
+                    @if (isColumnVisible('image')) {
+                      <td><div class="skeleton skeleton-image"></div></td>
+                    }
+                    @if (isColumnVisible('name')) {
+                      <td>
+                        <div class="skeleton skeleton-text" style="width: 80%"></div>
+                        <div class="skeleton skeleton-text short" style="width: 50%; margin-top: 0.5rem"></div>
+                      </td>
+                    }
+                    @if (isColumnVisible('category')) {
+                      <td class="text-center"><div class="skeleton skeleton-pill"></div></td>
+                    }
+                    @if (isColumnVisible('brand')) {
+                      <td class="text-center"><div class="skeleton skeleton-pill-sm"></div></td>
+                    }
+                    @if (isColumnVisible('volume')) {
+                      <td class="text-center"><div class="skeleton skeleton-text-sm"></div></td>
+                    }
+                    @if (isColumnVisible('weight')) {
+                      <td class="text-center"><div class="skeleton skeleton-text-sm"></div></td>
+                    }
+                    @if (isColumnVisible('price')) {
+                      <td class="text-center"><div class="skeleton skeleton-text-sm"></div></td>
+                    }
+                    @if (isColumnVisible('stock')) {
+                      <td class="text-center"><div class="skeleton skeleton-text"></div></td>
+                    }
+                    @if (isColumnVisible('status')) {
+                      <td class="text-center"><div class="skeleton skeleton-toggle"></div></td>
+                    }
+                    @if (isColumnVisible('actions')) {
+                      <td class="text-center">
+                        <div class="skeleton-actions">
+                          <div class="skeleton skeleton-btn"></div>
+                          <div class="skeleton skeleton-btn"></div>
+                          <div class="skeleton skeleton-btn"></div>
+                        </div>
+                      </td>
+                    }
+                  </tr>
+                }
+              }
             </tbody>
           </table>
         </div>
@@ -419,11 +465,6 @@
         <div class="table-footer">
           <div class="results-info">
             <span>{{ 'admin.products.showing' | translate }} {{ displayedProducts().length }} {{ 'admin.products.of' | translate }} {{ totalProducts() }} {{ 'admin.products.products' | translate }}</span>
-            @if (loadingMore()) {
-              <span class="loading-indicator">
-                <p-progressSpinner [style]="{width: '16px', height: '16px'}" strokeWidth="4" />
-              </span>
-            }
           </div>
           @if (hasMore() && !loadingMore()) {
             <div class="scroll-hint">
