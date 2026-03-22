@@ -185,6 +185,9 @@
                               <i class="pi pi-shopping-cart"></i>
                             </button>
                           }
+                          <button class="action-btn" (click)="downloadPdf(order, $event)" pTooltip="Télécharger PDF" tooltipPosition="top">
+                            <i class="pi pi-file-pdf"></i>
+                          </button>
                           <button class="action-btn edit" (click)="viewOrder(order)" [pTooltip]="'admin.purchase_orders.view' | translate" tooltipPosition="top">
                             <i class="pi pi-eye"></i>
                           </button>

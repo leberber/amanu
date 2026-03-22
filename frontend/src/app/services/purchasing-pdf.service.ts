@@ -5,7 +5,29 @@ import autoTable from 'jspdf-autotable';
 
 import { RestockRow } from '../models/restock.model';
 import { Supplier } from '../models/supplier.model';
+import { PurchaseOrder } from './purchase-order.service';
 import { ToastMessageService } from '../core/services/toast-message.service';
+
+// Common data structure for PDF generation
+interface PdfOrderData {
+  reference: string;
+  date: string;
+  supplier: {
+    name: string;
+    address?: string;
+    city?: string;
+    phone?: string;
+  };
+  items: {
+    name: string;
+    brand: string;
+    unitsPerCarton: number;
+    quantity: number;
+    unitPrice: number;
+    totalPrice: number;
+  }[];
+  totalAmount: number;
+}
 
 @Injectable({
   providedIn: 'root'
@@ -44,7 +66,6 @@ export class PurchasingPdfService {
   }
 
   private normalizeText(text: string): string {
-    // Remove accents for PDF compatibility (é → e, è → e, etc.)
     return text.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
   }
 
@@ -70,7 +91,19 @@ export class PurchasingPdfService {
   }
 
   /**
-   * Generate a purchase order PDF (Bon de Commande)
+   * Generate a temporary reference for preview
+   */
+  generateTempReference(): string {
+    const today = new Date();
+    return `BC-${today.getFullYear()}${String(today.getMonth() + 1).padStart(2, '0')}${String(today.getDate()).padStart(2, '0')}-XXX`;
+  }
+
+  // ============================================================================
+  // Public methods - convert input to common format and call internal generator
+  // ============================================================================
+
+  /**
+   * Generate PDF from cart items (RestockRow[])
    */
   generateBonDeCommande(
     items: RestockRow[],
@@ -83,15 +116,73 @@ export class PurchasingPdfService {
       return;
     }
 
+    const data: PdfOrderData = {
+      reference: orderRef,
+      date: new Date().toISOString(),
+      supplier: {
+        name: supplierInfo?.name || supplierKey,
+        address: supplierInfo?.address,
+        city: supplierInfo?.city,
+        phone: supplierInfo?.phone
+      },
+      items: items.map(row => ({
+        name: row.name,
+        brand: row.brand,
+        unitsPerCarton: row.uniteParCarton,
+        quantity: row.nmbCarton,
+        unitPrice: row.prixCarton,
+        totalPrice: row.prixCarton * row.nmbCarton
+      })),
+      totalAmount: items.reduce((sum, r) => sum + (r.prixCarton * r.nmbCarton), 0)
+    };
+
+    this.generatePdfInternal(data, false);
+  }
+
+  /**
+   * Generate PDF from a saved PurchaseOrder
+   */
+  generatePurchaseOrderPdf(order: PurchaseOrder, download = false): void {
+    if (order.items.length === 0) {
+      this.toast.showWarn('La commande est vide');
+      return;
+    }
+
+    const data: PdfOrderData = {
+      reference: order.reference,
+      date: order.created_at,
+      supplier: {
+        name: order.supplier_name,
+        address: order.supplier_address,
+        city: order.supplier_city,
+        phone: order.supplier_phone
+      },
+      items: order.items.map(item => ({
+        name: item.product_name,
+        brand: item.brand,
+        unitsPerCarton: item.units_per_carton,
+        quantity: item.quantity_ordered,
+        unitPrice: item.unit_price,
+        totalPrice: item.total_price
+      })),
+      totalAmount: order.total_amount
+    };
+
+    this.generatePdfInternal(data, download, order.reference);
+  }
+
+  // ============================================================================
+  // Internal PDF generation - single source of truth
+  // ============================================================================
+
+  private generatePdfInternal(data: PdfOrderData, download: boolean, fileName?: string): void {
     try {
       const doc = new jsPDF();
       const pageWidth = doc.internal.pageSize.getWidth();
       const pageHeight = doc.internal.pageSize.getHeight();
       const margin = 12;
-      const today = new Date();
 
       // ===== HEADER =====
-      // Logo on the right
       if (this.logoImage) {
         const logoHeight = 12;
         const aspectRatio = this.logoImage.width / this.logoImage.height;
@@ -99,24 +190,21 @@ export class PurchasingPdfService {
         doc.addImage(this.logoImage, 'PNG', pageWidth - margin - logoWidth, 8, logoWidth, logoHeight);
       }
 
-      // Document title on the left
       doc.setFontSize(16);
       doc.setFont('helvetica', 'bold');
       doc.setTextColor(40, 40, 40);
       doc.text('BON DE COMMANDE', margin, 14);
 
-      // Reference and date below title
       doc.setFontSize(8);
       doc.setFont('helvetica', 'normal');
       doc.setTextColor(100, 100, 100);
-      doc.text(`${orderRef}  |  ${this.formatDate(today.toISOString())}`, margin, 20);
+      doc.text(`${data.reference}  |  ${this.formatDate(data.date)}`, margin, 20);
 
-      // Thin separator line
       doc.setDrawColor(220, 220, 220);
       doc.setLineWidth(0.2);
       doc.line(margin, 24, pageWidth - margin, 24);
 
-      // ===== SUPPLIER INFO (Left side) =====
+      // ===== SUPPLIER INFO =====
       let yPosition = 30;
 
       doc.setFontSize(7);
@@ -127,40 +215,39 @@ export class PurchasingPdfService {
       doc.setFontSize(9);
       doc.setFont('helvetica', 'bold');
       doc.setTextColor(40, 40, 40);
-      doc.text(this.normalizeText(supplierInfo?.name || supplierKey), margin, yPosition + 5);
+      doc.text(this.normalizeText(data.supplier.name), margin, yPosition + 5);
 
       doc.setFontSize(8);
       doc.setFont('helvetica', 'normal');
       doc.setTextColor(80, 80, 80);
       let infoY = yPosition + 10;
 
-      if (supplierInfo?.address) {
-        doc.text(this.normalizeText(supplierInfo.address), margin, infoY);
+      if (data.supplier.address) {
+        doc.text(this.normalizeText(data.supplier.address), margin, infoY);
         infoY += 4;
       }
-      if (supplierInfo?.city) {
-        doc.text(this.normalizeText(supplierInfo.city), margin, infoY);
+      if (data.supplier.city) {
+        doc.text(this.normalizeText(data.supplier.city), margin, infoY);
         infoY += 4;
       }
-      if (supplierInfo?.phone) {
-        doc.text(`Tel: ${supplierInfo.phone}`, margin, infoY);
+      if (data.supplier.phone) {
+        doc.text(`Tel: ${data.supplier.phone}`, margin, infoY);
       }
 
       yPosition += 24;
 
       // ===== PRODUCTS TABLE =====
-      const tableData = items.map((row, index) => [
+      const tableData = data.items.map((item, index) => [
         (index + 1).toString(),
-        this.normalizeText(row.name),
-        this.normalizeText(row.brand),
-        row.uniteParCarton.toString(),
-        row.nmbCarton.toString(),
-        this.formatNumber(row.prixCarton),
-        this.formatNumber(row.prixCarton * row.nmbCarton)
+        this.normalizeText(item.name),
+        this.normalizeText(item.brand),
+        item.unitsPerCarton.toString(),
+        item.quantity.toString(),
+        '',
+        ''
       ]);
 
-      const totalValue = items.reduce((sum, r) => sum + (r.prixCarton * r.nmbCarton), 0);
-      const totalItems = items.reduce((sum, r) => sum + r.nmbCarton, 0);
+      const totalItems = data.items.reduce((sum, item) => sum + item.quantity, 0);
 
       autoTable(doc, {
         startY: yPosition,
@@ -179,12 +266,12 @@ export class PurchasingPdfService {
           fillColor: [55, 55, 55],
           textColor: [255, 255, 255],
           fontStyle: 'bold',
-          fontSize: 7,
-          cellPadding: 2
+          fontSize: 9,
+          cellPadding: 3
         },
         bodyStyles: {
-          fontSize: 7,
-          cellPadding: 1.8,
+          fontSize: 9,
+          cellPadding: 4,
           textColor: [60, 60, 60]
         },
         alternateRowStyles: {
@@ -203,45 +290,15 @@ export class PurchasingPdfService {
         }
       });
 
-      // Get final Y position after table
       let finalY = (doc as any).lastAutoTable.finalY + 8;
 
-      // ===== TOTALS (Right aligned) =====
+      // ===== TOTALS =====
       const totalsX = pageWidth - margin - 50;
 
       doc.setFontSize(7);
       doc.setFont('helvetica', 'normal');
       doc.setTextColor(100, 100, 100);
-      doc.text(`${items.length} produits  |  ${totalItems} articles`, totalsX, finalY, { align: 'left' });
-
-      finalY += 6;
-      doc.setFillColor(50, 50, 50);
-      doc.roundedRect(totalsX - 3, finalY - 4, 53, 10, 2, 2, 'F');
-
-      doc.setFontSize(8);
-      doc.setFont('helvetica', 'bold');
-      doc.setTextColor(255, 255, 255);
-      doc.text('TOTAL', totalsX, finalY + 2);
-      doc.text(`${this.formatNumber(totalValue)} DA`, pageWidth - margin - 5, finalY + 2, { align: 'right' });
-
-      // ===== SIGNATURES =====
-      finalY += 20;
-
-      if (finalY < pageHeight - 40) {
-        doc.setFontSize(7);
-        doc.setFont('helvetica', 'normal');
-        doc.setTextColor(120, 120, 120);
-
-        // Left signature
-        doc.text('Signature Fournisseur', margin, finalY);
-        doc.setDrawColor(200, 200, 200);
-        doc.setLineWidth(0.2);
-        doc.roundedRect(margin, finalY + 2, 55, 18, 2, 2, 'S');
-
-        // Right signature
-        doc.text('Signature Acheteur', pageWidth - margin - 55, finalY);
-        doc.roundedRect(pageWidth - margin - 55, finalY + 2, 55, 18, 2, 2, 'S');
-      }
+      doc.text(`${data.items.length} produits  |  ${totalItems} articles`, totalsX, finalY, { align: 'left' });
 
       // ===== FOOTER =====
       doc.setDrawColor(220, 220, 220);
@@ -253,24 +310,21 @@ export class PurchasingPdfService {
       doc.setTextColor(150, 150, 150);
       doc.text('Document genere automatiquement', pageWidth / 2, pageHeight - 5, { align: 'center' });
 
-      // Show preview
-      this.pdfDoc.set(doc);
-      const pdfBlob = doc.output('blob');
-      this.pdfBlobUrl = URL.createObjectURL(pdfBlob);
-      this.pdfPreviewUrl.set(this.sanitizer.bypassSecurityTrustResourceUrl(this.pdfBlobUrl));
-      this.showPdfPreview.set(true);
+      // Output
+      if (download) {
+        doc.save(`${fileName || data.reference}.pdf`);
+        this.toast.showSuccess('PDF telecharge');
+      } else {
+        this.pdfDoc.set(doc);
+        const pdfBlob = doc.output('blob');
+        this.pdfBlobUrl = URL.createObjectURL(pdfBlob);
+        this.pdfPreviewUrl.set(this.sanitizer.bypassSecurityTrustResourceUrl(this.pdfBlobUrl));
+        this.showPdfPreview.set(true);
+      }
     } catch (error) {
       console.error('Error generating PDF:', error);
-      this.toast.showError('Erreur lors de la génération du PDF');
+      this.toast.showError('Erreur lors de la generation du PDF');
     }
-  }
-
-  /**
-   * Generate a temporary reference for preview
-   */
-  generateTempReference(): string {
-    const today = new Date();
-    return `BC-${today.getFullYear()}${String(today.getMonth() + 1).padStart(2, '0')}${String(today.getDate()).padStart(2, '0')}-XXX`;
   }
 
   /**
@@ -308,7 +362,6 @@ export class PurchasingPdfService {
           yPosition = 20;
         }
 
-        // Get supplier details
         const supplierInfo = getSupplierDetails(supplier);
 
         doc.setFontSize(12);

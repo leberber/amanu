@@ -16,6 +16,7 @@ import {
   PurchaseOrderStatus
 } from '../../../services/purchase-order.service';
 import { PurchasingCartService } from '../../../services/purchasing-cart.service';
+import { PurchasingPdfService } from '../../../services/purchasing-pdf.service';
 
 @Component({
   selector: 'app-admin-purchase-orders',
@@ -75,6 +76,7 @@ export class AdminPurchaseOrdersComponent extends BaseAdminListComponent impleme
   private router = inject(Router);
   private orderService = inject(PurchaseOrderService);
   private cartService = inject(PurchasingCartService);
+  private pdfService = inject(PurchasingPdfService);
   private confirmationService = inject(ConfirmationService);
   private confirmDialog = inject(ConfirmationDialogService);
   private destroyRef = inject(DestroyRef);
@@ -191,5 +193,24 @@ export class AdminPurchaseOrdersComponent extends BaseAdminListComponent impleme
 
   canDelete(order: PurchaseOrder): boolean {
     return this.orderService.canDelete(order);
+  }
+
+  downloadPdf(order: PurchaseOrder, event: Event): void {
+    event.stopPropagation();
+    // Fetch full order with items if not loaded
+    if (!order.items || order.items.length === 0) {
+      this.orderService.getOrder(order.id)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: (fullOrder) => {
+            this.pdfService.generatePurchaseOrderPdf(fullOrder, true);
+          },
+          error: () => {
+            this.baseToast.showError('Erreur lors du chargement de la commande');
+          }
+        });
+    } else {
+      this.pdfService.generatePurchaseOrderPdf(order, true);
+    }
   }
 }
