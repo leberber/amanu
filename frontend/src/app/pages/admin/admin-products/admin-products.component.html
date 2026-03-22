@@ -183,7 +183,11 @@
             </p-popover>
           </div>
         </div>
-        <div class="table-wrapper">
+        <div class="table-wrapper"
+             appInfiniteScroll
+             [scrollThreshold]="200"
+             [disabled]="loadingMore() || !hasMore()"
+             (scrolledToBottom)="loadMoreProducts()">
           <table class="table">
             <thead>
               <tr>
@@ -413,49 +417,11 @@
               }
               <!-- Loading skeleton rows -->
               @if (loadingMore()) {
-                @for (i of [1, 2, 3]; track i) {
-                  <tr class="skeleton-row">
-                    @if (isColumnVisible('image')) {
-                      <td><div class="skeleton skeleton-image"></div></td>
-                    }
-                    @if (isColumnVisible('name')) {
-                      <td>
-                        <div class="skeleton skeleton-text" style="width: 80%"></div>
-                        <div class="skeleton skeleton-text short" style="width: 50%; margin-top: 0.5rem"></div>
-                      </td>
-                    }
-                    @if (isColumnVisible('category')) {
-                      <td class="text-center"><div class="skeleton skeleton-pill"></div></td>
-                    }
-                    @if (isColumnVisible('brand')) {
-                      <td class="text-center"><div class="skeleton skeleton-pill-sm"></div></td>
-                    }
-                    @if (isColumnVisible('volume')) {
-                      <td class="text-center"><div class="skeleton skeleton-text-sm"></div></td>
-                    }
-                    @if (isColumnVisible('weight')) {
-                      <td class="text-center"><div class="skeleton skeleton-text-sm"></div></td>
-                    }
-                    @if (isColumnVisible('price')) {
-                      <td class="text-center"><div class="skeleton skeleton-text-sm"></div></td>
-                    }
-                    @if (isColumnVisible('stock')) {
-                      <td class="text-center"><div class="skeleton skeleton-text"></div></td>
-                    }
-                    @if (isColumnVisible('status')) {
-                      <td class="text-center"><div class="skeleton skeleton-toggle"></div></td>
-                    }
-                    @if (isColumnVisible('actions')) {
-                      <td class="text-center">
-                        <div class="skeleton-actions">
-                          <div class="skeleton skeleton-btn"></div>
-                          <div class="skeleton skeleton-btn"></div>
-                          <div class="skeleton skeleton-btn"></div>
-                        </div>
-                      </td>
-                    }
-                  </tr>
-                }
+                <app-table-loading-rows
+                  [columns]="getLoadingColumns()"
+                  [rowCount]="3"
+                  [actionCount]="3"
+                />
               }
             </tbody>
           </table>

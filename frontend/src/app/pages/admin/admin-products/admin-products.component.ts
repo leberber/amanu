@@ -1,13 +1,14 @@
-import { Component, OnInit, inject, DestroyRef, signal, computed, ElementRef, AfterViewInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, inject, DestroyRef, signal, computed } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ConfirmationService } from 'primeng/api';
 import { SelectModule } from 'primeng/select';
 import { PopoverModule } from 'primeng/popover';
-import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { TranslateService } from '@ngx-translate/core';
 
 import { ADMIN_LIST_IMPORTS, ADMIN_DIALOG_IMPORTS } from '../../../shared/imports/admin-shared.imports';
 import { TableSkeletonComponent, SkeletonColumn } from '../../../shared/components/table-skeleton/table-skeleton.component';
+import { TableLoadingRowsComponent, LoadingColumn } from '../../../shared/components/table-loading-rows/table-loading-rows.component';
+import { InfiniteScrollDirective } from '../../../shared/directives/infinite-scroll.directive';
 import { AgroclikPageContainerComponent } from '../../../shared/components/agroclik-page-container/agroclik-page-container.component';
 import { onLanguageChange } from '../../../core/utils/language-change.util';
 import { ProductService } from '../../../services/product.service';
@@ -32,19 +33,18 @@ import { BreakpointService } from '../../../core/services/breakpoint.service';
     ...ADMIN_DIALOG_IMPORTS,
     SelectModule,
     PopoverModule,
-    ProgressSpinnerModule,
     TableSkeletonComponent,
+    TableLoadingRowsComponent,
+    InfiniteScrollDirective,
     AgroclikPageContainerComponent
   ],
   providers: [ConfirmationService],
   templateUrl: './admin-products.component.html',
   styleUrl: './admin-products.component.scss'
 })
-export class AdminProductsComponent extends BaseAdminListComponent implements OnInit, AfterViewInit, OnDestroy {
+export class AdminProductsComponent extends BaseAdminListComponent implements OnInit {
   // Infinite scroll configuration
   private readonly BATCH_SIZE = 50;
-  private scrollContainer: HTMLElement | null = null;
-  private scrollListener: (() => void) | null = null;
 
   // Data signals - products loaded from server
   displayedProducts = signal<Product[]>([]);
@@ -132,7 +132,7 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
     ];
   }
 
-  // Skeleton configuration
+  // Skeleton configuration for initial load
   skeletonColumns: SkeletonColumn[] = [
     { width: '5%', type: 'image' },
     { width: '18%', type: 'text-multi', headerWidth: '100px' },
@@ -146,6 +146,22 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
     { width: '10%', type: 'actions', headerWidth: '60px' }
   ];
 
+  // Loading rows configuration for infinite scroll - computed based on visible columns
+  getLoadingColumns(): LoadingColumn[] {
+    return [
+      { type: 'image', visible: this.isColumnVisible('image') },
+      { type: 'text-multi', visible: this.isColumnVisible('name') },
+      { type: 'pill', visible: this.isColumnVisible('category') },
+      { type: 'pill-sm', visible: this.isColumnVisible('brand') },
+      { type: 'text-sm', visible: this.isColumnVisible('volume') },
+      { type: 'text-sm', visible: this.isColumnVisible('weight') },
+      { type: 'text-sm', visible: this.isColumnVisible('price') },
+      { type: 'stock', visible: this.isColumnVisible('stock') },
+      { type: 'toggle', visible: this.isColumnVisible('status') },
+      { type: 'actions', visible: this.isColumnVisible('actions') }
+    ];
+  }
+
   // Services
   private productService = inject(ProductService);
   private brandService = inject(BrandService);
@@ -157,56 +173,17 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
   private stockStatus = inject(StockStatusService);
   private destroyRef = inject(DestroyRef);
   private readonly breakpoint = inject(BreakpointService);
-  private elementRef = inject(ElementRef);
 
   ngOnInit() {
     this.columnOptions = this.getInitialColumnOptions();
     this.loadCategories();
     this.loadBrands();
-    this.loadProducts(false);
+    this.loadProducts();
     // On language change, reload to get translations
-    onLanguageChange(this.translateService, this.destroyRef, () => this.loadProducts(false));
+    onLanguageChange(this.translateService, this.destroyRef, () => this.loadProducts());
   }
 
-  ngAfterViewInit() {
-    // Scroll listener will be set up after data loads
-  }
-
-  ngOnDestroy() {
-    this.removeScrollListener();
-  }
-
-  private setupScrollListener(): void {
-    // Remove any existing listener first
-    this.removeScrollListener();
-
-    // Find the scrollable container (table-wrapper)
-    setTimeout(() => {
-      this.scrollContainer = this.elementRef.nativeElement.querySelector('.table-wrapper');
-      if (this.scrollContainer) {
-        this.scrollListener = this.onScroll.bind(this);
-        this.scrollContainer.addEventListener('scroll', this.scrollListener);
-      }
-    }, 100);
-  }
-
-  private removeScrollListener(): void {
-    if (this.scrollContainer && this.scrollListener) {
-      this.scrollContainer.removeEventListener('scroll', this.scrollListener);
-    }
-  }
-
-  private onScroll(): void {
-    if (!this.scrollContainer || this.loadingMore() || !this.hasMore()) return;
-
-    const { scrollTop, scrollHeight, clientHeight } = this.scrollContainer;
-    const scrollThreshold = 200; // Load more when 200px from bottom
-
-    if (scrollTop + clientHeight >= scrollHeight - scrollThreshold) {
-      this.loadMoreProducts();
-    }
-  }
-
+  /** Called by InfiniteScrollDirective when user scrolls near bottom */
   loadMoreProducts(): void {
     if (this.loadingMore() || !this.hasMore()) return;
 
@@ -236,21 +213,16 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
       });
   }
 
-
   // Public methods
   hasActiveFilters(): boolean {
     return !!(this.searchQuery?.trim() || this.categoryFilter || this.brandFilter || this.statusFilter !== 'all');
   }
 
-  // Category filter methods
   onCategoryChange(): void {
-    this.first = 0;
     this.filterItems();
   }
 
-  // Brand filter methods
   onBrandChange(): void {
-    this.first = 0;
     this.filterItems();
   }
 
@@ -263,13 +235,11 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
     return 'products-search';
   }
 
-  // Component-specific methods
   override clearFilters() {
     this.searchQuery = '';
     this.categoryFilter = null;
     this.brandFilter = null;
     this.statusFilter = 'all';
-    this.resetPagination();
     this.filterItems();
   }
 
@@ -294,7 +264,7 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
   }
 
   refreshProductData() {
-    this.loadProducts(false);
+    this.loadProducts();
   }
 
   // Inline status editing (using base class helpers)
@@ -328,7 +298,7 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
       .subscribe({
         next: () => {
           // Reload to get updated counts and filtered results
-          this.loadProducts(false);
+          this.loadProducts();
           this.statusEdit.cancel();
           this.baseToast.showSuccess(newStatus ? 'admin.products.status_activated' : 'admin.products.status_deactivated');
         },
@@ -376,12 +346,6 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
 
   getUnitLabel(product: Product): string {
     return this.unitsService.getUnitDisplay(product.unit, false);
-  }
-
-  getPaginationTemplate(): string {
-    const showing = this.translateService.instant('admin.products.showing');
-    const of = this.translateService.instant('admin.products.of');
-    return `${showing} {first} - {last} ${of} {totalRecords}`;
   }
 
   // Inline price editing methods
@@ -536,7 +500,7 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
       });
   }
 
-  private loadProducts(resetScroll = true): void {
+  private loadProducts(): void {
     this.loading = true;
 
     this.productService.getProductsPaginated({
@@ -557,12 +521,6 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
           this.currentSkip.set(0);
           this.loading = false;
           this.markTableInitialized();
-          // Set up scroll listener after table is rendered
-          this.setupScrollListener();
-          // Scroll to top when filters change
-          if (resetScroll && this.scrollContainer) {
-            this.scrollContainer.scrollTop = 0;
-          }
         },
         error: () => {
           this.displayedProducts.set([]);
@@ -574,7 +532,7 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
 
   filterItems(): void {
     // Reload from server with current filters
-    this.loadProducts(true);
+    this.loadProducts();
   }
 
   private deleteProduct(product: Product): void {
@@ -584,7 +542,7 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
         next: () => {
           this.baseToast.showSuccess('admin.products.delete_success');
           // Reload to get updated counts
-          this.loadProducts(false);
+          this.loadProducts();
         },
         error: (error) => {
           this.baseToast.showApiError(error, 'admin.products.delete_failed');

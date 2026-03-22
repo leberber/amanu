@@ -12,11 +12,6 @@
     padding: 0.75rem 1rem;
     font-size: 0.875rem;
     color: var(--text-secondary);
-
-    .loading-indicator {
-      display: inline-flex;
-      margin-left: 0.5rem;
-    }
   }
 
   .scroll-hint {
@@ -39,79 +34,6 @@
 @keyframes bounce {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(4px); }
-}
-
-// Skeleton loading rows
-.skeleton-row {
-  td {
-    padding: 1rem 0.75rem;
-  }
-}
-
-.skeleton {
-  background: linear-gradient(90deg, var(--surface-200) 25%, var(--surface-100) 50%, var(--surface-200) 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
-  border-radius: 4px;
-}
-
-.skeleton-image {
-  width: 40px;
-  height: 40px;
-  border-radius: 8px;
-}
-
-.skeleton-text {
-  height: 14px;
-  width: 100%;
-
-  &.short {
-    width: 60%;
-  }
-}
-
-.skeleton-text-sm {
-  height: 14px;
-  width: 50px;
-  margin: 0 auto;
-}
-
-.skeleton-pill {
-  height: 24px;
-  width: 80px;
-  border-radius: 12px;
-  margin: 0 auto;
-}
-
-.skeleton-pill-sm {
-  height: 22px;
-  width: 60px;
-  border-radius: 11px;
-  margin: 0 auto;
-}
-
-.skeleton-toggle {
-  height: 24px;
-  width: 70px;
-  border-radius: 12px;
-  margin: 0 auto;
-}
-
-.skeleton-btn {
-  width: 28px;
-  height: 28px;
-  border-radius: 6px;
-}
-
-.skeleton-actions {
-  display: flex;
-  justify-content: center;
-  gap: 0.5rem;
-}
-
-@keyframes shimmer {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
 }
 
 // =============================================================================
