@@ -204,6 +204,38 @@ def generate_name_translations(name: str) -> dict:
     return {"en": name, "fr": name, "ar": name}
 
 
+def generate_description(description: str, pieces_per_box: int = None) -> str:
+    """Generate base description (French).
+
+    If pieces_per_box is provided and no custom description, auto-generate.
+    """
+    if description:
+        return description
+    if pieces_per_box and pieces_per_box > 1:
+        return f"{pieces_per_box} unités par carton"
+    return ""
+
+
+def generate_description_translations(description: str, pieces_per_box: int = None) -> dict:
+    """Generate description translations.
+
+    If pieces_per_box is provided and no custom description, auto-generate based on units per box.
+    Otherwise, copy the description to all languages.
+    """
+    # Auto-generate based on pieces per box if no custom description
+    if pieces_per_box and pieces_per_box > 1 and not description:
+        return {
+            "en": f"{pieces_per_box} units per box",
+            "fr": f"{pieces_per_box} unités par carton",
+            "ar": f"{pieces_per_box} وحدة في الصندوق"
+        }
+
+    if not description:
+        return {}
+
+    return {"en": description, "fr": description, "ar": description}
+
+
 # =============================================================================
 # CRUD Endpoints
 # =============================================================================
@@ -293,8 +325,9 @@ async def save_restock_item(item: RestockItemRequest, session: Session = Depends
                     is_active=False,
                     category_id=item.categoryId,
                     brand_id=item.brandId,
-                    description=item.description,
+                    description=generate_description(item.description, item.uniteParCarton),
                     name_translations=generate_name_translations(item.name),
+                    description_translations=generate_description_translations(item.description, item.uniteParCarton),
                     image_url=item.image,
                     created_at=datetime.now(timezone.utc)
                 )
@@ -306,13 +339,14 @@ async def save_restock_item(item: RestockItemRequest, session: Session = Depends
         product.brand_id = item.brandId
         product.category_id = item.categoryId
         product.image_url = item.image
-        product.description = item.description
+        product.description = generate_description(item.description, item.uniteParCarton)
         product.volume = item.volume
         product.weight = item.weight
         product.unit = map_product_unit(item.productUnit)
         product.packaging_type = map_package_type(item.packageType)
         product.pieces_per_box = item.uniteParCarton if item.uniteParCarton >= 1 else None
         product.name_translations = generate_name_translations(item.name)
+        product.description_translations = generate_description_translations(item.description, item.uniteParCarton)
         product.updated_at = datetime.now(timezone.utc)
         session.add(product)
 
