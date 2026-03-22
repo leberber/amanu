@@ -472,14 +472,10 @@ async def sync_restock_item(item_id: int, session: Session = Depends(get_session
                             s3_rename_error = msg
 
                 # Update only changed fields
+                # NOTE: price and stock_quantity are NOT synced to preserve selling price and inventory
                 if product.name != restock_item.name:
                     product.name = restock_item.name
                     changes.append("name")
-
-                # Use round for float comparison to avoid precision issues
-                if round(product.price or 0, 2) != round(restock_item.prix_unite_achat or 0, 2):
-                    product.price = restock_item.prix_unite_achat
-                    changes.append("price")
 
                 new_unit = map_product_unit(restock_item.product_unit or "piece")
                 if product.unit != new_unit:
@@ -520,9 +516,7 @@ async def sync_restock_item(item_id: int, session: Session = Depends(get_session
                     product.pieces_per_box = new_pieces_per_box
                     changes.append("pieces_per_box")
 
-                if product.stock_quantity != restock_item.nmb_carton:
-                    product.stock_quantity = restock_item.nmb_carton
-                    changes.append("stock_quantity")
+                # NOTE: stock_quantity is NOT synced - managed via deliveries/sales
 
                 new_active = not restock_item.hidden
                 if product.is_active != new_active:

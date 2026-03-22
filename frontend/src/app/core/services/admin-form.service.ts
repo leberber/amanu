@@ -92,28 +92,29 @@ export class AdminFormService {
   }
 
   buildFormDataWithTranslations(
-    formValues: any, 
-    translationFields: string[], 
+    formValues: any,
+    translationFields: string[],
     additionalData?: any
   ): any {
     const data: any = { ...additionalData };
-    
+
     translationFields.forEach(fieldName => {
 
       data[fieldName] = formValues[`${fieldName}_en`] || '';
-      
+
       // Create translation object
       data[`${fieldName}_translations`] = this.createTranslationObject(formValues, fieldName);
     });
-    
-    // Copy non-translation fields
+
+    // Copy non-translation fields, converting empty strings to null for numeric fields
     Object.keys(formValues).forEach(key => {
-      
       if (!key.match(/_(?:en|fr|ar)$/)) {
-        data[key] = formValues[key];
+        const value = formValues[key];
+        // Convert empty strings to null (important for optional numeric fields like volume, weight)
+        data[key] = value === '' ? null : value;
       }
     });
-    
+
     return data;
   }
 
