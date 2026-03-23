@@ -96,7 +96,7 @@
         <span class="toggle-item__description">{{ 'driver.profile.notifications_desc' | translate }}</span>
       </div>
       <label class="toggle-switch">
-        <input type="checkbox" [checked]="notificationsEnabled()" (change)="toggleNotifications()">
+        <input type="checkbox" [checked]="notificationsEnabled()" (change)="toggleNotifications()" [disabled]="loadingNotifications()">
         <span class="toggle-switch__slider"></span>
       </label>
     </div>

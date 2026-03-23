@@ -1,14 +1,58 @@
-// =============================================================================
-// NOTIFICATIONS PAGE
-// =============================================================================
-
 :host {
   display: block;
 }
 
-.notifications-container {
+.driver-notifications {
+  min-height: 100vh;
+  background: var(--surface-ground, #f8fafc);
+}
+
+// =============================================================================
+// HEADER
+// =============================================================================
+
+.notifications-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
   padding: 16px;
-  padding-bottom: 100px;
+  padding-top: calc(16px + env(safe-area-inset-top, 0px));
+
+  &__back {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--text-color, #374151);
+    cursor: pointer;
+
+    &:active {
+      transform: scale(0.92);
+    }
+
+    i {
+      font-size: 18px;
+    }
+  }
+
+  &__title {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-color, #1f2937);
+    margin: 0;
+  }
+}
+
+// =============================================================================
+// CONTAINER
+// =============================================================================
+
+.notifications-container {
+  padding: 0 16px 100px;
 }
 
 .notifications-list {
@@ -64,42 +108,29 @@
     font-size: 18px;
   }
 
-  // Order status notification colors - using centralized colors from _colors.scss
-  // Same colors as status badges and timeline for consistency
-  &--order_confirmed {
-    background: var(--color-confirmed-bg);
-    color: var(--color-confirmed);
-  }
-
-  &--order_shipped {
-    background: var(--color-shipped-bg);
-    color: var(--color-shipped);
-  }
-
-  &--order_delivered {
-    background: var(--color-delivered-bg);
-    color: var(--color-delivered);
-  }
-
-  &--order_cancelled {
-    background: var(--color-cancelled-bg);
-    color: var(--color-cancelled);
-  }
-
   &--trip_assigned {
     background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(37, 99, 235, 0.1) 100%);
     color: #3b82f6;
   }
 
-  // Other notification types
-  &--payment_received {
-    background: linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(217, 119, 6, 0.1) 100%);
-    color: #d97706;
+  &--order_confirmed {
+    background: var(--color-confirmed-bg, rgba(34, 197, 94, 0.15));
+    color: var(--color-confirmed, #22c55e);
   }
 
-  &--promotion {
-    background: linear-gradient(135deg, rgba(139, 92, 246, 0.15) 0%, rgba(124, 58, 237, 0.1) 100%);
-    color: #8b5cf6;
+  &--order_shipped {
+    background: var(--color-shipped-bg, rgba(59, 130, 246, 0.15));
+    color: var(--color-shipped, #3b82f6);
+  }
+
+  &--order_delivered {
+    background: var(--color-delivered-bg, rgba(34, 197, 94, 0.15));
+    color: var(--color-delivered, #22c55e);
+  }
+
+  &--order_cancelled {
+    background: var(--color-cancelled-bg, rgba(239, 68, 68, 0.15));
+    color: var(--color-cancelled, #ef4444);
   }
 
   &--system {
@@ -151,7 +182,6 @@
   text-transform: uppercase;
 }
 
-// Actions column (X button + checkmarks)
 .notification-card__actions {
   display: flex;
   flex-direction: column;
@@ -163,7 +193,6 @@
   padding: 2px 0;
 }
 
-// Delete button
 .notification-card__delete {
   display: flex;
   align-items: center;
@@ -177,10 +206,6 @@
   cursor: pointer;
   transition: all 0.2s;
 
-  &:hover {
-    background: rgba(239, 68, 68, 0.1);
-  }
-
   &:active {
     transform: scale(0.95);
   }
@@ -190,23 +215,68 @@
   }
 }
 
-// WhatsApp-style double checkmarks
 .notification-card__status {
   display: inline-flex;
   align-items: center;
 
   i {
     font-size: 14px;
-    color: #9ca3af; // Gray for unread
+    color: #9ca3af;
 
     &:last-child {
-      margin-left: -7px; // Overlap for double-check effect
+      margin-left: -7px;
     }
   }
 
-  // Blue checkmarks when read
   &--read i {
-    color: #3b82f6; // Blue
+    color: #3b82f6;
+  }
+}
+
+// =============================================================================
+// EMPTY STATE
+// =============================================================================
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+
+  &__icon {
+    font-size: 48px;
+    color: #d1d5db;
+    margin-bottom: 16px;
+
+    &--danger {
+      color: #ef4444;
+    }
+  }
+
+  &__text {
+    font-size: 14px;
+    color: #6b7280;
+    margin: 0 0 16px;
+  }
+
+  &__action {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 10px;
+    background: var(--primary-color, #3b82f6);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+
+    &:active {
+      transform: scale(0.96);
+    }
   }
 }
 

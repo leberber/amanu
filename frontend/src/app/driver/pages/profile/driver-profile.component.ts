@@ -1,9 +1,11 @@
-import { Component, inject, OnInit, signal, computed } from '@angular/core';
+import { Component, inject, OnInit, signal, computed, DestroyRef } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { DriverService } from '../../../services/driver.service';
 import { AuthService } from '../../../services/auth.service';
+import { PushService } from '../../../services/push.service';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
 import { ROUTES } from '../../../core/constants/routes.constants';
 import { DRIVER_STATUS, DRIVER_STATUS_CONFIG } from '../../../core/constants/driver.constants';
@@ -19,7 +21,9 @@ export class DriverProfileComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly driverService = inject(DriverService);
   private readonly authService = inject(AuthService);
+  private readonly pushService = inject(PushService);
   private readonly toast = inject(ToastMessageService);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly DRIVER_STATUS = DRIVER_STATUS;
   readonly driverStatusConfig = DRIVER_STATUS_CONFIG;
@@ -29,7 +33,8 @@ export class DriverProfileComponent implements OnInit {
   driverProfile = this.driverService.driverProfile;
   stats = this.driverService.stats;
   loading = signal(true);
-  notificationsEnabled = signal(true);
+  notificationsEnabled = signal(false);
+  loadingNotifications = signal(false);
 
   // Computed
   isOnline = computed(() => {
@@ -39,23 +44,37 @@ export class DriverProfileComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadProfile();
-    this.loadNotificationPreference();
+
+    // Subscribe to real push notification status
+    this.pushService.isSubscribed$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(isSubscribed => {
+        this.notificationsEnabled.set(isSubscribed);
+      });
   }
 
-  loadNotificationPreference(): void {
-    const stored = localStorage.getItem('driver_notifications_enabled');
-    this.notificationsEnabled.set(stored !== 'false');
-  }
-
-  toggleNotifications(): void {
-    const newValue = !this.notificationsEnabled();
-    this.notificationsEnabled.set(newValue);
-    localStorage.setItem('driver_notifications_enabled', String(newValue));
-
-    if (newValue) {
-      this.toast.showSuccess('driver.messages.notifications_enabled');
-    } else {
-      this.toast.showInfo('driver.messages.notifications_disabled');
+  async toggleNotifications(): Promise<void> {
+    this.loadingNotifications.set(true);
+    try {
+      if (!this.notificationsEnabled()) {
+        const result = await this.pushService.subscribe();
+        if (result.success) {
+          this.toast.showSuccess('driver.messages.notifications_enabled');
+        } else {
+          switch (result.error) {
+            case 'permission_denied':
+              this.toast.showError('settings.notifications_permission_denied');
+              break;
+            default:
+              this.toast.showError('settings.notifications_error');
+          }
+        }
+      } else {
+        await this.pushService.unsubscribe();
+        this.toast.showInfo('driver.messages.notifications_disabled');
+      }
+    } finally {
+      this.loadingNotifications.set(false);
     }
   }
 

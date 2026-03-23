@@ -35,6 +35,10 @@ export const NOTIFICATION_TYPE_CONFIG = {
     icon: 'pi pi-wallet',
     severity: 'success' as const
   },
+  trip_assigned: {
+    icon: 'pi pi-truck',
+    severity: 'info' as const
+  },
   promotion: {
     icon: 'pi pi-percentage',
     severity: 'warn' as const

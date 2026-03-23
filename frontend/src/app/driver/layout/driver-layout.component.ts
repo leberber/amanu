@@ -7,6 +7,7 @@ import { filter } from 'rxjs';
 
 import { DriverService } from '../../services/driver.service';
 import { AuthService } from '../../services/auth.service';
+import { UserNotificationService } from '../../services/user-notification.service';
 import { ROUTES } from '../../core/constants/routes.constants';
 import { DRIVER_STATUS, DRIVER_STATUS_CONFIG } from '../../core/constants/driver.constants';
 
@@ -71,8 +72,10 @@ export class DriverLayoutComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly driverService = inject(DriverService);
   private readonly authService = inject(AuthService);
+  private readonly notificationService = inject(UserNotificationService);
 
   readonly routes = ROUTES;
+  notificationCount = this.notificationService.unreadCount;
   readonly statusConfig = DRIVER_STATUS_CONFIG;
   readonly DRIVER_STATUS = DRIVER_STATUS;
 
@@ -126,9 +129,16 @@ export class DriverLayoutComponent implements OnInit {
     { path: '/driver/profile', icon: 'pi pi-user', label: 'driver.navigation.profile', exact: false }
   ];
 
+  goToNotifications(): void {
+    this.router.navigate(['/driver/notifications']);
+  }
+
   ngOnInit(): void {
     // Initialize driver data
     this.driverService.initializeDriver();
+
+    // Load notification count
+    this.notificationService.refreshUnreadCount();
 
     // Detect browser back button (popstate) for backward animation
     this.router.events.pipe(
@@ -189,12 +199,12 @@ export class DriverLayoutComponent implements OnInit {
 
   private shouldHideBottomNav(url: string): boolean {
     // Hide bottom nav on detail pages
-    return url.includes('/driver/trip/') || url.includes('/driver/earnings');
+    return url.includes('/driver/trip/') || url.includes('/driver/earnings') || url.includes('/driver/notifications');
   }
 
   private shouldHideHeader(url: string): boolean {
     // Hide header on pages that have their own header
-    return url.includes('/driver/trip/') || url.includes('/driver/earnings');
+    return url.includes('/driver/trip/') || url.includes('/driver/earnings') || url.includes('/driver/notifications');
   }
 
   private getPageTitle(url: string): string {

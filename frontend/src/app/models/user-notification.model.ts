@@ -4,6 +4,7 @@ export type UserNotificationType =
   | 'order_delivered'
   | 'order_cancelled'
   | 'payment_received'
+  | 'trip_assigned'
   | 'promotion'
   | 'system';
 

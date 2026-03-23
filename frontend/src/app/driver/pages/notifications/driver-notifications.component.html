@@ -1,0 +1,77 @@
+<div @pageAnimation class="driver-notifications">
+  <!-- Header -->
+  <div class="notifications-header">
+    <button class="notifications-header__back" (click)="goBack()">
+      <i class="pi pi-arrow-left"></i>
+    </button>
+    <h1 class="notifications-header__title">{{ 'notifications_page.title' | translate }}</h1>
+  </div>
+
+  <div class="notifications-container">
+    @if (loading()) {
+      <div class="notifications-list">
+        @for (i of [1, 2, 3, 4, 5]; track i) {
+          <div class="notification-card notification-card--skeleton">
+            <div class="notification-card__icon">
+              <div class="skeleton skeleton-icon"></div>
+            </div>
+            <div class="notification-card__content">
+              <div class="skeleton" style="width: 60%; height: 18px; margin-bottom: 8px;"></div>
+              <div class="skeleton" style="width: 90%; height: 14px; margin-bottom: 8px;"></div>
+              <div class="skeleton" style="width: 100px; height: 12px;"></div>
+            </div>
+          </div>
+        }
+      </div>
+    } @else if (error()) {
+      <div class="empty-state">
+        <i class="pi pi-exclamation-triangle empty-state__icon empty-state__icon--danger"></i>
+        <p class="empty-state__text">{{ 'notifications_page.error_message' | translate }}</p>
+        <button class="empty-state__action" (click)="loadNotifications()">
+          <i class="pi pi-refresh"></i>
+          {{ 'common.refresh' | translate }}
+        </button>
+      </div>
+    } @else if (notifications().length === 0) {
+      <div class="empty-state">
+        <i class="pi pi-bell-slash empty-state__icon"></i>
+        <p class="empty-state__text">{{ 'notifications_page.empty_message' | translate }}</p>
+      </div>
+    } @else {
+      <div class="notifications-list">
+        @for (notif of notifications(); track notif.id) {
+          <div
+            class="notification-card"
+            [class.notification-card--unread]="!notif.is_read"
+            (click)="onNotificationClick(notif)">
+            <div class="notification-card__icon notification-card__icon--{{ notif.type }}">
+              <i [class]="getNotificationIcon(notif.type)"></i>
+            </div>
+            <div class="notification-card__content">
+              <h4 class="notification-card__title">{{ notif.title }}</h4>
+              <p class="notification-card__message">{{ notif.message }}</p>
+              <span class="notification-card__date">
+                {{ notif.created_at | date:'dd/MM/yyyy HH:mm' }}
+                @if (!notif.is_read) {
+                  <span class="notification-card__unread-badge">{{ 'notifications_page.unread' | translate }}</span>
+                }
+              </span>
+            </div>
+            <div class="notification-card__actions">
+              <button
+                class="notification-card__delete"
+                (click)="onDeleteClick($event, notif)"
+                [attr.aria-label]="'common.delete' | translate">
+                <i class="pi pi-times"></i>
+              </button>
+              <span class="notification-card__status" [class.notification-card__status--read]="notif.is_read">
+                <i class="pi pi-check"></i>
+                <i class="pi pi-check"></i>
+              </span>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</div>

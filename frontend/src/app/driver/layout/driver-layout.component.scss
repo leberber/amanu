@@ -45,9 +45,55 @@
 
   &__right {
     display: flex;
+    align-items: center;
+    gap: var(--space-2);
     justify-content: flex-end;
-    // Prevent status badge from shifting by keeping it fixed to the right
     flex-shrink: 0;
+  }
+}
+
+// =============================================================================
+// NOTIFICATION BELL
+// =============================================================================
+
+.notification-bell {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--text-color, #374151);
+  cursor: pointer;
+  transition: background 0.2s;
+
+  &:active {
+    transform: scale(0.92);
+  }
+
+  i {
+    font-size: 20px;
+  }
+
+  &__badge {
+    position: absolute;
+    top: 4px;
+    right: 2px;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    border-radius: 9px;
+    background: #ef4444;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
   }
 }
 

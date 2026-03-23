@@ -13,6 +13,14 @@
       </div>
 
       <div class="driver-header__right">
+        <!-- Notification Bell -->
+        <button class="notification-bell" (click)="goToNotifications()">
+          <i class="pi pi-bell"></i>
+          @if (notificationCount() > 0) {
+            <span class="notification-bell__badge">{{ notificationCount() > 99 ? '99+' : notificationCount() }}</span>
+          }
+        </button>
+
         <!-- Status Badge -->
         <button
           class="status-badge"

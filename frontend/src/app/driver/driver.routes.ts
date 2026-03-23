@@ -16,6 +16,11 @@ export const DRIVER_ROUTES: Routes = [
         loadComponent: () => import('./pages/active/driver-active.component').then(m => m.DriverActiveComponent)
       },
       {
+        path: 'notifications',
+        loadComponent: () => import('./pages/notifications/driver-notifications.component').then(m => m.DriverNotificationsComponent),
+        data: { hideBottomNav: true }
+      },
+      {
         path: 'trip/:id',
         loadComponent: () => import('./pages/trip-detail/driver-trip-detail.component').then(m => m.DriverTripDetailComponent),
         data: { hideBottomNav: true }
