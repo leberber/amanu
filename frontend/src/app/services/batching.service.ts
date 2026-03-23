@@ -244,7 +244,7 @@ export class BatchingService {
   /**
    * Run custom batching with user-defined batches
    */
-  runCustomBatching(batches: { order_ids: number[] }[]): Observable<BatchingRunResponse> {
+  runCustomBatching(batches: { order_ids: number[]; driver_id?: number }[]): Observable<BatchingRunResponse> {
     const request: CustomBatchingRequest = { batches };
     return this.http.post<BatchingRunResponse>(
       `${this.apiUrl}${API_ENDPOINTS.RUN_CUSTOM}`,

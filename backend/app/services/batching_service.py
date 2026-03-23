@@ -456,6 +456,7 @@ def create_trips_from_custom_batches(
 
     for batch in batches:
         order_ids = batch.get("order_ids", [])
+        driver_id = batch.get("driver_id")
 
         if len(order_ids) < 2:
             # Skip single orders - they don't benefit from batching
@@ -475,14 +476,16 @@ def create_trips_from_custom_batches(
 
         # Calculate totals
         total_weight = sum(o.total_weight_kg or 0 for o in batch_orders)
-        total_volume = sum(o.total_volume or 0 for o in batch_orders)
+        total_volume = 0.0
         total_earnings = sum(o.shipping_cost for o in batch_orders)
 
         # Determine zone (use first order's zone or mixed)
         zones = set(get_order_h3_zone(o, session) for o in batch_orders)
         zone = zones.pop() if len(zones) == 1 else "mixed"
 
-        # Create trip
+        now = datetime.now(timezone.utc)
+
+        # Create trip - assign driver if provided
         trip = Trip(
             status=TripStatus.PENDING,
             total_weight_kg=total_weight,
@@ -491,6 +494,10 @@ def create_trips_from_custom_batches(
             h3_zone=zone if zone not in ("unknown", "mixed") else None,
             created_by_id=created_by_id,
         )
+        if driver_id:
+            trip.driver_id = driver_id
+            trip.status = TripStatus.ASSIGNED
+            trip.assigned_at = now
         session.add(trip)
         session.commit()
         session.refresh(trip)
@@ -507,7 +514,11 @@ def create_trips_from_custom_batches(
 
             # Update order to link to trip
             order.trip_id = trip.id
-            order.updated_at = datetime.now(timezone.utc)
+            order.updated_at = now
+            if driver_id:
+                order.driver_id = driver_id
+                order.status = OrderStatus.ASSIGNED
+                order.assigned_at = now
             session.add(order)
 
         session.commit()

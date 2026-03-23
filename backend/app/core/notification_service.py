@@ -62,6 +62,15 @@ class NotificationService:
                 "ar": "تم استلام الدفع للطلب #{order_id}. شكراً!",
             },
         },
+        NotificationType.TRIP_ASSIGNED: {
+            "title": "New Trip Assigned",
+            "title_translations": {"fr": "Nouvelle tournée assignée", "ar": "رحلة جديدة مخصصة"},
+            "message": "You have a new trip with {stop_count} stops ({total_weight_kg} kg). Open the app to view details.",
+            "message_translations": {
+                "fr": "Vous avez une nouvelle tournée avec {stop_count} arrêts ({total_weight_kg} kg). Ouvrez l'application pour voir les détails.",
+                "ar": "لديك رحلة جديدة بها {stop_count} محطات ({total_weight_kg} كغ). افتح التطبيق لعرض التفاصيل.",
+            },
+        },
     }
 
     @classmethod
@@ -185,6 +194,47 @@ class NotificationService:
             reference_id=order_id,
             reference_type="order",
             url=f"/orders/{order_id}",
+        )
+
+    @classmethod
+    def notify_trip_assigned(
+        cls,
+        session: Session,
+        driver_user_id: int,
+        trip_id: int,
+        stop_count: int,
+        total_weight_kg: float,
+    ) -> UserNotification:
+        """
+        Send notification to a driver when a trip is assigned to them.
+        """
+        template = cls.TEMPLATES[NotificationType.TRIP_ASSIGNED]
+
+        title = template["title"]
+        message = template["message"].format(
+            stop_count=stop_count,
+            total_weight_kg=round(total_weight_kg, 1),
+        )
+
+        title_translations = template.get("title_translations", {})
+        message_translations = {}
+        for lang, msg in template.get("message_translations", {}).items():
+            message_translations[lang] = msg.format(
+                stop_count=stop_count,
+                total_weight_kg=round(total_weight_kg, 1),
+            )
+
+        return cls.notify_user(
+            session=session,
+            user_id=driver_user_id,
+            notification_type=NotificationType.TRIP_ASSIGNED,
+            title=title,
+            message=message,
+            title_translations=title_translations,
+            message_translations=message_translations,
+            reference_id=trip_id,
+            reference_type="trip",
+            url=f"/driver/trip/{trip_id}",
         )
 
     @classmethod

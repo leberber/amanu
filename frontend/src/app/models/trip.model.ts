@@ -206,5 +206,5 @@ export interface CustomBatch {
 }
 
 export interface CustomBatchingRequest {
-  batches: { order_ids: number[] }[];
+  batches: { order_ids: number[]; driver_id?: number }[];
 }

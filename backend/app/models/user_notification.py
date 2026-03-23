@@ -12,6 +12,7 @@ class NotificationType(str, Enum):
     ORDER_DELIVERED = "order_delivered"
     ORDER_CANCELLED = "order_cancelled"
     PAYMENT_RECEIVED = "payment_received"
+    TRIP_ASSIGNED = "trip_assigned"
     PROMOTION = "promotion"
     SYSTEM = "system"
 

@@ -1641,7 +1641,7 @@ export class AdminBatchingComponent implements OnInit {
     // Create batch with order IDs
     const orderIds = orders.map(o => o.id);
 
-    this.batchingService.runCustomBatching([{ order_ids: orderIds }])
+    this.batchingService.runCustomBatching([{ order_ids: orderIds, driver_id: driverId }])
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {

@@ -24,6 +24,7 @@ from app.services.batching_service import (
 from app.services.smart_batching_service import (
     SmartBatchingService, preview_smart_batching, run_smart_batching
 )
+from app.core.notification_service import NotificationService
 from sqlmodel import SQLModel
 
 
@@ -425,6 +426,7 @@ def get_pending_orders(
 class CustomBatch(SQLModel):
     """A single batch definition"""
     order_ids: List[int]
+    driver_id: Optional[int] = None
 
 
 class CustomBatchingRequest(SQLModel):
@@ -447,7 +449,7 @@ def run_custom_batching(
     - Same order cannot appear in multiple batches
     - All orders must be valid pending batchable orders
     """
-    batches = [{"order_ids": b.order_ids} for b in request.batches]
+    batches = [{"order_ids": b.order_ids, "driver_id": b.driver_id} for b in request.batches]
     result = create_trips_from_custom_batches(batches, session, created_by_id=current_user.id)
 
     if not result.get("success"):
@@ -455,6 +457,19 @@ def run_custom_batching(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=result.get("message", "Custom batching failed")
         )
+
+    # Send notifications to assigned drivers
+    for trip_info in result.get("trips", []):
+        trip = session.get(Trip, trip_info["id"])
+        if trip and trip.driver_id:
+            NotificationService.notify_trip_assigned(
+                session=session,
+                driver_user_id=trip.driver_id,
+                trip_id=trip.id,
+                stop_count=len(trip.stops),
+                total_weight_kg=trip.total_weight_kg,
+            )
+    session.commit()
 
     return result
 
@@ -613,6 +628,16 @@ def assign_trip_to_driver(
 
     session.commit()
     session.refresh(trip)
+
+    # Send push notification to the driver
+    NotificationService.notify_trip_assigned(
+        session=session,
+        driver_user_id=driver_user.id,
+        trip_id=trip.id,
+        stop_count=len(trip.stops),
+        total_weight_kg=trip.total_weight_kg,
+    )
+    session.commit()
 
     return AssignTripResponse(
         success=True,
