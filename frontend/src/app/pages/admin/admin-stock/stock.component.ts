@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, inject, signal, computed, DestroyRef, eff
 import { DecimalPipe } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
-import { RouterLink, ActivatedRoute } from '@angular/router';
+import { RouterLink, ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { catchError, of, finalize, forkJoin } from 'rxjs';
 import { InputNumberModule } from 'primeng/inputnumber';
@@ -68,6 +68,7 @@ export class StockComponent implements OnInit, OnDestroy {
   private toast = inject(ToastMessageService);
   private destroyRef = inject(DestroyRef);
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
 
   // Injected services
   cartService = inject(PurchasingCartService);
@@ -840,6 +841,10 @@ export class StockComponent implements OnInit, OnDestroy {
   }
 
   // UI methods
+  goBack(): void {
+    this.router.navigate(['/']);
+  }
+
   toggleFullscreen(): void {
     this.isFullscreen.update(v => !v);
     document.body.classList.toggle('fullscreen-active', this.isFullscreen());

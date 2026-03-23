@@ -78,6 +78,9 @@
             <button class="table-action-btn" (click)="toggleFullscreen()" [pTooltip]="isFullscreen() ? 'Quitter Plein Écran' : 'Plein Écran'">
               <i [class]="isFullscreen() ? 'pi pi-window-minimize' : 'pi pi-window-maximize'"></i>
             </button>
+            <button class="table-action-btn" (click)="goBack()" pTooltip="Retour à l'app">
+              <i class="pi pi-arrow-left"></i>
+            </button>
             <button class="table-action-btn" (click)="tableOptionsMenu.toggle($event)" pTooltip="Options">
               <i class="pi pi-ellipsis-v"></i>
             </button>
