@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AgroClik - Brochure</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --blue-dark: #0F3C82;
+      --blue-main: #1E4F9A;
+      --blue-light: #2E6CB7;
+      --blue-lighter: #4A8FD4;
+      --green: #1E7F3F;
+      --green-light: #27A84F;
+      --white: #FFFFFF;
+      --off-white: #F8FAFC;
+      --gray-light: #E2E8F0;
+      --gray: #94A3B8;
+      --gray-dark: #475569;
+      --text-dark: #1E293B;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+      color-adjust: exact !important;
+      background: #e2e8f0;
+    }
+
+    @page {
+      size: 297mm 210mm landscape;
+      margin: 0;
+    }
+
+    .page {
+      width: 297mm;
+      height: 210mm;
+      display: flex;
+      page-break-after: always;
+      background: var(--white);
+      overflow: hidden;
+      margin: 10px auto;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    }
+
+    @media print {
+      body { background: white; }
+      .page { margin: 0; box-shadow: none; }
+      .print-instructions { display: none !important; }
+    }
+
+    .panel {
+      width: 99mm;
+      height: 210mm;
+      padding: 10mm;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* ========================================
+       PAGE 1 - OUTSIDE (Print side 1)
+       Order when flat: BACK | FRONT COVER | INSIDE FLAP
+       ======================================== */
+
+    /* --- BACK PANEL (left when flat, seen last) --- */
+    .back-panel {
+      background: var(--off-white);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      border-right: 1px dashed #cbd5e1;
+    }
+
+    .back-panel .contact-section {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .back-panel .contact-title {
+      font-size: 13pt;
+      font-weight: 800;
+      color: var(--blue-dark);
+      margin-bottom: 6mm;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .contact-item {
+      display: flex;
+      align-items: center;
+      gap: 3mm;
+      margin-bottom: 4mm;
+    }
+
+    .contact-icon {
+      width: 9mm;
+      height: 9mm;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--blue-main), var(--blue-dark));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .contact-icon svg {
+      width: 4.5mm;
+      height: 4.5mm;
+      fill: white;
+    }
+
+    .contact-text {
+      font-size: 9pt;
+      color: var(--text-dark);
+      font-weight: 500;
+    }
+
+    .contact-label {
+      font-size: 7pt;
+      color: var(--gray);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .qr-section {
+      text-align: center;
+      padding: 5mm 0;
+      border-top: 1px solid var(--gray-light);
+    }
+
+    .qr-placeholder {
+      width: 28mm;
+      height: 28mm;
+      margin: 0 auto 3mm;
+      border: 2px solid var(--blue-dark);
+      border-radius: 3mm;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: white;
+      position: relative;
+    }
+
+    .qr-placeholder::before {
+      content: '';
+      position: absolute;
+      width: 22mm;
+      height: 22mm;
+      background:
+        linear-gradient(45deg, var(--blue-dark) 25%, transparent 25%),
+        linear-gradient(-45deg, var(--blue-dark) 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, var(--blue-dark) 75%),
+        linear-gradient(-45deg, transparent 75%, var(--blue-dark) 75%);
+      background-size: 4mm 4mm;
+      background-position: 0 0, 0 2mm, 2mm -2mm, -2mm 0;
+      opacity: 0.15;
+      border-radius: 1mm;
+    }
+
+    .qr-placeholder span {
+      font-size: 7pt;
+      color: var(--blue-dark);
+      font-weight: 700;
+      z-index: 1;
+    }
+
+    .qr-label {
+      font-size: 8pt;
+      color: var(--gray-dark);
+      font-weight: 600;
+    }
+
+    .back-footer {
+      text-align: center;
+      padding-top: 4mm;
+      border-top: 1px solid var(--gray-light);
+    }
+
+    .back-footer-logo {
+      font-size: 11pt;
+      font-weight: 900;
+      color: var(--blue-dark);
+      letter-spacing: -0.3px;
+    }
+
+    .back-footer-logo span {
+      color: var(--green);
+    }
+
+    .back-footer p {
+      font-size: 6.5pt;
+      color: var(--gray);
+      margin-top: 1mm;
+    }
+
+    /* --- FRONT COVER (center panel) --- */
+    .front-cover {
+      background: linear-gradient(160deg, var(--blue-dark) 0%, var(--blue-main) 40%, var(--blue-light) 100%);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      position: relative;
+    }
+
+    .front-cover::before {
+      content: '';
+      position: absolute;
+      top: -30mm;
+      right: -30mm;
+      width: 80mm;
+      height: 80mm;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.04);
+    }
+
+    .front-cover::after {
+      content: '';
+      position: absolute;
+      bottom: -40mm;
+      left: -20mm;
+      width: 100mm;
+      height: 100mm;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.03);
+    }
+
+    .cover-content {
+      position: relative;
+      z-index: 1;
+    }
+
+    .cover-badge {
+      display: inline-block;
+      background: rgba(255,255,255,0.15);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 20px;
+      padding: 2mm 5mm;
+      font-size: 7pt;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-bottom: 6mm;
+    }
+
+    .cover-logo-icon {
+      width: 18mm;
+      height: 18mm;
+      margin: 0 auto 5mm;
+      background: rgba(255,255,255,0.12);
+      border-radius: 5mm;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .cover-logo-icon svg {
+      width: 10mm;
+      height: 10mm;
+      fill: white;
+    }
+
+    .cover-title {
+      font-size: 26pt;
+      font-weight: 900;
+      letter-spacing: -0.5px;
+      line-height: 1;
+      margin-bottom: 2mm;
+    }
+
+    .cover-title span {
+      color: #7DD3A0;
+    }
+
+    .cover-tagline {
+      font-size: 11pt;
+      font-weight: 600;
+      opacity: 0.9;
+      margin-bottom: 8mm;
+      letter-spacing: 0.3px;
+    }
+
+    .cover-divider {
+      width: 15mm;
+      height: 0.8mm;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent);
+      margin: 0 auto 8mm;
+      border-radius: 1mm;
+    }
+
+    .cover-subtitle {
+      font-size: 9pt;
+      line-height: 1.5;
+      opacity: 0.8;
+      max-width: 70mm;
+      font-weight: 400;
+    }
+
+    .cover-bottom {
+      position: absolute;
+      bottom: 8mm;
+      left: 0;
+      right: 0;
+      text-align: center;
+      z-index: 1;
+    }
+
+    .cover-website {
+      font-size: 8.5pt;
+      font-weight: 600;
+      opacity: 0.7;
+      letter-spacing: 0.5px;
+    }
+
+    .cover-stores {
+      display: flex;
+      justify-content: center;
+      gap: 3mm;
+      margin-top: 3mm;
+    }
+
+    .store-badge-small {
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 2mm;
+      padding: 1.5mm 4mm;
+      font-size: 6.5pt;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 1.5mm;
+    }
+
+    .store-badge-small svg {
+      width: 3mm;
+      height: 3mm;
+      fill: white;
+    }
+
+    /* --- INSIDE FLAP (right panel, first thing seen when opening) --- */
+    .flap-panel {
+      background: var(--white);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      border-left: 1px dashed #cbd5e1;
+    }
+
+    .flap-title {
+      font-size: 14pt;
+      font-weight: 800;
+      color: var(--blue-dark);
+      margin-bottom: 5mm;
+      line-height: 1.2;
+    }
+
+    .flap-title span {
+      color: var(--green);
+    }
+
+    .flap-intro {
+      font-size: 8.5pt;
+      color: var(--gray-dark);
+      line-height: 1.6;
+      margin-bottom: 6mm;
+    }
+
+    .benefit-item {
+      display: flex;
+      gap: 3mm;
+      margin-bottom: 4.5mm;
+    }
+
+    .benefit-icon {
+      width: 8mm;
+      height: 8mm;
+      border-radius: 2mm;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 0.5mm;
+    }
+
+    .benefit-icon svg {
+      width: 4.5mm;
+      height: 4.5mm;
+    }
+
+    .benefit-icon.blue {
+      background: linear-gradient(135deg, #EBF3FF, #DBEAFE);
+    }
+    .benefit-icon.blue svg { fill: var(--blue-main); }
+
+    .benefit-icon.green {
+      background: linear-gradient(135deg, #ECFDF5, #D1FAE5);
+    }
+    .benefit-icon.green svg { fill: var(--green); }
+
+    .benefit-icon.amber {
+      background: linear-gradient(135deg, #FFFBEB, #FEF3C7);
+    }
+    .benefit-icon.amber svg { fill: #D97706; }
+
+    .benefit-icon.purple {
+      background: linear-gradient(135deg, #F3E8FF, #E9D5FF);
+    }
+    .benefit-icon.purple svg { fill: #7C3AED; }
+
+    .benefit-text h4 {
+      font-size: 8.5pt;
+      font-weight: 700;
+      color: var(--text-dark);
+      margin-bottom: 0.5mm;
+    }
+
+    .benefit-text p {
+      font-size: 7.5pt;
+      color: var(--gray-dark);
+      line-height: 1.4;
+    }
+
+    /* ========================================
+       PAGE 2 - INSIDE (Print side 2)
+       When unfolded: INSIDE LEFT | INSIDE CENTER | INSIDE RIGHT
+       ======================================== */
+
+    /* --- Inside Left: How it Works --- */
+    .inside-left {
+      background: var(--white);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      border-right: 1px dashed #cbd5e1;
+    }
+
+    .section-label {
+      font-size: 7pt;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--blue-light);
+      margin-bottom: 3mm;
+    }
+
+    .section-title {
+      font-size: 15pt;
+      font-weight: 800;
+      color: var(--blue-dark);
+      margin-bottom: 6mm;
+      line-height: 1.2;
+    }
+
+    .step {
+      display: flex;
+      gap: 3.5mm;
+      margin-bottom: 5mm;
+      position: relative;
+    }
+
+    .step:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      left: 4.25mm;
+      top: 10mm;
+      width: 1px;
+      height: calc(100% - 4mm);
+      background: linear-gradient(to bottom, var(--blue-light), transparent);
+    }
+
+    .step-number {
+      width: 8.5mm;
+      height: 8.5mm;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--blue-main), var(--blue-dark));
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 9pt;
+      font-weight: 800;
+      flex-shrink: 0;
+      position: relative;
+      z-index: 1;
+    }
+
+    .step-content h4 {
+      font-size: 9pt;
+      font-weight: 700;
+      color: var(--text-dark);
+      margin-bottom: 1mm;
+    }
+
+    .step-content p {
+      font-size: 7.5pt;
+      color: var(--gray-dark);
+      line-height: 1.5;
+    }
+
+    /* --- Inside Center: Features --- */
+    .inside-center {
+      background: linear-gradient(170deg, var(--blue-dark) 0%, var(--blue-main) 100%);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .inside-center .section-label {
+      color: rgba(255,255,255,0.6);
+    }
+
+    .inside-center .section-title {
+      color: white;
+    }
+
+    .feature-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 3.5mm;
+    }
+
+    .feature-card {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 3mm;
+      padding: 3.5mm;
+      display: flex;
+      gap: 3mm;
+      align-items: flex-start;
+    }
+
+    .feature-card-icon {
+      width: 8mm;
+      height: 8mm;
+      border-radius: 2mm;
+      background: rgba(255,255,255,0.12);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .feature-card-icon svg {
+      width: 4mm;
+      height: 4mm;
+      fill: #7DD3A0;
+    }
+
+    .feature-card h4 {
+      font-size: 8pt;
+      font-weight: 700;
+      margin-bottom: 0.5mm;
+    }
+
+    .feature-card p {
+      font-size: 7pt;
+      opacity: 0.75;
+      line-height: 1.4;
+    }
+
+    /* --- Inside Right: CTA & Pricing --- */
+    .inside-right {
+      background: var(--white);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      border-left: 1px dashed #cbd5e1;
+    }
+
+    .promo-box {
+      background: linear-gradient(135deg, #ECFDF5, #D1FAE5);
+      border: 1px solid #A7F3D0;
+      border-radius: 4mm;
+      padding: 5mm;
+      margin-bottom: 5mm;
+      text-align: center;
+    }
+
+    .promo-box h3 {
+      font-size: 11pt;
+      font-weight: 800;
+      color: var(--green);
+      margin-bottom: 2mm;
+    }
+
+    .promo-box p {
+      font-size: 7.5pt;
+      color: #166534;
+      line-height: 1.5;
+    }
+
+    .delivery-options {
+      margin-bottom: 5mm;
+    }
+
+    .delivery-option {
+      display: flex;
+      align-items: center;
+      gap: 3mm;
+      padding: 3mm 0;
+      border-bottom: 1px solid var(--gray-light);
+    }
+
+    .delivery-option:last-child {
+      border-bottom: none;
+    }
+
+    .delivery-icon {
+      width: 9mm;
+      height: 9mm;
+      border-radius: 2.5mm;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .delivery-icon.fast {
+      background: linear-gradient(135deg, var(--blue-main), var(--blue-dark));
+    }
+
+    .delivery-icon.pickup {
+      background: linear-gradient(135deg, var(--green), #15803D);
+    }
+
+    .delivery-icon svg {
+      width: 4.5mm;
+      height: 4.5mm;
+      fill: white;
+    }
+
+    .delivery-info h4 {
+      font-size: 8.5pt;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+
+    .delivery-info p {
+      font-size: 7pt;
+      color: var(--gray-dark);
+    }
+
+    .cta-section {
+      background: linear-gradient(135deg, var(--blue-dark), var(--blue-main));
+      border-radius: 4mm;
+      padding: 5mm;
+      text-align: center;
+      color: white;
+    }
+
+    .cta-section h3 {
+      font-size: 11pt;
+      font-weight: 800;
+      margin-bottom: 2mm;
+    }
+
+    .cta-section p {
+      font-size: 7.5pt;
+      opacity: 0.85;
+      margin-bottom: 3mm;
+      line-height: 1.4;
+    }
+
+    .cta-phones {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5mm;
+    }
+
+    .cta-phone {
+      font-size: 10pt;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      direction: ltr;
+    }
+
+    .cta-website {
+      font-size: 8pt;
+      opacity: 0.7;
+      margin-top: 2mm;
+      font-weight: 500;
+    }
+
+    .languages-strip {
+      display: flex;
+      justify-content: center;
+      gap: 2mm;
+      margin-top: 4mm;
+    }
+
+    .lang-badge {
+      font-size: 6.5pt;
+      font-weight: 600;
+      padding: 1mm 3mm;
+      border-radius: 1.5mm;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.15);
+    }
+
+    /* Print instructions */
+    .print-instructions {
+      max-width: 297mm;
+      margin: 15px auto;
+      padding: 15px 20px;
+      background: #1E293B;
+      color: #E2E8F0;
+      border-radius: 8px;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .print-instructions h2 {
+      color: #7DD3A0;
+      font-size: 16px;
+      margin-bottom: 8px;
+    }
+
+    .print-instructions ol {
+      padding-left: 20px;
+    }
+
+    .print-instructions li {
+      margin-bottom: 4px;
+    }
+
+    .print-instructions strong {
+      color: #93C5FD;
+    }
+
+    .page-label {
+      max-width: 297mm;
+      margin: 20px auto 5px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #475569;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Print Instructions (hidden when printing) -->
+  <div class="print-instructions">
+    <h2>Instructions d'impression</h2>
+    <ol>
+      <li><strong>Ctrl+P</strong> (ou Cmd+P sur Mac) pour ouvrir le dialogue d'impression</li>
+      <li>Orientation: <strong>Paysage (Landscape)</strong></li>
+      <li>Taille: <strong>A4</strong></li>
+      <li>Marges: <strong>Aucune (None)</strong></li>
+      <li>Cochez <strong>"Graphiques d'arriere-plan"</strong> (Background graphics)</li>
+      <li>Imprimez <strong>recto-verso</strong> (retourner sur le bord court / flip on short edge)</li>
+      <li>Pliez en 3 parties egales: le panneau droit se replie en premier, puis le panneau gauche par-dessus</li>
+    </ol>
+  </div>
+
+  <!-- PAGE 1: OUTSIDE (when flat: Back | Front Cover | Inside Flap) -->
+  <div class="page-label print-instructions">Page 1 - Exterieur</div>
+  <div class="page">
+
+    <!-- BACK PANEL -->
+    <div class="panel back-panel">
+      <div class="contact-section">
+        <div class="contact-title">Contactez-nous</div>
+
+        <div class="contact-item">
+          <div class="contact-icon">
+            <svg viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
+          </div>
+          <div>
+            <div class="contact-label">Telephone</div>
+            <div class="contact-text">0781 09 14 76</div>
+            <div class="contact-text">0551 27 10 08</div>
+          </div>
+        </div>
+
+        <div class="contact-item">
+          <div class="contact-icon">
+            <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+          </div>
+          <div>
+            <div class="contact-label">Adresse</div>
+            <div class="contact-text">Tizi Ouzou, Algerie</div>
+          </div>
+        </div>
+
+        <div class="contact-item">
+          <div class="contact-icon">
+            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+          </div>
+          <div>
+            <div class="contact-label">Site Web</div>
+            <div class="contact-text">agroclik.com</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="qr-section">
+        <div class="qr-placeholder">
+          <span>QR CODE</span>
+        </div>
+        <div class="qr-label">Scannez pour telecharger</div>
+      </div>
+
+      <div class="back-footer">
+        <div class="back-footer-logo">Agro<span>Clik</span></div>
+        <p>&copy; 2024 AgroClik. Tous droits reserves.</p>
+      </div>
+    </div>
+
+    <!-- FRONT COVER -->
+    <div class="panel front-cover">
+      <div class="cover-content">
+        <div class="cover-badge">Plateforme Agroalimentaire</div>
+
+        <div class="cover-logo-icon">
+          <svg viewBox="0 0 24 24"><path d="M17.21 9l-4.38-6.56c-.19-.28-.51-.42-.83-.42-.32 0-.64.14-.83.43L6.79 9H2c-.55 0-1 .45-1 1 0 .09.01.18.04.27l2.54 9.27c.23.84 1 1.46 1.92 1.46h13c.92 0 1.69-.62 1.93-1.46l2.54-9.27L23 10c0-.55-.45-1-1-1h-4.79zM9 9l3-4.4L15 9H9zm3 8c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/></svg>
+        </div>
+
+        <div class="cover-title">Agro<span>Clik</span></div>
+        <div class="cover-tagline">Restock with a Click</div>
+
+        <div class="cover-divider"></div>
+
+        <div class="cover-subtitle">
+          Votre grossiste agroalimentaire en ligne. Commandez en gros, recevez rapidement.
+        </div>
+      </div>
+
+      <div class="cover-bottom">
+        <div class="cover-stores">
+          <div class="store-badge-small">
+            <svg viewBox="0 0 24 24"><path d="M17.6 11.48V11a5.6 5.6 0 0 0-11.2 0v.48A3.2 3.2 0 0 0 4 14.4v1.6A3.2 3.2 0 0 0 7.2 19.2h1.6a3.2 3.2 0 0 0 3.2-3.2v-1.6h1.6A3.2 3.2 0 0 0 16.8 11.48zM12 6.4a4 4 0 0 1 4 4v.48H8V10.4a4 4 0 0 1 4-4z"/></svg>
+            Google Play
+          </div>
+          <div class="store-badge-small">
+            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93z"/></svg>
+            Web App
+          </div>
+        </div>
+        <div class="cover-website">agroclik.com</div>
+      </div>
+    </div>
+
+    <!-- INSIDE FLAP -->
+    <div class="panel flap-panel">
+      <div>
+        <div class="flap-title">Pourquoi choisir<br>Agro<span>Clik</span> ?</div>
+        <div class="flap-intro">
+          La plateforme pensee pour les commercants qui veulent simplifier leur approvisionnement en produits agroalimentaires.
+        </div>
+
+        <div class="benefit-item">
+          <div class="benefit-icon blue">
+            <svg viewBox="0 0 24 24"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>
+          </div>
+          <div class="benefit-text">
+            <h4>Prix de gros competitifs</h4>
+            <p>Des prix imbattables sur tous les produits agroalimentaires</p>
+          </div>
+        </div>
+
+        <div class="benefit-item">
+          <div class="benefit-icon green">
+            <svg viewBox="0 0 24 24"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/></svg>
+          </div>
+          <div class="benefit-text">
+            <h4>Livraison rapide</h4>
+            <p>Livraison en 24h ou retrait sur place selon votre choix</p>
+          </div>
+        </div>
+
+        <div class="benefit-item">
+          <div class="benefit-icon amber">
+            <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg>
+          </div>
+          <div class="benefit-text">
+            <h4>Qualite garantie</h4>
+            <p>Produits selectionnes et controles avant chaque envoi</p>
+          </div>
+        </div>
+
+        <div class="benefit-item">
+          <div class="benefit-icon purple">
+            <svg viewBox="0 0 24 24"><path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
+          </div>
+          <div class="benefit-text">
+            <h4>Remises automatiques</h4>
+            <p>Remises volume, offres groupees et codes promo</p>
+          </div>
+        </div>
+
+        <div class="benefit-item">
+          <div class="benefit-icon blue">
+            <svg viewBox="0 0 24 24"><path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/></svg>
+          </div>
+          <div class="benefit-text">
+            <h4>Application mobile</h4>
+            <p>Commandez depuis votre telephone, partout et a tout moment</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- PAGE 2: INSIDE (when unfolded: Inside Left | Inside Center | Inside Right) -->
+  <div class="page-label print-instructions">Page 2 - Interieur (imprimez au verso)</div>
+  <div class="page">
+
+    <!-- INSIDE LEFT: How it Works -->
+    <div class="panel inside-left">
+      <div>
+        <div class="section-label">Simple et rapide</div>
+        <div class="section-title">Comment ca<br>marche ?</div>
+
+        <div class="step">
+          <div class="step-number">1</div>
+          <div class="step-content">
+            <h4>Creez votre compte</h4>
+            <p>Inscrivez-vous gratuitement en quelques minutes. Renseignez votre commerce et votre adresse de livraison.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-number">2</div>
+          <div class="step-content">
+            <h4>Parcourez le catalogue</h4>
+            <p>Explorez notre large gamme de produits agroalimentaires. Filtrez par categorie, marque ou promotion.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-number">3</div>
+          <div class="step-content">
+            <h4>Passez commande</h4>
+            <p>Ajoutez vos produits au panier, choisissez la quantite et validez. C'est aussi simple que ca.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-number">4</div>
+          <div class="step-content">
+            <h4>Recevez vos produits</h4>
+            <p>Livraison rapide a votre porte ou retrait sur place. Suivez votre commande en temps reel.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- INSIDE CENTER: Features -->
+    <div class="panel inside-center">
+      <div>
+        <div class="section-label">Nos avantages</div>
+        <div class="section-title">Tout ce dont<br>vous avez besoin</div>
+
+        <div class="feature-grid">
+          <div class="feature-card">
+            <div class="feature-card-icon">
+              <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6z"/></svg>
+            </div>
+            <div>
+              <h4>Large catalogue</h4>
+              <p>Des centaines de produits agroalimentaires disponibles en gros</p>
+            </div>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-card-icon">
+              <svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
+            </div>
+            <div>
+              <h4>Livraison 24h</h4>
+              <p>Recevez vos commandes en moins de 24 heures</p>
+            </div>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-card-icon">
+              <svg viewBox="0 0 24 24"><path d="M21.41 11.58l-9-9C12.05 2.22 11.55 2 11 2H4c-1.1 0-2 .9-2 2v7c0 .55.22 1.05.59 1.42l9 9c.36.36.86.58 1.41.58.55 0 1.05-.22 1.41-.59l7-7c.37-.36.59-.86.59-1.41 0-.55-.23-1.06-.59-1.42zM5.5 7C4.67 7 4 6.33 4 5.5S4.67 4 5.5 4 7 4.67 7 5.5 6.33 7 5.5 7z"/></svg>
+            </div>
+            <div>
+              <h4>Promotions</h4>
+              <p>Remises volume, offres groupees et codes promotionnels</p>
+            </div>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-card-icon">
+              <svg viewBox="0 0 24 24"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+            </div>
+            <div>
+              <h4>Notifications</h4>
+              <p>Soyez informe de vos commandes et des nouvelles offres</p>
+            </div>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-card-icon">
+              <svg viewBox="0 0 24 24"><path d="M12.87 15.07l-2.54-2.51.03-.03c1.74-1.94 2.98-4.17 3.71-6.53H17V4h-7V2H8v2H1v1.99h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12zm-2.62 7l1.62-4.33L19.12 17h-3.24z"/></svg>
+            </div>
+            <div>
+              <h4>Multilingue</h4>
+              <p>Application disponible en francais, arabe et anglais</p>
+            </div>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-card-icon">
+              <svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+            </div>
+            <div>
+              <h4>Compte securise</h4>
+              <p>Authentification securisee et verification par email</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- INSIDE RIGHT: CTA -->
+    <div class="panel inside-right">
+      <div>
+        <div class="section-label">Commencez aujourd'hui</div>
+        <div class="section-title" style="margin-bottom: 5mm;">Rejoignez<br>AgroClik</div>
+
+        <div class="promo-box">
+          <h3>Inscription gratuite</h3>
+          <p>Creez votre compte en quelques minutes et accedez a des prix de gros exclusifs pour votre commerce.</p>
+        </div>
+
+        <div class="delivery-options">
+          <div class="section-label" style="margin-bottom: 2mm;">Options de livraison</div>
+
+          <div class="delivery-option">
+            <div class="delivery-icon fast">
+              <svg viewBox="0 0 24 24"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/></svg>
+            </div>
+            <div class="delivery-info">
+              <h4>Livraison a domicile</h4>
+              <p>En moins de 24h a votre porte</p>
+            </div>
+          </div>
+
+          <div class="delivery-option">
+            <div class="delivery-icon pickup">
+              <svg viewBox="0 0 24 24"><path d="M20 4H4v2h16V4zm1 10v-2l-1-5H4l-1 5v2h1v6h10v-6h4v6h2v-6h1zm-9 4H6v-4h6v4z"/></svg>
+            </div>
+            <div class="delivery-info">
+              <h4>Retrait sur place</h4>
+              <p>Venez chercher votre commande</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="cta-section">
+          <h3>Appelez-nous !</h3>
+          <p>Notre equipe est disponible pour vous accompagner</p>
+          <div class="cta-phones">
+            <div class="cta-phone">0781 09 14 76</div>
+            <div class="cta-phone">0551 27 10 08</div>
+          </div>
+          <div class="cta-website">agroclik.com</div>
+        </div>
+
+        <div class="languages-strip">
+          <div class="lang-badge">Francais</div>
+          <div class="lang-badge">العربية</div>
+          <div class="lang-badge">English</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</body>
+</html>
