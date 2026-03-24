@@ -147,6 +147,57 @@
       font-weight: 600;
     }
 
+    .iphone-install {
+      background: #F8FAFC;
+      border: 1px solid var(--gray-light);
+      border-radius: 3mm;
+      padding: 3mm;
+      margin-top: 3mm;
+    }
+
+    .iphone-install-title {
+      font-size: 8pt;
+      font-weight: 700;
+      color: var(--text-dark);
+      margin-bottom: 2mm;
+      display: flex;
+      align-items: center;
+      gap: 1.5mm;
+    }
+
+    .iphone-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5mm;
+    }
+
+    .iphone-step {
+      display: flex;
+      align-items: center;
+      gap: 2mm;
+      font-size: 7pt;
+      color: var(--gray-dark);
+      line-height: 1.4;
+    }
+
+    .iphone-step strong {
+      color: var(--text-dark);
+    }
+
+    .step-num {
+      width: 4mm;
+      height: 4mm;
+      border-radius: 50%;
+      background: var(--blue-main);
+      color: white;
+      font-size: 6pt;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
     .back-footer {
       text-align: center;
       padding-top: 4mm;
@@ -761,8 +812,10 @@
             <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
           </div>
           <div>
-            <div class="contact-label">Adresse</div>
+            <div class="contact-label">Depot Central</div>
+            <div class="contact-text">Route de l'Hopital, Ouadhia</div>
             <div class="contact-text">Tizi Ouzou, Algerie</div>
+            <div class="contact-text" style="font-size:7pt;color:#94A3B8;margin-top:0.5mm;">(a 300m du lycee Ouadhia)</div>
           </div>
         </div>
 
@@ -778,8 +831,30 @@
       </div>
 
       <div class="qr-section">
-        <div id="qr-back" style="width:28mm;height:28mm;margin:0 auto 3mm;display:flex;align-items:center;justify-content:center;"></div>
+        <div id="qr-back" style="width:25mm;height:25mm;margin:0 auto 2mm;display:flex;align-items:center;justify-content:center;"></div>
         <div class="qr-label">Scannez pour telecharger<br>sur Google Play</div>
+      </div>
+
+      <!-- iPhone PWA install instructions -->
+      <div class="iphone-install">
+        <div class="iphone-install-title">
+          <svg viewBox="0 0 24 24" width="10" height="10" fill="#475569"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83"/><path d="M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11"/></svg>
+          Sur iPhone ?
+        </div>
+        <div class="iphone-steps">
+          <div class="iphone-step">
+            <span class="step-num">1</span>
+            <span>Ouvrez <strong>agroclik.com</strong> dans Safari</span>
+          </div>
+          <div class="iphone-step">
+            <span class="step-num">2</span>
+            <span>Appuyez sur <svg viewBox="0 0 24 24" width="11" height="11" fill="#1E4F9A" style="vertical-align:-2px"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/></svg> (partager)</span>
+          </div>
+          <div class="iphone-step">
+            <span class="step-num">3</span>
+            <span>Choisissez <strong>"Ajouter sur l'ecran d'accueil"</strong></span>
+          </div>
+        </div>
       </div>
 
       <div class="back-footer">
