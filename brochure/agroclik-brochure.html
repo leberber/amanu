@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AgroClik - Brochure</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
   <style>
     :root {
       --blue-dark: #0F3C82;
@@ -139,41 +140,6 @@
       border-top: 1px solid var(--gray-light);
     }
 
-    .qr-placeholder {
-      width: 28mm;
-      height: 28mm;
-      margin: 0 auto 3mm;
-      border: 2px solid var(--blue-dark);
-      border-radius: 3mm;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: white;
-      position: relative;
-    }
-
-    .qr-placeholder::before {
-      content: '';
-      position: absolute;
-      width: 22mm;
-      height: 22mm;
-      background:
-        linear-gradient(45deg, var(--blue-dark) 25%, transparent 25%),
-        linear-gradient(-45deg, var(--blue-dark) 25%, transparent 25%),
-        linear-gradient(45deg, transparent 75%, var(--blue-dark) 75%),
-        linear-gradient(-45deg, transparent 75%, var(--blue-dark) 75%);
-      background-size: 4mm 4mm;
-      background-position: 0 0, 0 2mm, 2mm -2mm, -2mm 0;
-      opacity: 0.15;
-      border-radius: 1mm;
-    }
-
-    .qr-placeholder span {
-      font-size: 7pt;
-      color: var(--blue-dark);
-      font-weight: 700;
-      z-index: 1;
-    }
 
     .qr-label {
       font-size: 8pt;
@@ -812,10 +778,8 @@
       </div>
 
       <div class="qr-section">
-        <div class="qr-placeholder">
-          <span>QR CODE</span>
-        </div>
-        <div class="qr-label">Scannez pour telecharger</div>
+        <div id="qr-back" style="width:28mm;height:28mm;margin:0 auto 3mm;display:flex;align-items:center;justify-content:center;"></div>
+        <div class="qr-label">Scannez pour telecharger<br>sur Google Play</div>
       </div>
 
       <div class="back-footer">
@@ -1089,5 +1053,21 @@
 
   </div>
 
+  <script>
+    function renderQR(elementId, url, size) {
+      var qr = qrcode(0, 'M');
+      qr.addData(url);
+      qr.make();
+      var img = qr.createImgTag(size, 0);
+      document.getElementById(elementId).innerHTML = img;
+      var imgEl = document.getElementById(elementId).querySelector('img');
+      if (imgEl) {
+        imgEl.style.width = '28mm';
+        imgEl.style.height = '28mm';
+        imgEl.style.borderRadius = '2mm';
+      }
+    }
+    renderQR('qr-back', 'https://play.google.com/store/apps/details?id=com.elsuqhub.app', 4);
+  </script>
 </body>
 </html>
