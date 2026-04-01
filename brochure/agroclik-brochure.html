@@ -37,31 +37,49 @@
     }
 
     @page {
-      size: 297mm 210mm landscape;
-      margin: 0;
+      size: 210mm 297mm portrait;
+      margin: 0 !important;
+    }
+
+    .print-page {
+      width: 210mm;
+      height: 297mm;
+      display: flex;
+      flex-direction: column;
+      page-break-after: always;
+      break-after: page;
+      margin: 10px auto;
+      background: white;
     }
 
     .page {
-      width: 297mm;
-      height: 210mm;
+      width: 210mm;
+      height: 148.5mm;
       display: flex;
-      page-break-after: always;
       background: var(--white);
       overflow: hidden;
-      margin: 10px auto;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+      flex-shrink: 0;
+    }
+
+    .page + .page {
+      border-top: 0.5px dashed #ccc;
     }
 
     @media print {
-      body { background: white; }
-      .page { margin: 0; box-shadow: none; }
+      body { background: white; margin: 0; padding: 0; }
+      .print-page {
+        margin: 0;
+        page-break-after: always;
+        break-after: page;
+      }
+      .page + .page { border-top: 0.5px dashed #bbb; }
       .print-instructions { display: none !important; }
     }
 
     .panel {
-      width: 99mm;
-      height: 210mm;
-      padding: 10mm;
+      width: 70mm;
+      height: 148.5mm;
+      padding: 5mm 6mm;
       position: relative;
       overflow: hidden;
     }
@@ -88,10 +106,10 @@
     }
 
     .back-panel .contact-title {
-      font-size: 13pt;
+      font-size: 10pt;
       font-weight: 800;
       color: var(--blue-dark);
-      margin-bottom: 6mm;
+      margin-bottom: 3mm;
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
@@ -99,13 +117,13 @@
     .contact-item {
       display: flex;
       align-items: center;
-      gap: 3mm;
-      margin-bottom: 4mm;
+      gap: 2mm;
+      margin-bottom: 3mm;
     }
 
     .contact-icon {
-      width: 9mm;
-      height: 9mm;
+      width: 6mm;
+      height: 6mm;
       border-radius: 50%;
       background: linear-gradient(135deg, var(--blue-main), var(--blue-dark));
       display: flex;
@@ -115,19 +133,19 @@
     }
 
     .contact-icon svg {
-      width: 4.5mm;
-      height: 4.5mm;
+      width: 3mm;
+      height: 3mm;
       fill: white;
     }
 
     .contact-text {
-      font-size: 9pt;
+      font-size: 7pt;
       color: var(--text-dark);
       font-weight: 500;
     }
 
     .contact-label {
-      font-size: 7pt;
+      font-size: 5.5pt;
       color: var(--gray);
       font-weight: 600;
       text-transform: uppercase;
@@ -136,38 +154,38 @@
 
     .qr-section {
       text-align: center;
-      padding: 5mm 0;
+      padding: 2mm 0;
       border-top: 1px solid var(--gray-light);
     }
 
 
     .qr-label {
-      font-size: 8pt;
+      font-size: 6pt;
       color: var(--gray-dark);
       font-weight: 600;
     }
 
     .download-section {
       border-top: 1px solid var(--gray-light);
-      padding-top: 3mm;
+      padding-top: 1.5mm;
     }
 
     .download-title {
-      font-size: 9pt;
+      font-size: 7pt;
       font-weight: 800;
       color: var(--blue-dark);
       text-transform: uppercase;
       letter-spacing: 0.3px;
-      margin-bottom: 3mm;
+      margin-bottom: 1.5mm;
       text-align: center;
     }
 
     .download-platform {
       background: #F8FAFC;
       border: 1px solid var(--gray-light);
-      border-radius: 3mm;
-      padding: 3mm;
-      margin-bottom: 2.5mm;
+      border-radius: 2mm;
+      padding: 2mm;
+      margin-bottom: 1.5mm;
       text-align: center;
     }
 
@@ -179,8 +197,8 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 1.5mm;
-      font-size: 8pt;
+      gap: 1mm;
+      font-size: 6.5pt;
       color: var(--text-dark);
       margin-bottom: 1mm;
     }
@@ -205,8 +223,8 @@
     .iphone-step {
       display: flex;
       align-items: center;
-      gap: 2mm;
-      font-size: 7pt;
+      gap: 1.5mm;
+      font-size: 5.5pt;
       color: var(--gray-dark);
       line-height: 1.4;
     }
@@ -216,12 +234,12 @@
     }
 
     .step-num {
-      width: 4mm;
-      height: 4mm;
+      width: 3mm;
+      height: 3mm;
       border-radius: 50%;
       background: var(--blue-main);
       color: white;
-      font-size: 6pt;
+      font-size: 5pt;
       font-weight: 700;
       display: flex;
       align-items: center;
@@ -231,12 +249,12 @@
 
     .back-footer {
       text-align: center;
-      padding-top: 4mm;
+      padding-top: 2mm;
       border-top: 1px solid var(--gray-light);
     }
 
     .back-footer-logo {
-      font-size: 11pt;
+      font-size: 8pt;
       font-weight: 900;
       color: var(--blue-dark);
       letter-spacing: -0.3px;
@@ -267,23 +285,25 @@
     .front-cover::before {
       content: '';
       position: absolute;
-      top: -30mm;
-      right: -30mm;
-      width: 80mm;
-      height: 80mm;
+      top: -20mm;
+      right: -20mm;
+      width: 50mm;
+      height: 50mm;
       border-radius: 50%;
       background: rgba(255,255,255,0.04);
+      pointer-events: none;
     }
 
     .front-cover::after {
       content: '';
       position: absolute;
-      bottom: -40mm;
-      left: -20mm;
-      width: 100mm;
-      height: 100mm;
+      bottom: -25mm;
+      left: -15mm;
+      width: 60mm;
+      height: 60mm;
       border-radius: 50%;
       background: rgba(255,255,255,0.03);
+      pointer-events: none;
     }
 
     .cover-content {
@@ -297,20 +317,20 @@
       backdrop-filter: blur(10px);
       border: 1px solid rgba(255,255,255,0.2);
       border-radius: 20px;
-      padding: 2mm 5mm;
-      font-size: 7pt;
+      padding: 1.5mm 4mm;
+      font-size: 5.5pt;
       font-weight: 600;
       text-transform: uppercase;
-      letter-spacing: 1.5px;
-      margin-bottom: 6mm;
+      letter-spacing: 1px;
+      margin-bottom: 3mm;
     }
 
     .cover-logo-icon {
-      width: 18mm;
-      height: 18mm;
-      margin: 0 auto 5mm;
+      width: 12mm;
+      height: 12mm;
+      margin: 0 auto 3mm;
       background: rgba(255,255,255,0.12);
-      border-radius: 5mm;
+      border-radius: 3mm;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -324,11 +344,11 @@
     }
 
     .cover-title {
-      font-size: 26pt;
+      font-size: 20pt;
       font-weight: 900;
       letter-spacing: -0.5px;
       line-height: 1;
-      margin-bottom: 2mm;
+      margin-bottom: 1.5mm;
     }
 
     .cover-title span {
@@ -336,24 +356,24 @@
     }
 
     .cover-tagline {
-      font-size: 11pt;
+      font-size: 8pt;
       font-weight: 600;
       opacity: 0.9;
-      margin-bottom: 8mm;
+      margin-bottom: 4mm;
       letter-spacing: 0.3px;
     }
 
     .cover-divider {
-      width: 15mm;
-      height: 0.8mm;
+      width: 12mm;
+      height: 0.5mm;
       background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent);
-      margin: 0 auto 8mm;
+      margin: 0 auto 4mm;
       border-radius: 1mm;
     }
 
     .cover-subtitle {
-      font-size: 9pt;
-      line-height: 1.5;
+      font-size: 6.5pt;
+      line-height: 1.4;
       opacity: 0.8;
       max-width: 70mm;
       font-weight: 400;
@@ -361,7 +381,7 @@
 
     .cover-bottom {
       position: absolute;
-      bottom: 8mm;
+      bottom: 3mm;
       left: 0;
       right: 0;
       text-align: center;
@@ -369,7 +389,7 @@
     }
 
     .cover-website {
-      font-size: 8.5pt;
+      font-size: 6.5pt;
       font-weight: 600;
       opacity: 0.7;
       letter-spacing: 0.5px;
@@ -410,10 +430,10 @@
     }
 
     .flap-title {
-      font-size: 14pt;
+      font-size: 11pt;
       font-weight: 800;
       color: var(--blue-dark);
-      margin-bottom: 5mm;
+      margin-bottom: 3mm;
       line-height: 1.2;
     }
 
@@ -422,22 +442,22 @@
     }
 
     .flap-intro {
-      font-size: 8.5pt;
+      font-size: 6.5pt;
       color: var(--gray-dark);
-      line-height: 1.6;
-      margin-bottom: 6mm;
+      line-height: 1.4;
+      margin-bottom: 4mm;
     }
 
     .benefit-item {
       display: flex;
-      gap: 3mm;
-      margin-bottom: 4.5mm;
+      gap: 2mm;
+      margin-bottom: 3mm;
     }
 
     .benefit-icon {
-      width: 8mm;
-      height: 8mm;
-      border-radius: 2mm;
+      width: 6mm;
+      height: 6mm;
+      border-radius: 1.5mm;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -446,8 +466,8 @@
     }
 
     .benefit-icon svg {
-      width: 4.5mm;
-      height: 4.5mm;
+      width: 3mm;
+      height: 3mm;
     }
 
     .benefit-icon.blue {
@@ -471,16 +491,16 @@
     .benefit-icon.purple svg { fill: #7C3AED; }
 
     .benefit-text h4 {
-      font-size: 8.5pt;
+      font-size: 7pt;
       font-weight: 700;
       color: var(--text-dark);
       margin-bottom: 0.5mm;
     }
 
     .benefit-text p {
-      font-size: 7.5pt;
+      font-size: 6pt;
       color: var(--gray-dark);
-      line-height: 1.4;
+      line-height: 1.3;
     }
 
     /* ========================================
@@ -498,49 +518,49 @@
     }
 
     .section-label {
-      font-size: 7pt;
+      font-size: 5.5pt;
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 1.5px;
+      letter-spacing: 1px;
       color: var(--blue-light);
-      margin-bottom: 3mm;
+      margin-bottom: 1.5mm;
     }
 
     .section-title {
-      font-size: 15pt;
+      font-size: 10pt;
       font-weight: 800;
       color: var(--blue-dark);
-      margin-bottom: 6mm;
+      margin-bottom: 3mm;
       line-height: 1.2;
     }
 
     .step {
       display: flex;
-      gap: 3.5mm;
-      margin-bottom: 5mm;
+      gap: 2.5mm;
+      margin-bottom: 3.5mm;
       position: relative;
     }
 
     .step:not(:last-child)::after {
       content: '';
       position: absolute;
-      left: 4.25mm;
-      top: 10mm;
+      left: 3mm;
+      top: 7mm;
       width: 1px;
-      height: calc(100% - 4mm);
+      height: calc(100% - 3mm);
       background: linear-gradient(to bottom, var(--blue-light), transparent);
     }
 
     .step-number {
-      width: 8.5mm;
-      height: 8.5mm;
+      width: 6mm;
+      height: 6mm;
       border-radius: 50%;
       background: linear-gradient(135deg, var(--blue-main), var(--blue-dark));
       color: white;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 9pt;
+      font-size: 6.5pt;
       font-weight: 800;
       flex-shrink: 0;
       position: relative;
@@ -548,16 +568,16 @@
     }
 
     .step-content h4 {
-      font-size: 9pt;
+      font-size: 7pt;
       font-weight: 700;
       color: var(--text-dark);
-      margin-bottom: 1mm;
+      margin-bottom: 0.5mm;
     }
 
     .step-content p {
-      font-size: 7.5pt;
+      font-size: 6pt;
       color: var(--gray-dark);
-      line-height: 1.5;
+      line-height: 1.3;
     }
 
     /* --- Inside Center: Features --- */
@@ -580,23 +600,23 @@
     .feature-grid {
       display: flex;
       flex-direction: column;
-      gap: 3.5mm;
+      gap: 2mm;
     }
 
     .feature-card {
       background: rgba(255,255,255,0.08);
       border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 3mm;
-      padding: 3.5mm;
+      border-radius: 1.5mm;
+      padding: 2mm;
       display: flex;
-      gap: 3mm;
+      gap: 2mm;
       align-items: flex-start;
     }
 
     .feature-card-icon {
-      width: 8mm;
-      height: 8mm;
-      border-radius: 2mm;
+      width: 5mm;
+      height: 5mm;
+      border-radius: 1.5mm;
       background: rgba(255,255,255,0.12);
       display: flex;
       align-items: center;
@@ -605,21 +625,21 @@
     }
 
     .feature-card-icon svg {
-      width: 4mm;
-      height: 4mm;
+      width: 3mm;
+      height: 3mm;
       fill: #7DD3A0;
     }
 
     .feature-card h4 {
-      font-size: 8pt;
+      font-size: 6pt;
       font-weight: 700;
-      margin-bottom: 0.5mm;
+      margin-bottom: 0;
     }
 
     .feature-card p {
-      font-size: 7pt;
+      font-size: 5pt;
       opacity: 0.75;
-      line-height: 1.4;
+      line-height: 1.3;
     }
 
     /* --- Inside Right: CTA & Pricing --- */
@@ -634,34 +654,34 @@
     .promo-box {
       background: linear-gradient(135deg, #ECFDF5, #D1FAE5);
       border: 1px solid #A7F3D0;
-      border-radius: 4mm;
-      padding: 5mm;
-      margin-bottom: 5mm;
+      border-radius: 2mm;
+      padding: 2.5mm;
+      margin-bottom: 2.5mm;
       text-align: center;
     }
 
     .promo-box h3 {
-      font-size: 11pt;
+      font-size: 8pt;
       font-weight: 800;
       color: var(--green);
-      margin-bottom: 2mm;
+      margin-bottom: 1mm;
     }
 
     .promo-box p {
-      font-size: 7.5pt;
+      font-size: 5.5pt;
       color: #166534;
-      line-height: 1.5;
+      line-height: 1.3;
     }
 
     .delivery-options {
-      margin-bottom: 5mm;
+      margin-bottom: 2.5mm;
     }
 
     .delivery-option {
       display: flex;
       align-items: center;
-      gap: 3mm;
-      padding: 3mm 0;
+      gap: 2mm;
+      padding: 1.5mm 0;
       border-bottom: 1px solid var(--gray-light);
     }
 
@@ -670,9 +690,9 @@
     }
 
     .delivery-icon {
-      width: 9mm;
-      height: 9mm;
-      border-radius: 2.5mm;
+      width: 6mm;
+      height: 6mm;
+      border-radius: 1.5mm;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -688,75 +708,75 @@
     }
 
     .delivery-icon svg {
-      width: 4.5mm;
-      height: 4.5mm;
+      width: 3mm;
+      height: 3mm;
       fill: white;
     }
 
     .delivery-info h4 {
-      font-size: 8.5pt;
+      font-size: 7pt;
       font-weight: 700;
       color: var(--text-dark);
     }
 
     .delivery-info p {
-      font-size: 7pt;
+      font-size: 5pt;
       color: var(--gray-dark);
     }
 
     .cta-section {
       background: linear-gradient(135deg, var(--blue-dark), var(--blue-main));
-      border-radius: 4mm;
-      padding: 5mm;
+      border-radius: 2mm;
+      padding: 2.5mm;
       text-align: center;
       color: white;
     }
 
     .cta-section h3 {
-      font-size: 11pt;
+      font-size: 8pt;
       font-weight: 800;
-      margin-bottom: 2mm;
+      margin-bottom: 1mm;
     }
 
     .cta-section p {
-      font-size: 7.5pt;
+      font-size: 5.5pt;
       opacity: 0.85;
-      margin-bottom: 3mm;
-      line-height: 1.4;
+      margin-bottom: 1.5mm;
+      line-height: 1.3;
     }
 
     .cta-phones {
       display: flex;
       flex-direction: column;
-      gap: 1.5mm;
+      gap: 1mm;
     }
 
     .cta-phone {
-      font-size: 10pt;
+      font-size: 8pt;
       font-weight: 700;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.3px;
       direction: ltr;
     }
 
     .cta-website {
-      font-size: 8pt;
+      font-size: 6pt;
       opacity: 0.7;
-      margin-top: 2mm;
+      margin-top: 1mm;
       font-weight: 500;
     }
 
     .languages-strip {
       display: flex;
       justify-content: center;
-      gap: 2mm;
-      margin-top: 4mm;
+      gap: 1.5mm;
+      margin-top: 2mm;
     }
 
     .lang-badge {
-      font-size: 6.5pt;
+      font-size: 5pt;
       font-weight: 600;
-      padding: 1mm 3mm;
-      border-radius: 1.5mm;
+      padding: 0.5mm 2mm;
+      border-radius: 1mm;
       background: rgba(255,255,255,0.1);
       border: 1px solid rgba(255,255,255,0.15);
     }
@@ -809,17 +829,19 @@
     <h2>Instructions d'impression</h2>
     <ol>
       <li><strong>Ctrl+P</strong> (ou Cmd+P sur Mac) pour ouvrir le dialogue d'impression</li>
-      <li>Orientation: <strong>Paysage (Landscape)</strong></li>
+      <li>Orientation: <strong>Portrait</strong></li>
       <li>Taille: <strong>A4</strong></li>
       <li>Marges: <strong>Aucune (None)</strong></li>
       <li>Cochez <strong>"Graphiques d'arriere-plan"</strong> (Background graphics)</li>
       <li>Imprimez <strong>recto-verso</strong> (retourner sur le bord court / flip on short edge)</li>
-      <li>Pliez en 3 parties egales: le panneau droit se replie en premier, puis le panneau gauche par-dessus</li>
+      <li>Coupez la feuille en 2 au milieu (ligne pointillee) pour obtenir 2 brochures</li>
+      <li>Pliez chaque brochure en 3 parties egales</li>
     </ol>
   </div>
 
-  <!-- PAGE 1: OUTSIDE (when flat: Back | Front Cover | Inside Flap) -->
-  <div class="page-label print-instructions">Page 1 - Exterieur</div>
+  <!-- PRINT PAGE 1: Two copies of OUTSIDE -->
+  <div class="page-label print-instructions">Page 1 - Exterieur (x2)</div>
+  <div class="print-page">
   <div class="page">
 
     <!-- BACK PANEL -->
@@ -833,7 +855,7 @@
           </div>
           <div>
             <div class="contact-label">Telephone</div>
-            <div class="contact-text">0781 09 14 76</div>
+            <div class="contact-text">0779 41 90 98</div>
             <div class="contact-text">0551 27 10 08</div>
           </div>
         </div>
@@ -871,7 +893,7 @@
             <svg viewBox="0 0 24 24" width="12" height="12" fill="#3DDC84"><path d="M6 18c0 .55.45 1 1 1h1v3.5c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5V19h2v3.5c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5V19h1c.55 0 1-.45 1-1V8H6v10zM3.5 8C2.67 8 2 8.67 2 9.5v7c0 .83.67 1.5 1.5 1.5S5 17.33 5 16.5v-7C5 8.67 4.33 8 3.5 8zm17 0c-.83 0-1.5.67-1.5 1.5v7c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5v-7c0-.83-.67-1.5-1.5-1.5zm-4.97-5.84l1.3-1.3c.2-.2.2-.51 0-.71-.2-.2-.51-.2-.71 0l-1.48 1.48C13.85 1.23 12.95 1 12 1c-.96 0-1.86.23-2.66.63L7.85.15c-.2-.2-.51-.2-.71 0-.2.2-.2.51 0 .71l1.31 1.31C6.97 3.26 6 5.01 6 7h12c0-1.99-.97-3.75-2.47-4.84zM10 5H9V4h1v1zm5 0h-1V4h1v1z"/></svg>
             <strong>Android</strong>
           </div>
-          <div id="qr-back" style="width:25mm;height:25mm;margin:2mm auto;display:flex;align-items:center;justify-content:center;"></div>
+          <div id="qr-back" style="width:18mm;height:18mm;margin:1mm auto;display:flex;align-items:center;justify-content:center;"></div>
           <div class="platform-hint">Scannez le QR code</div>
         </div>
 
@@ -910,7 +932,7 @@
         <div class="cover-badge">Plateforme Agroalimentaire</div>
 
         <div class="cover-logo-icon">
-          <img src="../frontend/public/apple-touch-icon.png" alt="AgroClik" style="width:14mm;height:14mm;border-radius:3mm;object-fit:contain;background:white;padding:1mm;" />
+          <img src="../frontend/public/apple-touch-icon.png" alt="AgroClik" style="width:10mm;height:10mm;border-radius:2mm;object-fit:contain;background:white;padding:0.5mm;" />
         </div>
 
         <div class="cover-title">Agro<span>Clik</span></div>
@@ -989,9 +1011,11 @@
     </div>
 
   </div>
+  </div><!-- end print-page 1 -->
 
-  <!-- PAGE 2: INSIDE (when unfolded: Inside Left | Inside Center | Inside Right) -->
-  <div class="page-label print-instructions">Page 2 - Interieur (imprimez au verso)</div>
+  <!-- PRINT PAGE 2: Two copies of INSIDE -->
+  <div class="page-label print-instructions">Page 2 - Interieur (x2, imprimez au verso)</div>
+  <div class="print-page">
   <div class="page">
 
     <!-- INSIDE LEFT: How it Works -->
@@ -1143,7 +1167,7 @@
           <h3>Appelez-nous !</h3>
           <p>Notre equipe est disponible pour vous accompagner</p>
           <div class="cta-phones">
-            <div class="cta-phone">0781 09 14 76</div>
+            <div class="cta-phone">0779 41 90 98</div>
             <div class="cta-phone">0551 27 10 08</div>
           </div>
           <div class="cta-website">agroclik.com</div>
@@ -1158,22 +1182,34 @@
     </div>
 
   </div>
+  </div><!-- end print-page 2 -->
 
   <script>
-    function renderQR(elementId, url, size) {
-      var qr = qrcode(0, 'M');
-      qr.addData(url);
-      qr.make();
-      var img = qr.createImgTag(size, 0);
-      document.getElementById(elementId).innerHTML = img;
-      var imgEl = document.getElementById(elementId).querySelector('img');
-      if (imgEl) {
-        imgEl.style.width = '28mm';
-        imgEl.style.height = '28mm';
-        imgEl.style.borderRadius = '2mm';
+    // Clone each page inside its print-page wrapper to make 2 copies
+    document.querySelectorAll('.print-page').forEach(function(pp) {
+      var original = pp.querySelector('.page');
+      if (original) {
+        var clone = original.cloneNode(true);
+        pp.appendChild(clone);
       }
-    }
-    renderQR('qr-back', 'https://play.google.com/store/apps/details?id=com.elsuqhub.app', 4);
+    });
+
+    // Render QR codes on all qr-back elements
+    var playUrl = 'https://play.google.com/store/apps/details?id=com.elsuqhub.app';
+    document.querySelectorAll('#qr-back, [id="qr-back"]').forEach(function(el, i) {
+      // Give unique IDs to cloned elements
+      el.id = 'qr-back-' + i;
+      var qr = qrcode(0, 'M');
+      qr.addData(playUrl);
+      qr.make();
+      el.innerHTML = qr.createImgTag(3, 0);
+      var img = el.querySelector('img');
+      if (img) {
+        img.style.width = '18mm';
+        img.style.height = '18mm';
+        img.style.borderRadius = '1.5mm';
+      }
+    });
   </script>
 </body>
 </html>
