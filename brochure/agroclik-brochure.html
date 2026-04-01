@@ -272,7 +272,15 @@
 
     /* --- FRONT COVER (center panel) --- */
     .front-cover {
-      background: linear-gradient(160deg, var(--blue-dark) 0%, var(--blue-main) 40%, var(--blue-light) 100%);
+      background:
+        radial-gradient(ellipse at 5% 10%, rgba(255,255,255,0.12) 0%, transparent 50%),
+        radial-gradient(ellipse at 95% 90%, rgba(30,127,63,0.15) 0%, transparent 45%),
+        radial-gradient(ellipse at 50% 5%, rgba(255,255,255,0.08) 0%, transparent 40%),
+        radial-gradient(ellipse at 85% 15%, rgba(255,255,255,0.06) 0%, transparent 35%),
+        radial-gradient(ellipse at 15% 90%, rgba(30,127,63,0.10) 0%, transparent 40%),
+        radial-gradient(circle, rgba(255,255,255,0.04) 1.5px, transparent 1.5px),
+        linear-gradient(160deg, #0F3C82 0%, #1A4A94 40%, #2560AA 100%);
+      background-size: 100%, 100%, 100%, 100%, 100%, 10px 10px, 100%;
       color: white;
       display: flex;
       flex-direction: column;
@@ -280,30 +288,6 @@
       justify-content: center;
       text-align: center;
       position: relative;
-    }
-
-    .front-cover::before {
-      content: '';
-      position: absolute;
-      top: -20mm;
-      right: -20mm;
-      width: 50mm;
-      height: 50mm;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.04);
-      pointer-events: none;
-    }
-
-    .front-cover::after {
-      content: '';
-      position: absolute;
-      bottom: -25mm;
-      left: -15mm;
-      width: 60mm;
-      height: 60mm;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.03);
-      pointer-events: none;
     }
 
     .cover-content {
@@ -580,7 +564,15 @@
 
     /* --- Inside Center: Features --- */
     .inside-center {
-      background: linear-gradient(170deg, var(--blue-dark) 0%, var(--blue-main) 100%);
+      background:
+        radial-gradient(ellipse at 10% 85%, rgba(30,127,63,0.15) 0%, transparent 45%),
+        radial-gradient(ellipse at 90% 15%, rgba(255,255,255,0.10) 0%, transparent 45%),
+        radial-gradient(ellipse at 50% 95%, rgba(255,255,255,0.08) 0%, transparent 40%),
+        radial-gradient(ellipse at 80% 75%, rgba(30,127,63,0.08) 0%, transparent 35%),
+        radial-gradient(ellipse at 20% 20%, rgba(255,255,255,0.06) 0%, transparent 40%),
+        radial-gradient(circle, rgba(255,255,255,0.04) 1.5px, transparent 1.5px),
+        linear-gradient(170deg, #0F3C82 0%, #1A4A94 100%);
+      background-size: 100%, 100%, 100%, 100%, 100%, 10px 10px, 100%;
       color: white;
       display: flex;
       flex-direction: column;
@@ -845,7 +837,7 @@
     <!-- BACK PANEL -->
     <div class="panel back-panel">
       <div class="contact-section">
-        <div class="contact-title">Contactez-nous</div>
+        <div class="contact-title">Visitez-nous</div>
 
 
         <div class="contact-item">
