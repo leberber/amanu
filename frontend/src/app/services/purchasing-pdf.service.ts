@@ -271,7 +271,7 @@ export class PurchasingPdfService {
         },
         bodyStyles: {
           fontSize: 9,
-          cellPadding: 4,
+          cellPadding: 2,
           textColor: [60, 60, 60]
         },
         alternateRowStyles: {
