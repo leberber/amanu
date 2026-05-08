@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AgroClik - Sticker Vitrine / Porte Bureau</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --blue-dark: #0F3C82;
+      --green: #1E7F3F;
+      --green-light: #27A84F;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+      background: #1E293B;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 30px;
+      gap: 24px;
+    }
+
+    @media print {
+      body { background: white; padding: 0; }
+      .print-info { display: none !important; }
+      .sticker { box-shadow: none; }
+    }
+
+    .print-info {
+      max-width: 500px;
+      width: 100%;
+      background: #0F172A;
+      color: #CBD5E1;
+      padding: 16px 24px;
+      border-radius: 10px;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    .print-info h2 { color: #7DD3A0; font-size: 16px; margin-bottom: 6px; }
+    .print-info strong { color: #93C5FD; }
+
+    /* ==========================================
+       WINDOW / DOOR STICKER - 40cm x 60cm
+       Glass door or window — frosted vinyl look
+       ========================================== */
+    .sticker {
+      width: 360px;
+      height: 540px;
+      border-radius: 12px;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.3);
+      /* Simulating frosted glass */
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(10px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      padding: 50px 30px;
+    }
+
+    .top {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .logo {
+      width: 90px;
+      height: 90px;
+      border-radius: 20px;
+      object-fit: contain;
+      padding: 4px;
+    }
+
+    .brand {
+      font-size: 52px;
+      font-weight: 900;
+      color: var(--blue-dark);
+      letter-spacing: -2px;
+      line-height: 1;
+    }
+
+    .brand span {
+      color: var(--green);
+    }
+
+    .divider {
+      width: 60px;
+      height: 3px;
+      background: linear-gradient(90deg, var(--green-light), var(--green));
+      border-radius: 2px;
+    }
+
+    .middle {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .hours-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: #94A3B8;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    .hours {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--blue-dark);
+    }
+
+    .days {
+      font-size: 14px;
+      font-weight: 600;
+      color: #64748B;
+    }
+
+    .bottom {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .phone {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--blue-dark);
+    }
+
+    .website {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--green);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="print-info">
+    <h2>Sticker Vitrine / Porte - AgroClik</h2>
+    <p>
+      <strong>Dimensions :</strong> 40cm x 60cm (porte vitree ou fenetre)<br>
+      <strong>Materiau :</strong> Vinyle depoli / givre (laisse passer la lumiere).<br>
+      <strong>Note :</strong> Modifiez les horaires ci-dessous avant d'imprimer.
+    </p>
+  </div>
+
+  <div class="sticker">
+    <div class="top">
+      <img src="../frontend/public/apple-touch-icon.png" alt="AgroClik" class="logo" />
+      <div class="brand">Agro<span>Clik</span></div>
+      <div class="divider"></div>
+    </div>
+
+    <div class="middle">
+      <div class="hours-label">Horaires</div>
+      <div class="hours">8h00 — 17h00</div>
+      <div class="days">Samedi — Jeudi</div>
+    </div>
+
+    <div class="bottom">
+      <div class="phone">0779 41 90 98</div>
+      <div class="website">agroclik.com</div>
+    </div>
+  </div>
+
+</body>
+</html>

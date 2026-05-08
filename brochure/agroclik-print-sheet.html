@@ -39,11 +39,10 @@
     .info h2 { color: #7DD3A0; font-size: 16px; margin-bottom: 4px; }
     .info strong { color: #93C5FD; }
 
-    /* 2000mm x 1000mm → scaled to 1200px x 600px on screen */
+    /* 2000mm x 1000mm → 1200px x 600px on screen */
     .sheet {
       width: 1200px;
       height: 600px;
-      overflow: hidden;
       background: white;
       border-radius: 4px;
       overflow: hidden;
@@ -64,172 +63,23 @@
       overflow: hidden;
     }
 
-    /* ===== BRAND TEXT SIZES ===== */
-    .brand-text {
-      font-weight: 900;
-      color: #1E7F3F;
-      letter-spacing: -1px;
-      text-align: center;
-    }
-    .brand-text span { color: #0F3C82; }
-
-    .brand-xxl-120 { width: 714px; height: 140px; font-size: 110px; letter-spacing: -4px; }
-    .brand-xxl-80 { width: 470px; height: 140px; font-size: 75px; letter-spacing: -3px; }
-    .brand-xl { width: 380px; height: 80px; font-size: 58px; letter-spacing: -2px; }
-    .brand-lg { width: 260px; height: 58px; font-size: 40px; }
-    .brand-md { width: 180px; height: 44px; font-size: 28px; }
-    .brand-sm { width: 130px; height: 34px; font-size: 20px; letter-spacing: -0.5px; }
-    .brand-xs { width: 100px; height: 26px; font-size: 15px; letter-spacing: 0; }
-
-    /* ===== TAGLINE SIZES ===== */
-    .tagline {
-      font-weight: 700;
-      color: #2E6CB7;
-      text-align: center;
+    /* Logo + tagline combo */
+    .logo-combo {
+      flex-direction: column;
+      gap: 8px;
+      padding: 10px;
     }
 
-    .tagline-lg { width: 220px; height: 50px; font-size: 18px; }
-    .tagline-md { width: 170px; height: 36px; font-size: 14px; }
-    .tagline-sm { width: 130px; height: 28px; font-size: 10px; }
-    .tagline-xs { width: 100px; height: 22px; font-size: 8px; }
-
-    /* ===== LOGO SIZES ===== */
-    .logo img {
+    .logo-combo img {
       object-fit: contain;
     }
 
-    .logo-xl { width: 110px; height: 110px; }
-    .logo-xl img { width: 95px; height: 95px; }
-
-    .logo-lg { width: 80px; height: 80px; }
-    .logo-lg img { width: 68px; height: 68px; }
-
-    .logo-md { width: 58px; height: 58px; }
-    .logo-md img { width: 48px; height: 48px; }
-
-    .logo-sm { width: 42px; height: 42px; }
-    .logo-sm img { width: 34px; height: 34px; }
-
-    .logo-xs { width: 32px; height: 32px; }
-    .logo-xs img { width: 24px; height: 24px; }
-
-    /* ===== OPENING HOURS ===== */
-    .hours {
-      flex-direction: column;
-      background: #F8FAFC;
-      text-align: center;
-      padding: 8px;
-    }
-
-    .hours-title {
-      font-weight: 800;
-      color: #0F3C82;
+    .logo-combo .tag {
+      font-weight: 600;
+      color: #94A3B8;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .hours-time {
-      font-weight: 900;
-      color: #1E7F3F;
-    }
-
-    .hours-days {
-      color: #64748B;
-    }
-
-    .hours-xl { width: 260px; height: 110px; }
-    .hours-xl .hours-title { font-size: 13px; margin-bottom: 6px; }
-    .hours-xl .hours-time { font-size: 32px; }
-    .hours-xl .hours-days { font-size: 11px; margin-top: 4px; }
-
-    .hours-lg { width: 200px; height: 80px; }
-    .hours-lg .hours-title { font-size: 11px; margin-bottom: 4px; }
-    .hours-lg .hours-time { font-size: 24px; }
-    .hours-lg .hours-days { font-size: 9px; margin-top: 2px; }
-
-    .hours-md { width: 150px; height: 58px; }
-    .hours-md .hours-title { font-size: 9px; margin-bottom: 3px; }
-    .hours-md .hours-time { font-size: 18px; }
-    .hours-md .hours-days { font-size: 8px; margin-top: 2px; }
-
-    .hours-sm { width: 120px; height: 44px; }
-    .hours-sm .hours-title { font-size: 7px; margin-bottom: 2px; }
-    .hours-sm .hours-time { font-size: 14px; }
-    .hours-sm .hours-days { display: none; }
-
-    /* ===== FEATURE CARDS ===== */
-    .feature {
-      flex-direction: row;
-      text-align: left;
-      padding: 8px 12px;
-      background: #F8FAFC;
-      gap: 8px;
-    }
-
-    .feature-text {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-    }
-
-    .feature-icon {
-      border-radius: 50%;
-      background: linear-gradient(135deg, #0F3C82, #1E4F9A);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-
-    .feature-icon svg {
-      fill: white;
-    }
-
-    .feature-title {
-      font-weight: 700;
-      color: #0F3C82;
-    }
-
-    .feature-sub {
-      color: #64748B;
-    }
-
-    .feature-lg { width: 230px; height: 50px; }
-    .feature-lg .feature-icon { width: 32px; height: 32px; }
-    .feature-lg .feature-icon svg { width: 16px; height: 16px; }
-    .feature-lg .feature-title { font-size: 12px; margin-bottom: 1px; }
-    .feature-lg .feature-sub { font-size: 9px; }
-
-    .feature-md { width: 190px; height: 42px; }
-    .feature-md .feature-icon { width: 26px; height: 26px; }
-    .feature-md .feature-icon svg { width: 13px; height: 13px; }
-    .feature-md .feature-title { font-size: 10px; margin-bottom: 1px; }
-    .feature-md .feature-sub { font-size: 8px; }
-
-    .feature-sm { width: 160px; height: 36px; }
-    .feature-sm .feature-icon { width: 22px; height: 22px; }
-    .feature-sm .feature-icon svg { width: 11px; height: 11px; }
-    .feature-sm .feature-title { font-size: 9px; margin-bottom: 1px; }
-    .feature-sm .feature-sub { font-size: 7px; }
-
-    /* ===== BRAND + TAGLINE COMBO ===== */
-    .combo {
-      flex-direction: column;
-      gap: 2px;
       text-align: center;
     }
-
-    .combo-lg { width: 200px; height: 58px; }
-    .combo-lg .brand-text { font-size: 24px; }
-    .combo-lg .tagline { font-size: 10px; }
-
-    .combo-md { width: 150px; height: 44px; }
-    .combo-md .brand-text { font-size: 18px; }
-    .combo-md .tagline { font-size: 8px; }
-
-    .combo-sm { width: 120px; height: 36px; }
-    .combo-sm .brand-text { font-size: 14px; }
-    .combo-sm .tagline { font-size: 7px; }
   </style>
 </head>
 <body>
@@ -237,130 +87,18 @@
   <div class="info">
     <h2>Feuille d'impression 2m x 1m — AgroClik</h2>
     <p>
-      <strong>Dimensions :</strong> 200cm x 100cm. Espace entre chaque element pour decoupe facile.<br>
-      <strong>Contenu :</strong> Logo "A", texte "AgroClik", "Restock with a Click", horaires, avantages — en plusieurs tailles.<br>
+      <strong>Dimensions :</strong> 200cm x 100cm.<br>
       <strong>Exportez en PDF</strong> (Ctrl+P) et envoyez a l'imprimeur.
     </p>
   </div>
 
   <div class="sheet">
 
-    <!-- BIG BANNERS: ~1m x 50cm each (full width, half height) -->
-    <div class="item brand-text brand-xxl-120">Agro<span>Clik</span></div>
-    <div class="item brand-text brand-xxl-80">Agro<span>Clik</span></div>
-
-    <!-- Features LG (wave style: round blue icons) x4 + Logo XL + Hours XL -->
-    <div class="item feature feature-lg">
-      <div class="feature-icon"><svg viewBox="0 0 24 24"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg></div>
-      <div class="feature-text"><div class="feature-title">Economisez</div>
-      <div class="feature-sub">Prix de gros + remises volumes</div></div>
+    <!-- Logo + Restock with a Click -->
+    <div class="item logo-combo" style="width:300px;height:290px;">
+      <img src="../frontend/public/apple-touch-icon.png" alt="A" style="width:180px;height:180px;" />
+      <div class="tag" style="font-size:16px;letter-spacing:4px;">Restock with a Click</div>
     </div>
-    <div class="item feature feature-lg">
-      <div class="feature-icon"><svg viewBox="0 0 24 24"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/></svg></div>
-      <div class="feature-text"><div class="feature-title">Livraison 24h</div>
-      <div class="feature-sub">Ou retrait au depot</div></div>
-    </div>
-    <div class="item feature feature-lg">
-      <div class="feature-icon"><svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg></div>
-      <div class="feature-text"><div class="feature-title">Qualite garantie</div>
-      <div class="feature-sub">Produits controles</div></div>
-    </div>
-    <div class="item feature feature-lg">
-      <div class="feature-icon"><svg viewBox="0 0 24 24"><path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/></svg></div>
-      <div class="feature-text"><div class="feature-title">Commandez en 2 min</div>
-      <div class="feature-sub">Depuis votre telephone</div></div>
-    </div>
-  
-    <div class="item hours hours-xl"><div class="hours-title">Horaires d'ouverture</div><div class="hours-time">8h — 19h</div><div class="hours-days">Tous les jours</div></div>
-
-    <!-- Brand XL + Tagline LG + Features MD x4 + Logos -->
-    <div class="item brand-text brand-xl">Agro<span>Clik</span></div>
-    <div class="item tagline tagline-lg">Restock<br>with a Click</div>
-    <div class="item feature feature-md">
-      <div class="feature-icon"><svg viewBox="0 0 24 24"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg></div>
-      <div class="feature-text"><div class="feature-title">Economisez</div>
-      <div class="feature-sub">Prix de gros + remises volumes</div></div>
-    </div>
-    <div class="item feature feature-md">
-      <div class="feature-icon"><svg viewBox="0 0 24 24"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/></svg></div>
-      <div class="feature-text"><div class="feature-title">Livraison 24h</div>
-      <div class="feature-sub">Ou retrait au depot</div></div>
-    </div>
-    <div class="item feature feature-md">
-      <div class="feature-icon"><svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg></div>
-      <div class="feature-text"><div class="feature-title">Qualite garantie</div>
-      <div class="feature-sub">Produits controles</div></div>
-    </div>
-    <div class="item feature feature-md">
-      <div class="feature-icon"><svg viewBox="0 0 24 24"><path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/></svg></div>
-      <div class="feature-text"><div class="feature-title">Commandez en 2 min</div>
-      <div class="feature-sub">Depuis votre telephone</div></div>
-    </div>
-
-    <!-- Brand LG x2 + Hours LG + Logos LG + Combos -->
-    <div class="item brand-text brand-lg">Agro<span>Clik</span></div>
-    <div class="item brand-text brand-lg">Agro<span>Clik</span></div>
-    <div class="item hours hours-lg"><div class="hours-title">Horaires d'ouverture</div><div class="hours-time">8h — 19h</div><div class="hours-days">Tous les jours</div></div>
-    <div class="item logo logo-lg"><img src="../frontend/public/apple-touch-icon.png" alt="A" /></div>
-    <div class="item logo logo-lg"><img src="../frontend/public/apple-touch-icon.png" alt="A" /></div>
-    <div class="item tagline tagline-md">Restock with a Click</div>
-    <div class="item combo combo-lg"><div class="brand-text">Agro<span>Clik</span></div><div class="tagline">Restock with a Click</div></div>
-
-    <!-- Small fills -->
-    <div class="item brand-text brand-sm">Agro<span>Clik</span></div>
-    <div class="item brand-text brand-sm">Agro<span>Clik</span></div>
-    <div class="item brand-text brand-sm">Agro<span>Clik</span></div>
-    <div class="item brand-text brand-sm">Agro<span>Clik</span></div>
-    <div class="item brand-text brand-sm">Agro<span>Clik</span></div>
-    <div class="item brand-text brand-sm">Agro<span>Clik</span></div>
-    <div class="item brand-text brand-sm">Agro<span>Clik</span></div>
-    <div class="item brand-text brand-sm">Agro<span>Clik</span></div>
-    <div class="item tagline tagline-sm">Restock with a Click</div>
-    <div class="item tagline tagline-sm">Restock with a Click</div>
-    <div class="item tagline tagline-sm">Restock with a Click</div>
-    <div class="item tagline tagline-sm">Restock with a Click</div>
-    <div class="item tagline tagline-sm">Restock with a Click</div>
-    <div class="item tagline tagline-sm">Restock with a Click</div>
-    <div class="item tagline tagline-sm">Restock with a Click</div>
-    <div class="item tagline tagline-sm">Restock with a Click</div>
-
-    <!-- Logos row -->
-    <div class="item logo logo-md"><img src="../frontend/public/apple-touch-icon.png" alt="A" /></div>
-    <div class="item logo logo-md"><img src="../frontend/public/apple-touch-icon.png" alt="A" /></div>
-    <div class="item logo logo-md"><img src="../frontend/public/apple-touch-icon.png" alt="A" /></div>
-    <div class="item logo logo-md"><img src="../frontend/public/apple-touch-icon.png" alt="A" /></div>
-    <div class="item logo logo-sm"><img src="../frontend/public/apple-touch-icon.png" alt="A" /></div>
-    <div class="item logo logo-sm"><img src="../frontend/public/apple-touch-icon.png" alt="A" /></div>
-    <div class="item logo logo-sm"><img src="../frontend/public/apple-touch-icon.png" alt="A" /></div>
-    <div class="item logo logo-sm"><img src="../frontend/public/apple-touch-icon.png" alt="A" /></div>
-    <div class="item logo logo-sm"><img src="../frontend/public/apple-touch-icon.png" alt="A" /></div>
-    <div class="item logo logo-sm"><img src="../frontend/public/apple-touch-icon.png" alt="A" /></div>
-    <div class="item logo logo-sm"><img src="../frontend/public/apple-touch-icon.png" alt="A" /></div>
-    <div class="item logo logo-sm"><img src="../frontend/public/apple-touch-icon.png" alt="A" /></div>
-    <div class="item logo logo-sm"><img src="../frontend/public/apple-touch-icon.png" alt="A" /></div>
-    <div class="item logo logo-sm"><img src="../frontend/public/apple-touch-icon.png" alt="A" /></div>
-    <div class="item logo logo-sm"><img src="../frontend/public/apple-touch-icon.png" alt="A" /></div>
-    <div class="item logo logo-sm"><img src="../frontend/public/apple-touch-icon.png" alt="A" /></div>
-    <div class="item logo logo-xs"><img src="../frontend/public/apple-touch-icon.png" alt="A" /></div>
-    <div class="item logo logo-xs"><img src="../frontend/public/apple-touch-icon.png" alt="A" /></div>
-    <div class="item logo logo-xs"><img src="../frontend/public/apple-touch-icon.png" alt="A" /></div>
-    <div class="item logo logo-xs"><img src="../frontend/public/apple-touch-icon.png" alt="A" /></div>
-    <div class="item logo logo-xs"><img src="../frontend/public/apple-touch-icon.png" alt="A" /></div>
-    <div class="item logo logo-xs"><img src="../frontend/public/apple-touch-icon.png" alt="A" /></div>
-    <div class="item logo logo-xs"><img src="../frontend/public/apple-touch-icon.png" alt="A" /></div>
-    <div class="item logo logo-xs"><img src="../frontend/public/apple-touch-icon.png" alt="A" /></div>
-    <div class="item logo logo-xs"><img src="../frontend/public/apple-touch-icon.png" alt="A" /></div>
-    <div class="item logo logo-xs"><img src="../frontend/public/apple-touch-icon.png" alt="A" /></div>
-    <div class="item logo logo-xs"><img src="../frontend/public/apple-touch-icon.png" alt="A" /></div>
-    <div class="item logo logo-xs"><img src="../frontend/public/apple-touch-icon.png" alt="A" /></div>
-    <div class="item logo logo-xs"><img src="../frontend/public/apple-touch-icon.png" alt="A" /></div>
-    <div class="item logo logo-xs"><img src="../frontend/public/apple-touch-icon.png" alt="A" /></div>
-    <div class="item logo logo-xs"><img src="../frontend/public/apple-touch-icon.png" alt="A" /></div>
-    <div class="item logo logo-xs"><img src="../frontend/public/apple-touch-icon.png" alt="A" /></div>
-    <div class="item logo logo-xs"><img src="../frontend/public/apple-touch-icon.png" alt="A" /></div>
-    <div class="item logo logo-xs"><img src="../frontend/public/apple-touch-icon.png" alt="A" /></div>
-    <div class="item logo logo-xs"><img src="../frontend/public/apple-touch-icon.png" alt="A" /></div>
-    <div class="item logo logo-xs"><img src="../frontend/public/apple-touch-icon.png" alt="A" /></div>
 
   </div>
 

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AgroClik - Sticker Mural Bureau</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --blue-dark: #0F3C82;
+      --green: #1E7F3F;
+      --green-light: #27A84F;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+      background: #1E293B;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 30px;
+      gap: 24px;
+    }
+
+    @media print {
+      body { background: white; padding: 0; }
+      .print-info { display: none !important; }
+      .sticker { box-shadow: none; }
+    }
+
+    .print-info {
+      max-width: 800px;
+      width: 100%;
+      background: #0F172A;
+      color: #CBD5E1;
+      padding: 16px 24px;
+      border-radius: 10px;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    .print-info h2 { color: #7DD3A0; font-size: 16px; margin-bottom: 6px; }
+    .print-info strong { color: #93C5FD; }
+
+    /* ==========================================
+       WALL DECAL - 150cm x 80cm
+       Behind the desk / reception wall
+       ========================================== */
+    .sticker {
+      width: 800px;
+      height: 430px;
+      border-radius: 4px;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.3);
+      background: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+    }
+
+    .logo {
+      width: 120px;
+      height: 120px;
+      border-radius: 28px;
+      object-fit: contain;
+      padding: 4px;
+    }
+
+    .brand {
+      font-size: 96px;
+      font-weight: 900;
+      color: var(--blue-dark);
+      letter-spacing: -4px;
+      line-height: 1;
+    }
+
+    .brand span {
+      color: var(--green);
+    }
+
+    .tagline {
+      font-size: 28px;
+      font-weight: 600;
+      color: #94A3B8;
+      letter-spacing: 6px;
+      text-transform: uppercase;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="print-info">
+    <h2>Sticker Mural - AgroClik</h2>
+    <p>
+      <strong>Dimensions :</strong> 150cm x 80cm (mur derriere le bureau / reception)<br>
+      <strong>Materiau :</strong> Vinyle adhesif mural mat ou lettres decoupees (plus premium).<br>
+      <strong>Option premium :</strong> Lettres en PVC 3D ou aluminium brosse pour un effet relief.
+    </p>
+  </div>
+
+  <div class="sticker">
+    <img src="../frontend/public/apple-touch-icon.png" alt="AgroClik" class="logo" />
+    <div class="brand">Agro<span>Clik</span></div>
+    <div class="tagline">Restock with a Click</div>
+  </div>
+
+</body>
+</html>

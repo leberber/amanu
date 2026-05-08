@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>AgroClik - Print Sheet 2m x 1m</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+      color-adjust: exact !important;
+      background: #1E293B;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+
+    @page {
+      size: 2000mm 1000mm;
+      margin: 0;
+    }
+
+    @media print {
+      body { background: white; padding: 0; }
+      .info { display: none !important; }
+      .sheet { box-shadow: none; margin: 0; }
+    }
+
+    .info {
+      max-width: 1200px; width: 100%;
+      background: #0F172A; color: #CBD5E1;
+      padding: 14px 20px; border-radius: 8px;
+      font-size: 13px; line-height: 1.5; margin-bottom: 15px;
+    }
+    .info h2 { color: #7DD3A0; font-size: 16px; margin-bottom: 4px; }
+    .info strong { color: #93C5FD; }
+
+    /* 2000mm x 1000mm → 1200px x 600px on screen */
+    .sheet {
+      width: 1200px;
+      height: 600px;
+      background: white;
+      border-radius: 4px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+      padding: 0;
+      display: flex;
+      flex-wrap: wrap;
+      align-content: flex-start;
+      gap: 0;
+    }
+
+    .item {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 0.5px dashed #CBD5E1;
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    /* Logo + tagline combo */
+    .logo-combo {
+      flex-direction: column;
+      gap: 8px;
+      padding: 10px;
+    }
+
+    .logo-combo img {
+      object-fit: contain;
+    }
+
+    .logo-combo .tag {
+      font-weight: 600;
+      color: #94A3B8;
+      text-transform: uppercase;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="info">
+    <h2>Feuille d'impression 2m x 1m — AgroClik</h2>
+    <p>
+      <strong>Dimensions :</strong> 200cm x 100cm.<br>
+      <strong>Exportez en PDF</strong> (Ctrl+P) et envoyez a l'imprimeur.
+    </p>
+  </div>
+
+  <div class="sheet">
+
+    <!-- Wall sticker style: AgroClik + Restock with a Click -->
+    <div class="item" style="width:700px;height:180px;padding:0;align-items:flex-start;justify-content:flex-start;">
+      <div style="font-size:160px;font-weight:900;color:#0F3C82;letter-spacing:-3px;line-height:1;">Agro<span style="color:#1E7F3F;">Clik</span></div>
+    </div>
+    <div style="display:flex;flex-direction:column;">
+      <div class="item" style="width:500px;height:140px;padding:0;align-items:flex-start;justify-content:flex-start;">
+        <div style="font-size:110px;font-weight:900;color:#0F3C82;letter-spacing:-3px;line-height:1;">Agro<span style="color:#1E7F3F;">Clik</span></div>
+      </div>
+      <div class="item" style="width:500px;height:40px;padding:0;align-items:flex-start;justify-content:flex-start;">
+        <div style="font-size:22px;font-weight:600;color:#94A3B8;letter-spacing:6px;text-transform:uppercase;">Restock with a Click</div>
+      </div>
+    </div>
+
+    <!-- 4 Features in one row (wave style) -->
+    <div class="item" style="width:1200px;height:80px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,#0F3C82,#1E4F9A);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg viewBox="0 0 24 24" style="width:22px;height:22px;fill:white;"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg></div>
+        <div><div style="font-size:16px;font-weight:700;color:#0F3C82;">Economisez</div><div style="font-size:13px;color:#64748B;">Prix de gros + remises volumes</div></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,#0F3C82,#1E4F9A);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg viewBox="0 0 24 24" style="width:22px;height:22px;fill:white;"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/></svg></div>
+        <div><div style="font-size:16px;font-weight:700;color:#0F3C82;">Livraison 24h</div><div style="font-size:13px;color:#64748B;">Ou retrait au depot</div></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,#0F3C82,#1E4F9A);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg viewBox="0 0 24 24" style="width:22px;height:22px;fill:white;"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg></div>
+        <div><div style="font-size:16px;font-weight:700;color:#0F3C82;">Qualite garantie</div><div style="font-size:13px;color:#64748B;">Produits controles</div></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,#0F3C82,#1E4F9A);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg viewBox="0 0 24 24" style="width:22px;height:22px;fill:white;"><path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/></svg></div>
+        <div><div style="font-size:16px;font-weight:700;color:#0F3C82;">Commandez en 2 min</div><div style="font-size:13px;color:#64748B;">Depuis votre telephone</div></div>
+      </div>
+    </div>
+
+    <!-- Row of QR codes + App logos -->
+    <div class="item" style="width:1200px;height:130px;display:flex;align-items:center;justify-content:space-evenly;padding:0;">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+        <div id="qr1"></div>
+        <div style="font-size:8px;font-weight:700;color:#0F3C82;text-transform:uppercase;letter-spacing:0.5px;">Telechargez l'application</div>
+      </div>
+      <div><img src="../frontend/public/apple-touch-icon.png" alt="A" style="width:90px;height:90px;object-fit:contain;" /></div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+        <div id="qr2"></div>
+        <div style="font-size:8px;font-weight:700;color:#0F3C82;text-transform:uppercase;letter-spacing:0.5px;">Telechargez l'application</div>
+      </div>
+      <div><img src="../frontend/public/apple-touch-icon.png" alt="A" style="width:90px;height:90px;object-fit:contain;" /></div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:3px;">
+        <div id="qr3"></div>
+        <div style="font-size:6px;font-weight:700;color:#0F3C82;text-transform:uppercase;letter-spacing:0.5px;">Telechargez l'app</div>
+      </div>
+      <div><img src="../frontend/public/apple-touch-icon.png" alt="A" style="width:60px;height:60px;object-fit:contain;" /></div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:3px;">
+        <div id="qr4"></div>
+        <div style="font-size:6px;font-weight:700;color:#0F3C82;text-transform:uppercase;letter-spacing:0.5px;">Telechargez l'app</div>
+      </div>
+      <div><img src="../frontend/public/apple-touch-icon.png" alt="A" style="width:60px;height:60px;object-fit:contain;" /></div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:3px;">
+        <div id="qr5"></div>
+        <div style="font-size:6px;font-weight:700;color:#0F3C82;text-transform:uppercase;letter-spacing:0.5px;">Telechargez l'app</div>
+      </div>
+      <div><img src="../frontend/public/apple-touch-icon.png" alt="A" style="width:60px;height:60px;object-fit:contain;" /></div>
+    </div>
+
+    <!-- Row of phone numbers + opening hours -->
+    <div class="item" style="width:1200px;height:70px;display:flex;align-items:center;justify-content:space-evenly;padding:0;">
+      <div style="font-size:22px;font-weight:800;color:#0F3C82;">0551 27 10 08</div>
+      <div style="font-size:22px;font-weight:800;color:#0F3C82;">0551 83 32 16</div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:2px;">
+        <div style="font-size:9px;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:2px;">Horaires</div>
+        <div style="font-size:24px;font-weight:800;color:#0F3C82;">8h00 — 19h00</div>
+        <div style="font-size:10px;font-weight:600;color:#64748B;">Tous les jours</div>
+      </div>
+      <div style="font-size:22px;font-weight:800;color:#0F3C82;">0551 27 10 08</div>
+      <div style="font-size:22px;font-weight:800;color:#0F3C82;">0551 83 32 16</div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:2px;">
+        <div style="font-size:9px;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:2px;">Horaires</div>
+        <div style="font-size:24px;font-weight:800;color:#0F3C82;">8h00 — 19h00</div>
+        <div style="font-size:10px;font-weight:600;color:#64748B;">Tous les jours</div>
+      </div>
+    </div>
+
+    <!-- Bottom: Tagline + subtitle + logos -->
+    <div style="display:flex;width:1200px;height:70px;">
+      <div class="item" style="flex:1;flex-direction:column;gap:6px;padding:0;align-items:flex-start;justify-content:center;">
+        <div style="font-size:28px;font-weight:600;color:#94A3B8;letter-spacing:6px;text-transform:uppercase;">Restock with a Click</div>
+        <div style="font-size:14px;font-weight:500;color:#64748B;">Concentrez-vous sur votre commerce, nous simplifions votre approvisionnement.</div>
+      </div>
+      <div class="item" style="display:flex;align-items:center;gap:8px;padding:0 10px;">
+        <img src="../frontend/public/apple-touch-icon.png" alt="A" style="width:45px;height:45px;object-fit:contain;" />
+        <img src="../frontend/public/apple-touch-icon.png" alt="A" style="width:45px;height:45px;object-fit:contain;" />
+        <img src="../frontend/public/apple-touch-icon.png" alt="A" style="width:45px;height:45px;object-fit:contain;" />
+        <img src="../frontend/public/apple-touch-icon.png" alt="A" style="width:45px;height:45px;object-fit:contain;" />
+        <img src="../frontend/public/apple-touch-icon.png" alt="A" style="width:45px;height:45px;object-fit:contain;" />
+        <img src="../frontend/public/apple-touch-icon.png" alt="A" style="width:45px;height:45px;object-fit:contain;" />
+        <img src="../frontend/public/apple-touch-icon.png" alt="A" style="width:45px;height:45px;object-fit:contain;" />
+        <img src="../frontend/public/apple-touch-icon.png" alt="A" style="width:45px;height:45px;object-fit:contain;" />
+      </div>
+    </div>
+
+    <!-- Fill bottom with logos -->
+    <div class="item" style="width:1200px;flex:1;display:flex;align-items:center;justify-content:space-evenly;padding:0;flex-wrap:wrap;">
+      <div style="font-size:36px;font-weight:900;color:#1E7F3F;letter-spacing:-1px;">Agro<span style="color:#0F3C82;">Clik</span></div>
+      <div style="font-size:20px;font-weight:900;color:#1E7F3F;letter-spacing:-1px;">Agro<span style="color:#0F3C82;">Clik</span></div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:2px;">
+        <div style="font-size:9px;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:2px;">Horaires</div>
+        <div style="font-size:24px;font-weight:800;color:#0F3C82;">8h00 — 19h00</div>
+        <div style="font-size:10px;font-weight:600;color:#64748B;">Tous les jours</div>
+      </div>
+      <div style="font-size:28px;font-weight:900;color:#1E7F3F;letter-spacing:-1px;">Agro<span style="color:#0F3C82;">Clik</span></div>
+      <div style="font-size:20px;font-weight:900;color:#1E7F3F;letter-spacing:-1px;">Agro<span style="color:#0F3C82;">Clik</span></div>
+      <div style="font-size:36px;font-weight:900;color:#1E7F3F;letter-spacing:-1px;">Agro<span style="color:#0F3C82;">Clik</span></div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:2px;">
+        <div style="font-size:9px;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:2px;">Horaires</div>
+        <div style="font-size:24px;font-weight:800;color:#0F3C82;">8h00 — 19h00</div>
+        <div style="font-size:10px;font-weight:600;color:#64748B;">Tous les jours</div>
+      </div>
+      <div style="font-size:20px;font-weight:900;color:#1E7F3F;letter-spacing:-1px;">Agro<span style="color:#0F3C82;">Clik</span></div>
+    </div>
+
+  </div>
+
+  <script>
+    var url = 'https://play.google.com/store/apps/details?id=com.elsuqhub.app';
+    function rQR(id) {
+      var q = qrcode(0, 'M'); q.addData(url); q.make();
+      document.getElementById(id).innerHTML = q.createImgTag(3, 0);
+      var img = document.getElementById(id).querySelector('img');
+      if (img) { img.style.width = '80px'; img.style.height = '80px'; img.style.display = 'block'; }
+    }
+    rQR('qr1'); rQR('qr2');
+    function rQRsm(id) {
+      var q = qrcode(0, 'M'); q.addData(url); q.make();
+      document.getElementById(id).innerHTML = q.createImgTag(2, 0);
+      var img = document.getElementById(id).querySelector('img');
+      if (img) { img.style.width = '55px'; img.style.height = '55px'; img.style.display = 'block'; }
+    }
+    rQRsm('qr3'); rQRsm('qr4'); rQRsm('qr5');
+  </script>
+</body>
+</html>
