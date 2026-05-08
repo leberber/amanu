@@ -280,7 +280,7 @@ export class PurchasingPdfService {
         margin: { left: margin, right: margin },
         tableWidth: pageWidth - 2 * margin,
         columnStyles: {
-          0: { cellWidth: 10, halign: 'center' },
+          0: { cellWidth: 14, halign: 'center' },
           1: { cellWidth: 'auto' },
           2: { cellWidth: 30 },
           3: { cellWidth: 18, halign: 'center' },
