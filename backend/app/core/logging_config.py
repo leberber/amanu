@@ -7,6 +7,7 @@ import logging
 import os
 from logging.handlers import RotatingFileHandler
 from datetime import datetime
+from typing import Dict, List, Optional
 
 # Log directory
 LOG_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "logs")
@@ -63,7 +64,7 @@ def get_logger(name: str = "app") -> logging.Logger:
     return logging.getLogger(name)
 
 
-def read_logs(lines: int = 100, level: str = None) -> list[dict]:
+def read_logs(lines: int = 100, level: str = None) -> List[Dict]:
     """
     Read recent log entries from the log file.
 
@@ -109,7 +110,7 @@ def read_logs(lines: int = 100, level: str = None) -> list[dict]:
     return entries
 
 
-def parse_log_line(line: str) -> dict | None:
+def parse_log_line(line: str) -> Optional[Dict]:
     """Parse a log line into a structured dictionary."""
     try:
         # Format: "2024-01-15 10:30:45 | INFO     | app | Message here"

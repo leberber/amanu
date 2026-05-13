@@ -14,7 +14,7 @@ import { DialogModule } from 'primeng/dialog';
 import { ADMIN_LIST_IMPORTS } from '../../../shared/imports/admin-shared.imports';
 import { TableSkeletonComponent, SkeletonColumn } from '../../../shared/components/table-skeleton/table-skeleton.component';
 import { AgroclikPageContainerComponent } from '../../../shared/components/agroclik-page-container/agroclik-page-container.component';
-import { TableLoadingRowsComponent, LoadingColumn } from '../../../shared/components/table-loading-rows/table-loading-rows.component';
+import { LoadingColumn } from '../../../shared/components/table-loading-rows/table-loading-rows.component';
 import { InfiniteScrollDirective } from '../../../shared/directives/infinite-scroll.directive';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
 import { ApiService } from '../../../services/api.service';
@@ -54,7 +54,6 @@ import {
     DialogModule,
     TableSkeletonComponent,
     AgroclikPageContainerComponent,
-    TableLoadingRowsComponent,
     InfiniteScrollDirective
   ],
   templateUrl: './stock.component.html',
