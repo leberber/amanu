@@ -44,7 +44,7 @@ import { BreakpointService } from '../../../core/services/breakpoint.service';
 })
 export class AdminProductsComponent extends BaseAdminListComponent implements OnInit {
   // Infinite scroll configuration
-  private readonly BATCH_SIZE = 50;
+  private readonly BATCH_SIZE = 100;
 
   // Data signals - products loaded from server
   displayedProducts = signal<Product[]>([]);

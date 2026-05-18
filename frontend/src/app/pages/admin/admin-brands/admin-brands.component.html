@@ -77,7 +77,7 @@
       </div>
     } @else {
       <!-- Brands Table -->
-      <div class="table-container animate-item" [class.fullscreen]="isFullscreen()" style="--item-delay: 100ms;">
+      <div class="table-container scrollable animate-item" [class.fullscreen]="isFullscreen()" style="--item-delay: 100ms;">
         <div class="table-header">
           <app-table-search
             [(query)]="searchQuery"
@@ -148,7 +148,11 @@
             </button>
           </div>
         } @else {
-          <div class="table-wrapper">
+          <div class="table-wrapper"
+               appInfiniteScroll
+               [scrollThreshold]="200"
+               [disabled]="loadingMore() || !hasMore()"
+               (scrolledToBottom)="loadMoreBrands()">
             <table class="table">
               <thead>
                 <tr>
@@ -161,7 +165,7 @@
                 </tr>
               </thead>
               <tbody>
-                @for (brand of paginatedBrands(); track brand.id; let i = $index) {
+                @for (brand of displayedBrands(); track brand.id; let i = $index) {
                   <tr class="table-row-animate clickable-row" [style.--row-delay]="(i * 40) + 'ms'" (click)="editBrand(brand)">
                     <!-- Logo -->
                     @if (isColumnVisible('logo')) {
@@ -254,30 +258,29 @@
                     }
                   </tr>
                 }
+              @if (loadingMore()) {
+                <app-table-loading-rows
+                  [columns]="getLoadingColumns()"
+                  [rowCount]="3"
+                  [actionCount]="2"
+                />
+              }
               </tbody>
             </table>
           </div>
 
-          <!-- Pagination -->
-          @if (brands().length > rows) {
-            <div class="table-footer">
-              <p-paginator
-                [first]="first"
-                [rows]="rows"
-                [totalRecords]="brands().length"
-                (onPageChange)="onPageChange($event)"
-                [showCurrentPageReport]="true"
-                currentPageReportTemplate="{{ 'admin.brands.showing' | translate }} {first} - {last} {{ 'admin.brands.of' | translate }} {totalRecords}"
-              ></p-paginator>
+          <!-- Infinite Scroll Footer -->
+          <div class="table-footer">
+            <div class="results-info">
+              <span>{{ 'admin.brands.showing' | translate }} {{ displayedBrands().length }} {{ 'admin.brands.of' | translate }} {{ brands().length }} {{ 'admin.brands.brands' | translate }}</span>
             </div>
-          }
-
-          <!-- Results Info -->
-          @if (brands().length <= rows) {
-            <div class="table-footer results-info">
-              <span>{{ 'admin.brands.showing' | translate }} {{ brands().length }} {{ 'admin.brands.of' | translate }} {{ allBrands().length }} {{ 'admin.brands.brands' | translate }}</span>
-            </div>
-          }
+            @if (hasMore() && !loadingMore()) {
+              <div class="scroll-hint">
+                <i class="pi pi-angle-double-down"></i>
+                <span>{{ 'admin.brands.scroll_for_more' | translate }}</span>
+              </div>
+            }
+          </div>
         }
       </div>
     }

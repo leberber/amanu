@@ -7,6 +7,8 @@ import { TranslateService } from '@ngx-translate/core';
 import { ADMIN_LIST_IMPORTS, ADMIN_DIALOG_IMPORTS } from '../../../shared/imports/admin-shared.imports';
 import { InlineEditState } from '../../../shared/utils/inline-edit-state';
 import { TableSkeletonComponent, SkeletonColumn } from '../../../shared/components/table-skeleton/table-skeleton.component';
+import { TableLoadingRowsComponent, LoadingColumn } from '../../../shared/components/table-loading-rows/table-loading-rows.component';
+import { InfiniteScrollDirective } from '../../../shared/directives/infinite-scroll.directive';
 import { AgroclikPageContainerComponent } from '../../../shared/components/agroclik-page-container/agroclik-page-container.component';
 import { ROUTES, RouteHelpers } from '../../../core/constants/routes.constants';
 import { BreakpointService } from '../../../core/services/breakpoint.service';
@@ -26,6 +28,8 @@ import { BaseAdminListComponent, ColumnOption } from '../../../shared/base/base-
     ...ADMIN_DIALOG_IMPORTS,
     PopoverModule,
     TableSkeletonComponent,
+    TableLoadingRowsComponent,
+    InfiniteScrollDirective,
     AgroclikPageContainerComponent
   ],
   providers: [ConfirmationService],
@@ -33,10 +37,15 @@ import { BaseAdminListComponent, ColumnOption } from '../../../shared/base/base-
   styleUrl: './admin-brands.component.scss'
 })
 export class AdminBrandsComponent extends BaseAdminListComponent implements OnInit {
+  // Infinite scroll configuration
+  private readonly BATCH_SIZE = 100;
+
   // Data signals
   allBrands = signal<Brand[]>([]);
   brands = signal<Brand[]>([]);
-  paginatedBrands = signal<Brand[]>([]);
+  displayedBrands = signal<Brand[]>([]);
+  loadingMore = signal(false);
+  hasMore = computed(() => this.displayedBrands().length < this.brands().length);
 
   // Product counts per brand
   brandProductCounts = signal<{ [brandId: number]: number }>({});
@@ -105,14 +114,15 @@ export class AdminBrandsComponent extends BaseAdminListComponent implements OnIn
           const sorted = this.sortByCreatedAt(brands);
           this.allBrands.set(sorted);
           this.brands.set(sorted);
+          this.displayedBrands.set(sorted.slice(0, this.BATCH_SIZE));
           this.loadProductCounts();
-          this.updatePaginatedItems();
           this.loading = false;
           this.markTableInitialized();
         },
         error: () => {
           this.allBrands.set([]);
           this.brands.set([]);
+          this.displayedBrands.set([]);
           this.loading = false;
           this.baseToast.showError('admin.brands.load_error');
         }
@@ -155,12 +165,32 @@ export class AdminBrandsComponent extends BaseAdminListComponent implements OnIn
     }
 
     this.brands.set(filtered);
-    this.resetPagination();
-    this.updatePaginatedItems();
+    this.displayedBrands.set(filtered.slice(0, this.BATCH_SIZE));
   }
 
   updatePaginatedItems(): void {
-    this.paginatedBrands.set(this.brands().slice(this.first, this.first + this.rows));
+    this.displayedBrands.set(this.brands().slice(0, this.BATCH_SIZE));
+  }
+
+  /** Called by InfiniteScrollDirective when user scrolls near bottom */
+  loadMoreBrands(): void {
+    if (this.loadingMore() || !this.hasMore()) return;
+
+    this.loadingMore.set(true);
+    const current = this.displayedBrands().length;
+    const next = this.brands().slice(current, current + this.BATCH_SIZE);
+
+    // Small delay to show loading state
+    setTimeout(() => {
+      this.displayedBrands.update(brands => [...brands, ...next]);
+      this.loadingMore.set(false);
+    }, 300);
+  }
+
+  getLoadingColumns(): LoadingColumn[] {
+    return this.columnOptions
+      .filter(col => col.visible)
+      .map(col => ({ type: col.field === 'logo' ? 'image' as const : 'text' as const }));
   }
 
   getSearchDebounceKey(): string {
