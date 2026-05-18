@@ -278,8 +278,12 @@
         "pack_plural": "paquets",
         "bag": "sac",
         "bag_plural": "sacs",
-        "bundle": "lot",
-        "bundle_plural": "lots"
+        "bundle": "fardeau",
+        "bundle_plural": "fardeaux",
+        "bottle": "bouteille",
+        "bottle_plural": "bouteilles",
+        "palette": "palette",
+        "palette_plural": "palettes"
       }
     },
     "stock": {

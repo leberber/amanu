@@ -279,7 +279,11 @@
         "bag": "كيس",
         "bag_plural": "أكياس",
         "bundle": "حزمة",
-        "bundle_plural": "حزم"
+        "bundle_plural": "حزم",
+        "bottle": "زجاجة",
+        "bottle_plural": "زجاجات",
+        "palette": "لوح",
+        "palette_plural": "ألواح"
       }
     },
     "stock": {

@@ -126,6 +126,8 @@ def reverse_map_package_type(packaging: PackagingType) -> str:
         PackagingType.BOX: "Boîte",
         PackagingType.BAG: "Sachet",
         PackagingType.CRATE: "Palette",
+        PackagingType.BOTTLE: "Bouteille",
+        PackagingType.PALETTE: "Palette",
     }
     return mapping.get(packaging, "Carton")
 
@@ -169,7 +171,8 @@ def map_package_type(restock_type: str) -> PackagingType:
         "Fardeau": PackagingType.BUNDLE,
         "Sachet": PackagingType.BAG,
         "Boîte": PackagingType.BOX,
-        "Palette": PackagingType.CRATE,
+        "Palette": PackagingType.PALETTE,
+        "Bouteille": PackagingType.BOTTLE,
     }
     return mapping.get(restock_type, PackagingType.CARTON)
 
