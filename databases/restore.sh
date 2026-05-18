@@ -11,8 +11,8 @@ if [ -z "$1" ] || [ -z "$2" ]; then
   echo "Usage: ./restore.sh dev|prod <backup_file>"
   echo ""
   echo "Examples:"
-  echo "  ./restore.sh dev ./backups/prod_backup_20260508.dump"
-  echo "  ./restore.sh prod ./backups/prod_backup_20260508.dump"
+  echo "  ./restore.sh dev ../backups/prod_backup_20260508.dump"
+  echo "  ./restore.sh prod ../backups/prod_backup_20260508.dump"
   exit 1
 fi
 
