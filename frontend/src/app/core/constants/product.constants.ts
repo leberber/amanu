@@ -52,16 +52,29 @@ export interface UnitConfig {
 }
 
 export const UNIT_CONFIGS: UnitConfig[] = [
+  { key: 'piece', display: 'Piece', displayShort: 'Piece' },
+  { key: 'unit', display: 'Unit', displayShort: 'Unit' },
+  { key: 'bottle', display: 'Bottle', displayShort: 'Bottle' },
+  { key: 'can', display: 'Can', displayShort: 'Can' },
+  { key: 'jar', display: 'Jar', displayShort: 'Jar' },
+  { key: 'sachet', display: 'Sachet', displayShort: 'Sachet' },
+  { key: 'tray', display: 'Tray', displayShort: 'Tray' },
+  { key: 'pot', display: 'Pot', displayShort: 'Pot' },
+  { key: 'tube', display: 'Tube', displayShort: 'Tube' },
+  { key: 'box', display: 'Box', displayShort: 'Box' },
+  { key: 'portion', display: 'Portion', displayShort: 'Portion' },
+  { key: 'slice', display: 'Slice', displayShort: 'Slice' },
   { key: 'kg', display: 'Kilogram', displayShort: 'Kg' },
   { key: 'gram', display: 'Gram', displayShort: 'g' },
-  { key: 'piece', display: 'Piece', displayShort: 'Piece' },
+  { key: 'l', display: 'Liter', displayShort: 'L' },
+  { key: 'ml', display: 'Milliliter', displayShort: 'ml' },
+  { key: 'cl', display: 'Centiliter', displayShort: 'cl' },
   { key: 'bunch', display: 'Bunch', displayShort: 'Bunch' },
   { key: 'dozen', display: 'Dozen', displayShort: 'Dozen' },
   { key: 'pound', display: 'Pound', displayShort: 'lb', factor: 0.453592 },
-  { key: 'liter', display: 'Liter', displayShort: 'L' },
-  { key: 'ml', display: 'Milliliter', displayShort: 'ml' },
-  { key: 'box', display: 'Box', displayShort: 'Box' },
-  { key: 'pack', display: 'Pack', displayShort: 'Pack' }
+  { key: 'carton', display: 'Carton', displayShort: 'Carton' },
+  { key: 'crate', display: 'Crate', displayShort: 'Crate' },
+  { key: 'pack', display: 'Pack', displayShort: 'Pack' },
 ];
 
 export const PRODUCT_UNITS = UNIT_CONFIGS.map(u => u.key);
