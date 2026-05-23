@@ -98,6 +98,7 @@ export interface DashboardStats {
     quantity: number;
     product_unit: string;
     image_url?: string;
+    pieces_per_box?: number;
   }
   
   export interface UserManage {

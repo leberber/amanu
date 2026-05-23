@@ -150,19 +150,25 @@ export class OrderPdfService {
 
       // ===== PRODUCTS TABLE =====
       const imgSize = 14;
-      const tableData = order.items.map((item, index) => [
-        '',
-        this.normalizeText(item.product_name),
-        item.quantity.toString(),
-        `${this.formatNumber(item.unit_price)} DA`,
-        `${this.formatNumber(item.unit_price * item.quantity)} DA`
-      ]);
+      const tableData = order.items.map((item) => {
+        const piecesPerBox = item.pieces_per_box || 1;
+        const cartons = piecesPerBox > 1 ? Math.round(item.quantity / piecesPerBox) : '';
+        return [
+          '',
+          this.normalizeText(item.product_name),
+          cartons.toString(),
+          item.quantity.toString(),
+          `${this.formatNumber(item.unit_price)} DA`,
+          `${this.formatNumber(item.unit_price * item.quantity)} DA`
+        ];
+      });
 
       autoTable(doc, {
         startY: yPosition,
         head: [[
           { content: '', styles: { halign: 'center', cellWidth: 12 } },
           { content: 'Produit', styles: { halign: 'left' } },
+          { content: 'Cartons', styles: { halign: 'center' } },
           { content: 'Qte', styles: { halign: 'center' } },
           { content: 'P.U', styles: { halign: 'right' } },
           { content: 'Total', styles: { halign: 'right' } }
@@ -190,9 +196,10 @@ export class OrderPdfService {
         columnStyles: {
           0: { cellWidth: 18, halign: 'center' },
           1: { cellWidth: 'auto' },
-          2: { cellWidth: 20, halign: 'center' },
-          3: { cellWidth: 30, halign: 'right' },
-          4: { cellWidth: 35, halign: 'right', fontStyle: 'bold' }
+          2: { cellWidth: 18, halign: 'center' },
+          3: { cellWidth: 16, halign: 'center' },
+          4: { cellWidth: 28, halign: 'right' },
+          5: { cellWidth: 32, halign: 'right', fontStyle: 'bold' }
         },
         didDrawCell: (data: any) => {
           if (data.section === 'body' && data.column.index === 0) {
