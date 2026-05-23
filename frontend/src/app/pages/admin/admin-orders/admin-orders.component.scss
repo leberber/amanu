@@ -256,7 +256,8 @@
       color: white;
 
       &:hover:not(:disabled) {
-        background: var(--primary-600);
+        background: var(--primary-color);
+        filter: brightness(0.9);
       }
 
       &:disabled,
