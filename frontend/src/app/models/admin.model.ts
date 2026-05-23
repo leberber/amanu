@@ -85,6 +85,7 @@ export interface DashboardStats {
       email: string;
     };
     pickup_date?: string;
+    delivery_type?: string;
     // Driver fields
     driver_id?: number;
     driver?: DriverInfo;

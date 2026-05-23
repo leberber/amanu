@@ -92,8 +92,14 @@ export class AdminOrderDetailComponent implements OnInit {
       }));
   });
 
-  // Check if driver selection is required (when "assigned" status is selected)
-  needsDriverSelection = computed(() => this.selectedNewStatus() === ORDER_STATUS.ASSIGNED);
+  // Check if this is a pickup order
+  isPickupOrder = computed(() => {
+    const order = this.order();
+    return order?.delivery_type?.toLowerCase() === 'pickup';
+  });
+
+  // Check if driver selection is required (when "assigned" status is selected, delivery only)
+  needsDriverSelection = computed(() => this.selectedNewStatus() === ORDER_STATUS.ASSIGNED && !this.isPickupOrder());
 
   // Selected driver for status change flow
   selectedStatusDriverId = signal<number | null>(null);
@@ -162,11 +168,13 @@ export class AdminOrderDetailComponent implements OnInit {
   }
 
   getNextStatuses(currentStatus: string): { value: string; label: string; icon: string }[] {
-    return this.statusSeverity.getNextOrderStatuses(currentStatus);
+    return this.statusSeverity.getNextOrderStatuses(currentStatus, this.isPickupOrder());
   }
 
   getStatusIndex(status: string): number {
-    const statusOrder = ['pending', 'confirmed', 'assigned', 'picked_up', 'in_transit', 'delivered'];
+    const statusOrder = this.isPickupOrder()
+      ? ['pending', 'confirmed', 'ready', 'delivered']
+      : ['pending', 'confirmed', 'assigned', 'picked_up', 'in_transit', 'delivered'];
     return statusOrder.indexOf(status);
   }
 

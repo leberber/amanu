@@ -788,6 +788,15 @@
     }
   }
 
+  &.ready {
+    background: rgba(5, 150, 105, 0.15);
+    color: #059669;
+
+    &:hover {
+      background: rgba(5, 150, 105, 0.25);
+    }
+  }
+
   &.selected {
     box-shadow: 0 0 0 2px currentColor;
   }
@@ -1042,6 +1051,21 @@
 
     &.selected {
       background: rgba(var(--color-error-rgb), 0.05);
+    }
+  }
+
+  &.ready {
+    .status-option-card__icon {
+      background: rgba(5, 150, 105, 0.12);
+      color: #059669;
+    }
+
+    &.selected, &:hover {
+      border-color: #059669;
+    }
+
+    &.selected {
+      background: rgba(5, 150, 105, 0.05);
     }
   }
 }

@@ -79,6 +79,11 @@
     color: var(--color-cancelled);
   }
 
+  &.ready {
+    background: rgba(5, 150, 105, 0.12);
+    color: #059669;
+  }
+
   // Generic states (for non-order badges)
   &.active,
   &.success {

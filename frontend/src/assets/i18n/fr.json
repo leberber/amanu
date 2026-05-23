@@ -1224,7 +1224,9 @@
         "picked_up": "Récupérée",
         "in_transit": "En transit",
         "shipped": "Expédiée",
+        "ready": "Prête au retrait",
         "delivered": "Livrée",
+        "picked_up_customer": "Retirée",
         "cancelled": "Annulée"
       },
       "total": "Total",
@@ -1273,6 +1275,7 @@
         "assigned": "Assigner un livreur à cette commande",
         "picked_up": "Le livreur a récupéré la commande",
         "in_transit": "Le livreur est en route pour la livraison",
+        "ready": "Commande préparée et prête au retrait",
         "delivered": "Commande livrée au client",
         "cancelled": "Annuler cette commande"
       },

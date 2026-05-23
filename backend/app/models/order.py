@@ -18,6 +18,7 @@ class OrderStatus(str, Enum):
     ASSIGNED = "ASSIGNED"        # Driver has claimed
     PICKED_UP = "PICKED_UP"      # Driver has items
     IN_TRANSIT = "IN_TRANSIT"    # Driver is delivering
+    READY = "READY"              # Ready for customer pickup (pickup orders only)
     DELIVERED = "DELIVERED"
     CANCELLED = "CANCELLED"
 
@@ -26,6 +27,7 @@ class DeliveryType(str, Enum):
     """Delivery type enumeration for routing optimization"""
     STANDARD = "STANDARD"    # Can be batched with other orders
     PRIORITY = "PRIORITY"    # Immediate dedicated delivery
+    PICKUP = "PICKUP"        # Customer picks up at depot
 
 class OrderItemBase(SQLModel):
     """Base model for order items"""

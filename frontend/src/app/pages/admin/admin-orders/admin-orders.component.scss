@@ -139,16 +139,49 @@
   }
 }
 
+.status-cell {
+  .status-display {
+    max-width: 100%;
+    overflow: hidden;
+
+    .status-badge {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: calc(100% + 20px);
+    }
+  }
+}
+
+.pickup-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 4px 10px;
+  border-radius: 16px;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  background: rgba(100, 116, 139, 0.1);
+  color: #64748b;
+  white-space: nowrap;
+
+  i { font-size: 12px; }
+}
+
 // Status Update Popover
 ::ng-deep .status-update-popover {
+  max-width: 90vw !important;
+
   .p-popover-content {
     padding: 0 !important;
   }
 }
 
 .status-popup {
-  width: 420px;
-  max-width: 90vw;
+  width: 380px;
+  max-width: 85vw;
+  max-height: 80vh;
+  overflow-y: auto;
 
   &__header {
     display: flex;

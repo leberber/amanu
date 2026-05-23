@@ -249,14 +249,21 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
   }
 
   // Get status index for timeline visualization
-  getStatusIndex(status: string): number {
-    const statusOrder = ['pending', 'confirmed', 'assigned', 'picked_up', 'in_transit', 'delivered'];
+  getStatusIndex(status: string, order?: Order): number {
+    const statusOrder = order && this.isPickupOrder(order)
+      ? ['pending', 'confirmed', 'ready', 'delivered']
+      : ['pending', 'confirmed', 'assigned', 'picked_up', 'in_transit', 'delivered'];
     return statusOrder.indexOf(status);
   }
 
+  isPickupOrder(order: Order): boolean {
+    return order.delivery_type?.toLowerCase() === 'pickup';
+  }
+
   // Status editing - delegate to service
-  getNextStatuses(currentStatus: string): { value: string; label: string; icon: string }[] {
-    return this.statusSeverity.getNextOrderStatuses(currentStatus);
+  getNextStatuses(currentStatus: string, order?: Order): { value: string; label: string; icon: string }[] {
+    const isPickup = order ? this.isPickupOrder(order) : false;
+    return this.statusSeverity.getNextOrderStatuses(currentStatus, isPickup);
   }
 
   canEditStatus(status: string): boolean {

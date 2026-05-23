@@ -144,6 +144,11 @@ export class OrderSummaryComponent implements OnInit {
   // Delivery method
   setDeliveryMethod(method: DeliveryMethod): void {
     this.deliveryMethod.set(method);
+    if (method === 'pickup') {
+      this.deliveryType.set('PICKUP');
+    } else {
+      this.deliveryType.set('STANDARD');
+    }
   }
 
   // Delivery type (standard vs priority)

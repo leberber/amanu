@@ -43,8 +43,8 @@ export class StatusSeverityService {
     return config?.color || '#607D8B';
   }
 
-  getNextOrderStatuses(currentStatus: string): { value: string; label: string; icon: string }[] {
-    const statusTransitions: Record<string, string[]> = {
+  getNextOrderStatuses(currentStatus: string, isPickup = false): { value: string; label: string; icon: string }[] {
+    const deliveryTransitions: Record<string, string[]> = {
       [ORDER_STATUS.PENDING]: [ORDER_STATUS.CONFIRMED, ORDER_STATUS.ASSIGNED, ORDER_STATUS.CANCELLED],
       [ORDER_STATUS.CONFIRMED]: [ORDER_STATUS.ASSIGNED, ORDER_STATUS.CANCELLED],
       [ORDER_STATUS.ASSIGNED]: [ORDER_STATUS.PICKED_UP, ORDER_STATUS.IN_TRANSIT, ORDER_STATUS.DELIVERED, ORDER_STATUS.CANCELLED],
@@ -54,7 +54,16 @@ export class StatusSeverityService {
       [ORDER_STATUS.CANCELLED]: []
     };
 
-    const nextStatuses = statusTransitions[currentStatus] || [];
+    const pickupTransitions: Record<string, string[]> = {
+      [ORDER_STATUS.PENDING]: [ORDER_STATUS.CONFIRMED, ORDER_STATUS.CANCELLED],
+      [ORDER_STATUS.CONFIRMED]: [ORDER_STATUS.READY, ORDER_STATUS.CANCELLED],
+      [ORDER_STATUS.READY]: [ORDER_STATUS.DELIVERED, ORDER_STATUS.CANCELLED],
+      [ORDER_STATUS.DELIVERED]: [],
+      [ORDER_STATUS.CANCELLED]: []
+    };
+
+    const transitions = isPickup ? pickupTransitions : deliveryTransitions;
+    const nextStatuses = transitions[currentStatus] || [];
 
     return nextStatuses.map(status => ({
       value: status,
@@ -64,7 +73,8 @@ export class StatusSeverityService {
   }
 
   canEditOrderStatus(status: string): boolean {
-    return this.getNextOrderStatuses(status).length > 0;
+    return this.getNextOrderStatuses(status, false).length > 0 ||
+           this.getNextOrderStatuses(status, true).length > 0;
   }
 
   getBooleanSeverity(isActive: boolean): "success" | "danger" {

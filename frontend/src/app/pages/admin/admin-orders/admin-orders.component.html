@@ -164,7 +164,7 @@
                   @if (isColumnVisible('order_id')) { <th style="width: 8%">{{ 'admin.orders.table.order_id' | translate }}</th> }
                   @if (isColumnVisible('customer')) { <th style="width: 20%">{{ 'admin.orders.table.customer' | translate }}</th> }
                   @if (isColumnVisible('date')) { <th style="width: 12%" class="text-center">{{ 'admin.orders.table.date' | translate }}</th> }
-                  @if (isColumnVisible('status')) { <th style="width: 12%" class="text-center">{{ 'admin.orders.table.status' | translate }}</th> }
+                  @if (isColumnVisible('status')) { <th style="width: 14%" class="text-center">{{ 'admin.orders.table.status' | translate }}</th> }
                   @if (isColumnVisible('driver')) { <th style="width: 18%">{{ 'admin.orders.table.driver' | translate }}</th> }
                   @if (isColumnVisible('total')) { <th style="width: 12%" class="text-center">{{ 'admin.orders.table.total' | translate }}</th> }
                   @if (isColumnVisible('actions')) { <th style="width: 18%" class="text-center">{{ 'admin.orders.table.actions' | translate }}</th> }
@@ -235,7 +235,7 @@
                               }
                             </div>
                           </div>
-                        } @else if (order.status === 'confirmed' || order.status === 'pending') {
+                        } @else if ((order.status === 'confirmed' || order.status === 'pending') && !isPickupOrder(order)) {
                           <button
                             class="waiting-driver-badge waiting-driver-badge--clickable"
                             (click)="openDriverPopover($event, order)">
@@ -243,6 +243,11 @@
                             {{ 'admin.orders.waiting_for_driver' | translate }}
                             <i class="pi pi-chevron-down"></i>
                           </button>
+                        } @else if (isPickupOrder(order)) {
+                          <span class="pickup-badge">
+                            <i class="pi pi-map-marker"></i>
+                            {{ 'order_summary.pickup' | translate }}
+                          </span>
                         } @else {
                           <span class="text-secondary">—</span>
                         }
@@ -329,7 +334,7 @@
 </app-agroclik-page-container>
 
 <!-- Status Update Popover -->
-<p-popover #statusPopover styleClass="status-update-popover">
+<p-popover #statusPopover styleClass="status-update-popover" appendTo="body">
   @if (editingOrder(); as order) {
     <div class="status-popup">
       <!-- Header -->
@@ -338,38 +343,64 @@
         <span class="status-popup__order-id">#{{ order.id }}</span>
       </div>
 
-      <!-- Mini Timeline (simplified 5-step view) -->
-      <div class="status-timeline">
-        <div class="status-timeline__step" [class.completed]="getStatusIndex(order.status) >= 0" [class.current]="order.status === 'pending'">
-          <div class="status-timeline__dot"><i class="pi pi-clock"></i></div>
-          <span class="status-timeline__label">{{ 'admin.orders.status.pending' | translate }}</span>
+      <!-- Mini Timeline -->
+      @if (isPickupOrder(order)) {
+        <!-- Pickup Timeline -->
+        <div class="status-timeline">
+          <div class="status-timeline__step" [class.completed]="getStatusIndex(order.status, order) >= 0" [class.current]="order.status === 'pending'">
+            <div class="status-timeline__dot"><i class="pi pi-clock"></i></div>
+            <span class="status-timeline__label">{{ 'admin.orders.status.pending' | translate }}</span>
+          </div>
+          <div class="status-timeline__line" [class.completed]="getStatusIndex(order.status, order) >= 1"></div>
+          <div class="status-timeline__step" [class.completed]="getStatusIndex(order.status, order) >= 1" [class.current]="order.status === 'confirmed'">
+            <div class="status-timeline__dot"><i class="pi pi-check-circle"></i></div>
+            <span class="status-timeline__label">{{ 'admin.orders.status.confirmed' | translate }}</span>
+          </div>
+          <div class="status-timeline__line" [class.completed]="getStatusIndex(order.status, order) >= 2"></div>
+          <div class="status-timeline__step" [class.completed]="getStatusIndex(order.status, order) >= 2" [class.current]="order.status === 'ready'">
+            <div class="status-timeline__dot"><i class="pi pi-inbox"></i></div>
+            <span class="status-timeline__label">{{ 'admin.orders.status.ready' | translate }}</span>
+          </div>
+          <div class="status-timeline__line" [class.completed]="getStatusIndex(order.status, order) >= 3"></div>
+          <div class="status-timeline__step" [class.completed]="getStatusIndex(order.status, order) >= 3" [class.current]="order.status === 'delivered'">
+            <div class="status-timeline__dot"><i class="pi pi-check"></i></div>
+            <span class="status-timeline__label">{{ 'admin.orders.status.picked_up_customer' | translate }}</span>
+          </div>
         </div>
-        <div class="status-timeline__line" [class.completed]="getStatusIndex(order.status) >= 1"></div>
-        <div class="status-timeline__step" [class.completed]="getStatusIndex(order.status) >= 1" [class.current]="order.status === 'confirmed'">
-          <div class="status-timeline__dot"><i class="pi pi-check-circle"></i></div>
-          <span class="status-timeline__label">{{ 'admin.orders.status.confirmed' | translate }}</span>
+      } @else {
+        <!-- Delivery Timeline -->
+        <div class="status-timeline">
+          <div class="status-timeline__step" [class.completed]="getStatusIndex(order.status) >= 0" [class.current]="order.status === 'pending'">
+            <div class="status-timeline__dot"><i class="pi pi-clock"></i></div>
+            <span class="status-timeline__label">{{ 'admin.orders.status.pending' | translate }}</span>
+          </div>
+          <div class="status-timeline__line" [class.completed]="getStatusIndex(order.status) >= 1"></div>
+          <div class="status-timeline__step" [class.completed]="getStatusIndex(order.status) >= 1" [class.current]="order.status === 'confirmed'">
+            <div class="status-timeline__dot"><i class="pi pi-check-circle"></i></div>
+            <span class="status-timeline__label">{{ 'admin.orders.status.confirmed' | translate }}</span>
+          </div>
+          <div class="status-timeline__line" [class.completed]="getStatusIndex(order.status) >= 2"></div>
+          <div class="status-timeline__step" [class.completed]="getStatusIndex(order.status) >= 2" [class.current]="order.status === 'assigned' || order.status === 'picked_up'">
+            <div class="status-timeline__dot"><i class="pi pi-user"></i></div>
+            <span class="status-timeline__label">{{ 'admin.orders.status.assigned' | translate }}</span>
+          </div>
+          <div class="status-timeline__line" [class.completed]="getStatusIndex(order.status) >= 4"></div>
+          <div class="status-timeline__step" [class.completed]="getStatusIndex(order.status) >= 4" [class.current]="order.status === 'in_transit'">
+            <div class="status-timeline__dot"><i class="pi pi-truck"></i></div>
+            <span class="status-timeline__label">{{ 'admin.orders.status.in_transit' | translate }}</span>
+          </div>
+          <div class="status-timeline__line" [class.completed]="getStatusIndex(order.status) >= 5"></div>
+          <div class="status-timeline__step" [class.completed]="getStatusIndex(order.status) >= 5" [class.current]="order.status === 'delivered'">
+            <div class="status-timeline__dot"><i class="pi pi-check"></i></div>
+            <span class="status-timeline__label">{{ 'admin.orders.status.delivered' | translate }}</span>
+          </div>
         </div>
-        <div class="status-timeline__line" [class.completed]="getStatusIndex(order.status) >= 2"></div>
-        <div class="status-timeline__step" [class.completed]="getStatusIndex(order.status) >= 2" [class.current]="order.status === 'assigned' || order.status === 'picked_up'">
-          <div class="status-timeline__dot"><i class="pi pi-user"></i></div>
-          <span class="status-timeline__label">{{ 'admin.orders.status.assigned' | translate }}</span>
-        </div>
-        <div class="status-timeline__line" [class.completed]="getStatusIndex(order.status) >= 4"></div>
-        <div class="status-timeline__step" [class.completed]="getStatusIndex(order.status) >= 4" [class.current]="order.status === 'in_transit'">
-          <div class="status-timeline__dot"><i class="pi pi-truck"></i></div>
-          <span class="status-timeline__label">{{ 'admin.orders.status.in_transit' | translate }}</span>
-        </div>
-        <div class="status-timeline__line" [class.completed]="getStatusIndex(order.status) >= 5"></div>
-        <div class="status-timeline__step" [class.completed]="getStatusIndex(order.status) >= 5" [class.current]="order.status === 'delivered'">
-          <div class="status-timeline__dot"><i class="pi pi-check"></i></div>
-          <span class="status-timeline__label">{{ 'admin.orders.status.delivered' | translate }}</span>
-        </div>
-      </div>
+      }
 
       <!-- Status Options -->
       <div class="status-popup__options">
         <span class="status-popup__label">{{ 'admin.orders.select_next_status' | translate }}</span>
-        @for (status of getNextStatuses(order.status); track status.value) {
+        @for (status of getNextStatuses(order.status, order); track status.value) {
           <button
             class="status-option-card"
             [class]="status.value"

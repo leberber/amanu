@@ -10,6 +10,7 @@ export const ORDER_STATUS = {
   ASSIGNED: 'assigned',
   PICKED_UP: 'picked_up',
   IN_TRANSIT: 'in_transit',
+  READY: 'ready',
   DELIVERED: 'delivered',
   CANCELLED: 'cancelled'
 } as const;
@@ -53,6 +54,13 @@ export const ORDER_STATUS_CONFIG = {
     color: '#512da8',  // Purple - matches --color-shipped
     label: 'order.status.in_transit'
   },
+  [ORDER_STATUS.READY]: {
+    icon: 'pi pi-inbox',
+    iconClass: 'pi-inbox',
+    severity: 'success' as const,
+    color: '#059669',  // Green - ready for pickup
+    label: 'order.status.ready'
+  },
   [ORDER_STATUS.DELIVERED]: {
     icon: 'pi pi-check-square',
     iconClass: 'pi-check-square',
@@ -87,6 +95,7 @@ export const TIMELINE_COLORS = {
   ASSIGNED: ORDER_STATUS_CONFIG[ORDER_STATUS.ASSIGNED].color,
   PICKED_UP: ORDER_STATUS_CONFIG[ORDER_STATUS.PICKED_UP].color,
   IN_TRANSIT: ORDER_STATUS_CONFIG[ORDER_STATUS.IN_TRANSIT].color,
+  READY: ORDER_STATUS_CONFIG[ORDER_STATUS.READY].color,
   DELIVERED: ORDER_STATUS_CONFIG[ORDER_STATUS.DELIVERED].color,
   CANCELLED: ORDER_STATUS_CONFIG[ORDER_STATUS.CANCELLED].color
 } as const;
@@ -99,6 +108,7 @@ export const STATUS_SEVERITY = {
   [ORDER_STATUS.ASSIGNED]: ORDER_STATUS_CONFIG[ORDER_STATUS.ASSIGNED].severity,
   [ORDER_STATUS.PICKED_UP]: ORDER_STATUS_CONFIG[ORDER_STATUS.PICKED_UP].severity,
   [ORDER_STATUS.IN_TRANSIT]: ORDER_STATUS_CONFIG[ORDER_STATUS.IN_TRANSIT].severity,
+  [ORDER_STATUS.READY]: ORDER_STATUS_CONFIG[ORDER_STATUS.READY].severity,
   [ORDER_STATUS.DELIVERED]: ORDER_STATUS_CONFIG[ORDER_STATUS.DELIVERED].severity,
   [ORDER_STATUS.CANCELLED]: ORDER_STATUS_CONFIG[ORDER_STATUS.CANCELLED].severity
 } as const;
