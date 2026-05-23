@@ -56,6 +56,7 @@ export class OrderSummaryComponent implements OnInit {
 
   // Constants
   readonly ROUTES = ROUTES;
+  isLoggedIn = computed(() => this.authService.isLoggedIn);
 
   // State
   pickupDate: Date | null = null;
@@ -66,6 +67,13 @@ export class OrderSummaryComponent implements OnInit {
   shippingResponse = signal<ShippingCostResponse | null>(null);
   shippingError = signal<string | null>(null);
   showShippingDetails = signal(false);
+
+  // Can proceed to checkout
+  canProceed = computed(() => {
+    if (!this.authService.isLoggedIn) return false;
+    if (this.deliveryMethod() === 'delivery' && this.shippingError()) return false;
+    return true;
+  });
 
   // Computed pricing based on delivery type
   priorityPrice = computed(() => this.shippingResponse()?.priority_price ?? null);
@@ -152,8 +160,14 @@ export class OrderSummaryComponent implements OnInit {
   private calculateShipping(): void {
     const user = this.authService.currentUserValue;
 
-    // If user is not logged in or has no location, show fallback
-    if (!user?.h3_index) {
+    // If user is not logged in, show login message
+    if (!user) {
+      this.shippingError.set('order_summary.login_required');
+      return;
+    }
+
+    // If user has no location set, show location message
+    if (!user.h3_index) {
       this.shippingError.set('order_summary.no_location');
       return;
     }
@@ -185,6 +199,10 @@ export class OrderSummaryComponent implements OnInit {
         this.shippingError.set('order_summary.shipping_error');
       }
     });
+  }
+
+  goToLogin(): void {
+    this.router.navigate([ROUTES.LOGIN], { queryParams: { returnUrl: ROUTES.ORDER_SUMMARY } });
   }
 
   proceedToCheckout(): void {

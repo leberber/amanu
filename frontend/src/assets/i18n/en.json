@@ -408,6 +408,7 @@
     "pickup_date_placeholder": "Select date and time",
     "summary": "Summary",
     "add_promo": "Add promo code",
+    "login_required": "Please sign in or create an account to continue",
     "no_location": "Please set your delivery address in your profile",
     "not_deliverable": "Sorry, we don't deliver to your area yet",
     "shipping_error": "Unable to calculate shipping. Please try again.",

@@ -143,8 +143,17 @@
           </div>
         }
 
+        <!-- Login Required Message -->
+        @if (!isLoggedIn()) {
+          <div class="shipping-message shipping-message--info login-message" (click)="goToLogin()">
+            <i class="pi pi-sign-in"></i>
+            <span>{{ 'order_summary.login_required' | translate }}</span>
+            <i class="pi pi-arrow-right"></i>
+          </div>
+        }
+
         <!-- Shipping Error/Info Message -->
-        @if (deliveryMethod() === 'delivery' && shippingError()) {
+        @if (deliveryMethod() === 'delivery' && shippingError() && isLoggedIn()) {
           <div class="shipping-message shipping-message--warning">
             <i class="pi pi-exclamation-triangle"></i>
             <span>{{ shippingError()! | translate }}</span>
@@ -338,6 +347,7 @@
     [showBorder]="false"
     [showShadow]="false"
     [fullWidthButton]="true"
+    [disabled]="!canProceed()"
     (buttonClick)="proceedToCheckout()" />
 
 </app-page-layout>

@@ -405,6 +405,7 @@
     "pickup_date_placeholder": "Sélectionnez la date et l'heure",
     "summary": "Récapitulatif",
     "add_promo": "Ajouter un code promo",
+    "login_required": "Veuillez vous connecter ou créer un compte pour continuer",
     "no_location": "Veuillez définir votre adresse de livraison dans votre profil",
     "not_deliverable": "Désolé, nous ne livrons pas encore dans votre zone",
     "shipping_error": "Impossible de calculer les frais de livraison. Veuillez réessayer.",
