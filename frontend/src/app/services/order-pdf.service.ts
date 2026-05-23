@@ -73,13 +73,10 @@ export class OrderPdfService {
 
     try {
       // Preload product images
-      console.log('PDF: Loading images for', order.items.length, 'items');
-      console.log('PDF: image URLs:', order.items.map(i => i.image_url));
       const imagePromises = order.items.map(item =>
         item.image_url ? this.loadImage(item.image_url) : Promise.resolve(null)
       );
       const images = await Promise.all(imagePromises);
-      console.log('PDF: loaded images:', images.map(i => i ? `${i.substring(0, 30)}...` : null));
 
       const doc = new jsPDF();
       const pageWidth = doc.internal.pageSize.getWidth();
@@ -258,9 +255,21 @@ export class OrderPdfService {
       doc.setTextColor(150, 150, 150);
       doc.text('Document genere automatiquement - AgroClik', pageWidth / 2, pageHeight - 5, { align: 'center' });
 
-      // Download
-      doc.save(`commande-${order.id}.pdf`);
-      this.toast.showSuccess('PDF telecharge');
+      // Open print dialog using hidden iframe
+      const pdfBlob = doc.output('blob');
+      const pdfUrl = URL.createObjectURL(pdfBlob);
+      const iframe = document.createElement('iframe');
+      iframe.style.display = 'none';
+      iframe.src = pdfUrl;
+      document.body.appendChild(iframe);
+      iframe.onload = () => {
+        iframe.contentWindow?.print();
+        // Clean up after a delay
+        setTimeout(() => {
+          document.body.removeChild(iframe);
+          URL.revokeObjectURL(pdfUrl);
+        }, 60000);
+      };
     } catch (error) {
       console.error('Error generating PDF:', error);
       this.toast.showError('Erreur lors de la generation du PDF');

@@ -16,6 +16,7 @@ import { PAGINATION } from '../../../core/constants';
 import { BreakpointService } from '../../../core/services/breakpoint.service';
 import { onLanguageChange } from '../../../core/utils/language-change.util';
 import { AdminService } from '../../../services/admin.service';
+import { OrderPdfService } from '../../../services/order-pdf.service';
 import { Order } from '../../../models/admin.model';
 import { DriverProfileWithFlags } from '../../../models/driver.model';
 import { StatusSeverityService } from '../../../core/services/status-severity.service';
@@ -103,6 +104,7 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
 
   // Services
   private readonly adminService = inject(AdminService);
+  private readonly orderPdf = inject(OrderPdfService);
   private readonly translateService = inject(TranslateService);
   private readonly statusSeverity = inject(StatusSeverityService);
   private readonly destroyRef = inject(DestroyRef);
@@ -215,6 +217,24 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
 
   loadMoreOrders(): void {
     this.mobileVisibleCount.update(count => count + PAGINATION.DEFAULT_PAGE_SIZE);
+  }
+
+  printingOrderId = signal<number | null>(null);
+
+  async printOrder(order: Order): Promise<void> {
+    this.printingOrderId.set(order.id);
+    this.adminService.getOrderById(order.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: async (fullOrder) => {
+          await this.orderPdf.generateOrderPdf(fullOrder);
+          this.printingOrderId.set(null);
+        },
+        error: () => {
+          this.printingOrderId.set(null);
+          this.baseToast.showError('admin.orders.load_error');
+        }
+      });
   }
 
   openOrderDetails(order: Order): void {

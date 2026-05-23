@@ -10,8 +10,8 @@
   <!-- Actions -->
   @if (order(); as o) {
     <div pageActions class="flex align-items-center gap-2">
-      <button class="btn-icon" (click)="printOrder()" pTooltip="PDF" tooltipPosition="bottom">
-        <i class="pi pi-print"></i>
+      <button class="btn-icon" (click)="printOrder()" [disabled]="printing()" pTooltip="PDF" tooltipPosition="bottom">
+        <i [class]="printing() ? 'pi pi-spin pi-spinner' : 'pi pi-print'"></i>
       </button>
       <span class="items-badge">
         {{ o.items?.length || 0 }} {{ ((o.items?.length || 0) === 1 ? 'common.item' : 'common.items') | translate }}

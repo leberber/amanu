@@ -129,10 +129,14 @@ export class AdminOrderDetailComponent implements OnInit {
       });
   }
 
-  printOrder(): void {
+  printing = signal(false);
+
+  async printOrder(): Promise<void> {
     const order = this.order();
     if (order) {
-      this.orderPdf.generateOrderPdf(order);
+      this.printing.set(true);
+      await this.orderPdf.generateOrderPdf(order);
+      this.printing.set(false);
     }
   }
 

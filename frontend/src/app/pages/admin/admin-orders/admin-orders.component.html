@@ -264,6 +264,10 @@
                             <i class="pi pi-eye"></i>
                           </button>
 
+                          <button class="action-btn view" (click)="printOrder(order)" [disabled]="printingOrderId() === order.id" [pTooltip]="'PDF'" tooltipPosition="top">
+                            <i [class]="printingOrderId() === order.id ? 'pi pi-spin pi-spinner' : 'pi pi-print'"></i>
+                          </button>
+
                           <!-- Desktop only: Inline status edit button -->
                           <button
                             class="action-btn edit desktop-only"
