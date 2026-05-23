@@ -668,6 +668,7 @@
       "picked_up": "Récupérée",
       "in_transit": "En transit",
       "shipped": "Expédiée",
+      "ready": "Prête au retrait",
       "delivered": "Livrée",
       "cancelled": "Annulée"
     },

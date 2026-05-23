@@ -673,6 +673,7 @@
       "picked_up": "تم الاستلام",
       "in_transit": "في الطريق",
       "shipped": "مُرسل",
+      "ready": "جاهز للاستلام",
       "delivered": "مُسلم",
       "cancelled": "ملغي"
     },

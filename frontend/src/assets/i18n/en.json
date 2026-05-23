@@ -671,6 +671,7 @@
       "picked_up": "Picked Up",
       "in_transit": "In Transit",
       "shipped": "Shipped",
+      "ready": "Ready for Pickup",
       "delivered": "Delivered",
       "cancelled": "Cancelled"
     },
