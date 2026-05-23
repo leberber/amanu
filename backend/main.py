@@ -19,9 +19,6 @@ logger = get_logger("app")
 from app.api.api_v1.api import api_router
 from app.core.config import settings
 from app.core.admin import create_admin_user
-from app.seed_data import seed_data
-from app.seed_test_users import seed_test_users
-from app.seed_test_orders import seed_test_orders
 from app.models.push_subscription import PushSubscription  # Register model for table creation
 from app.models.password_reset import PasswordResetToken  # Register model for table creation
 from app.models.notification_history import NotificationHistory  # Register model for table creation
@@ -147,15 +144,6 @@ def on_startup():
     # Create admin user
     with Session(engine) as session:
         create_admin_user(session)
-    
-    # Seed data
-    seed_data()
-
-    # Seed test users (drivers, customers, staff)
-    seed_test_users()
-
-    # Seed test orders for batching testing
-    # seed_test_orders()  # Commented out to prevent generating new orders on every restart
 
 @app.get("/")
 def root():
