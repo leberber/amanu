@@ -26,7 +26,7 @@ export const PRODUCT = {
   MAX_DESCRIPTION_LENGTH: 200,
   DEFAULT_DESCRIPTION: 'Quality wholesale products for your business.',
   // Box/carton options
-  MAX_BOX_OPTIONS: 10  // Maximum number of box quantity options to show
+  MAX_BOX_OPTIONS: 30  // Maximum number of box quantity options to show
 } as const;
 
 // Stock Status

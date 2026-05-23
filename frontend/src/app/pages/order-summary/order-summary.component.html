@@ -115,6 +115,34 @@
           </div>
         </div>
 
+        <!-- Pickup Date/Time Picker -->
+        @if (deliveryMethod() === 'pickup') {
+          <div class="pickup-datetime">
+            <div class="pickup-datetime__row">
+              <i class="pi pi-clock pickup-datetime__icon"></i>
+              <span class="pickup-datetime__label">{{ 'order_summary.pickup_when' | translate }}</span>
+            </div>
+            <p-datePicker
+              [(ngModel)]="pickupDate"
+              [showTime]="true"
+              [stepMinute]="10"
+              [minDate]="minPickupDate"
+              dateFormat="dd/mm/yy"
+              [placeholder]="'order_summary.pickup_date_placeholder' | translate"
+              [showIcon]="true"
+              [iconDisplay]="'input'"
+              [showButtonBar]="true"
+              appendTo="body"
+            />
+            @if (pickupDate) {
+              <div class="pickup-datetime__confirm">
+                <i class="pi pi-check-circle"></i>
+                {{ pickupDate | date:'EEE dd MMM, HH:mm' }}
+              </div>
+            }
+          </div>
+        }
+
         <!-- Shipping Error/Info Message -->
         @if (deliveryMethod() === 'delivery' && shippingError()) {
           <div class="shipping-message shipping-message--warning">

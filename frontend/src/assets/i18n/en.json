@@ -404,6 +404,8 @@
     "delivery_desc": "We deliver to your address",
     "pickup": "Pickup",
     "pickup_desc": "Pick up at our location",
+    "pickup_when": "When will you pick up?",
+    "pickup_date_placeholder": "Select date and time",
     "summary": "Summary",
     "add_promo": "Add promo code",
     "no_location": "Please set your delivery address in your profile",
@@ -1261,6 +1263,7 @@
         "quantity": "Quantity",
         "unit": "Unit"
       },
+      "pickup_date": "Pickup Date",
       "waiting_for_driver": "Waiting for driver",
       "update_status": "Update Status",
       "select_next_status": "Select next status",

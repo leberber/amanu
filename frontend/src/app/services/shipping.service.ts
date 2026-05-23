@@ -56,6 +56,14 @@ export class ShippingService {
     this._standardPrice.set(standard);
   }
 
+  // Pickup date
+  private readonly _pickupDate = signal<Date | null>(null);
+  readonly pickupDate = this._pickupDate.asReadonly();
+
+  setPickupDate(date: Date | null): void {
+    this._pickupDate.set(date);
+  }
+
   /**
    * Clear shipping cost (called after order is placed)
    */
@@ -64,6 +72,7 @@ export class ShippingService {
     this._deliveryType.set('STANDARD');
     this._priorityPrice.set(null);
     this._standardPrice.set(null);
+    this._pickupDate.set(null);
   }
 
   /**

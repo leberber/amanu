@@ -18,6 +18,7 @@ import { ROUTES } from '../../../core/constants/routes.constants';
 import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
 import { PhoneFormatPipe } from '../../../shared/pipes/phone-format.pipe';
 import { UnitPipe } from '../../../shared/pipes/unit.pipe';
+import { DateFormatPipe } from '../../../shared/pipes/date-format.pipe';
 import { DateService } from '../../../core/services/date.service';
 import { OrderPdfService } from '../../../services/order-pdf.service';
 import { DRIVER_STATUS } from '../../../core/constants/driver.constants';
@@ -36,7 +37,8 @@ import { ORDER_STATUS } from '../../../core/constants/order.constants';
     PageLayoutComponent,
     CurrencyPipe,
     PhoneFormatPipe,
-    UnitPipe
+    UnitPipe,
+    DateFormatPipe
   ],
   templateUrl: './admin-order-detail.component.html',
   styleUrl: './admin-order-detail.component.scss'

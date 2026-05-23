@@ -129,6 +129,19 @@
         </div>
       }
 
+      <!-- Pickup Date -->
+      @if (order.pickup_date) {
+        <div class="stat-card stat-card--compact animate-item" style="--item-delay: 275ms;">
+          <div class="stat-card__content">
+            <span class="stat-card__value">
+              <span class="stat-card__icon stat-card__icon--success"><i class="pi pi-calendar-clock"></i></span>
+              {{ order.pickup_date | appDate }}
+            </span>
+            <span class="stat-card__label">{{ 'admin.orders.pickup_date' | translate }}</span>
+          </div>
+        </div>
+      }
+
       <!-- Shipping Address -->
       <div class="stat-card stat-card--compact animate-item" style="--item-delay: 300ms;">
         <div class="stat-card__content">

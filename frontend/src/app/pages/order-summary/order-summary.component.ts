@@ -1,9 +1,11 @@
 import { Component, OnInit, inject, signal, computed, effect, DestroyRef } from '@angular/core';
 import { trigger, state, style, animate, transition } from '@angular/animations';
 import { Router } from '@angular/router';
-import { DecimalPipe } from '@angular/common';
+import { DecimalPipe, DatePipe } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { ToastModule } from 'primeng/toast';
+import { FormsModule } from '@angular/forms';
+import { DatePickerModule } from 'primeng/datepicker';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { ROUTES } from '../../core/constants/routes.constants';
@@ -25,7 +27,10 @@ export type DeliveryMethod = 'delivery' | 'pickup';
   imports: [
     TranslateModule,
     ToastModule,
+    FormsModule,
+    DatePickerModule,
     DecimalPipe,
+    DatePipe,
     PageLayoutComponent,
     StickyFooterComponent,
     CurrencyPipe
@@ -53,6 +58,8 @@ export class OrderSummaryComponent implements OnInit {
   readonly ROUTES = ROUTES;
 
   // State
+  pickupDate: Date | null = null;
+  minPickupDate = new Date();
   deliveryMethod = signal<DeliveryMethod>('delivery');
   deliveryType = signal<DeliveryType>('STANDARD');
   shippingLoading = signal(false);
@@ -193,10 +200,11 @@ export class OrderSummaryComponent implements OnInit {
     }
 
     if (this.authService.isLoggedIn) {
-      // Save shipping cost, delivery type, and pricing for checkout to use
+      // Save shipping cost, delivery type, pickup date, and pricing for checkout to use
       this.shippingService.setShippingCost(this.deliveryCost());
       this.shippingService.setDeliveryType(this.deliveryType());
       this.shippingService.setDeliveryPricing(this.priorityPrice(), this.standardPrice());
+      this.shippingService.setPickupDate(this.pickupDate);
       // replaceUrl to keep history clean during checkout flow
       this.router.navigate([ROUTES.CHECKOUT], { replaceUrl: true });
     } else {

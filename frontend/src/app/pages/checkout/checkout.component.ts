@@ -132,6 +132,7 @@ export class CheckoutComponent implements OnInit {
 
     this.isSubmitting.set(true);
 
+    const pickupDate = this.shippingService.pickupDate();
     const orderData: OrderCreate = {
       user_id: user.id,
       shipping_address: this.checkoutForm.value.address,
@@ -139,7 +140,8 @@ export class CheckoutComponent implements OnInit {
       items: this.orderService.cartItemsToOrderItems(this.cartItems()),
       promotion_code: this.appliedPromotion()?.code,
       shipping_cost: this.selectedShippingCost(),
-      delivery_type: this.deliveryType()
+      delivery_type: this.deliveryType(),
+      pickup_date: pickupDate ? pickupDate.toISOString() : undefined
     };
 
     this.orderService.createOrder(orderData).subscribe({

@@ -90,6 +90,7 @@ class Order(OrderBase, table=True):
     cancellation_count: int = Field(default=0)
 
     # Delivery info
+    pickup_date: Optional[datetime] = Field(default=None, description="Scheduled pickup date/time for pickup orders")
     delivery_notes: Optional[str] = Field(default=None, max_length=500)
     estimated_delivery_minutes: Optional[int] = Field(default=None)
     actual_delivery_minutes: Optional[int] = Field(default=None)
@@ -124,6 +125,7 @@ class OrderCreate(SQLModel):
     promotion_code: Optional[str] = None  # Optional promo code
     shipping_cost: float = 0  # Shipping cost calculated by frontend
     delivery_type: DeliveryType = DeliveryType.STANDARD  # STANDARD or PRIORITY
+    pickup_date: Optional[datetime] = None  # Scheduled pickup date/time
 
     @field_validator("items")
     def validate_items(cls, v):
@@ -192,6 +194,7 @@ class OrderRead(OrderBase):
     picked_up_at: Optional[datetime] = None
     in_transit_at: Optional[datetime] = None
     delivered_at: Optional[datetime] = None
+    pickup_date: Optional[datetime] = None
     delivery_notes: Optional[str] = None
     estimated_delivery_minutes: Optional[int] = None
     actual_delivery_minutes: Optional[int] = None

@@ -401,6 +401,8 @@
     "delivery_desc": "Nous livrons à votre adresse",
     "pickup": "Retrait",
     "pickup_desc": "Récupérez à notre point de retrait",
+    "pickup_when": "Quand viendrez-vous récupérer ?",
+    "pickup_date_placeholder": "Sélectionnez la date et l'heure",
     "summary": "Récapitulatif",
     "add_promo": "Ajouter un code promo",
     "no_location": "Veuillez définir votre adresse de livraison dans votre profil",
@@ -1260,6 +1262,7 @@
         "quantity": "Quantité",
         "unit": "Unité"
       },
+      "pickup_date": "Date de retrait",
       "waiting_for_driver": "En attente d'un livreur",
       "update_status": "Mettre à jour le statut",
       "select_next_status": "Sélectionner le prochain statut",

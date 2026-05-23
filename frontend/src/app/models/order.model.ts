@@ -30,6 +30,7 @@ export interface OrderCreate {
   promotion_code?: string;
   shipping_cost?: number;
   delivery_type?: DeliveryType;
+  pickup_date?: string;
 }
 
 export interface PromotionInfo {
@@ -87,6 +88,7 @@ export interface Order {
   picked_up_at?: string;
   in_transit_at?: string;
   delivered_at?: string;
+  pickup_date?: string;
   delivery_notes?: string;
   estimated_delivery_minutes?: number;
   actual_delivery_minutes?: number;

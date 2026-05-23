@@ -335,7 +335,8 @@ def create_order(
         shipping_cost=order_in.shipping_cost,
         total_amount=total_amount,
         promotion_id=promotion.id if promotion else None,
-        total_weight_kg=total_weight_kg
+        total_weight_kg=total_weight_kg,
+        pickup_date=order_in.pickup_date
     )
 
     session.add(order)

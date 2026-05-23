@@ -402,6 +402,8 @@
     "delivery_desc": "نوصل إلى عنوانك",
     "pickup": "استلام",
     "pickup_desc": "استلم من موقعنا",
+    "pickup_when": "متى ستأتي للاستلام؟",
+    "pickup_date_placeholder": "اختر التاريخ والوقت",
     "summary": "الملخص",
     "add_promo": "أضف كود خصم",
     "no_location": "يرجى تحديد عنوان التوصيل في ملفك الشخصي",
@@ -1264,6 +1266,7 @@
         "quantity": "الكمية",
         "unit": "الوحدة"
       },
+      "pickup_date": "تاريخ الاستلام",
       "waiting_for_driver": "في انتظار السائق",
       "update_status": "تحديث الحالة",
       "select_next_status": "اختر الحالة التالية",
