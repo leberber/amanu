@@ -1,6 +1,6 @@
 from typing import Any, List, Optional
 from datetime import datetime, timezone
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import joinedload, selectinload
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlmodel import Session, select
 
@@ -8,7 +8,7 @@ from sqlmodel import func
 
 from app.database import get_session
 from app.models.order import (
-    Order, OrderCreate, OrderUpdate, OrderRead, OrderItem,
+    Order, OrderCreate, OrderUpdate, OrderRead, OrderItem, OrderItemRead,
     OrderStatus, OrderWithItems, PromotionInfo, UserInfo
 )
 from app.models.product import Product
@@ -410,7 +410,7 @@ def read_order(
     order = session.exec(
         select(Order)
         .where(Order.id == order_id)
-        .options(joinedload(Order.items))  # This explicitly loads the items
+        .options(joinedload(Order.items).joinedload(OrderItem.product))  # Load items + their products
     ).first()
 
     if not order:
@@ -439,7 +439,20 @@ def read_order(
         promotion_id=order.promotion_id,
         created_at=order.created_at,
         updated_at=order.updated_at,
-        items=[item for item in order.items]
+        items=[
+            OrderItemRead(
+                id=item.id,
+                order_id=item.order_id,
+                product_id=item.product_id,
+                quantity=item.quantity,
+                unit_price=item.unit_price,
+                product_name=item.product_name,
+                product_unit=item.product_unit,
+                pieces_per_box=item.pieces_per_box,
+                image_url=item.product.image_url if item.product else None
+            )
+            for item in order.items
+        ]
     )
 
     # Add promotion info if exists

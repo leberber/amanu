@@ -125,6 +125,17 @@ export class AdminOrderDetailComponent implements OnInit {
       });
   }
 
+  onImageError(event: Event): void {
+    const img = event.target as HTMLImageElement;
+    img.style.display = 'none';
+    const parent = img.parentElement;
+    if (parent) {
+      const icon = document.createElement('i');
+      icon.className = 'pi pi-box';
+      parent.appendChild(icon);
+    }
+  }
+
   getStatusIcon(status: string): string {
     return this.statusSeverity.getOrderStatusIcon(status);
   }

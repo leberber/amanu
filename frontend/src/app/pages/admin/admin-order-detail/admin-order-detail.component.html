@@ -301,7 +301,11 @@
         @for (item of order.items || []; track item.id; let i = $index) {
           <div class="order-item-card item-animate" [style.animation-delay]="(i * 50) + 'ms'">
             <div class="order-item-card__icon">
-              <i class="pi pi-box"></i>
+              @if (item.image_url) {
+                <img [src]="item.image_url" [alt]="item.product_name" loading="lazy" (error)="onImageError($event)">
+              } @else {
+                <i class="pi pi-box"></i>
+              }
             </div>
             <div class="order-item-card__info">
               <span class="order-item-card__name">{{ item.product_name }}</span>

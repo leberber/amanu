@@ -97,6 +97,7 @@ export interface DashboardStats {
     unit_price: number;
     quantity: number;
     product_unit: string;
+    image_url?: string;
   }
   
   export interface UserManage {

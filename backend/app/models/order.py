@@ -228,6 +228,7 @@ class OrderItemRead(SQLModel):
     product_name: str
     product_unit: str
     pieces_per_box: Optional[int] = None
+    image_url: Optional[str] = None
 
 
 class PromotionInfo(SQLModel):

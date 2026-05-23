@@ -158,7 +158,7 @@
 
   @media (hover: hover) { &:hover { border-color: var(--primary-color); box-shadow: var(--shadow-sm); } }
 
-  &__icon { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.1) 0%, rgba(var(--primary-rgb), 0.05) 100%); border-radius: var(--radius-md); flex-shrink: 0; i { font-size: 1.1rem; color: var(--primary-color); } }
+  &__icon { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.1) 0%, rgba(var(--primary-rgb), 0.05) 100%); border-radius: var(--radius-md); flex-shrink: 0; overflow: hidden; i { font-size: 1.1rem; color: var(--primary-color); } img { width: 100%; height: 100%; object-fit: cover; } }
   &__info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
   &__name { font-size: var(--font-size-base); font-weight: var(--font-weight-medium); color: var(--text-color); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   &__qty { font-size: var(--font-size-sm); color: var(--text-color-secondary); }

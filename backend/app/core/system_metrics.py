@@ -13,6 +13,44 @@ from dataclasses import dataclass, field
 from typing import Dict, List, Optional
 
 
+# Paths that are bot/scanner noise — never track as errors
+BOT_PATHS = (
+    "/.env", "/.well-known/", "/jsonrpc", "/mcp",
+    "/wp-", "/phpmyadmin", "/admin/config", "/actuator",
+    "/api/v2/", "/api/settings", "/api/config", "/api/.env",
+    "/api/v1/env", "/api/v1/settings",
+)
+
+# Methods that are bot probes
+BOT_METHODS = ("PRI",)
+
+
+def _is_noise_request(path: str, method: str, status_code: int) -> bool:
+    """Check if a request is bot/scanner noise that should be excluded from error stats."""
+    # Bot probe methods
+    if method in BOT_METHODS:
+        return True
+
+    # Known bot/scanner paths
+    path_lower = path.lower()
+    for bot_path in BOT_PATHS:
+        if path_lower.startswith(bot_path.lower()):
+            return True
+
+    # 404 on non-API routes (bots guessing URLs)
+    if status_code == 404 and not path.startswith("/api/v1/"):
+        return True
+
+    # 401 on common auth-check endpoints (normal expired tokens)
+    if status_code == 401 and path in (
+        "/api/v1/users/me",
+        "/api/v1/notifications/unread-count",
+    ):
+        return True
+
+    return False
+
+
 @dataclass
 class ErrorRecord:
     """Stores details of an API error."""
@@ -88,7 +126,7 @@ class SystemMetrics:
             metrics.total_response_time += response_time
             metrics.recent_times.append(response_time)
 
-            if status_code >= 400:
+            if status_code >= 400 and not _is_noise_request(path, method, status_code):
                 metrics.total_errors += 1
                 # Store error details
                 error_record = ErrorRecord(
@@ -105,7 +143,7 @@ class SystemMetrics:
             endpoint = f"{method} {path}"
             metrics.endpoint_counts[endpoint] = metrics.endpoint_counts.get(endpoint, 0) + 1
 
-            if status_code >= 400:
+            if status_code >= 400 and not _is_noise_request(path, method, status_code):
                 metrics.endpoint_errors[endpoint] = metrics.endpoint_errors.get(endpoint, 0) + 1
 
             if endpoint not in metrics.endpoint_times:
