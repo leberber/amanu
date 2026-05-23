@@ -7,11 +7,16 @@
   [backRoute]="ROUTES.ADMIN.ORDERS"
   [hideMobileIcon]="true">
 
-  <!-- Mobile: Items count badge -->
+  <!-- Actions -->
   @if (order(); as o) {
-    <span pageActions class="items-badge">
-      {{ o.items?.length || 0 }} {{ ((o.items?.length || 0) === 1 ? 'common.item' : 'common.items') | translate }}
-    </span>
+    <div pageActions class="flex align-items-center gap-2">
+      <button class="btn-icon" (click)="printOrder()" pTooltip="PDF" tooltipPosition="bottom">
+        <i class="pi pi-print"></i>
+      </button>
+      <span class="items-badge">
+        {{ o.items?.length || 0 }} {{ ((o.items?.length || 0) === 1 ? 'common.item' : 'common.items') | translate }}
+      </span>
+    </div>
   }
 
 

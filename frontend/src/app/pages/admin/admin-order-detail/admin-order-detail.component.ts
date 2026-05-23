@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
 import { ToastModule } from 'primeng/toast';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { SelectModule } from 'primeng/select';
+import { TooltipModule } from 'primeng/tooltip';
 import { FormsModule } from '@angular/forms';
 
 import { PageLayoutComponent } from '../../../shared/components/page-layout/page-layout.component';
@@ -18,6 +19,7 @@ import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
 import { PhoneFormatPipe } from '../../../shared/pipes/phone-format.pipe';
 import { UnitPipe } from '../../../shared/pipes/unit.pipe';
 import { DateService } from '../../../core/services/date.service';
+import { OrderPdfService } from '../../../services/order-pdf.service';
 import { DRIVER_STATUS } from '../../../core/constants/driver.constants';
 import { ORDER_STATUS } from '../../../core/constants/order.constants';
 
@@ -30,6 +32,7 @@ import { ORDER_STATUS } from '../../../core/constants/order.constants';
     ToastModule,
     TranslateModule,
     SelectModule,
+    TooltipModule,
     PageLayoutComponent,
     CurrencyPipe,
     PhoneFormatPipe,
@@ -48,6 +51,7 @@ export class AdminOrderDetailComponent implements OnInit {
   private readonly toast = inject(ToastMessageService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly dateService = inject(DateService);
+  private readonly orderPdf = inject(OrderPdfService);
 
   // Route constant for back navigation
   readonly ROUTES = ROUTES;
@@ -123,6 +127,13 @@ export class AdminOrderDetailComponent implements OnInit {
           this.router.navigate([ROUTES.ADMIN.ORDERS]);
         }
       });
+  }
+
+  printOrder(): void {
+    const order = this.order();
+    if (order) {
+      this.orderPdf.generateOrderPdf(order);
+    }
   }
 
   onImageError(event: Event): void {

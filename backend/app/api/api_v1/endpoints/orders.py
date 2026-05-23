@@ -410,7 +410,10 @@ def read_order(
     order = session.exec(
         select(Order)
         .where(Order.id == order_id)
-        .options(joinedload(Order.items).joinedload(OrderItem.product))  # Load items + their products
+        .options(
+            joinedload(Order.items).joinedload(OrderItem.product),
+            joinedload(Order.user)
+        )
     ).first()
 
     if not order:
@@ -426,6 +429,18 @@ def read_order(
             detail="Not authorized to access this order",
         )
 
+    # Build user info
+    user_info = None
+    if order.user:
+        user_info = UserInfo(
+            id=order.user.id,
+            full_name=order.user.full_name,
+            email=order.user.email,
+            store_name=order.user.store_name,
+            daira=order.user.daira,
+            commune=order.user.commune
+        )
+
     # Build response with promotion info
     response = OrderWithItems(
         id=order.id,
@@ -439,6 +454,7 @@ def read_order(
         promotion_id=order.promotion_id,
         created_at=order.created_at,
         updated_at=order.updated_at,
+        user=user_info,
         items=[
             OrderItemRead(
                 id=item.id,

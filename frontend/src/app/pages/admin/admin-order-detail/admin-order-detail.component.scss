@@ -1,3 +1,24 @@
+// Print button
+.btn-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color-light);
+  background: var(--surface-card);
+  color: var(--text-color-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-fast);
+
+  &:hover {
+    background: rgba(var(--primary-rgb), 0.1);
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+  }
+}
+
 // Items badge (mobile only)
 .items-badge {
   display: none;
