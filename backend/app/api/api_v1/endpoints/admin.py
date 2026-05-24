@@ -481,13 +481,13 @@ def get_sales_report(
         brands_map = {b.id: b for b in brands}
 
     sales_by_brand = []
-    for brand_id, total_sales in brand_results:
-        brand = brands_map.get(brand_id)
+    for b_id, b_sales in brand_results:
+        brand = brands_map.get(b_id)
         sales_by_brand.append({
-            "brand_id": brand_id,
+            "brand_id": b_id,
             "name": brand.name if brand else "",
             "name_translations": brand.name_translations if brand else None,
-            "total_sales": float(total_sales) if total_sales else 0
+            "total_sales": float(b_sales) if b_sales else 0
         })
 
     # Calculate top selling products for this period (apply both filters)
