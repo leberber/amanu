@@ -336,6 +336,7 @@ def create_order(
         total_amount=total_amount,
         promotion_id=promotion.id if promotion else None,
         total_weight_kg=total_weight_kg,
+        delivery_type=order_in.delivery_type,
         pickup_date=order_in.pickup_date
     )
 
