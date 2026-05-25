@@ -18,7 +18,6 @@ setup_logging()
 logger = get_logger("app")
 from app.api.api_v1.api import api_router
 from app.core.config import settings
-from app.core.admin import create_admin_user
 from app.models.push_subscription import PushSubscription  # Register model for table creation
 from app.models.password_reset import PasswordResetToken  # Register model for table creation
 from app.models.notification_history import NotificationHistory  # Register model for table creation
@@ -140,10 +139,6 @@ def on_startup():
     logger.info("APPLICATION STARTING")
     logger.info("=" * 50)
     create_db_and_tables()
-    
-    # Create admin user
-    with Session(engine) as session:
-        create_admin_user(session)
 
 @app.get("/")
 def root():
