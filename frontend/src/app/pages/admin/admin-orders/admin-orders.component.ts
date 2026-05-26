@@ -8,6 +8,8 @@ import { TranslateService } from '@ngx-translate/core';
 
 import { ADMIN_LIST_IMPORTS } from '../../../shared/imports/admin-shared.imports';
 import { TableSkeletonComponent, SkeletonColumn } from '../../../shared/components/table-skeleton/table-skeleton.component';
+import { TableLoadingRowsComponent, LoadingColumn } from '../../../shared/components/table-loading-rows/table-loading-rows.component';
+import { InfiniteScrollDirective } from '../../../shared/directives/infinite-scroll.directive';
 import { AgroclikPageContainerComponent } from '../../../shared/components/agroclik-page-container/agroclik-page-container.component';
 import { ROUTES, RouteHelpers } from '../../../core/constants/routes.constants';
 import { ORDER_STATUS } from '../../../core/constants/order.constants';
@@ -31,16 +33,23 @@ import { BaseAdminListComponent, ColumnOption } from '../../../shared/base/base-
     DialogModule,
     SelectModule,
     TableSkeletonComponent,
+    TableLoadingRowsComponent,
+    InfiniteScrollDirective,
     AgroclikPageContainerComponent
   ],
   templateUrl: './admin-orders.component.html',
   styleUrl: './admin-orders.component.scss'
 })
 export class AdminOrdersComponent extends BaseAdminListComponent implements OnInit {
+  // Infinite scroll configuration
+  private readonly BATCH_SIZE = 50;
+
   // Data signals
   allOrders = signal<Order[]>([]);
   orders = signal<Order[]>([]);
-  paginatedOrders = signal<Order[]>([]);
+  displayedOrders = signal<Order[]>([]);
+  loadingMore = signal(false);
+  hasMore = computed(() => this.displayedOrders().length < this.orders().length);
 
   // Computed counts
   pendingCount = computed(() => this.allOrders().filter(o => o.status === ORDER_STATUS.PENDING).length);
@@ -48,14 +57,6 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
   inTransitCount = computed(() => this.allOrders().filter(o => o.status === ORDER_STATUS.IN_TRANSIT).length);
   deliveredCount = computed(() => this.allOrders().filter(o => o.status === ORDER_STATUS.DELIVERED).length);
   cancelledCount = computed(() => this.allOrders().filter(o => o.status === ORDER_STATUS.CANCELLED).length);
-
-  // Mobile load more
-  mobileVisibleCount = signal(10);
-  mobileOrders = computed(() => this.orders().slice(0, this.mobileVisibleCount()));
-  hasMoreOrders = computed(() => this.mobileVisibleCount() < this.orders().length);
-
-  // Display orders - uses mobile list on mobile, paginated on desktop
-  displayOrders = computed(() => this.isMobile() ? this.mobileOrders() : this.paginatedOrders());
 
   // Status editing signals
   editingStatusOrderId = signal<number | null>(null);
@@ -90,13 +91,13 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
 
   // Skeleton configuration
   skeletonColumns: SkeletonColumn[] = [
-    { width: '8%', type: 'text', headerWidth: '60px' },     // order_id
-    { width: '20%', type: 'text-multi', headerWidth: '80px' }, // customer
-    { width: '12%', type: 'text', headerWidth: '60px' },    // date
-    { width: '12%', type: 'pill', headerWidth: '60px' },    // status
-    { width: '18%', type: 'text-multi', headerWidth: '60px' }, // driver
-    { width: '12%', type: 'text', headerWidth: '60px' },    // total
-    { width: '18%', type: 'actions', headerWidth: '60px' }  // actions
+    { width: '8%', type: 'text', headerWidth: '60px' },
+    { width: '20%', type: 'text-multi', headerWidth: '80px' },
+    { width: '12%', type: 'text', headerWidth: '60px' },
+    { width: '12%', type: 'pill', headerWidth: '60px' },
+    { width: '18%', type: 'text-multi', headerWidth: '60px' },
+    { width: '12%', type: 'text', headerWidth: '60px' },
+    { width: '18%', type: 'actions', headerWidth: '60px' }
   ];
 
   // Column visibility options - with mobile defaults (initialized in ngOnInit)
@@ -109,9 +110,6 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
   private readonly statusSeverity = inject(StatusSeverityService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly breakpoint = inject(BreakpointService);
-
-  // Expose breakpoint signal for template and computed properties
-  isMobile = this.breakpoint.isMobile;
 
   // ViewChild for status popover
   statusPopover = viewChild<Popover>('statusPopover');
@@ -149,7 +147,7 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
 
   // Abstract method implementations
   updatePaginatedItems(): void {
-    this.paginatedOrders.set(this.orders().slice(this.first, this.first + this.rows));
+    // Not used - using client-side infinite scroll
   }
 
   getSearchDebounceKey(): string {
@@ -165,7 +163,7 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
           const orders = response?.orders || [];
           this.allOrders.set(orders);
           this.orders.set(orders);
-          this.updatePaginatedItems();
+          this.displayedOrders.set(orders.slice(0, this.BATCH_SIZE));
           this.loading = false;
           this.markTableInitialized();
         },
@@ -203,20 +201,39 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
     }
 
     this.orders.set(filtered);
-    this.resetPagination();
-    this.updatePaginatedItems();
-    this.mobileVisibleCount.set(PAGINATION.DEFAULT_PAGE_SIZE);
+    this.displayedOrders.set(filtered.slice(0, this.BATCH_SIZE));
   }
 
   override clearFilters(): void {
     this.searchQuery = '';
     this.statusFilter = 'all';
-    this.resetPagination();
     this.filterItems();
   }
 
+  /** Called by InfiniteScrollDirective when user scrolls near bottom */
   loadMoreOrders(): void {
-    this.mobileVisibleCount.update(count => count + PAGINATION.DEFAULT_PAGE_SIZE);
+    if (this.loadingMore() || !this.hasMore()) return;
+
+    this.loadingMore.set(true);
+    const current = this.displayedOrders().length;
+    const next = this.orders().slice(current, current + this.BATCH_SIZE);
+
+    setTimeout(() => {
+      this.displayedOrders.update(orders => [...orders, ...next]);
+      this.loadingMore.set(false);
+    }, 300);
+  }
+
+  getLoadingColumns(): LoadingColumn[] {
+    return [
+      { type: 'text', visible: this.isColumnVisible('order_id') },
+      { type: 'text-multi', visible: this.isColumnVisible('customer') },
+      { type: 'text', visible: this.isColumnVisible('date') },
+      { type: 'pill', visible: this.isColumnVisible('status') },
+      { type: 'text-multi', visible: this.isColumnVisible('driver') },
+      { type: 'text', visible: this.isColumnVisible('total') },
+      { type: 'actions', visible: this.isColumnVisible('actions') }
+    ];
   }
 
   printingOrderId = signal<number | null>(null);

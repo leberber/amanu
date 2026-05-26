@@ -1196,6 +1196,7 @@
       "clear_filters": "Effacer les Filtres",
       "refresh": "Actualiser",
       "refresh_tooltip": "Actualiser les données des commandes",
+      "scroll_for_more": "Faites défiler pour voir plus de commandes",
       "table_options": "Options du Tableau",
       "rows_per_page": "Lignes par page",
       "visible_columns": "Colonnes Visibles",

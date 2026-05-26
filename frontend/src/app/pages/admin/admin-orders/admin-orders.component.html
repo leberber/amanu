@@ -86,7 +86,7 @@
         <p class="empty-state__description">{{ 'admin.orders.orders_will_appear' | translate }}</p>
       </div>
     } @else {
-      <div class="table-container animate-item" [class.fullscreen]="isFullscreen()" style="--item-delay: 100ms;">
+      <div class="table-container scrollable animate-item" [class.fullscreen]="isFullscreen()" style="--item-delay: 100ms;">
         <div class="table-header">
           <app-table-search
             [(query)]="searchQuery"
@@ -110,20 +110,6 @@
             </button>
             <p-popover #tableOptionsMenu>
               <div class="table-options-menu">
-                <div class="table-options-section">
-                  <span class="table-options-label">{{ 'admin.orders.rows_per_page' | translate }}</span>
-                  <div class="table-options-rows">
-                    @for (option of rowsPerPageOptions; track option) {
-                      <button
-                        class="rows-option"
-                        [class.active]="rows === option"
-                        (click)="setRowsPerPage(option)">
-                        {{ option }}
-                      </button>
-                    }
-                  </div>
-                </div>
-                <div class="table-options-divider"></div>
                 <div class="table-options-section">
                   <span class="table-options-label">{{ 'admin.orders.visible_columns' | translate }}</span>
                   <div class="table-options-columns">
@@ -157,7 +143,11 @@
             </button>
           </div>
         } @else {
-          <div class="table-wrapper">
+          <div class="table-wrapper"
+               appInfiniteScroll
+               [scrollThreshold]="200"
+               [disabled]="loadingMore() || !hasMore()"
+               (scrolledToBottom)="loadMoreOrders()">
             <table class="table">
               <thead>
                 <tr>
@@ -171,8 +161,8 @@
                 </tr>
               </thead>
               <tbody>
-                @for (order of displayOrders(); track order.id; let i = $index) {
-                  <tr class="table-row-animate clickable-row" [style.--row-delay]="(i * 40) + 'ms'" (click)="openOrderDetails(order)">
+                @for (order of displayedOrders(); track order.id; let i = $index) {
+                  <tr class="table-row-animate clickable-row" [style.--row-delay]="((i < 10 ? i : 10) * 40) + 'ms'" (click)="openOrderDetails(order)">
                     <!-- Order ID -->
                     @if (isColumnVisible('order_id')) {
                       <td>
@@ -290,43 +280,30 @@
                     }
                   </tr>
                 }
+                <!-- Loading skeleton rows -->
+                @if (loadingMore()) {
+                  <app-table-loading-rows
+                    [columns]="getLoadingColumns()"
+                    [rowCount]="3"
+                    [actionCount]="3"
+                  />
+                }
               </tbody>
             </table>
           </div>
 
-          <!-- Pagination (Desktop) -->
-          @if (orders().length > rows) {
-            <div class="table-footer desktop-only">
-              <p-paginator
-                [first]="first"
-                [rows]="rows"
-                [totalRecords]="orders().length"
-                (onPageChange)="onPageChange($event)"
-                [showCurrentPageReport]="true"
-                currentPageReportTemplate="{{ 'admin.orders.showing' | translate }} {first} - {last} {{ 'admin.orders.of' | translate }} {totalRecords}"
-              ></p-paginator>
+          <!-- Infinite Scroll Footer -->
+          <div class="table-footer">
+            <div class="results-info">
+              <span>{{ 'admin.orders.showing' | translate }} {{ displayedOrders().length }} {{ 'admin.orders.of' | translate }} {{ orders().length }} {{ 'admin.orders.orders' | translate }}</span>
             </div>
-          }
-
-          <!-- Load More (Mobile) -->
-          <div class="table-footer mobile-only">
-            <div class="mobile-results-info">
-              {{ mobileOrders().length }} {{ 'admin.orders.of' | translate }} {{ orders().length }}
-            </div>
-            @if (hasMoreOrders()) {
-              <button class="load-more-btn" (click)="loadMoreOrders()">
-                <i class="pi pi-plus"></i>
-                {{ 'common.load_more' | translate }}
-              </button>
+            @if (hasMore() && !loadingMore()) {
+              <div class="scroll-hint">
+                <i class="pi pi-angle-double-down"></i>
+                <span>{{ 'admin.orders.scroll_for_more' | translate }}</span>
+              </div>
             }
           </div>
-
-          <!-- Results Info (Desktop) -->
-          @if (orders().length <= rows) {
-            <div class="table-footer results-info desktop-only">
-              <span>{{ 'admin.orders.showing' | translate }} {{ orders().length }} {{ 'admin.orders.of' | translate }} {{ allOrders().length }} {{ 'admin.orders.orders' | translate }}</span>
-            </div>
-          }
         }
       </div>
     }
