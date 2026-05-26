@@ -366,6 +366,17 @@ def create_order(
     session.commit()
     session.refresh(order)
 
+    # Notify admins and staff of the new order
+    try:
+        NotificationService.notify_admins_new_order(
+            session=session,
+            order_id=order.id,
+            customer_name=current_user.full_name,
+            total_amount=order.total_amount,
+        )
+    except Exception:
+        pass  # Never fail an order because of a notification error
+
     return order
 
 @router.get("", response_model=List[OrderRead])

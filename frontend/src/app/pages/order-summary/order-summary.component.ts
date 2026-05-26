@@ -61,8 +61,8 @@ export class OrderSummaryComponent implements OnInit {
   // State
   pickupDate: Date | null = null;
   minPickupDate = new Date();
-  deliveryMethod = signal<DeliveryMethod>('delivery');
-  deliveryType = signal<DeliveryType>('STANDARD');
+  deliveryMethod = signal<DeliveryMethod>('pickup');
+  deliveryType = signal<DeliveryType>('PICKUP');
   shippingLoading = signal(false);
   shippingResponse = signal<ShippingCostResponse | null>(null);
   shippingError = signal<string | null>(null);

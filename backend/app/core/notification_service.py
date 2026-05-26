@@ -10,6 +10,7 @@ from datetime import datetime, timezone
 from app.models.user_notification import UserNotification, NotificationType
 from app.models.push_subscription import PushSubscription
 from app.core.push import PushService
+from app.models.user import User, UserRole
 
 
 class NotificationService:
@@ -236,6 +237,53 @@ class NotificationService:
             reference_type="trip",
             url=f"/driver/trip/{trip_id}",
         )
+
+    @classmethod
+    def notify_admins_new_order(
+        cls,
+        session: Session,
+        order_id: int,
+        customer_name: str,
+        total_amount: float,
+    ) -> None:
+        """Send push notification to all admin/staff users when a new order is placed."""
+        # Get all active admin and staff users
+        admin_users = session.exec(
+            select(User).where(
+                User.role.in_([UserRole.ADMIN, UserRole.STAFF]),
+                User.is_active == True
+            )
+        ).all()
+
+        admin_user_ids = [u.id for u in admin_users]
+        if not admin_user_ids:
+            return
+
+        # Get their push subscriptions
+        subscriptions = list(session.exec(
+            select(PushSubscription).where(
+                PushSubscription.user_id.in_(admin_user_ids)
+            )
+        ).all())
+
+        if not subscriptions:
+            return
+
+        title = f"Nouvelle commande #{order_id}"
+        body = f"{customer_name} — {total_amount:,.0f} DA"
+        url = "/admin/orders"
+
+        result = PushService.send_to_all(subscriptions, title, body, url)
+
+        # Clean up expired subscriptions
+        expired_ids = result.get("expired_ids", [])
+        if expired_ids:
+            expired_subs = session.exec(
+                select(PushSubscription).where(PushSubscription.id.in_(expired_ids))
+            ).all()
+            for sub in expired_subs:
+                session.delete(sub)
+            session.commit()
 
     @classmethod
     def notify_promotion(
