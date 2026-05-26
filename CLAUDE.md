@@ -73,7 +73,7 @@ The deployment script:
 ## Infrastructure
 
 - **AWS Resources**: EC2 instance, Elastic IP, Security Groups
-- **Domain**: elsuq.com with Route 53
+- **Domain**: agroclik.com with Route 53
 - **SSL**: Let's Encrypt certificates auto-renewed
 - **Containers**: Docker Compose orchestrates services
 - **Proxy**: Nginx handles SSL termination and routing
