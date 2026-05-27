@@ -7,6 +7,7 @@ import { RestockRow } from '../models/restock.model';
 import { Supplier } from '../models/supplier.model';
 import { PurchaseOrder } from './purchase-order.service';
 import { ToastMessageService } from '../core/services/toast-message.service';
+import { DateService } from '../core/services/date.service';
 
 // Common data structure for PDF generation
 interface PdfOrderData {
@@ -35,6 +36,7 @@ interface PdfOrderData {
 export class PurchasingPdfService {
   private sanitizer = inject(DomSanitizer);
   private toast = inject(ToastMessageService);
+  private dateService = inject(DateService);
 
   // PDF Preview state
   pdfPreviewUrl = signal<SafeResourceUrl | null>(null);
@@ -61,10 +63,6 @@ export class PurchasingPdfService {
     return Math.round(value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
   }
 
-  private formatDate(dateStr: string): string {
-    return new Date(dateStr).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
-  }
-
   private normalizeText(text: string): string {
     return text.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
   }
@@ -82,7 +80,7 @@ export class PurchasingPdfService {
   downloadPdf(supplierName?: string): void {
     const doc = this.pdfDoc();
     if (doc) {
-      const today = new Date().toLocaleDateString('fr-FR');
+      const today = this.dateService.formatDateOnly(new Date());
       const name = supplierName || 'tous';
       doc.save(`bon-de-commande-${name}-${today}.pdf`);
       this.toast.showSuccess('PDF téléchargé avec succès');
@@ -198,7 +196,7 @@ export class PurchasingPdfService {
       doc.setFontSize(8);
       doc.setFont('helvetica', 'normal');
       doc.setTextColor(100, 100, 100);
-      doc.text(`${data.reference}  |  ${this.formatDate(data.date)}`, margin, 20);
+      doc.text(`${data.reference}  |  ${this.dateService.formatDateOnly(data.date)}`, margin, 20);
 
       doc.setDrawColor(220, 220, 220);
       doc.setLineWidth(0.2);
@@ -352,7 +350,7 @@ export class PurchasingPdfService {
 
       doc.setFontSize(10);
       doc.setFont('helvetica', 'normal');
-      doc.text(`Date: ${this.formatDate(today.toISOString())}`, 14, 28);
+      doc.text(`Date: ${this.dateService.formatDateOnly(today)}`, 14, 28);
 
       let yPosition = 40;
 

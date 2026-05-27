@@ -4,12 +4,14 @@ import autoTable from 'jspdf-autotable';
 
 import { Order } from '../models/admin.model';
 import { ToastMessageService } from '../core/services/toast-message.service';
+import { DateService } from '../core/services/date.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class OrderPdfService {
   private toast = inject(ToastMessageService);
+  private dateService = inject(DateService);
   private logoImage: HTMLImageElement | null = null;
 
   constructor() {
@@ -29,15 +31,6 @@ export class OrderPdfService {
     return Math.round(value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
   }
 
-  private formatDate(dateStr: string): string {
-    const d = new Date(dateStr);
-    const day = d.getDate().toString().padStart(2, '0');
-    const month = (d.getMonth() + 1).toString().padStart(2, '0');
-    const year = d.getFullYear();
-    const hours = d.getHours().toString().padStart(2, '0');
-    const minutes = d.getMinutes().toString().padStart(2, '0');
-    return `${day}/${month}/${year} ${hours}:${minutes}`;
-  }
 
   private normalizeText(text: string): string {
     return text.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
@@ -99,7 +92,7 @@ export class OrderPdfService {
       doc.setFontSize(8);
       doc.setFont('helvetica', 'normal');
       doc.setTextColor(100, 100, 100);
-      doc.text(this.formatDate(order.created_at), margin, 20);
+      doc.text(this.dateService.formatDate(order.created_at), margin, 20);
 
       doc.setDrawColor(220, 220, 220);
       doc.setLineWidth(0.2);

@@ -2,10 +2,15 @@ from sqlmodel import Session, SQLModel, create_engine
 from app.core.config import settings
 
 # Create SQLite engine
+if settings.DATABASE_URL.startswith("sqlite"):
+    connect_args = {"check_same_thread": False}
+else:
+    connect_args = {"options": "-c timezone=utc"}
+
 engine = create_engine(
-    settings.DATABASE_URL, 
+    settings.DATABASE_URL,
     echo=False,  # Set to True for debugging
-    connect_args={"check_same_thread": False} if settings.DATABASE_URL.startswith("sqlite") else {}
+    connect_args=connect_args
 )
 
 def create_db_and_tables():
