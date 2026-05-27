@@ -34,6 +34,9 @@ export interface Product {
     volume?: number;  // in liters (L)
     weight?: number;  // in kilograms (kg)
     promotion?: ProductPromotion;  // Active promotion applied to this product
+    // Fiscal
+    is_facture?: boolean;
+    tva_rate?: number;  // 0, 9, or 19
   }
   
   

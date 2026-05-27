@@ -68,6 +68,9 @@ class ProductBase(SQLModel):
     description_translations: Optional[Dict[str, str]] = Field(default_factory=dict, sa_column=Column(JSON))
     is_organic: bool = Field(default=False)
     image_url: Optional[str] = Field(default=None, max_length=255)
+    # Fiscal
+    is_facture: bool = Field(default=False)
+    tva_rate: int = Field(default=0)  # 0, 9, or 19
 
 class Product(SQLModel, table=True):
     """Database model for products"""
@@ -101,6 +104,9 @@ class Product(SQLModel, table=True):
     description_translations: Optional[Dict[str, str]] = Field(default_factory=dict, sa_column=Column(JSON))
     is_organic: bool = Field(default=False)
     image_url: Optional[str] = Field(default=None, max_length=255)
+    # Fiscal
+    is_facture: bool = Field(default=False)
+    tva_rate: int = Field(default=0)  # 0, 9, or 19
 
     # Timestamps
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
@@ -150,6 +156,9 @@ class ProductUpdate(SQLModel):
     description_translations: Optional[Dict[str, str]] = Field(default=None)
     is_organic: Optional[bool] = Field(default=None)
     image_url: Optional[str] = Field(default=None, max_length=255)
+    # Fiscal
+    is_facture: Optional[bool] = Field(default=None)
+    tva_rate: Optional[int] = Field(default=None)
 
 class ProductPromotion(SQLModel):
     """Promotion info attached to a product"""
