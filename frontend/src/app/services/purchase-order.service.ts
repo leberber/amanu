@@ -15,6 +15,7 @@ export interface PurchaseOrderItem {
   units_per_carton: number;
   quantity_ordered: number;      // Original quantity ordered
   quantity_received?: number;    // Actual quantity received (for partial deliveries)
+  facture_quantity?: number;     // Units received with official invoice
   unit_price: number;
   total_price: number;
 }
@@ -92,6 +93,7 @@ export interface DeliveryConfirmation {
   items: {
     item_id: number;
     quantity_received: number;
+    facture_quantity: number;
   }[];
   notes?: string;
 }

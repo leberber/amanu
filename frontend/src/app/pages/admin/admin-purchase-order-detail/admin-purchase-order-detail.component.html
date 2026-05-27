@@ -34,6 +34,7 @@
                   <th style="width: 15%" class="text-center">{{ 'admin.purchase_orders.detail.quantity' | translate }}</th>
                   <th style="width: 12%" class="text-right">{{ 'admin.purchase_orders.detail.unit_price' | translate }}</th>
                   <th style="width: 12%" class="text-right">{{ 'admin.purchase_orders.detail.total_price' | translate }}</th>
+                  <th style="width: 12%" class="text-center">Qté Facturée</th>
                   @if (order()!.status === 'sent') {
                     <th style="width: 8%" class="text-center"></th>
                   }
@@ -86,6 +87,16 @@
                     </td>
                     @if (order()!.status === 'sent') {
                       <td class="text-center">
+                        <p-inputNumber
+                          [(ngModel)]="editableItems()[i].facture_quantity"
+                          [min]="0"
+                          [max]="editableItems()[i].quantity_ordered * editableItems()[i].units_per_carton"
+                          styleClass="w-full"
+                          inputStyleClass="text-center"
+                          [placeholder]="'0'"
+                        />
+                      </td>
+                      <td class="text-center">
                         <button
                           class="action-btn delete"
                           (click)="deleteItem(item.id!)"
@@ -95,6 +106,10 @@
                         >
                           <i class="pi pi-trash"></i>
                         </button>
+                      </td>
+                    } @else {
+                      <td class="text-center">
+                        <span class="font-semibold">{{ item.facture_quantity ?? 0 }}</span>
                       </td>
                     }
                   </tr>

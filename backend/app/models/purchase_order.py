@@ -39,6 +39,7 @@ class PurchaseOrderItem(SQLModel, table=True):
     # Quantities
     quantity_ordered: int = 1      # Original quantity ordered (cartons)
     quantity_received: int = 0     # Actual quantity received (for partial deliveries)
+    facture_quantity: int = Field(default=0)  # Units received with official invoice
 
     # Pricing
     unit_price: float = 0          # Price per carton
@@ -117,6 +118,7 @@ class PurchaseOrderItemUpdate(BaseModel):
     units_per_carton: Optional[int] = None
     quantity_ordered: Optional[int] = None
     quantity_received: Optional[int] = None
+    facture_quantity: Optional[int] = None
     unit_price: Optional[float] = None
     total_price: Optional[float] = None
 
@@ -136,6 +138,7 @@ class DeliveryItemConfirmation(BaseModel):
     """Model for confirming delivery of a single item"""
     item_id: int
     quantity_received: int
+    facture_quantity: int = 0
 
 
 class DeliveryConfirmation(BaseModel):
@@ -153,6 +156,7 @@ class PurchaseOrderItemResponse(BaseModel):
     units_per_carton: int
     quantity_ordered: int
     quantity_received: int
+    facture_quantity: int
     unit_price: float
     total_price: float
 

@@ -47,6 +47,7 @@ def order_to_response(order: PurchaseOrder) -> PurchaseOrderResponse:
             units_per_carton=item.units_per_carton,
             quantity_ordered=item.quantity_ordered,
             quantity_received=item.quantity_received,
+            facture_quantity=item.facture_quantity,
             unit_price=item.unit_price,
             total_price=item.total_price
         )
@@ -314,14 +315,16 @@ async def confirm_delivery(
         )
 
     try:
-        # Create a map of item_id -> quantity_received
-        received_map = {item.item_id: item.quantity_received for item in delivery.items}
+        # Create a map of item_id -> (quantity_received, facture_quantity)
+        received_map = {item.item_id: item for item in delivery.items}
 
         # Update each item and sync stock
         for item in order.items:
             if item.id in received_map:
-                quantity_received = received_map[item.id]
+                delivery_item = received_map[item.id]
+                quantity_received = delivery_item.quantity_received
                 item.quantity_received = quantity_received
+                item.facture_quantity = delivery_item.facture_quantity
 
                 product = None
 

@@ -15,7 +15,7 @@ import {
   PurchaseOrderUpdate,
   PurchaseOrderItemUpdate
 } from './purchase-order.service';
-import { ROUTES } from '../core/constants/routes.constants';
+import { ROUTES, RouteHelpers } from '../core/constants/routes.constants';
 
 const CART_STORAGE_KEY = 'stock_cart_items';
 
@@ -366,6 +366,8 @@ export class PurchasingCartService {
           this.selectedSupplier.set(null);
           this.cartItemIds.set(new Set());
           this.saveCartToStorage();
+          // Navigate to the created order
+          this.router.navigate([RouteHelpers.adminPurchaseOrderDetail(order.id)]);
         },
         error: () => {
           this.toast.showError('Erreur lors de l\'enregistrement');

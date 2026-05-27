@@ -1,10 +1,12 @@
 import { Component, OnInit, inject, signal, computed, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs';
 
 import { ButtonModule } from 'primeng/button';
+import { InputNumberModule } from 'primeng/inputnumber';
 import { TooltipModule } from 'primeng/tooltip';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService } from 'primeng/api';
@@ -28,7 +30,9 @@ import {
   standalone: true,
   imports: [
     CommonModule,
+    FormsModule,
     ButtonModule,
+    InputNumberModule,
     TooltipModule,
     ConfirmDialogModule,
     TranslateModule,
@@ -92,7 +96,8 @@ export class AdminPurchaseOrderDetailComponent implements OnInit {
   initEditableItems(items: PurchaseOrderItem[]): void {
     this.editableItems.set(items.map(item => ({
       ...item,
-      quantity_received: item.quantity_received ?? item.quantity_ordered
+      quantity_received: item.quantity_received ?? item.quantity_ordered,
+      facture_quantity: item.facture_quantity ?? 0
     })));
   }
 
@@ -126,7 +131,8 @@ export class AdminPurchaseOrderDetailComponent implements OnInit {
     const deliveryData = {
       items: this.editableItems().map(item => ({
         item_id: item.id!,
-        quantity_received: item.quantity_ordered
+        quantity_received: item.quantity_ordered,
+        facture_quantity: item.facture_quantity
       })),
       notes: undefined
     };
@@ -246,4 +252,5 @@ export class AdminPurchaseOrderDetailComponent implements OnInit {
 
 interface EditableItem extends PurchaseOrderItem {
   quantity_received: number;
+  facture_quantity: number;
 }
