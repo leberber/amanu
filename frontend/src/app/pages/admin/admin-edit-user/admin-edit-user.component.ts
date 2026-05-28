@@ -100,6 +100,10 @@ export class AdminEditUserComponent implements OnInit {
       phone: [''],
       address: [''],
       store_name: [''],
+      fiscal_rc: [''],
+      fiscal_na: [''],
+      fiscal_nif: [''],
+      fiscal_nis: [''],
       wilaya: [''],
       daira: [''],
       commune: [''],
@@ -178,6 +182,10 @@ export class AdminEditUserComponent implements OnInit {
           phone: user.phone || '',
           address: user.address || '',
           store_name: user.store_name || '',
+          fiscal_rc: user.fiscal_info?.rc || '',
+          fiscal_na: user.fiscal_info?.na || '',
+          fiscal_nif: user.fiscal_info?.nif || '',
+          fiscal_nis: user.fiscal_info?.nis || '',
           wilaya: user.wilaya || '',
           daira: user.daira || '',
           commune: user.commune || '',
@@ -246,11 +254,20 @@ export class AdminEditUserComponent implements OnInit {
     const formValues = this.userForm.getRawValue();
 
     // Build update data
+    const fiscalInfo = {
+      rc: formValues.fiscal_rc || undefined,
+      na: formValues.fiscal_na || undefined,
+      nif: formValues.fiscal_nif || undefined,
+      nis: formValues.fiscal_nis || undefined,
+    };
+    const hasFiscal = Object.values(fiscalInfo).some(v => v !== undefined);
+
     const updateData: Partial<UserManage> & { password?: string } = {
       full_name: formValues.full_name,
       phone: formValues.phone || null,
       address: formValues.address || null,
       store_name: formValues.store_name || null,
+      fiscal_info: hasFiscal ? fiscalInfo : undefined,
       wilaya: formValues.wilaya || null,
       daira: formValues.daira || null,
       commune: formValues.commune || null,

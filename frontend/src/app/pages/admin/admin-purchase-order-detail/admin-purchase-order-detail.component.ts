@@ -7,6 +7,7 @@ import { finalize } from 'rxjs';
 
 import { ButtonModule } from 'primeng/button';
 import { InputNumberModule } from 'primeng/inputnumber';
+import { SelectModule } from 'primeng/select';
 import { TooltipModule } from 'primeng/tooltip';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService } from 'primeng/api';
@@ -33,6 +34,7 @@ import {
     FormsModule,
     ButtonModule,
     InputNumberModule,
+    SelectModule,
     TooltipModule,
     ConfirmDialogModule,
     TranslateModule,
@@ -53,6 +55,12 @@ export class AdminPurchaseOrderDetailComponent implements OnInit {
   private confirmDialog = inject(ConfirmationDialogService);
   private orderService = inject(PurchaseOrderService);
   private translate = inject(TranslateService);
+
+  tvaOptions = [
+    { label: '0%', value: 0 },
+    { label: '9%', value: 9 },
+    { label: '19%', value: 19 },
+  ];
 
   // State
   loading = signal(true);
@@ -97,7 +105,8 @@ export class AdminPurchaseOrderDetailComponent implements OnInit {
     this.editableItems.set(items.map(item => ({
       ...item,
       quantity_received: item.quantity_received ?? item.quantity_ordered,
-      facture_quantity: item.facture_quantity ?? 0
+      facture_quantity: item.facture_quantity ?? 0,
+      tva_rate: item.tva_rate ?? 0
     })));
   }
 
@@ -132,7 +141,8 @@ export class AdminPurchaseOrderDetailComponent implements OnInit {
       items: this.editableItems().map(item => ({
         item_id: item.id!,
         quantity_received: item.quantity_ordered,
-        facture_quantity: item.facture_quantity
+        facture_quantity: item.facture_quantity,
+        tva_rate: item.tva_rate
       })),
       notes: undefined
     };
@@ -253,4 +263,5 @@ export class AdminPurchaseOrderDetailComponent implements OnInit {
 interface EditableItem extends PurchaseOrderItem {
   quantity_received: number;
   facture_quantity: number;
+  tva_rate: number;
 }

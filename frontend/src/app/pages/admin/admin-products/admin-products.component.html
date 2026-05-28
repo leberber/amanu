@@ -199,8 +199,6 @@
                 @if (isColumnVisible('weight')) { <th style="width: 8%" class="text-center">{{ 'admin.products.table.weight' | translate }}</th> }
                 @if (isColumnVisible('price')) { <th style="width: 10%" class="text-center">{{ 'admin.products.table.price' | translate }}</th> }
                 @if (isColumnVisible('stock')) { <th style="width: 14%" class="text-center">{{ 'admin.products.table.stock' | translate }}</th> }
-                @if (isColumnVisible('facture')) { <th style="width: 8%" class="text-center">Facture</th> }
-                @if (isColumnVisible('tva')) { <th style="width: 8%" class="text-center">TVA</th> }
                 @if (isColumnVisible('status')) { <th style="width: 12%" class="text-center">{{ 'admin.products.table.status' | translate }}</th> }
                 @if (isColumnVisible('actions')) { <th style="width: 12%" class="text-center">{{ 'admin.products.table.actions' | translate }}</th> }
               </tr>
@@ -363,28 +361,6 @@
                         </div>
                       </div>
                     }
-                    </td>
-                  }
-
-                  <!-- Facture Column -->
-                  @if (isColumnVisible('facture')) {
-                    <td class="text-center">
-                      @if (product.is_facture) {
-                        <p-tag value="F" severity="info" [rounded]="true" />
-                      } @else {
-                        <span class="text-secondary">—</span>
-                      }
-                    </td>
-                  }
-
-                  <!-- TVA Column -->
-                  @if (isColumnVisible('tva')) {
-                    <td class="text-center">
-                      @if (product.is_facture) {
-                        <span class="font-semibold">{{ product.tva_rate ?? 0 }}%</span>
-                      } @else {
-                        <span class="text-secondary">—</span>
-                      }
                     </td>
                   }
 

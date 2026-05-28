@@ -127,8 +127,6 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
       { field: 'weight', label: 'admin.products.table.weight', visible: !isMobile },
       { field: 'price', label: 'admin.products.table.price', visible: true },
       { field: 'stock', label: 'admin.products.table.stock', visible: true },
-      { field: 'facture', label: 'Facture', visible: !isMobile },
-      { field: 'tva', label: 'TVA', visible: !isMobile },
       { field: 'status', label: 'admin.products.table.status', visible: !isMobile },
       { field: 'actions', label: 'admin.products.table.actions', visible: !isMobile }
     ];

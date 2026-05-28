@@ -235,42 +235,6 @@
                       </div>
                     </div>
 
-                    <div class="active-switch-container mt-4">
-                      <div
-                        class="active-switch"
-                        [class.active-switch--on]="productForm.get('is_facture')?.value"
-                        (click)="productForm.get('is_facture')?.setValue(!productForm.get('is_facture')?.value)"
-                        (keydown.enter)="productForm.get('is_facture')?.setValue(!productForm.get('is_facture')?.value)"
-                        (keydown.space)="productForm.get('is_facture')?.setValue(!productForm.get('is_facture')?.value); $event.preventDefault()"
-                        role="switch"
-                        [attr.aria-checked]="productForm.get('is_facture')?.value"
-                        tabindex="0">
-                        <div class="active-switch__track">
-                          <div class="active-switch__thumb">
-                            <i [class]="productForm.get('is_facture')?.value ? 'pi pi-check' : 'pi pi-times'"></i>
-                          </div>
-                        </div>
-                        <div class="active-switch__label">
-                          <span class="active-switch__title">Produit Facturé</span>
-                          <span class="active-switch__description">{{ productForm.get('is_facture')?.value ? 'Vendu avec une facture officielle' : 'Non facturé' }}</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    @if (isFacture()) {
-                      <div class="form-field mt-3">
-                        <div class="field-box" [class.filled]="productForm.get('tva_rate')?.value !== null">
-                          <div class="field-box__icon field-box__icon--warning">
-                            <i class="pi pi-percentage"></i>
-                          </div>
-                          <div class="field-box__content">
-                            <label>Taux TVA</label>
-                            <p-select formControlName="tva_rate" [options]="tvaRateOptions" optionLabel="label" optionValue="value" styleClass="w-full" appendTo="body" />
-                          </div>
-                        </div>
-                      </div>
-                    }
-
                     <div class="form-field mt-4">
                       <label class="field-label">
                         <i class="pi pi-image"></i>

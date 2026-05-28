@@ -1,0 +1,84 @@
+<app-agroclik-page-container>
+
+  <div pageTop class="flex align-items-center justify-content-between gap-3">
+    <div>
+      <h2 class="text-xl font-bold text-900 m-0">Paramètres société</h2>
+      <p class="text-sm text-500 m-0 mt-1">Informations affichées sur les factures</p>
+    </div>
+    <p-button
+      label="Sauvegarder"
+      icon="pi pi-check"
+      severity="success"
+      [loading]="saving()"
+      (click)="save()"
+    />
+  </div>
+
+  <div pageMain @pageAnimation>
+    @if (loading()) {
+      <div class="flex flex-column gap-3 p-3">
+        @for (i of [1,2,3,4,5,6,7,8]; track i) {
+          <div class="skeleton skeleton-text" style="width: 60%; height: 2rem;"></div>
+        }
+      </div>
+    } @else {
+      <div class="grid">
+
+        <!-- General info -->
+        <div class="col-12">
+          <div class="surface-card border-round p-4">
+            <h3 class="text-base font-bold text-700 m-0 mb-4">Informations générales</h3>
+            <div class="grid">
+              <div class="col-12 md:col-6 flex flex-column gap-1">
+                <label class="text-sm font-medium">Raison sociale *</label>
+                <input pInputText [(ngModel)]="name" placeholder="Mon Entreprise SARL" class="w-full" />
+              </div>
+              <div class="col-12 md:col-6 flex flex-column gap-1">
+                <label class="text-sm font-medium">Activité</label>
+                <input pInputText [(ngModel)]="activity" placeholder="Commerce de gros en fruits et légumes" class="w-full" />
+              </div>
+              <div class="col-12 md:col-6 flex flex-column gap-1">
+                <label class="text-sm font-medium">Adresse</label>
+                <input pInputText [(ngModel)]="address" placeholder="Zone d'activité, Wilaya" class="w-full" />
+              </div>
+              <div class="col-12 md:col-6 flex flex-column gap-1">
+                <label class="text-sm font-medium">Téléphone</label>
+                <input pInputText [(ngModel)]="phone" placeholder="0555 000 000" class="w-full" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Fiscal identifiers -->
+        <div class="col-12">
+          <div class="surface-card border-round p-4">
+            <h3 class="text-base font-bold text-700 m-0 mb-1">Identifiants fiscaux</h3>
+            <p class="text-sm text-500 m-0 mb-4">Ces informations apparaissent sur chaque facture</p>
+            <div class="grid">
+              <div class="col-12 sm:col-6 md:col-3 flex flex-column gap-1">
+                <label class="text-sm font-medium">RC — Registre de Commerce</label>
+                <input pInputText [(ngModel)]="rc" placeholder="00/00-XXXXXXX" class="w-full" />
+              </div>
+              <div class="col-12 sm:col-6 md:col-3 flex flex-column gap-1">
+                <label class="text-sm font-medium">N.A — Numéro d'Article</label>
+                <input pInputText [(ngModel)]="na" placeholder="XXXXXXXXXX" class="w-full" />
+              </div>
+              <div class="col-12 sm:col-6 md:col-3 flex flex-column gap-1">
+                <label class="text-sm font-medium">NIF — Identif. Fiscale</label>
+                <input pInputText [(ngModel)]="nif" placeholder="XXXXXXXXXXXXXXXX" class="w-full" />
+              </div>
+              <div class="col-12 sm:col-6 md:col-3 flex flex-column gap-1">
+                <label class="text-sm font-medium">NIS — Identif. Statistique</label>
+                <input pInputText [(ngModel)]="nis" placeholder="XXXXXXXXXXXXXXXXX" class="w-full" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    }
+  </div>
+
+</app-agroclik-page-container>
+
+<p-toast />

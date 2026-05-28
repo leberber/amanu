@@ -175,7 +175,7 @@ def read_products(
     
     if is_organic is not None:
         query = query.where(Product.is_organic == is_organic)
-    
+
     if active_only:
         query = query.where(Product.is_active == True)
     

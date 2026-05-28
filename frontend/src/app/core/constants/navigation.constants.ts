@@ -136,6 +136,18 @@ export const ADMIN_NAV_ITEMS: AdminNavItem[] = [
     adminOnly: true
   },
   {
+    labelKey: 'admin.navigation.facturation',
+    icon: 'pi pi-receipt',
+    route: ROUTES.ADMIN.FACTURATION,
+    adminOnly: true
+  },
+  {
+    labelKey: 'admin.navigation.company_settings',
+    icon: 'pi pi-building',
+    route: ROUTES.ADMIN.COMPANY_SETTINGS,
+    adminOnly: true
+  },
+  {
     labelKey: 'admin.navigation.logs',
     icon: 'pi pi-file',
     route: ROUTES.ADMIN.LOGS,

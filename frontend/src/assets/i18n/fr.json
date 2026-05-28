@@ -1826,6 +1826,8 @@
       "stock": "Gestion Achats",
       "purchase_orders": "Bons de Commande",
       "suppliers": "Fournisseurs",
+      "facturation": "Facturation",
+      "company_settings": "Paramètres Société",
       "logs": "Journaux",
       "system": "Système"
     },

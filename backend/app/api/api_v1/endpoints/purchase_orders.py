@@ -48,6 +48,7 @@ def order_to_response(order: PurchaseOrder) -> PurchaseOrderResponse:
             quantity_ordered=item.quantity_ordered,
             quantity_received=item.quantity_received,
             facture_quantity=item.facture_quantity,
+            tva_rate=item.tva_rate,
             unit_price=item.unit_price,
             total_price=item.total_price
         )
@@ -325,6 +326,7 @@ async def confirm_delivery(
                 quantity_received = delivery_item.quantity_received
                 item.quantity_received = quantity_received
                 item.facture_quantity = delivery_item.facture_quantity
+                item.tva_rate = delivery_item.tva_rate
 
                 product = None
 

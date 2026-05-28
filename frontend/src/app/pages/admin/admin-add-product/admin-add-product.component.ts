@@ -107,15 +107,6 @@ export class AdminAddProductComponent implements OnInit {
     !!this.packagingTypeValue() && (this.piecesPerBoxValue() ?? 0) > 1
   );
 
-  readonly tvaRateOptions = [
-    { label: '0%', value: 0 },
-    { label: '9%', value: 9 },
-    { label: '19%', value: 19 }
-  ];
-
-  private readonly isFactureValue = signal(false);
-  readonly isFacture = computed(() => this.isFactureValue());
-
   readonly piecesPerBox = computed(() => this.piecesPerBoxValue() || 1);
 
   readonly packagingTypeLabel = computed(() => {
@@ -161,8 +152,6 @@ export class AdminAddProductComponent implements OnInit {
       packaging_type: [null, Validators.required],
       volume: [null],
       weight: [null],
-      is_facture: [false],
-      tva_rate: [0]
     });
 
     this.loadCategories();
@@ -202,10 +191,6 @@ export class AdminAddProductComponent implements OnInit {
     this.productForm.get('name_ar')?.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(value => this.nameArValue.set(value || ''));
-
-    this.productForm.get('is_facture')?.valueChanges
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(value => this.isFactureValue.set(!!value));
 
     setTimeout(() => this.formInitialized.set(true), ANIMATION.NORMAL);
   }
@@ -274,13 +259,10 @@ export class AdminAddProductComponent implements OnInit {
             packaging_type: product.packaging_type || null,
             volume: product.volume || '',
             weight: product.weight || '',
-            is_facture: product.is_facture || false,
-            tva_rate: product.tva_rate ?? 0
           });
 
           this.packagingTypeValue.set(product.packaging_type || null);
           this.piecesPerBoxValue.set(product.pieces_per_box || null);
-          this.isFactureValue.set(product.is_facture || false);
           this.nameEnValue.set(currentProd?.name_translations?.['en'] || product.name);
           this.nameFrValue.set(currentProd?.name_translations?.['fr'] || product.name);
           this.nameArValue.set(currentProd?.name_translations?.['ar'] || product.name);
@@ -322,8 +304,6 @@ export class AdminAddProductComponent implements OnInit {
         packaging_type: formValues.packaging_type || null,
         volume: formValues.volume || null,
         weight: formValues.weight || null,
-        is_facture: formValues.is_facture || false,
-        tva_rate: formValues.tva_rate ?? 0
       }
     );
 

@@ -1,0 +1,98 @@
+<app-agroclik-page-container>
+
+  <p-confirmDialog></p-confirmDialog>
+
+  <!-- PAGE HEADER -->
+  <div pageTop class="flex align-items-center justify-content-between gap-3">
+    <div>
+      <h2 class="text-xl font-bold text-900 m-0">Facturation</h2>
+      <p class="text-sm text-500 m-0 mt-1">{{ total() }} facture(s)</p>
+    </div>
+    <p-button label="Nouvelle facture" icon="pi pi-plus" severity="success" (onClick)="createNew()" />
+  </div>
+
+  <!-- INVOICE LIST -->
+  <div pageMain @pageAnimation>
+    @if (loading()) {
+      <div class="flex flex-column gap-2 p-3">
+        @for (i of [1,2,3,4,5]; track i) {
+          <div class="surface-card border-round p-3 flex gap-4 align-items-center">
+            <div class="skeleton skeleton-text" style="width:80px"></div>
+            <div class="skeleton skeleton-text" style="width:140px"></div>
+            <div class="skeleton skeleton-text" style="width:70px"></div>
+            <div class="skeleton skeleton-text" style="width:70px; margin-left:auto"></div>
+          </div>
+        }
+      </div>
+    } @else if (facturations().length === 0) {
+      <div class="flex flex-column align-items-center justify-content-center gap-3 py-8">
+        <i class="pi pi-receipt text-5xl text-300"></i>
+        <p class="text-500 text-lg m-0">Aucune facture</p>
+        <p-button label="Créer la première facture" icon="pi pi-plus" severity="success" (onClick)="createNew()" />
+      </div>
+    } @else {
+      <p-table [value]="facturations()" styleClass="p-datatable-sm" [scrollable]="true">
+        <ng-template pTemplate="header">
+          <tr>
+            <th>Référence</th>
+            <th>Client</th>
+            <th>Date</th>
+            <th class="text-right">Total TTC</th>
+            <th>Règlement</th>
+            <th class="text-center">Actions</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-facture>
+          <tr class="cursor-pointer hover:surface-100" (click)="openDetail(facture)">
+            <td><span class="font-semibold text-primary">{{ facture.reference }}</span></td>
+            <td>
+              <div class="font-medium">{{ facture.client_name }}</div>
+              @if (facture.client_nif) { <div class="text-xs text-500">NIF: {{ facture.client_nif }}</div> }
+            </td>
+            <td class="text-500 text-sm">{{ facture.created_at | appDate }}</td>
+            <td class="text-right font-semibold">{{ facture.total_ttc | currency }}</td>
+            <td>
+              <p-tag [value]="paymentLabel(facture.payment_mode)"
+                     [severity]="getPaymentSeverity(facture.payment_mode)"
+                     [rounded]="true" styleClass="text-xs" />
+            </td>
+            <td>
+              <div class="flex gap-2 justify-content-center">
+                <p-button icon="pi pi-print" [rounded]="true" [text]="true" severity="info"
+                          pTooltip="Aperçu PDF" (onClick)="printFacture($event, facture)" />
+                <p-button icon="pi pi-download" [rounded]="true" [text]="true" severity="secondary"
+                          pTooltip="Télécharger" (onClick)="downloadFacture($event, facture)" />
+                <p-button icon="pi pi-trash" [rounded]="true" [text]="true" severity="danger"
+                          pTooltip="Supprimer" (onClick)="confirmDelete($event, facture)" />
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    }
+  </div>
+
+</app-agroclik-page-container>
+
+
+<!-- PDF PREVIEW -->
+<p-dialog
+  [visible]="pdfService.showPdfPreview()"
+  (visibleChange)="pdfService.showPdfPreview.set($event)"
+  [modal]="true"
+  [style]="{ width: '85vw', height: '90vh' }"
+  header="Aperçu de la facture"
+  [closable]="true"
+  (onHide)="closePdfPreview()"
+>
+  @if (pdfService.pdfPreviewUrl()) {
+    <iframe [src]="pdfService.pdfPreviewUrl()" class="w-full"
+            style="height: calc(90vh - 130px); border: none;"></iframe>
+  }
+  <ng-template pTemplate="footer">
+    <p-button label="Fermer" severity="secondary" [text]="true" (onClick)="closePdfPreview()" />
+    <p-button label="Télécharger" icon="pi pi-download" (onClick)="downloadCurrentPdf()" />
+  </ng-template>
+</p-dialog>
+
+<p-toast />

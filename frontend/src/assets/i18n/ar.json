@@ -1814,6 +1814,8 @@
       "stock": "إدارة المشتريات",
       "purchase_orders": "طلبات الشراء",
       "suppliers": "الموردون",
+      "facturation": "الفوترة",
+      "company_settings": "إعدادات الشركة",
       "logs": "السجلات",
       "system": "النظام"
     },

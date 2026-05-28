@@ -87,7 +87,10 @@ export const ROUTES = {
     PURCHASE_ORDERS: '/admin/purchase-orders',
     SUPPLIERS: '/admin/suppliers',
     ADD_SUPPLIER: '/admin/suppliers/new',
-    EDIT_SUPPLIER: '/admin/suppliers/:id/edit'
+    EDIT_SUPPLIER: '/admin/suppliers/:id/edit',
+    FACTURATION: '/admin/facturation',
+    FACTURATION_NEW: '/admin/facturation/new',
+    COMPANY_SETTINGS: '/admin/company-settings'
   }
 } as const;
 
@@ -108,7 +111,8 @@ export const RouteHelpers = {
   adminEditUserGroup: (id: number | string) => `/admin/user-groups/edit/${id}`,
   driverTripDetail: (id: number | string) => `/driver/trip/${id}`,
   adminPurchaseOrderDetail: (id: number | string) => `/admin/purchase-orders/${id}`,
-  adminEditSupplier: (id: number | string) => `/admin/suppliers/${id}/edit`
+  adminEditSupplier: (id: number | string) => `/admin/suppliers/${id}/edit`,
+  adminFacturationDetail: (id: number | string) => `/admin/facturation/${id}`
 };
 
 /**

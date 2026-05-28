@@ -34,9 +34,10 @@
                   <th style="width: 15%" class="text-center">{{ 'admin.purchase_orders.detail.quantity' | translate }}</th>
                   <th style="width: 12%" class="text-right">{{ 'admin.purchase_orders.detail.unit_price' | translate }}</th>
                   <th style="width: 12%" class="text-right">{{ 'admin.purchase_orders.detail.total_price' | translate }}</th>
-                  <th style="width: 12%" class="text-center">Qté Facturée</th>
+                  <th style="width: 10%" class="text-center">Qté Facturée</th>
+                  <th style="width: 8%" class="text-center">TVA</th>
                   @if (order()!.status === 'sent') {
-                    <th style="width: 8%" class="text-center"></th>
+                    <th style="width: 6%" class="text-center"></th>
                   }
                 </tr>
               </thead>
@@ -97,6 +98,16 @@
                         />
                       </td>
                       <td class="text-center">
+                        <p-select
+                          [options]="tvaOptions"
+                          [(ngModel)]="editableItems()[i].tva_rate"
+                          optionLabel="label"
+                          optionValue="value"
+                          appendTo="body"
+                          styleClass="w-full"
+                        />
+                      </td>
+                      <td class="text-center">
                         <button
                           class="action-btn delete"
                           (click)="deleteItem(item.id!)"
@@ -109,7 +120,14 @@
                       </td>
                     } @else {
                       <td class="text-center">
-                        <span class="font-semibold">{{ item.facture_quantity ?? 0 }}</span>
+                        <span class="font-semibold">{{ item.facture_quantity }}</span>
+                      </td>
+                      <td class="text-center">
+                        @if (item.tva_rate > 0) {
+                          <span class="pill purple">{{ item.tva_rate }}%</span>
+                        } @else {
+                          <span class="text-secondary text-sm">0%</span>
+                        }
                       </td>
                     }
                   </tr>

@@ -296,6 +296,32 @@ export const routes: Routes = [
     data: { mode: 'edit', hideBottomNav: true }
   },
 
+  // Facturation Routes
+  {
+    path: 'admin/facturation',
+    loadComponent: () => import('./pages/admin/admin-facturation/admin-facturation.component').then(m => m.AdminFacturationComponent),
+    canActivate: [adminGuard],
+    data: { hideBottomNav: true }
+  },
+  {
+    path: 'admin/facturation/new',
+    loadComponent: () => import('./pages/admin/admin-facturation-detail/admin-facturation-detail.component').then(m => m.AdminFacturationDetailComponent),
+    canActivate: [adminGuard],
+    data: { hideBottomNav: true }
+  },
+  {
+    path: 'admin/facturation/:id',
+    loadComponent: () => import('./pages/admin/admin-facturation-detail/admin-facturation-detail.component').then(m => m.AdminFacturationDetailComponent),
+    canActivate: [adminGuard],
+    data: { hideBottomNav: true }
+  },
+  {
+    path: 'admin/company-settings',
+    loadComponent: () => import('./pages/admin/admin-company-settings/admin-company-settings.component').then(m => m.AdminCompanySettingsComponent),
+    canActivate: [adminGuard],
+    data: { hideBottomNav: true }
+  },
+
   // Graph Builder (public - for adding missing roads)
   {
     path: 'graph-builder',

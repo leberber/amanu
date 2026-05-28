@@ -1,0 +1,637 @@
+<app-page-layout
+  [title]="isCreateMode ? 'Nouvelle facture' : (facture()?.reference ?? 'Facture')"
+  icon="pi pi-receipt"
+  [showBackButton]="true"
+  backRoute="/admin/facturation"
+>
+  <div pageActions class="flex gap-2">
+    @if (isCreateMode) {
+      <p-button label="Créer la facture" icon="pi pi-check" severity="success"
+                [loading]="saving()" (onClick)="save()" />
+    } @else {
+      <p-button icon="pi pi-print" [rounded]="true" [text]="true" severity="info"
+                pTooltip="Aperçu PDF" (onClick)="print()" />
+      <p-button icon="pi pi-download" [rounded]="true" [text]="true" severity="secondary"
+                pTooltip="Télécharger" (onClick)="download()" />
+      <p-button icon="pi pi-trash" [rounded]="true" [text]="true" severity="danger"
+                pTooltip="Supprimer" (onClick)="confirmDelete()" />
+    }
+  </div>
+
+  <!-- ════════════════════ CREATE MODE ════════════════════ -->
+  @if (isCreateMode) {
+    <div class="flex flex-column gap-3 p-3" @pageAnimation>
+
+      <!-- ── CLIENT CARD ── -->
+      <div class="flex gap-3">
+
+        <!-- Left card: select (33%) -->
+        <div class="surface-card border-round-xl border-1 surface-border overflow-hidden flex-shrink-0" style="width:26%;min-width:200px">
+          <div class="flex align-items-center gap-2 px-3 py-2 border-bottom-1 surface-border">
+            <span class="flex align-items-center justify-content-center border-round-lg flex-shrink-0"
+                  style="width:28px;height:28px;background:linear-gradient(135deg,#3b82f6,#1d4ed8)">
+              <i class="pi pi-user text-white text-sm"></i>
+            </span>
+            <span class="font-semibold text-900">Client</span>
+            @if (!selectedClient) {
+              <p-tag value="Requis" severity="danger" [rounded]="true" styleClass="text-xs ml-auto" />
+            }
+          </div>
+          <div class="px-3 py-2">
+            <p-select
+              [(ngModel)]="selectedClient"
+              [options]="allClients"
+              optionLabel="display_name"
+              [filter]="true"
+              filterBy="display_name,full_name"
+              placeholder="Rechercher un client..."
+              styleClass="w-full"
+              appendTo="body"
+              [showClear]="true"
+              (onChange)="onClientSelect($event.value)"
+              (onClear)="clearClient()"
+            />
+          </div>
+        </div>
+
+        <!-- Right card: client info (flex-1) -->
+        <div class="surface-card border-round-xl border-1 surface-border flex-1 flex align-items-center px-3 py-2">
+          @if (!selectedClient) {
+            <span class="text-xs text-400 flex align-items-center gap-2">
+              <i class="pi pi-arrow-left text-300"></i>
+              Sélectionnez un client
+            </span>
+          } @else {
+            <div class="flex align-items-center gap-3 flex-1 flex-wrap">
+              <div class="flex flex-column gap-0">
+                <span class="font-semibold text-900">{{ selectedClient.display_name }}</span>
+                @if (selectedClient.address) {
+                  <span class="text-xs text-500 flex align-items-center gap-1 mt-1">
+                    <i class="pi pi-map-marker" style="font-size:.65rem"></i>
+                    {{ selectedClient.address }}
+                  </span>
+                }
+              </div>
+              @if (fiscal.rc || fiscal.na || fiscal.nif || fiscal.nis) {
+                <div class="flex align-items-center gap-3 flex-wrap pl-3 border-left-1 surface-border">
+                  @if (fiscal.rc) {
+                    <div class="flex flex-column gap-0">
+                      <span style="font-size:.6rem;color:var(--text-color-secondary)">RC</span>
+                      <span class="text-xs text-700">{{ fiscal.rc }}</span>
+                    </div>
+                  }
+                  @if (fiscal.na) {
+                    <div class="flex flex-column gap-0">
+                      <span style="font-size:.6rem;color:var(--text-color-secondary)">N.A</span>
+                      <span class="text-xs text-700">{{ fiscal.na }}</span>
+                    </div>
+                  }
+                  @if (fiscal.nif) {
+                    <div class="flex flex-column gap-0">
+                      <span style="font-size:.6rem;color:var(--text-color-secondary)">NIF</span>
+                      <span class="text-xs text-700">{{ fiscal.nif }}</span>
+                    </div>
+                  }
+                  @if (fiscal.nis) {
+                    <div class="flex flex-column gap-0">
+                      <span style="font-size:.6rem;color:var(--text-color-secondary)">NIS</span>
+                      <span class="text-xs text-700">{{ fiscal.nis }}</span>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          }
+        </div>
+
+      </div>
+
+      <!-- ── TWO PANELS ── -->
+      <div class="flex gap-3" style="height: calc(100vh - 340px); min-height: 420px;">
+
+        <!-- LEFT: Catalog -->
+        <div class="surface-card border-round-xl border-1 surface-border flex flex-column overflow-hidden transition-all transition-duration-300 flex-shrink-0"
+             [style.width]="catalogExpanded() ? '26%' : '44px'"
+             [style.min-width]="catalogExpanded() ? '200px' : '44px'">
+
+          <!-- Header — click anywhere to toggle -->
+          <div class="flex align-items-center gap-2 px-2 py-2 border-bottom-1 surface-border flex-shrink-0 cursor-pointer hover:surface-50 transition-colors transition-duration-150 select-none"
+               (click)="catalogExpanded.set(!catalogExpanded())">
+            <span class="flex align-items-center justify-content-center border-round-lg flex-shrink-0"
+                  style="width:28px;height:28px;background:linear-gradient(135deg,#22c55e,#16a34a)">
+              <i [class]="catalogExpanded() ? 'pi pi-th-large text-white' : 'pi pi-chevron-right text-white'" style="font-size:.7rem"></i>
+            </span>
+            @if (catalogExpanded()) {
+              <span class="font-semibold text-900 text-sm white-space-nowrap flex-1">Catalogue</span>
+              <p-tag [value]="catalogProducts.length.toString()" severity="secondary" [rounded]="true" styleClass="text-xs" />
+              <i class="pi pi-chevron-left text-400 text-xs ml-1"></i>
+            }
+          </div>
+
+          @if (catalogExpanded()) {
+            <!-- Filters -->
+            <div class="flex align-items-center gap-2 px-2 py-2 border-bottom-1 surface-border flex-shrink-0">
+              <span class="flex align-items-center justify-content-center border-round flex-shrink-0"
+                    style="width:26px;height:26px;background:var(--surface-100)">
+                <i class="pi pi-bookmark text-500" style="font-size:.7rem"></i>
+              </span>
+              <p-select [(ngModel)]="filterBrand" [options]="brands"
+                        optionLabel="label" optionValue="value"
+                        styleClass="flex-1 border-none shadow-none"
+                        [showClear]="true"
+                        appendTo="body" />
+            </div>
+
+            <!-- Product list -->
+            <div class="flex flex-column overflow-y-auto flex-1">
+              @if (catalogProducts.length === 0) {
+                <div class="flex flex-column align-items-center justify-content-center gap-2 p-5 text-500">
+                  <i class="pi pi-inbox text-3xl text-200"></i>
+                  <span class="text-sm">Aucun article trouvé</span>
+                </div>
+              }
+              @for (product of catalogProducts; track product.id) {
+                <div class="flex align-items-center gap-2 px-3 border-bottom-1 surface-border cursor-pointer hover:surface-100 transition-colors transition-duration-150"
+                     style="padding-top:.4rem;padding-bottom:.4rem"
+                     [style.background]="isAdded(product) ? 'var(--green-50)' : ''"
+                     (click)="addProduct(product)">
+                  @if (product.image_url) {
+                    <img [src]="product.image_url" [alt]="product.name" loading="lazy"
+                         class="border-round flex-shrink-0"
+                         style="width:40px;height:40px;object-fit:cover"
+                         (error)="$any($event.target).style.display='none'" />
+                  }
+                  <div class="flex align-items-center gap-3 flex-1 overflow-hidden">
+                    <div class="flex flex-column gap-0 flex-1 overflow-hidden">
+                      <span class="text-sm text-900 white-space-nowrap overflow-hidden text-overflow-ellipsis">
+                        {{ product.name }}
+                      </span>
+                      <div class="flex align-items-center gap-1 mt-1">
+                        <span class="text-xs text-500">{{ product.price | number:'1.2-2' }} DA</span>
+                        @if ((product.tva_rate ?? 0) > 0) {
+                          <p-tag [value]="product.tva_rate + '%'" severity="secondary" [rounded]="true" styleClass="text-xs" />
+                        }
+                      </div>
+                    </div>
+                    <span class="inline-flex border-round-xl flex-shrink-0 font-normal"
+                          style="font-size:.65rem;padding:.15rem .5rem"
+                          [style.background]="product.facture_stock > 0 ? '#dcfce7' : '#fee2e2'"
+                          [style.color]="product.facture_stock > 0 ? '#15803d' : '#b91c1c'">
+                      {{ product.facture_stock }} ctn
+                    </span>
+                  </div>
+                  @if (isAdded(product)) {
+                    <p-tag [value]="'×' + itemQty(product.id)" severity="success" [rounded]="true" styleClass="flex-shrink-0" />
+                  } @else {
+                    <p-button icon="pi pi-plus" [rounded]="true" [text]="true" severity="success" size="small" styleClass="flex-shrink-0" />
+                  }
+                </div>
+              }
+            </div>
+          }
+        </div>
+
+        <!-- RIGHT: Invoice -->
+        <div class="surface-card border-round-xl border-1 surface-border flex flex-column flex-1 overflow-hidden">
+
+          <!-- Items table -->
+          <div class="overflow-y-auto flex-1">
+            @if (items.length === 0) {
+              <div class="flex flex-column align-items-center justify-content-center gap-3 h-full text-500">
+                <span class="flex align-items-center justify-content-center border-round-xl"
+                      style="width:56px;height:56px;background:var(--surface-100)">
+                  <i class="pi pi-arrow-left text-2xl text-300"></i>
+                </span>
+                <div class="text-center">
+                  <p class="m-0 text-sm font-medium text-600">Aucun article</p>
+                  <p class="m-0 text-xs text-400 mt-1">Sélectionnez des produits depuis le catalogue</p>
+                </div>
+              </div>
+            } @else {
+              <table class="w-full" style="border-collapse:collapse">
+                <thead class="sticky top-0 z-1" style="background:var(--surface-card)">
+                  <tr>
+                    <th class="text-xs font-semibold text-left px-3 text-600 uppercase border-bottom-1 surface-border" style="letter-spacing:.06em;padding-top:1.1rem;padding-bottom:.85rem">Article</th>
+                    <th class="text-xs font-semibold text-left px-2 text-600 uppercase border-bottom-1 surface-border" style="width:66px;letter-spacing:.06em;padding-top:1.1rem;padding-bottom:.85rem">Unité</th>
+                    <th class="text-xs font-semibold text-right px-2 text-600 uppercase border-bottom-1 surface-border" style="width:70px;letter-spacing:.06em;padding-top:1.1rem;padding-bottom:.85rem">Prix/pcs</th>
+                    <th class="text-xs font-semibold text-center px-2 text-600 uppercase border-bottom-1 surface-border" style="width:82px;letter-spacing:.06em;padding-top:1.1rem;padding-bottom:.85rem">Qté</th>
+                    <th class="text-xs font-semibold text-right px-2 text-600 uppercase border-bottom-1 surface-border" style="width:78px;letter-spacing:.06em;padding-top:1.1rem;padding-bottom:.85rem">P.U HT</th>
+                    <th class="text-xs font-semibold text-center px-2 text-600 uppercase border-bottom-1 surface-border" style="width:58px;letter-spacing:.06em;padding-top:1.1rem;padding-bottom:.85rem">TVA</th>
+                    <th class="text-xs font-semibold text-right px-2 text-600 uppercase border-bottom-1 surface-border" style="width:78px;letter-spacing:.06em;padding-top:1.1rem;padding-bottom:.85rem">P.U TTC</th>
+                    <th class="text-xs font-semibold text-right px-3 text-600 uppercase border-bottom-1 surface-border" style="width:82px;letter-spacing:.06em;padding-top:1.1rem;padding-bottom:.85rem">M.T TTC</th>
+                    <th class="border-bottom-1 surface-border" style="width:36px;padding-top:.75rem"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (item of items; track $index; let i = $index) {
+                    <tr class="border-bottom-1 surface-border hover:surface-50 transition-colors transition-duration-150">
+
+                      <!-- Article -->
+                      <td class="px-3 py-2">
+                        <div class="flex align-items-center gap-2">
+                          @if (item.image_url) {
+                            <img [src]="item.image_url" [alt]="item.product_name" loading="lazy"
+                                 class="border-round flex-shrink-0"
+                                 style="width:40px;height:40px;object-fit:cover"
+                                 (error)="$any($event.target).style.display='none'" />
+                          } @else {
+                            <div class="flex align-items-center justify-content-center border-round flex-shrink-0"
+                                 style="width:40px;height:40px;background:linear-gradient(135deg,#8b5cf6,#6d28d9)">
+                              <i class="pi pi-box text-white" style="font-size:.55rem"></i>
+                            </div>
+                          }
+                          <span class="font-medium text-900 text-xs">{{ item.product_name }}</span>
+                        </div>
+                      </td>
+
+                      <!-- Unité -->
+                      <td class="px-2 py-2">
+                        <div class="flex flex-column gap-1 align-items-start">
+                          <span class="text-xs font-semibold text-700">{{ item.unit }}</span>
+                          @if (item.pieces_per_box > 1) {
+                            <span class="inline-flex px-2 border-round-xl font-medium"
+                                  style="background:#eef2ff;color:#4338ca;font-size:.65rem;padding-top:.15rem;padding-bottom:.15rem">
+                              × {{ item.pieces_per_box }} pcs
+                            </span>
+                          }
+                        </div>
+                      </td>
+
+                      <!-- Prix/pcs -->
+                      <td class="px-2 py-2 text-right">
+                        @if (item.pieces_per_box > 1) {
+                          <span class="text-xs text-500">{{ itemPricePerPiece(item) | number:'1.2-2' }}</span>
+                        } @else {
+                          <span class="text-300 text-xs">—</span>
+                        }
+                      </td>
+
+                      <!-- Quantité +/− -->
+                      <td class="px-4 py-2">
+                        <div class="flex align-items-center justify-content-center">
+                          <p-button icon="pi pi-minus" [rounded]="true" [text]="true" severity="secondary" size="small"
+                                    (onClick)="item.quantity = item.quantity > 1 ? item.quantity - 1 : 1" />
+                          <p-inputNumber [(ngModel)]="item.quantity" [min]="1" [showButtons]="false"
+                                         [inputStyle]="{ width:'36px', textAlign:'center', fontSize:'.75rem', padding:'.2rem .1rem', border:'none', background:'transparent', boxShadow:'none' }" />
+                          <p-button icon="pi pi-plus" [rounded]="true" [text]="true" severity="secondary" size="small"
+                                    (onClick)="item.quantity = item.quantity + 1" />
+                        </div>
+                      </td>
+
+                      <!-- P.U HT -->
+                      <td class="px-2 py-2 text-right">
+                        <span class="text-xs text-green-600">{{ itemHtPerCarton(item) | number:'1.2-2' }}</span>
+                      </td>
+
+                      <!-- TVA (pill dropdown) -->
+                      <td class="px-1 py-2 text-center">
+                        <select [(ngModel)]="item.tva_rate"
+                                class="border-round-xl font-bold cursor-pointer"
+                                style="padding:.2rem .4rem;outline:none;width:56px;border-width:1px;border-style:solid;font-size:.7rem"
+                                [style.background]="item.tva_rate === 0 ? 'var(--surface-100)' : item.tva_rate === 9 ? '#fff7ed' : '#fef2f2'"
+                                [style.color]="item.tva_rate === 0 ? 'var(--text-color-secondary)' : item.tva_rate === 9 ? '#c2410c' : '#b91c1c'"
+                                [style.border-color]="item.tva_rate === 0 ? 'var(--surface-border)' : item.tva_rate === 9 ? '#fed7aa' : '#fecaca'">
+                          <option [ngValue]="0">0%</option>
+                          <option [ngValue]="9">9%</option>
+                          <option [ngValue]="19">19%</option>
+                        </select>
+                      </td>
+
+                      <!-- P.U TTC -->
+                      <td class="px-2 py-2 text-right">
+                        <span class="text-xs font-semibold text-700">{{ item.unit_price | number:'1.2-2' }}</span>
+                      </td>
+
+                      <!-- M.T TTC -->
+                      <td class="px-3 py-2 text-right">
+                        <span class="text-xs font-bold text-primary">{{ itemTtc(item) | number:'1.2-2' }}</span>
+                      </td>
+
+                      <!-- Remove -->
+                      <td class="py-2 pr-2 text-center">
+                        <p-button icon="pi pi-trash" [rounded]="true" [text]="true"
+                                  severity="danger" size="small" (onClick)="removeItem(i)" />
+                      </td>
+
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            }
+          </div>
+
+          <!-- Footer: options + totals -->
+          <div class="border-top-1 surface-border flex-shrink-0">
+            <div class="flex gap-4 px-4 py-3 align-items-start">
+
+              <!-- Left: fields -->
+              <div class="flex flex-column gap-2 flex-1">
+                <div class="flex gap-3 flex-wrap align-items-end">
+                  <div class="flex flex-column gap-1">
+                    <label class="text-xs text-400" style="letter-spacing:.04em">Règlement</label>
+                    <div class="flex" style="background:var(--surface-100);border-radius:8px;padding:3px;gap:2px">
+                      @for (opt of paymentModeOptions; track opt.value) {
+                        <button type="button"
+                                class="border-none cursor-pointer transition-all transition-duration-150"
+                                style="border-radius:6px;padding:.3rem .55rem;font-size:.72rem;font-weight:500;white-space:nowrap;outline:none;line-height:1.4"
+                                [style.background]="paymentMode === opt.value ? 'var(--surface-card)' : 'transparent'"
+                                [style.color]="paymentMode === opt.value ? 'var(--text-color)' : 'var(--text-color-secondary)'"
+                                [style.box-shadow]="paymentMode === opt.value ? '0 1px 3px rgba(0,0,0,0.12)' : 'none'"
+                                (click)="paymentMode = opt.value">
+                          {{ opt.label }}
+                        </button>
+                      }
+                    </div>
+                  </div>
+                  <div class="flex flex-column gap-1">
+                    <label class="text-xs text-400" style="letter-spacing:.04em">Remise (DA)</label>
+                    <p-inputNumber [(ngModel)]="remise" [minFractionDigits]="2" [min]="0"
+                                   [inputStyle]="{ width:'80px', padding:'.4rem .5rem', fontSize:'.8rem' }" />
+                  </div>
+                  <div class="flex flex-column gap-1">
+                    <label class="text-xs text-400" style="letter-spacing:.04em">Timbre (DA)</label>
+                    <p-inputNumber [(ngModel)]="timbre" [minFractionDigits]="2" [min]="0"
+                                   [inputStyle]="{ width:'80px', padding:'.4rem .5rem', fontSize:'.8rem' }" />
+                  </div>
+                </div>
+                <div class="flex flex-column gap-1 transition-all transition-duration-200"
+                     [style.width]="notesExpanded() ? '335px' : 'fit-content'">
+                  <div class="flex align-items-center gap-2 cursor-pointer select-none"
+                       (click)="notesExpanded.set(!notesExpanded())">
+                    <label class="text-xs text-400 cursor-pointer" style="letter-spacing:.04em">Notes</label>
+                    <i [class]="notesExpanded() ? 'pi pi-chevron-up' : 'pi pi-chevron-down'"
+                       class="text-300" style="font-size:.6rem"></i>
+                  </div>
+                  @if (notesExpanded()) {
+                    <textarea pInputTextarea [(ngModel)]="notes" class="w-full p-inputtext" rows="3"
+                              style="font-size:.8rem;resize:vertical;font-family:inherit;line-height:1.5"
+                              placeholder="Remarques..."></textarea>
+                  }
+                </div>
+              </div>
+
+              <!-- Right: totals -->
+              <div class="flex flex-column flex-shrink-0" style="min-width:200px">
+                <div class="flex justify-content-between align-items-center py-1 border-bottom-1 surface-border gap-4">
+                  <span class="text-xs text-400">Total HT</span>
+                  <span class="text-xs text-700">{{ totalHt.toFixed(2) }} DA</span>
+                </div>
+                <div class="flex justify-content-between align-items-center py-1 border-bottom-1 surface-border gap-4">
+                  <span class="text-xs text-400">Total TVA</span>
+                  <span class="text-xs text-700">{{ totalTva.toFixed(2) }} DA</span>
+                </div>
+                @if (remise > 0) {
+                  <div class="flex justify-content-between align-items-center py-1 border-bottom-1 surface-border gap-4">
+                    <span class="text-xs text-400">Remise</span>
+                    <span class="text-xs text-red-500">−{{ remise.toFixed(2) }} DA</span>
+                  </div>
+                }
+                @if (timbre > 0) {
+                  <div class="flex justify-content-between align-items-center py-1 border-bottom-1 surface-border gap-4">
+                    <span class="text-xs text-400">Timbre</span>
+                    <span class="text-xs text-700">+{{ timbre.toFixed(2) }} DA</span>
+                  </div>
+                }
+                <div class="flex justify-content-between align-items-center pt-2 gap-4">
+                  <span class="text-xs font-semibold text-900 uppercase" style="letter-spacing:.05em">Total TTC</span>
+                  <span class="font-bold text-primary" style="font-size:1.1rem">{{ totalTtc.toFixed(2) }} DA</span>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- ════════════════════ VIEW MODE ════════════════════ -->
+  @if (!isCreateMode) {
+    @if (loading()) {
+      <div class="flex align-items-center justify-content-center gap-3 p-6">
+        <i class="pi pi-spin pi-spinner text-xl text-500"></i>
+        <span class="text-500">Chargement...</span>
+      </div>
+    } @else if (facture()) {
+      <div class="flex flex-column gap-3 p-3" @pageAnimation>
+
+        <!-- ── Reference Banner ── -->
+        <div class="surface-card border-round-xl border-1 surface-border">
+          <div class="flex align-items-center gap-3 px-4 py-3">
+            <div class="flex flex-column gap-1 flex-1">
+              <span class="font-bold text-900" style="font-size:1.3rem;letter-spacing:.01em">{{ facture()!.reference }}</span>
+              <span class="text-xs text-400 flex align-items-center gap-1">
+                <i class="pi pi-calendar" style="font-size:.6rem"></i>
+                {{ facture()!.created_at | appDate }}
+              </span>
+            </div>
+            <p-tag [value]="paymentLabel(facture()!.payment_mode)"
+                   [severity]="getPaymentSeverity(facture()!.payment_mode)"
+                   [rounded]="true" styleClass="text-xs" />
+            <div class="flex flex-column align-items-end gap-0 pl-4 border-left-1 surface-border">
+              <span class="text-xs text-400 uppercase" style="letter-spacing:.05em">Total TTC</span>
+              <span class="font-bold text-primary" style="font-size:1.15rem">{{ facture()!.total_ttc | number:'1.2-2' }} DA</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Client card ── -->
+        <div class="surface-card border-round-xl border-1 surface-border overflow-hidden">
+          <div class="flex align-items-center gap-2 px-3 py-2 border-bottom-1 surface-border">
+            <span class="flex align-items-center justify-content-center border-round-lg flex-shrink-0"
+                  style="width:28px;height:28px;background:linear-gradient(135deg,#3b82f6,#1d4ed8)">
+              <i class="pi pi-user text-white text-sm"></i>
+            </span>
+            <span class="font-semibold text-900">Client</span>
+          </div>
+          <div class="p-3 flex flex-wrap align-items-center gap-4">
+            <div class="flex align-items-center gap-3 flex-1" style="min-width:180px">
+              <span class="flex align-items-center justify-content-center border-round-full flex-shrink-0"
+                    style="width:44px;height:44px;background:linear-gradient(135deg,#3b82f6,#1d4ed8)">
+                <i class="pi pi-building text-white"></i>
+              </span>
+              <div class="flex flex-column gap-1">
+                <span class="font-bold text-900 text-lg">{{ facture()!.client_name }}</span>
+                @if (facture()!.client_address) {
+                  <span class="text-sm text-500 flex align-items-center gap-1">
+                    <i class="pi pi-map-marker text-xs"></i>
+                    {{ facture()!.client_address }}
+                  </span>
+                }
+              </div>
+            </div>
+            <div class="flex gap-2 flex-wrap align-items-center">
+              @if (facture()!.client_rc) {
+                <div class="flex flex-column gap-0 px-3 py-2 border-round-lg surface-100">
+                  <span class="text-xs text-400 font-medium">RC</span>
+                  <span class="text-sm font-bold text-900">{{ facture()!.client_rc }}</span>
+                </div>
+              }
+              @if (facture()!.client_na) {
+                <div class="flex flex-column gap-0 px-3 py-2 border-round-lg surface-100">
+                  <span class="text-xs text-400 font-medium">N.A</span>
+                  <span class="text-sm font-bold text-900">{{ facture()!.client_na }}</span>
+                </div>
+              }
+              @if (facture()!.client_nif) {
+                <div class="flex flex-column gap-0 px-3 py-2 border-round-lg surface-100">
+                  <span class="text-xs text-400 font-medium">NIF</span>
+                  <span class="text-sm font-bold text-900">{{ facture()!.client_nif }}</span>
+                </div>
+              }
+              @if (facture()!.client_nis) {
+                <div class="flex flex-column gap-0 px-3 py-2 border-round-lg surface-100">
+                  <span class="text-xs text-400 font-medium">NIS</span>
+                  <span class="text-sm font-bold text-900">{{ facture()!.client_nis }}</span>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Items table ── -->
+        <div class="surface-card border-round-xl border-1 surface-border overflow-hidden">
+          <div class="flex align-items-center gap-2 px-3 py-2 border-bottom-1 surface-border">
+            <span class="flex align-items-center justify-content-center border-round-lg flex-shrink-0"
+                  style="width:28px;height:28px;background:linear-gradient(135deg,#8b5cf6,#6d28d9)">
+              <i class="pi pi-list text-white" style="font-size:.7rem"></i>
+            </span>
+            <span class="font-semibold text-900 text-sm">Articles</span>
+            <p-tag [value]="facture()!.items.length.toString()" severity="secondary" [rounded]="true" styleClass="text-xs ml-auto" />
+          </div>
+          <table class="w-full" style="border-collapse:collapse">
+            <thead class="surface-ground">
+              <tr>
+                <th class="text-xs font-semibold text-left px-3 py-2 text-500 uppercase border-bottom-1 surface-border" style="letter-spacing:.04em">Article</th>
+                <th class="text-xs font-semibold text-center px-2 py-2 text-500 uppercase border-bottom-1 surface-border" style="width:60px;letter-spacing:.04em">Qté</th>
+                <th class="text-xs font-semibold text-right px-2 py-2 text-500 uppercase border-bottom-1 surface-border" style="width:115px;letter-spacing:.04em">P.U HT</th>
+                <th class="text-xs font-semibold text-center px-2 py-2 text-500 uppercase border-bottom-1 surface-border" style="width:70px;letter-spacing:.04em">TVA</th>
+                <th class="text-xs font-semibold text-right px-2 py-2 text-500 uppercase border-bottom-1 surface-border" style="width:110px;letter-spacing:.04em">P.U TTC</th>
+                <th class="text-xs font-semibold text-right px-3 py-2 text-500 uppercase border-bottom-1 surface-border" style="width:140px;letter-spacing:.04em">M.T TTC</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (item of facture()!.items; track item.id) {
+                <tr class="border-bottom-1 surface-border hover:surface-50 transition-colors transition-duration-150">
+
+                  <!-- Article -->
+                  <td class="px-3 py-2">
+                    <div class="flex align-items-center gap-2">
+                      <div class="flex align-items-center justify-content-center border-round flex-shrink-0"
+                           style="width:30px;height:30px;background:linear-gradient(135deg,#8b5cf6,#6d28d9)">
+                        <i class="pi pi-box text-white" style="font-size:.65rem"></i>
+                      </div>
+                      <div class="flex flex-column gap-1">
+                        <span class="font-semibold text-900 text-sm">{{ item.product_name }}</span>
+                        <p-tag [value]="item.unit" severity="secondary" [rounded]="true" styleClass="text-xs" />
+                      </div>
+                    </div>
+                  </td>
+
+                  <!-- Qté -->
+                  <td class="px-2 py-2 text-center">
+                    <span class="text-xs font-semibold text-900">{{ item.quantity }}</span>
+                  </td>
+
+                  <!-- P.U HT -->
+                  <td class="px-2 py-2 text-right">
+                    <span class="text-xs text-green-600 font-medium">{{ (item.total_ht / item.quantity) | number:'1.2-2' }} DA</span>
+                  </td>
+
+                  <!-- TVA -->
+                  <td class="px-2 py-2 text-center">
+                    @if (item.tva_rate > 0) {
+                      <span class="text-xs text-500">{{ item.tva_rate }}%</span>
+                    } @else {
+                      <span class="text-xs text-300">0%</span>
+                    }
+                  </td>
+
+                  <!-- P.U TTC -->
+                  <td class="px-2 py-2 text-right">
+                    <span class="text-xs font-medium text-700">{{ item.unit_price | number:'1.2-2' }} DA</span>
+                  </td>
+
+                  <!-- M.T TTC -->
+                  <td class="px-3 py-2 text-right">
+                    <span class="text-xs font-bold text-primary">{{ item.total_ttc | number:'1.2-2' }} DA</span>
+                  </td>
+
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <!-- ── Totals + notes ── -->
+        <div class="flex gap-3 justify-content-end flex-wrap">
+          @if (facture()!.notes) {
+            <div class="surface-card border-round-xl border-1 surface-border p-3 flex-1" style="min-width:200px">
+              <div class="flex align-items-center gap-2 mb-2">
+                <span class="flex align-items-center justify-content-center border-round flex-shrink-0"
+                      style="width:22px;height:22px;background:var(--surface-200)">
+                  <i class="pi pi-comment" style="font-size:.6rem;color:var(--text-color-secondary)"></i>
+                </span>
+                <span class="text-xs text-500 font-medium uppercase" style="letter-spacing:.05em">Notes</span>
+              </div>
+              <p class="m-0 text-sm text-700 line-height-3">{{ facture()!.notes }}</p>
+            </div>
+          }
+          <div class="surface-card border-1 surface-border border-round-xl overflow-hidden flex-shrink-0" style="min-width:230px">
+              <div class="flex justify-content-between align-items-center px-4 py-2 border-bottom-1 surface-border">
+                <span class="text-xs text-400">Total HT</span>
+                <span class="text-xs font-medium text-700">{{ facture()!.total_ht | number:'1.2-2' }} DA</span>
+              </div>
+              <div class="flex justify-content-between align-items-center px-4 py-2 border-bottom-1 surface-border">
+                <span class="text-xs text-400">Total TVA</span>
+                <span class="text-xs font-medium text-700">{{ facture()!.total_tva | number:'1.2-2' }} DA</span>
+              </div>
+              @if (facture()!.remise > 0) {
+                <div class="flex justify-content-between align-items-center px-4 py-2 border-bottom-1 surface-border">
+                  <span class="text-xs text-400">Remise</span>
+                  <span class="text-xs font-medium text-red-500">−{{ facture()!.remise | number:'1.2-2' }} DA</span>
+                </div>
+              }
+              @if (facture()!.timbre > 0) {
+                <div class="flex justify-content-between align-items-center px-4 py-2 border-bottom-1 surface-border">
+                  <span class="text-xs text-400">Timbre</span>
+                  <span class="text-xs font-medium text-700">+{{ facture()!.timbre | number:'1.2-2' }} DA</span>
+                </div>
+              }
+              <div class="flex justify-content-between align-items-center px-4 py-3 surface-50">
+                <span class="text-xs font-semibold text-900 uppercase" style="letter-spacing:.06em">Total TTC</span>
+                <span class="font-bold text-primary" style="font-size:1.05rem">{{ facture()!.total_ttc | number:'1.2-2' }} DA</span>
+              </div>
+          </div>
+        </div>
+
+      </div>
+    }
+  }
+
+</app-page-layout>
+
+
+<!-- PDF PREVIEW -->
+<p-dialog
+  [visible]="pdfService.showPdfPreview()"
+  (visibleChange)="pdfService.showPdfPreview.set($event)"
+  [modal]="true"
+  [style]="{ width: '85vw', height: '90vh' }"
+  header="Aperçu de la facture"
+  [closable]="true"
+  (onHide)="closePdfPreview()"
+>
+  @if (pdfService.pdfPreviewUrl()) {
+    <iframe [src]="pdfService.pdfPreviewUrl()" class="w-full"
+            style="height: calc(90vh - 130px); border: none;"></iframe>
+  }
+  <ng-template pTemplate="footer">
+    <p-button label="Fermer" severity="secondary" [text]="true" (onClick)="closePdfPreview()" />
+    <p-button label="Télécharger" icon="pi pi-download" (onClick)="downloadCurrentPdf()" />
+  </ng-template>
+</p-dialog>
+
+<p-toast />
+<p-confirmDialog />

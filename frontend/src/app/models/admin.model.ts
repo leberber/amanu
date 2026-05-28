@@ -120,6 +120,7 @@ export interface DashboardStats {
     created_at: string;
     updated_at?: string;
     groups?: UserGroupBasic[];
+    fiscal_info?: { rc?: string; na?: string; nif?: string; nis?: string };
   }
 
   // Customer Route (for delivery route optimization)

@@ -1,4 +1,8 @@
 :host {
+  .form-wizard__body {
+    padding-bottom: 0;
+  }
+
   .form-wizard__body .grid > [class*="col-"] {
     padding: var(--space-3);
 

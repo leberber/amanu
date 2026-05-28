@@ -46,6 +46,8 @@ class UserBase(SQLModel):
     commune: Optional[str] = Field(default=None, max_length=50)
     latitude: Optional[float] = Field(default=None)
     longitude: Optional[float] = Field(default=None)
+    # Fiscal info (for invoicing) — stored as JSON: {rc, na, nif, nis}
+    fiscal_info: Optional[Dict[str, Any]] = Field(default=None, sa_type=JSON)
     # Auth
     auth_provider: AuthProvider = Field(default=AuthProvider.EMAIL, sa_type=String(20))
     profile_picture: Optional[str] = Field(default=None, max_length=500)
@@ -74,6 +76,8 @@ class User(SQLModel, table=True):
     latitude: Optional[float] = Field(default=None)
     longitude: Optional[float] = Field(default=None)
 
+    # Fiscal info (for invoicing) — {rc, na, nif, nis}
+    fiscal_info: Optional[Dict[str, Any]] = Field(default=None, sa_type=JSON)
     # Auth
     auth_provider: AuthProvider = Field(default=AuthProvider.EMAIL, sa_type=String(20))
     profile_picture: Optional[str] = Field(default=None, max_length=500)
@@ -111,6 +115,8 @@ class UserUpdate(SQLModel):
     commune: Optional[str] = Field(default=None, max_length=50)
     latitude: Optional[float] = Field(default=None)
     longitude: Optional[float] = Field(default=None)
+    # Fiscal info (for invoicing) — {rc, na, nif, nis}
+    fiscal_info: Optional[Dict[str, Any]] = Field(default=None)
     # Auth
     password: Optional[str] = Field(default=None, min_length=8, max_length=100)
     # Preferences

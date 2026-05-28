@@ -1827,6 +1827,8 @@
       "stock": "Purchasing",
       "purchase_orders": "Purchase Orders",
       "suppliers": "Suppliers",
+      "facturation": "Invoicing",
+      "company_settings": "Company Settings",
       "logs": "Logs",
       "system": "System"
     },

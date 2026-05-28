@@ -182,6 +182,72 @@
                         </div>
                       </div>
                     </div>
+
+                    <!-- Fiscal Info section divider -->
+                    <div class="flex align-items-center gap-2 mt-3 mb-2 pt-3" style="border-top: 1px solid var(--surface-border)">
+                      <i class="pi pi-file-edit text-primary text-sm"></i>
+                      <span class="text-sm font-semibold text-600">Informations fiscales</span>
+                    </div>
+
+                    <!-- RC + N.A -->
+                    <div class="grid">
+                      <div class="col-6">
+                        <div class="form-field">
+                          <div class="field-box" [class.filled]="userForm.get('fiscal_rc')?.value">
+                            <div class="field-box__icon field-box__icon--warning">
+                              <i class="pi pi-briefcase"></i>
+                            </div>
+                            <div class="field-box__content">
+                              <label>RC</label>
+                              <input pInputText type="text" formControlName="fiscal_rc" placeholder="Registre de Commerce">
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-6">
+                        <div class="form-field">
+                          <div class="field-box" [class.filled]="userForm.get('fiscal_na')?.value">
+                            <div class="field-box__icon field-box__icon--info">
+                              <i class="pi pi-hashtag"></i>
+                            </div>
+                            <div class="field-box__content">
+                              <label>N.A</label>
+                              <input pInputText type="text" formControlName="fiscal_na" placeholder="Numéro d'Article">
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- NIF + NIS -->
+                    <div class="grid">
+                      <div class="col-6">
+                        <div class="form-field">
+                          <div class="field-box" [class.filled]="userForm.get('fiscal_nif')?.value">
+                            <div class="field-box__icon field-box__icon--primary">
+                              <i class="pi pi-id-card"></i>
+                            </div>
+                            <div class="field-box__content">
+                              <label>NIF</label>
+                              <input pInputText type="text" formControlName="fiscal_nif" placeholder="N° Identification Fiscale">
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-6">
+                        <div class="form-field">
+                          <div class="field-box" [class.filled]="userForm.get('fiscal_nis')?.value">
+                            <div class="field-box__icon field-box__icon--success">
+                              <i class="pi pi-chart-bar"></i>
+                            </div>
+                            <div class="field-box__content">
+                              <label>NIS</label>
+                              <input pInputText type="text" formControlName="fiscal_nis" placeholder="N° Identification Statistique">
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>

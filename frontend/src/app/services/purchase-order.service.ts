@@ -16,6 +16,7 @@ export interface PurchaseOrderItem {
   quantity_ordered: number;      // Original quantity ordered
   quantity_received?: number;    // Actual quantity received (for partial deliveries)
   facture_quantity?: number;     // Units received with official invoice
+  tva_rate?: number;             // TVA rate on supplier invoice (0, 9, or 19)
   unit_price: number;
   total_price: number;
 }
@@ -94,6 +95,7 @@ export interface DeliveryConfirmation {
     item_id: number;
     quantity_received: number;
     facture_quantity: number;
+    tva_rate: number;
   }[];
   notes?: string;
 }

@@ -149,3 +149,10 @@ router-outlet + * {
     font-size: 16px !important;
   }
 }
+
+.page-layout--enhanced,
+.page-layout--enhanced *,
+.page-layout--enhanced *::before,
+.page-layout--enhanced *::after {
+  box-sizing: content-box !important;
+}
