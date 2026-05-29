@@ -29,7 +29,7 @@ class Settings(BaseSettings):
     # Security settings
     SECRET_KEY: str = os.getenv("SECRET_KEY", "your-secret-key-here-make-it-very-secure-and-very-long")
     ALGORITHM: str = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 1440
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 129600  # 90 days
     
     # Admin user settings
     ADMIN_EMAIL: str = os.getenv("ADMIN_EMAIL", "admin@elsuqhub.com")
