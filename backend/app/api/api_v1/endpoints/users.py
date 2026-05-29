@@ -1,7 +1,7 @@
 from typing import Any, List
 from datetime import datetime, timezone
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, BackgroundTasks
 from sqlmodel import Session, select, func
 from pydantic import BaseModel
 
@@ -15,6 +15,7 @@ from app.core.security import (
     get_password_hash,
 )
 from app.core.geo import lat_lng_to_h3
+from app.services.email import send_store_password_email
 
 router = APIRouter()
 
@@ -215,6 +216,35 @@ def update_user(
     session.commit()
     session.refresh(user)
     return user
+
+class SetPasswordRequest(BaseModel):
+    password: str
+
+
+@router.post("/{user_id}/set-password", response_model=UserRead)
+async def set_user_password(
+    user_id: int,
+    data: SetPasswordRequest,
+    background_tasks: BackgroundTasks,
+    current_user: User = Depends(get_current_admin_user),
+    session: Session = Depends(get_session),
+) -> Any:
+    """Set password for a user and notify them by email (admin only)."""
+    user = session.get(User, user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    user.hashed_password = get_password_hash(data.password)
+    user.updated_at = datetime.now(timezone.utc)
+    session.add(user)
+    session.commit()
+    session.refresh(user)
+
+    name = user.store_name or user.full_name or user.email
+    background_tasks.add_task(send_store_password_email, user.email, name, data.password)
+
+    return user
+
 
 @router.delete("/{user_id}")
 def delete_user(

@@ -122,6 +122,10 @@ export class AdminService {
     return this.apiService.patch<UserManage>(`/users/${userId}`, userData);
   }
 
+  setUserPassword(userId: number, password: string): Observable<UserManage> {
+    return this.apiService.post<UserManage>(`/users/${userId}/set-password`, { password });
+  }
+
   deleteUser(userId: number): Observable<void> {
     return this.apiService.delete<void>(`/users/${userId}`);
   }

@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, DestroyRef } from '@angular/core';
+import { Component, OnInit, inject, DestroyRef, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ConfirmationService } from 'primeng/api';
 import { SelectModule } from 'primeng/select';
@@ -333,5 +333,34 @@ export class AdminUsersComponent extends BaseAdminListComponent implements OnIni
   // UI utilities
   refreshUserData(): void {
     this.loadAllUsers();
+  }
+
+  // ── Set Password Dialog ───────────────────────────────────────────────────
+  showPasswordDialog = signal(false);
+  passwordDialogUser: UserManage | null = null;
+  newPassword = '';
+  savingPassword = signal(false);
+
+  openPasswordDialog(user: UserManage): void {
+    this.passwordDialogUser = user;
+    this.newPassword = '';
+    this.showPasswordDialog.set(true);
+  }
+
+  savePassword(): void {
+    if (!this.passwordDialogUser || !this.newPassword.trim()) return;
+    this.savingPassword.set(true);
+    this.adminService.setUserPassword(this.passwordDialogUser.id, this.newPassword)
+      .subscribe({
+        next: () => {
+          this.savingPassword.set(false);
+          this.showPasswordDialog.set(false);
+          this.baseToast.showSuccess('Mot de passe défini avec succès');
+        },
+        error: () => {
+          this.savingPassword.set(false);
+          this.baseToast.showError('Erreur lors de la définition du mot de passe');
+        }
+      });
   }
 }

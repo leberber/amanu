@@ -91,6 +91,103 @@ async def send_password_reset_email(email: str, code: str) -> bool:
         return False
 
 
+async def send_store_password_email(email: str, name: str, password: str) -> bool:
+    """Send email to store owner when admin sets a password for multi-device access"""
+    try:
+        conf = get_mail_config()
+
+        html_content = f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        </head>
+        <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f5f5f5;">
+            <div style="max-width: 600px; margin: 0 auto; padding: 40px 20px;">
+                <div style="background: white; border-radius: 16px; padding: 40px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
+                    <!-- Header -->
+                    <div style="text-align: center; margin-bottom: 32px;">
+                        <table role="presentation" style="margin: 0 auto 16px;">
+                            <tr>
+                                <td style="width: 64px; height: 64px; background: linear-gradient(135deg, #2E6CB7 0%, #0F3C82 100%); border-radius: 50%; text-align: center; vertical-align: middle;">
+                                    <span style="font-size: 28px; line-height: 1;">🏪</span>
+                                </td>
+                            </tr>
+                        </table>
+                        <h1 style="margin: 0; color: #1a1a1a; font-size: 24px; font-weight: 700;">Accès multi-appareils activé</h1>
+                    </div>
+
+                    <!-- Greeting -->
+                    <p style="color: #333; font-size: 16px; line-height: 1.6; margin-bottom: 16px;">
+                        Bonjour <strong>{name}</strong>,
+                    </p>
+
+                    <!-- Explanation -->
+                    <p style="color: #666; font-size: 16px; line-height: 1.6; margin-bottom: 24px;">
+                        Afin de permettre à <strong>plusieurs personnes de votre magasin</strong> de passer des commandes depuis différents appareils sur le même compte, un mot de passe a été défini pour votre compte AgroClik.
+                    </p>
+
+                    <!-- Credentials Box -->
+                    <div style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 12px; padding: 24px; margin-bottom: 24px;">
+                        <p style="margin: 0 0 16px 0; color: #333; font-size: 15px; font-weight: 600;">Vos identifiants de connexion :</p>
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <tr>
+                                <td style="padding: 8px 0; color: #666; font-size: 14px; width: 30%;">Email</td>
+                                <td style="padding: 8px 0; color: #0F3C82; font-size: 14px; font-weight: 600;">{email}</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 8px 0; color: #666; font-size: 14px;">Mot de passe</td>
+                                <td style="padding: 8px 0; color: #0F3C82; font-size: 18px; font-weight: 700; font-family: monospace; letter-spacing: 2px;">{password}</td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <!-- Info -->
+                    <div style="background: #e8f4fd; border-left: 4px solid #2E6CB7; border-radius: 0 8px 8px 0; padding: 16px; margin-bottom: 24px;">
+                        <p style="margin: 0; color: #0F3C82; font-size: 14px; line-height: 1.6;">
+                            💡 Vous pouvez partager ces identifiants avec vos employés pour qu'ils puissent se connecter depuis n'importe quel appareil et passer des commandes au nom de votre magasin.
+                        </p>
+                    </div>
+
+                    <!-- Note -->
+                    <div style="background: #f0fdf4; border: 1.5px solid #86efac; border-radius: 10px; padding: 16px 20px; text-align: center;">
+                        <p style="margin: 0 0 4px 0; color: #166534; font-size: 15px; font-weight: 700;">
+                            ✅ Connexion Google toujours active
+                        </p>
+                        <p style="margin: 0; color: #15803d; font-size: 14px; line-height: 1.5;">
+                            Vous pouvez continuer à vous connecter avec Google comme avant.<br>
+                            Les deux méthodes donnent accès au même compte.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Footer -->
+                <div style="text-align: center; margin-top: 24px;">
+                    <p style="color: #999; font-size: 12px; margin: 0;">
+                        &copy; 2025 AgroClik. Tous droits réservés.
+                    </p>
+                </div>
+            </div>
+        </body>
+        </html>
+        """
+
+        message = MessageSchema(
+            subject="Accès multi-appareils — AgroClik",
+            recipients=[email],
+            body=html_content,
+            subtype=MessageType.html,
+        )
+
+        fm = FastMail(conf)
+        await fm.send_message(message)
+        return True
+    except Exception as e:
+        print(f"Failed to send store password email: {e}")
+        return False
+
+
 async def send_email_verification_email(email: str, code: str) -> bool:
     """Send email verification code for registration"""
     try:

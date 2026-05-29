@@ -96,6 +96,45 @@
 
   <!-- Main Section: Table -->
   <div pageMain>
+
+  <!-- Set Password Dialog -->
+  <p-dialog
+    header="Définir le mot de passe"
+    [visible]="showPasswordDialog()"
+    (visibleChange)="showPasswordDialog.set($event)"
+    [modal]="true"
+    [style]="{ width: '380px' }"
+    [draggable]="false">
+    @if (passwordDialogUser) {
+      <div class="flex flex-column gap-3">
+        <div class="flex align-items-center gap-2 mb-2">
+          <i class="pi pi-user text-primary"></i>
+          <span class="font-semibold">{{ passwordDialogUser.full_name }}</span>
+          <span class="text-secondary text-sm">{{ passwordDialogUser.email }}</span>
+        </div>
+        <div class="flex flex-column gap-1">
+          <label class="text-sm font-semibold">Nouveau mot de passe</label>
+          <input
+            pInputText
+            type="password"
+            [(ngModel)]="newPassword"
+            placeholder="Entrez le mot de passe"
+            class="w-full"
+          />
+        </div>
+      </div>
+    }
+    <ng-template pTemplate="footer">
+      <p-button label="Annuler" severity="secondary" (click)="showPasswordDialog.set(false)" />
+      <p-button
+        label="Enregistrer"
+        icon="pi pi-check"
+        [loading]="savingPassword()"
+        [disabled]="!newPassword.trim()"
+        (click)="savePassword()"
+      />
+    </ng-template>
+  </p-dialog>
     <!-- Loading State - Skeleton Table -->
     @if (loading) {
       <app-table-skeleton
@@ -291,6 +330,9 @@
                         <div class="table-cell-actions justify-content-center">
                           <button class="action-btn edit" (click)="navigateToEditUser(user)" [pTooltip]="'admin.users.actions.view_edit' | translate" tooltipPosition="top">
                             <i class="pi pi-pencil"></i>
+                          </button>
+                          <button class="action-btn" (click)="openPasswordDialog(user)" pTooltip="Définir le mot de passe" tooltipPosition="top">
+                            <i class="pi pi-key"></i>
                           </button>
                           <button class="action-btn delete" (click)="confirmDeleteUser(user)" [pTooltip]="'admin.users.actions.delete' | translate" tooltipPosition="top">
                             <i class="pi pi-trash"></i>
