@@ -16,6 +16,7 @@ export interface PurchaseOrderItem {
   quantity_ordered: number;      // Original quantity ordered
   quantity_received?: number;    // Actual quantity received (for partial deliveries)
   facture_quantity?: number;     // Units received with official invoice
+  facture_unit_price?: number;   // Price per unit on supplier's official invoice
   tva_rate?: number;             // TVA rate on supplier invoice (0, 9, or 19)
   unit_price: number;
   total_price: number;
@@ -172,7 +173,7 @@ export class PurchaseOrderService {
     return this.api.post<PurchaseOrder>(`/purchase-orders/${id}/deliver`, delivery);
   }
 
-  updateFactureItems(orderId: number, items: { item_id: number; facture_quantity: number; tva_rate: number }[]): Observable<PurchaseOrder> {
+  updateFactureItems(orderId: number, items: { item_id: number; facture_quantity: number; facture_unit_price: number; tva_rate: number }[]): Observable<PurchaseOrder> {
     return this.api.patch<PurchaseOrder>(`/purchase-orders/${orderId}/facture-items`, { items });
   }
 

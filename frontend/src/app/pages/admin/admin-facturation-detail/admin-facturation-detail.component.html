@@ -167,7 +167,7 @@
                         {{ product.name }}
                       </span>
                       <div class="flex align-items-center gap-1 mt-1">
-                        <span class="text-xs text-500">{{ product.price | number:'1.2-2' }} DA</span>
+                        <span class="text-xs text-500">{{ product.facture_unit_price | number:'1.2-2' }} DA</span>
                         @if ((product.tva_rate ?? 0) > 0) {
                           <p-tag [value]="product.tva_rate + '%'" severity="secondary" [rounded]="true" styleClass="text-xs" />
                         }
@@ -213,12 +213,14 @@
                   <tr>
                     <th class="text-xs font-semibold text-left px-3 text-600 uppercase border-bottom-1 surface-border" style="letter-spacing:.06em;padding-top:1.1rem;padding-bottom:.85rem">Article</th>
                     <th class="text-xs font-semibold text-left px-2 text-600 uppercase border-bottom-1 surface-border" style="width:66px;letter-spacing:.06em;padding-top:1.1rem;padding-bottom:.85rem">Unité</th>
-                    <th class="text-xs font-semibold text-right px-2 text-600 uppercase border-bottom-1 surface-border" style="width:70px;letter-spacing:.06em;padding-top:1.1rem;padding-bottom:.85rem">Prix/pcs</th>
+                    <th class="text-xs font-semibold text-right px-2 text-600 uppercase border-bottom-1 surface-border" style="width:84px;letter-spacing:.06em;padding-top:1.1rem;padding-bottom:.85rem">P. Achat Fact/pcs</th>
+                    <th class="text-xs font-semibold text-right px-2 text-600 uppercase border-bottom-1 surface-border" style="width:84px;letter-spacing:.06em;padding-top:1.1rem;padding-bottom:.85rem">P. Vente Fact/pcs</th>
                     <th class="text-xs font-semibold text-center px-2 text-600 uppercase border-bottom-1 surface-border" style="width:82px;letter-spacing:.06em;padding-top:1.1rem;padding-bottom:.85rem">Qté</th>
-                    <th class="text-xs font-semibold text-right px-2 text-600 uppercase border-bottom-1 surface-border" style="width:78px;letter-spacing:.06em;padding-top:1.1rem;padding-bottom:.85rem">P.U HT</th>
+                    <th class="text-xs font-semibold text-right px-2 text-600 uppercase border-bottom-1 surface-border" style="width:86px;letter-spacing:.06em;padding-top:1.1rem;padding-bottom:.85rem">P.CTN HT</th>
+                    <th class="text-xs font-semibold text-right px-2 text-600 uppercase border-bottom-1 surface-border" style="width:88px;letter-spacing:.06em;padding-top:1.1rem;padding-bottom:.85rem">Total HT</th>
                     <th class="text-xs font-semibold text-center px-2 text-600 uppercase border-bottom-1 surface-border" style="width:58px;letter-spacing:.06em;padding-top:1.1rem;padding-bottom:.85rem">TVA</th>
-                    <th class="text-xs font-semibold text-right px-2 text-600 uppercase border-bottom-1 surface-border" style="width:78px;letter-spacing:.06em;padding-top:1.1rem;padding-bottom:.85rem">P.U TTC</th>
-                    <th class="text-xs font-semibold text-right px-3 text-600 uppercase border-bottom-1 surface-border" style="width:82px;letter-spacing:.06em;padding-top:1.1rem;padding-bottom:.85rem">M.T TTC</th>
+                    <th class="text-xs font-semibold text-right px-3 text-600 uppercase border-bottom-1 surface-border" style="width:86px;letter-spacing:.06em;padding-top:1.1rem;padding-bottom:.85rem">P.CTN TTC</th>
+                    <th class="text-xs font-semibold text-right px-2 text-600 uppercase border-bottom-1 surface-border" style="width:78px;letter-spacing:.06em;padding-top:1.1rem;padding-bottom:.85rem">Total TTC</th>
                     <th class="border-bottom-1 surface-border" style="width:36px;padding-top:.75rem"></th>
                   </tr>
                 </thead>
@@ -257,13 +259,17 @@
                         </div>
                       </td>
 
-                      <!-- Prix/pcs -->
+                      <!-- P. Achat/pcs (from DB) -->
                       <td class="px-2 py-2 text-right">
-                        @if (item.pieces_per_box > 1) {
-                          <span class="text-xs text-500">{{ itemPricePerPiece(item) | number:'1.2-2' }}</span>
-                        } @else {
-                          <span class="text-300 text-xs">—</span>
-                        }
+                        <span class="text-xs text-400">{{ item.facture_unit_price | number:'1.2-2' }}</span>
+                      </td>
+
+                      <!-- P. Vente Fact/pcs (editable) -->
+                      <td class="px-1 py-2 text-right">
+                        <p-inputNumber [(ngModel)]="item.prix_vente_pcs"
+                                       (ngModelChange)="recalculate(item)"
+                                       [min]="0" [minFractionDigits]="2" [showButtons]="false"
+                                       [inputStyle]="{ width:'72px', textAlign:'right', fontSize:'.75rem', padding:'.2rem .3rem' }" />
                       </td>
 
                       <!-- Quantité +/− -->
@@ -278,14 +284,19 @@
                         </div>
                       </td>
 
-                      <!-- P.U HT -->
+                      <!-- P.CTN HT -->
                       <td class="px-2 py-2 text-right">
-                        <span class="text-xs text-green-600">{{ itemHtPerCarton(item) | number:'1.2-2' }}</span>
+                        <span class="text-xs text-500">{{ item.prix_vente_pcs * item.pieces_per_box | number:'1.2-2' }}</span>
                       </td>
 
-                      <!-- TVA (pill dropdown) -->
+                      <!-- Total HT -->
+                      <td class="px-2 py-2 text-right">
+                        <span class="text-xs text-green-600">{{ pCtnHt(item) * item.quantity | number:'1.2-2' }}</span>
+                      </td>
+
+                      <!-- TVA -->
                       <td class="px-1 py-2 text-center">
-                        <select [(ngModel)]="item.tva_rate"
+                        <select [(ngModel)]="item.tva_rate" (ngModelChange)="recalculate(item)"
                                 class="border-round-xl font-bold cursor-pointer"
                                 style="padding:.2rem .4rem;outline:none;width:56px;border-width:1px;border-style:solid;font-size:.7rem"
                                 [style.background]="item.tva_rate === 0 ? 'var(--surface-100)' : item.tva_rate === 9 ? '#fff7ed' : '#fef2f2'"
@@ -297,20 +308,39 @@
                         </select>
                       </td>
 
-                      <!-- P.U TTC -->
-                      <td class="px-2 py-2 text-right">
-                        <span class="text-xs font-semibold text-700">{{ item.unit_price | number:'1.2-2' }}</span>
-                      </td>
-
-                      <!-- M.T TTC -->
+                      <!-- P.CTN TTC -->
                       <td class="px-3 py-2 text-right">
-                        <span class="text-xs font-bold text-primary">{{ itemTtc(item) | number:'1.2-2' }}</span>
+                        <span class="text-xs font-bold text-primary">{{ pCtnTtc(item) | number:'1.2-2' }}</span>
                       </td>
 
-                      <!-- Remove -->
-                      <td class="py-2 pr-2 text-center">
-                        <p-button icon="pi pi-trash" [rounded]="true" [text]="true"
-                                  severity="danger" size="small" (onClick)="removeItem(i)" />
+                      <!-- Total TTC -->
+                      <td class="px-2 py-2 text-right">
+                        <span class="text-xs font-semibold text-700">{{ pCtnTtc(item) * item.quantity | number:'1.2-2' }}</span>
+                      </td>
+
+                      <!-- Actions -->
+                      <td class="py-2 pr-2">
+                        <div class="flex align-items-center justify-content-center gap-1">
+                          @if (activeMarginIndex() === i) {
+                            <p-inputNumber [(ngModel)]="pendingMargin"
+                                           [min]="0" [max]="1000" suffix="%"
+                                           [showButtons]="false" [autofocus]="true"
+                                           [inputStyle]="{ width:'52px', fontSize:'.72rem', padding:'.15rem .3rem' }"
+                                           (keydown.enter)="applyMargin(item)"
+                                           (onBlur)="applyMargin(item)" />
+                          } @else {
+                            <p-button label="%" [rounded]="true" [text]="true"
+                                      severity="secondary" size="small"
+                                      pTooltip="Appliquer une marge" tooltipPosition="top"
+                                      (onClick)="openMarginInput(i)" />
+                          }
+                          <p-button icon="pi pi-sync" [rounded]="true" [text]="true"
+                                    severity="secondary" size="small"
+                                    pTooltip="Recalculer au prix d'achat TTC" tooltipPosition="top"
+                                    (onClick)="syncToAchat(item)" />
+                          <p-button icon="pi pi-trash" [rounded]="true" [text]="true"
+                                    severity="danger" size="small" (onClick)="removeItem(i)" />
+                        </div>
                       </td>
 
                     </tr>
@@ -547,7 +577,7 @@
                   <!-- Prix/pcs -->
                   <td class="px-2 py-2 text-right">
                     @if (item.pieces_per_box > 1) {
-                      <span class="text-xs text-500">{{ (item.unit_price / item.pieces_per_box) | number:'1.2-2' }}</span>
+                      <span class="text-xs text-500">{{ (item.total_ht / item.quantity / item.pieces_per_box) | number:'1.2-2' }}</span>
                     } @else {
                       <span class="text-300 text-xs">—</span>
                     }

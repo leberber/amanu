@@ -18,6 +18,7 @@ from app.models.restock import RestockItem
 class FactureItemUpdate(BaseModel):
     item_id: int
     facture_quantity: int
+    facture_unit_price: float
     tva_rate: int
 
 class FactureItemsBulkUpdate(BaseModel):
@@ -58,6 +59,7 @@ def order_to_response(order: PurchaseOrder) -> PurchaseOrderResponse:
             quantity_ordered=item.quantity_ordered,
             quantity_received=item.quantity_received,
             facture_quantity=item.facture_quantity,
+            facture_unit_price=item.facture_unit_price,
             tva_rate=item.tva_rate,
             unit_price=item.unit_price,
             total_price=item.total_price
@@ -336,6 +338,7 @@ async def confirm_delivery(
                 quantity_received = delivery_item.quantity_received
                 item.quantity_received = quantity_received
                 item.facture_quantity = delivery_item.facture_quantity
+                item.facture_unit_price = delivery_item.facture_unit_price
                 item.tva_rate = delivery_item.tva_rate
 
                 product = None
@@ -501,6 +504,7 @@ async def update_facture_items(
         if not item or item.purchase_order_id != order_id:
             continue
         item.facture_quantity = update.facture_quantity
+        item.facture_unit_price = update.facture_unit_price
         item.tva_rate = update.tva_rate
         session.add(item)
     session.commit()

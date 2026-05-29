@@ -29,7 +29,9 @@ interface InvoiceItem {
   unit: string;
   pieces_per_box: number;
   quantity: number;
-  unit_price: number;
+  facture_unit_price: number;  // prix facturé/pcs from purchase order (read-only)
+  prix_vente_pcs: number;       // selling price per piece (editable, drives unit_price)
+  unit_price: number;           // per-carton TTC = prix_vente_pcs × pieces_per_box × (1 + tva/100)
   tva_rate: number;
   image_url?: string;
 }
@@ -98,10 +100,25 @@ export class AdminFacturationDetailComponent implements OnInit {
   notesExpanded = signal(false);
 
   get catalogProducts(): FacturationCatalogItem[] {
-    return this.allProducts.filter(p => {
-      if (this.filterBrand !== null && p.brand_id !== this.filterBrand) return false;
-      return true;
-    });
+    if (this.filterBrand === null) return this.allProducts;
+    return this.allProducts.filter(p => p.brand_id === this.filterBrand);
+  }
+
+  // ── Margin input state ────────────────────────────────────────────────────────
+  activeMarginIndex = signal<number | null>(null);
+  pendingMargin = 0;
+
+  openMarginInput(index: number): void {
+    this.pendingMargin = 0;
+    this.activeMarginIndex.set(index);
+  }
+
+  applyMargin(item: InvoiceItem): void {
+    if (this.pendingMargin !== 0) {
+      item.prix_vente_pcs = item.prix_vente_pcs * (1 + this.pendingMargin / 100);
+      this.recalculate(item);
+    }
+    this.activeMarginIndex.set(null);
   }
 
   // ── Invoice form ─────────────────────────────────────────────────────────────
@@ -113,17 +130,10 @@ export class AdminFacturationDetailComponent implements OnInit {
 
   // ── Totals ──────────────────────────────────────────────────────────────────
   get totalHt(): number {
-    return this.items.reduce((sum, item) => {
-      const ttc = item.unit_price * item.quantity;
-      return sum + (item.tva_rate > 0 ? ttc / (1 + item.tva_rate / 100) : ttc);
-    }, 0);
+    return this.items.reduce((sum, item) => sum + this.pCtnHt(item) * item.quantity, 0);
   }
   get totalTva(): number {
-    return this.items.reduce((sum, item) => {
-      const ttc = item.unit_price * item.quantity;
-      const ht = item.tva_rate > 0 ? ttc / (1 + item.tva_rate / 100) : ttc;
-      return sum + (ttc - ht);
-    }, 0);
+    return this.items.reduce((sum, item) => sum + (this.pCtnTtc(item) - this.pCtnHt(item)) * item.quantity, 0);
   }
   get totalTtc(): number {
     return this.totalHt + this.totalTva - this.remise + this.timbre;
@@ -214,14 +224,18 @@ export class AdminFacturationDetailComponent implements OnInit {
       existing.quantity++;
     } else {
       const piecesPerBox = product.pieces_per_box ?? 1;
+      const facture_unit_price = product.facture_unit_price ?? 0;
+      const tva = product.tva_rate ?? 0;
       this.items.push({
         product_id: product.id,
         product_name: product.name,
         unit: this.mapPackagingType(product.packaging_type),
         pieces_per_box: piecesPerBox,
         quantity: 1,
-        unit_price: product.price * piecesPerBox,
-        tva_rate: product.tva_rate ?? 0,
+        facture_unit_price,
+        prix_vente_pcs: facture_unit_price,
+        unit_price: facture_unit_price * piecesPerBox * (1 + tva / 100),
+        tva_rate: tva,
         image_url: product.image_url,
       });
     }
@@ -253,12 +267,21 @@ export class AdminFacturationDetailComponent implements OnInit {
     return packagingType ? (map[packagingType] ?? 'Carton') : 'Carton';
   }
 
-  itemTtc(item: InvoiceItem): number { return item.unit_price * item.quantity; }
-  itemHtPerCarton(item: InvoiceItem): number {
-    return item.tva_rate > 0 ? item.unit_price / (1 + item.tva_rate / 100) : item.unit_price;
+  pCtnHt(item: InvoiceItem): number {
+    return item.prix_vente_pcs * item.pieces_per_box;
   }
-  itemPricePerPiece(item: InvoiceItem): number {
-    return item.pieces_per_box > 1 ? item.unit_price / item.pieces_per_box : item.unit_price;
+
+  pCtnTtc(item: InvoiceItem): number {
+    return this.pCtnHt(item) * (1 + item.tva_rate / 100);
+  }
+
+  recalculate(item: InvoiceItem): void {
+    item.unit_price = this.pCtnTtc(item);
+  }
+
+  syncToAchat(item: InvoiceItem): void {
+    item.prix_vente_pcs = item.facture_unit_price / (1 + item.tva_rate / 100);
+    this.recalculate(item);
   }
 
   // ── Save ─────────────────────────────────────────────────────────────────────

@@ -22,6 +22,15 @@
               <i class="pi pi-box"></i>
               <span>{{ 'admin.purchase_orders.detail.products' | translate }} ({{ order()!.item_count }})</span>
             </div>
+            <p-button
+              [icon]="sidebarCollapsed() ? 'pi pi-angle-double-left' : 'pi pi-angle-double-right'"
+              [pTooltip]="sidebarCollapsed() ? 'Afficher le panneau' : 'Masquer le panneau'"
+              tooltipPosition="left"
+              [text]="true"
+              severity="secondary"
+              size="small"
+              (onClick)="sidebarCollapsed.set(!sidebarCollapsed())"
+            />
           </div>
 
           <div class="table-wrapper">
@@ -32,9 +41,11 @@
                   <th style="width: 15%">{{ 'admin.purchase_orders.detail.brand' | translate }}</th>
                   <th style="width: 10%" class="text-center">{{ 'admin.purchase_orders.detail.units_per_carton' | translate }}</th>
                   <th style="width: 15%" class="text-center">{{ 'admin.purchase_orders.detail.quantity' | translate }}</th>
-                  <th style="width: 12%" class="text-right">{{ 'admin.purchase_orders.detail.unit_price' | translate }}</th>
-                  <th style="width: 12%" class="text-right">{{ 'admin.purchase_orders.detail.total_price' | translate }}</th>
-                  <th style="width: 10%" class="text-center">Qté Facturée</th>
+                  <th style="width: 10%" class="text-right">P.U/pcs</th>
+                  <th style="width: 10%" class="text-right">P.CTN</th>
+                  <th style="width: 10%" class="text-right">{{ 'admin.purchase_orders.detail.total_price' | translate }}</th>
+                  <th style="width: 10%" class="text-center">Qté Fact.</th>
+                  <th style="width: 12%" class="text-right">P. Fact./U</th>
                   <th style="width: 12%" class="text-center">TVA</th>
                   @if (order()!.status === 'sent') {
                     <th style="width: 6%" class="text-center"></th>
@@ -81,6 +92,9 @@
                         <span class="font-semibold">{{ item.quantity_ordered }}</span>
                       }
                     <td class="text-right">
+                      <span class="text-secondary">{{ (item.unit_price / item.units_per_carton) | appCurrency }}</span>
+                    </td>
+                    <td class="text-right">
                       <span class="text-secondary">{{ item.unit_price | appCurrency }}</span>
                     </td>
                     <td class="text-right">
@@ -91,10 +105,19 @@
                         <p-inputNumber
                           [(ngModel)]="editableItems()[i].facture_quantity"
                           [min]="0"
-                          [max]="editableItems()[i].quantity_ordered * editableItems()[i].units_per_carton"
+                          [showButtons]="false"
                           styleClass="w-full"
                           inputStyleClass="text-center"
-                          [placeholder]="'0'"
+                        />
+                      </td>
+                      <td class="text-right">
+                        <p-inputNumber
+                          [(ngModel)]="editableItems()[i].facture_unit_price"
+                          [min]="0"
+                          [minFractionDigits]="2"
+                          styleClass="w-full"
+                          inputStyleClass="text-right"
+                          [placeholder]="'0.00'"
                         />
                       </td>
                       <td class="text-center">
@@ -125,6 +148,13 @@
                       <td class="text-center">
                         <span class="font-semibold">{{ item.facture_quantity }}</span>
                       </td>
+                      <td class="text-right">
+                        @if (item.facture_unit_price) {
+                          <span class="font-semibold">{{ item.facture_unit_price | appCurrency }}</span>
+                        } @else {
+                          <span class="text-secondary text-sm">—</span>
+                        }
+                      </td>
                       <td class="text-center">
                         @if (item.tva_rate > 0) {
                           <span class="pill purple">{{ item.tva_rate }}%</span>
@@ -147,6 +177,7 @@
             </div>
           </div>
         </div>
+
 
         <!-- Notes -->
         @if (order()!.notes) {
@@ -223,7 +254,8 @@
       </div>
 
       <!-- Sidebar -->
-      <div class="order-detail-sidebar">
+      <div class="order-detail-sidebar" [class.sidebar-collapsed]="sidebarCollapsed()">
+        @if (!sidebarCollapsed()) {
         <div class="sidebar-card">
           <div class="sidebar-card__header">
             <i class="pi pi-clock"></i>
@@ -302,6 +334,7 @@
             }
           </div>
         </div>
+        }
       </div>
     </div>
   }

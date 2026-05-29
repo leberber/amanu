@@ -15,6 +15,7 @@ export interface FacturationCatalogItem {
   brand_id?: number;
   facture_stock: number;
   image_url?: string;
+  facture_unit_price: number;
 }
 
 // Lightweight user view for client selection in invoice creation

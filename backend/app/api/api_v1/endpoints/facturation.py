@@ -28,6 +28,7 @@ class FacturationCatalogItem(BaseModel):
     brand_id: Optional[int]
     facture_stock: int  # cartons received (supplier invoice) minus cartons already billed to clients
     image_url: Optional[str] = None
+    facture_unit_price: float = 0.0  # most recent prix facturé per unit from purchase orders
 
 router = APIRouter()
 
@@ -197,7 +198,18 @@ async def get_facturation_catalog(session: Session = Depends(get_session)):
         select(Product).where(Product.id.in_(product_ids)).order_by(Product.name)
     ).all()
 
-    # Step 3: Total already billed to clients per product
+    # Step 3: Most recent facture_unit_price per product
+    price_rows = session.exec(
+        select(PurchaseOrderItem.product_id, func.max(PurchaseOrderItem.facture_unit_price))
+        .where(
+            PurchaseOrderItem.product_id.in_(product_ids),
+            PurchaseOrderItem.facture_unit_price > 0
+        )
+        .group_by(PurchaseOrderItem.product_id)
+    ).all()
+    facture_price_map = {row[0]: float(row[1] or 0) for row in price_rows}
+
+    # Step 4: Total already billed to clients per product
     invoiced_rows = session.exec(
         select(FacturationItem.product_id, func.sum(FacturationItem.quantity))
         .where(FacturationItem.product_id.in_(product_ids))
@@ -218,6 +230,7 @@ async def get_facturation_catalog(session: Session = Depends(get_session)):
             brand_id=p.brand_id,
             facture_stock=max(0, received_map.get(p.id, 0) - invoiced_map.get(p.id, 0)),
             image_url=p.image_url,
+            facture_unit_price=facture_price_map.get(p.id, 0.0),
         )
         for p in products
     ]

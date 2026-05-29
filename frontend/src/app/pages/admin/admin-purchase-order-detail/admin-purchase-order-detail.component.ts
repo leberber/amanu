@@ -68,6 +68,7 @@ export class AdminPurchaseOrderDetailComponent implements OnInit {
   order = signal<PurchaseOrder | null>(null);
   deliveryWarning = signal<string | null>(null);
   editableItems = signal<EditableItem[]>([]);
+  sidebarCollapsed = signal(true);
 
   // Computed - only keep what's used in template
   canDelete = computed(() => {
@@ -104,9 +105,9 @@ export class AdminPurchaseOrderDetailComponent implements OnInit {
   initEditableItems(items: PurchaseOrderItem[]): void {
     this.editableItems.set(items.map(item => ({
       ...item,
-      quantity_received: item.quantity_received ?? item.quantity_ordered,
       facture_quantity: item.facture_quantity ?? 0,
-      tva_rate: item.tva_rate ?? 0
+      facture_unit_price: item.facture_unit_price ?? 0,
+      tva_rate: item.tva_rate ?? 0,
     })));
   }
 
@@ -142,9 +143,9 @@ export class AdminPurchaseOrderDetailComponent implements OnInit {
         item_id: item.id!,
         quantity_received: item.quantity_ordered,
         facture_quantity: item.facture_quantity,
+        facture_unit_price: item.facture_unit_price,
         tva_rate: item.tva_rate
-      })),
-      notes: undefined
+      }))
     };
 
     this.saving.set(true);
@@ -217,14 +218,8 @@ export class AdminPurchaseOrderDetailComponent implements OnInit {
         this.deliveryWarning.set(null);
         this.toast.showSuccess(this.translate.instant('admin.purchase_orders.detail.item_deleted'));
       },
-      error: (err) => {
-        // Check if order was deleted (last item)
-        if (err.status === 200 && err.error?.order_deleted) {
-          this.toast.showSuccess(this.translate.instant('admin.purchase_orders.detail.order_deleted_last_item'));
-          this.router.navigate([ROUTES.ADMIN.PURCHASE_ORDERS]);
-        } else {
-          this.toast.showError(this.translate.instant('admin.purchase_orders.detail.item_delete_error'));
-        }
+      error: () => {
+        this.toast.showError(this.translate.instant('admin.purchase_orders.detail.item_delete_error'));
       }
     });
   }
@@ -248,6 +243,7 @@ export class AdminPurchaseOrderDetailComponent implements OnInit {
     this.orderService.updateFactureItems(order.id, this.editableItems().map(item => ({
       item_id: item.id!,
       facture_quantity: item.facture_quantity,
+      facture_unit_price: item.facture_unit_price,
       tva_rate: item.tva_rate
     }))).pipe(
       takeUntilDestroyed(this.destroyRef),
@@ -283,7 +279,7 @@ export class AdminPurchaseOrderDetailComponent implements OnInit {
 }
 
 interface EditableItem extends PurchaseOrderItem {
-  quantity_received: number;
   facture_quantity: number;
+  facture_unit_price: number;
   tva_rate: number;
 }
