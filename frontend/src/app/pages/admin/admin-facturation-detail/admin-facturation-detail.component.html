@@ -445,48 +445,44 @@
             </span>
             <span class="font-semibold text-900">Client</span>
           </div>
-          <div class="p-3 flex flex-wrap align-items-center gap-4">
-            <div class="flex align-items-center gap-3 flex-1" style="min-width:180px">
-              <span class="flex align-items-center justify-content-center border-round-full flex-shrink-0"
-                    style="width:44px;height:44px;background:linear-gradient(135deg,#3b82f6,#1d4ed8)">
-                <i class="pi pi-building text-white"></i>
-              </span>
-              <div class="flex flex-column gap-1">
-                <span class="font-bold text-900 text-lg">{{ facture()!.client_name }}</span>
-                @if (facture()!.client_address) {
-                  <span class="text-sm text-500 flex align-items-center gap-1">
-                    <i class="pi pi-map-marker text-xs"></i>
-                    {{ facture()!.client_address }}
-                  </span>
+          <div class="px-3 py-2 flex align-items-center gap-3 flex-wrap">
+            <div class="flex flex-column gap-0">
+              <span class="font-semibold text-900">{{ facture()!.client_name }}</span>
+              @if (facture()!.client_address) {
+                <span class="text-xs text-500 flex align-items-center gap-1 mt-1">
+                  <i class="pi pi-map-marker" style="font-size:.65rem"></i>
+                  {{ facture()!.client_address }}
+                </span>
+              }
+            </div>
+            @if (facture()!.client_rc || facture()!.client_na || facture()!.client_nif || facture()!.client_nis) {
+              <div class="flex align-items-center gap-3 flex-wrap pl-3 border-left-1 surface-border">
+                @if (facture()!.client_rc) {
+                  <div class="flex flex-column gap-0">
+                    <span style="font-size:.6rem;color:var(--text-color-secondary)">RC</span>
+                    <span class="text-xs text-700">{{ facture()!.client_rc }}</span>
+                  </div>
+                }
+                @if (facture()!.client_na) {
+                  <div class="flex flex-column gap-0">
+                    <span style="font-size:.6rem;color:var(--text-color-secondary)">N.A</span>
+                    <span class="text-xs text-700">{{ facture()!.client_na }}</span>
+                  </div>
+                }
+                @if (facture()!.client_nif) {
+                  <div class="flex flex-column gap-0">
+                    <span style="font-size:.6rem;color:var(--text-color-secondary)">NIF</span>
+                    <span class="text-xs text-700">{{ facture()!.client_nif }}</span>
+                  </div>
+                }
+                @if (facture()!.client_nis) {
+                  <div class="flex flex-column gap-0">
+                    <span style="font-size:.6rem;color:var(--text-color-secondary)">NIS</span>
+                    <span class="text-xs text-700">{{ facture()!.client_nis }}</span>
+                  </div>
                 }
               </div>
-            </div>
-            <div class="flex gap-2 flex-wrap align-items-center">
-              @if (facture()!.client_rc) {
-                <div class="flex flex-column gap-0 px-3 py-2 border-round-lg surface-100">
-                  <span class="text-xs text-400 font-medium">RC</span>
-                  <span class="text-sm font-bold text-900">{{ facture()!.client_rc }}</span>
-                </div>
-              }
-              @if (facture()!.client_na) {
-                <div class="flex flex-column gap-0 px-3 py-2 border-round-lg surface-100">
-                  <span class="text-xs text-400 font-medium">N.A</span>
-                  <span class="text-sm font-bold text-900">{{ facture()!.client_na }}</span>
-                </div>
-              }
-              @if (facture()!.client_nif) {
-                <div class="flex flex-column gap-0 px-3 py-2 border-round-lg surface-100">
-                  <span class="text-xs text-400 font-medium">NIF</span>
-                  <span class="text-sm font-bold text-900">{{ facture()!.client_nif }}</span>
-                </div>
-              }
-              @if (facture()!.client_nis) {
-                <div class="flex flex-column gap-0 px-3 py-2 border-round-lg surface-100">
-                  <span class="text-xs text-400 font-medium">NIS</span>
-                  <span class="text-sm font-bold text-900">{{ facture()!.client_nis }}</span>
-                </div>
-              }
-            </div>
+            }
           </div>
         </div>
 
@@ -501,14 +497,16 @@
             <p-tag [value]="facture()!.items.length.toString()" severity="secondary" [rounded]="true" styleClass="text-xs ml-auto" />
           </div>
           <table class="w-full" style="border-collapse:collapse">
-            <thead class="surface-ground">
+            <thead class="sticky top-0 z-1" style="background:var(--surface-card)">
               <tr>
-                <th class="text-xs font-semibold text-left px-3 py-2 text-500 uppercase border-bottom-1 surface-border" style="letter-spacing:.04em">Article</th>
-                <th class="text-xs font-semibold text-center px-2 py-2 text-500 uppercase border-bottom-1 surface-border" style="width:60px;letter-spacing:.04em">Qté</th>
-                <th class="text-xs font-semibold text-right px-2 py-2 text-500 uppercase border-bottom-1 surface-border" style="width:115px;letter-spacing:.04em">P.U HT</th>
-                <th class="text-xs font-semibold text-center px-2 py-2 text-500 uppercase border-bottom-1 surface-border" style="width:70px;letter-spacing:.04em">TVA</th>
-                <th class="text-xs font-semibold text-right px-2 py-2 text-500 uppercase border-bottom-1 surface-border" style="width:110px;letter-spacing:.04em">P.U TTC</th>
-                <th class="text-xs font-semibold text-right px-3 py-2 text-500 uppercase border-bottom-1 surface-border" style="width:140px;letter-spacing:.04em">M.T TTC</th>
+                <th class="text-xs font-semibold text-left px-3 text-600 uppercase border-bottom-1 surface-border" style="letter-spacing:.06em;padding-top:1.1rem;padding-bottom:.85rem">Article</th>
+                <th class="text-xs font-semibold text-left px-2 text-600 uppercase border-bottom-1 surface-border" style="width:66px;letter-spacing:.06em;padding-top:1.1rem;padding-bottom:.85rem">Unité</th>
+                <th class="text-xs font-semibold text-right px-2 text-600 uppercase border-bottom-1 surface-border" style="width:70px;letter-spacing:.06em;padding-top:1.1rem;padding-bottom:.85rem">Prix/pcs</th>
+                <th class="text-xs font-semibold text-center px-2 text-600 uppercase border-bottom-1 surface-border" style="width:82px;letter-spacing:.06em;padding-top:1.1rem;padding-bottom:.85rem">Qté</th>
+                <th class="text-xs font-semibold text-right px-2 text-600 uppercase border-bottom-1 surface-border" style="width:78px;letter-spacing:.06em;padding-top:1.1rem;padding-bottom:.85rem">P.U HT</th>
+                <th class="text-xs font-semibold text-center px-2 text-600 uppercase border-bottom-1 surface-border" style="width:58px;letter-spacing:.06em;padding-top:1.1rem;padding-bottom:.85rem">TVA</th>
+                <th class="text-xs font-semibold text-right px-2 text-600 uppercase border-bottom-1 surface-border" style="width:78px;letter-spacing:.06em;padding-top:1.1rem;padding-bottom:.85rem">P.U TTC</th>
+                <th class="text-xs font-semibold text-right px-3 text-600 uppercase border-bottom-1 surface-border" style="width:82px;letter-spacing:.06em;padding-top:1.1rem;padding-bottom:.85rem">M.T TTC</th>
               </tr>
             </thead>
             <tbody>
@@ -518,44 +516,72 @@
                   <!-- Article -->
                   <td class="px-3 py-2">
                     <div class="flex align-items-center gap-2">
-                      <div class="flex align-items-center justify-content-center border-round flex-shrink-0"
-                           style="width:30px;height:30px;background:linear-gradient(135deg,#8b5cf6,#6d28d9)">
-                        <i class="pi pi-box text-white" style="font-size:.65rem"></i>
-                      </div>
-                      <div class="flex flex-column gap-1">
-                        <span class="font-semibold text-900 text-sm">{{ item.product_name }}</span>
-                        <p-tag [value]="item.unit" severity="secondary" [rounded]="true" styleClass="text-xs" />
-                      </div>
+                      @if (item.image_url) {
+                        <img [src]="item.image_url" alt="" loading="lazy"
+                             class="border-round flex-shrink-0"
+                             style="width:40px;height:40px;object-fit:cover"
+                             (error)="$any($event.target).style.display='none'" />
+                      } @else {
+                        <div class="flex align-items-center justify-content-center border-round flex-shrink-0"
+                             style="width:40px;height:40px;background:linear-gradient(135deg,#8b5cf6,#6d28d9)">
+                          <i class="pi pi-box text-white" style="font-size:.55rem"></i>
+                        </div>
+                      }
+                      <span class="font-medium text-900 text-xs">{{ item.product_name }}</span>
                     </div>
                   </td>
 
+                  <!-- Unité -->
+                  <td class="px-2 py-2">
+                    <div class="flex flex-column gap-1 align-items-start">
+                      <span class="text-xs font-semibold text-700">{{ item.unit }}</span>
+                      @if (item.pieces_per_box > 1) {
+                        <span class="inline-flex px-2 border-round-xl font-medium"
+                              style="background:#eef2ff;color:#4338ca;font-size:.65rem;padding-top:.15rem;padding-bottom:.15rem">
+                          × {{ item.pieces_per_box }} pcs
+                        </span>
+                      }
+                    </div>
+                  </td>
+
+                  <!-- Prix/pcs -->
+                  <td class="px-2 py-2 text-right">
+                    @if (item.pieces_per_box > 1) {
+                      <span class="text-xs text-500">{{ (item.unit_price / item.pieces_per_box) | number:'1.2-2' }}</span>
+                    } @else {
+                      <span class="text-300 text-xs">—</span>
+                    }
+                  </td>
+
                   <!-- Qté -->
-                  <td class="px-2 py-2 text-center">
+                  <td class="px-4 py-2 text-center">
                     <span class="text-xs font-semibold text-900">{{ item.quantity }}</span>
                   </td>
 
                   <!-- P.U HT -->
                   <td class="px-2 py-2 text-right">
-                    <span class="text-xs text-green-600 font-medium">{{ (item.total_ht / item.quantity) | number:'1.2-2' }} DA</span>
+                    <span class="text-xs text-green-600">{{ (item.total_ht / item.quantity) | number:'1.2-2' }}</span>
                   </td>
 
                   <!-- TVA -->
-                  <td class="px-2 py-2 text-center">
-                    @if (item.tva_rate > 0) {
-                      <span class="text-xs text-500">{{ item.tva_rate }}%</span>
-                    } @else {
-                      <span class="text-xs text-300">0%</span>
-                    }
+                  <td class="px-1 py-2 text-center">
+                    <span class="border-round-xl font-bold"
+                          style="padding:.2rem .4rem;font-size:.7rem;border-width:1px;border-style:solid;display:inline-block"
+                          [style.background]="item.tva_rate === 0 ? 'var(--surface-100)' : item.tva_rate === 9 ? '#fff7ed' : '#fef2f2'"
+                          [style.color]="item.tva_rate === 0 ? 'var(--text-color-secondary)' : item.tva_rate === 9 ? '#c2410c' : '#b91c1c'"
+                          [style.border-color]="item.tva_rate === 0 ? 'var(--surface-border)' : item.tva_rate === 9 ? '#fed7aa' : '#fecaca'">
+                      {{ item.tva_rate }}%
+                    </span>
                   </td>
 
                   <!-- P.U TTC -->
                   <td class="px-2 py-2 text-right">
-                    <span class="text-xs font-medium text-700">{{ item.unit_price | number:'1.2-2' }} DA</span>
+                    <span class="text-xs font-semibold text-700">{{ item.unit_price | number:'1.2-2' }}</span>
                   </td>
 
                   <!-- M.T TTC -->
                   <td class="px-3 py-2 text-right">
-                    <span class="text-xs font-bold text-primary">{{ item.total_ttc | number:'1.2-2' }} DA</span>
+                    <span class="text-xs font-bold text-primary">{{ item.total_ttc | number:'1.2-2' }}</span>
                   </td>
 
                 </tr>

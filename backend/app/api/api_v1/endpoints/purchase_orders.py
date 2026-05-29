@@ -2,6 +2,7 @@ from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlmodel import Session, select, func
 from datetime import datetime, timezone
+from pydantic import BaseModel
 
 from app.database import get_session
 from app.models.purchase_order import (
@@ -12,6 +13,15 @@ from app.models.purchase_order import (
 )
 from app.models.product import Product, ProductUnit
 from app.models.restock import RestockItem
+
+
+class FactureItemUpdate(BaseModel):
+    item_id: int
+    facture_quantity: int
+    tva_rate: int
+
+class FactureItemsBulkUpdate(BaseModel):
+    items: list[FactureItemUpdate]
 
 router = APIRouter()
 
@@ -474,6 +484,28 @@ async def delete_purchase_order_item(
     except Exception as e:
         session.rollback()
         raise HTTPException(status_code=422, detail=str(e))
+
+
+@router.patch("/{order_id}/facture-items", response_model=PurchaseOrderResponse)
+async def update_facture_items(
+    order_id: int,
+    data: FactureItemsBulkUpdate,
+    session: Session = Depends(get_session)
+):
+    """Bulk-update facture_quantity and tva_rate for all items on an order."""
+    order = session.get(PurchaseOrder, order_id)
+    if not order:
+        raise HTTPException(status_code=404, detail="Purchase order not found")
+    for update in data.items:
+        item = session.get(PurchaseOrderItem, update.item_id)
+        if not item or item.purchase_order_id != order_id:
+            continue
+        item.facture_quantity = update.facture_quantity
+        item.tva_rate = update.tva_rate
+        session.add(item)
+    session.commit()
+    session.refresh(order)
+    return order_to_response(order)
 
 
 @router.delete("/{order_id}")

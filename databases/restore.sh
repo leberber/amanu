@@ -57,13 +57,16 @@ echo "From: $BACKUP_FILE"
 
 # Detect file type and use appropriate tool
 if [[ "$BACKUP_FILE" == *.dump ]]; then
+  # Drop and recreate public schema to cleanly remove all objects (including FK deps)
+  PGPASSWORD="$PASS" "$PG_BIN/psql" \
+    -h "$HOST" -p "$PORT" -U "$USER" -d "$DB" \
+    -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"
+
   PGPASSWORD="$PASS" "$PG_BIN/pg_restore" \
     -h "$HOST" \
     -p "$PORT" \
     -U "$USER" \
     -d "$DB" \
-    --clean \
-    --if-exists \
     --no-owner \
     --no-privileges \
     "$BACKUP_FILE"

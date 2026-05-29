@@ -35,7 +35,7 @@
                   <th style="width: 12%" class="text-right">{{ 'admin.purchase_orders.detail.unit_price' | translate }}</th>
                   <th style="width: 12%" class="text-right">{{ 'admin.purchase_orders.detail.total_price' | translate }}</th>
                   <th style="width: 10%" class="text-center">Qté Facturée</th>
-                  <th style="width: 8%" class="text-center">TVA</th>
+                  <th style="width: 12%" class="text-center">TVA</th>
                   @if (order()!.status === 'sent') {
                     <th style="width: 6%" class="text-center"></th>
                   }
@@ -86,7 +86,7 @@
                     <td class="text-right">
                       <span class="font-bold">{{ item.total_price | appCurrency }}</span>
                     </td>
-                    @if (order()!.status === 'sent') {
+                    @if (order()!.status === 'sent' || order()!.status === 'delivered') {
                       <td class="text-center">
                         <p-inputNumber
                           [(ngModel)]="editableItems()[i].facture_quantity"
@@ -105,19 +105,22 @@
                           optionValue="value"
                           appendTo="body"
                           styleClass="w-full"
+                          [style]="{'min-width':'90px'}"
                         />
                       </td>
-                      <td class="text-center">
-                        <button
-                          class="action-btn delete"
-                          (click)="deleteItem(item.id!)"
-                          [disabled]="saving()"
-                          [pTooltip]="'admin.purchase_orders.delete' | translate"
-                          tooltipPosition="top"
-                        >
-                          <i class="pi pi-trash"></i>
-                        </button>
-                      </td>
+                      @if (order()!.status === 'sent') {
+                        <td class="text-center">
+                          <button
+                            class="action-btn delete"
+                            (click)="deleteItem(item.id!)"
+                            [disabled]="saving()"
+                            [pTooltip]="'admin.purchase_orders.delete' | translate"
+                            tooltipPosition="top"
+                          >
+                            <i class="pi pi-trash"></i>
+                          </button>
+                        </td>
+                      }
                     } @else {
                       <td class="text-center">
                         <span class="font-semibold">{{ item.facture_quantity }}</span>
@@ -203,6 +206,15 @@
                 icon="pi pi-truck"
                 severity="success"
                 (onClick)="confirmDelivery()"
+                [loading]="saving()"
+              />
+            }
+            @case ('delivered') {
+              <p-button
+                label="Enregistrer"
+                icon="pi pi-save"
+                severity="success"
+                (onClick)="saveFactureData()"
                 [loading]="saving()"
               />
             }

@@ -172,6 +172,10 @@ export class PurchaseOrderService {
     return this.api.post<PurchaseOrder>(`/purchase-orders/${id}/deliver`, delivery);
   }
 
+  updateFactureItems(orderId: number, items: { item_id: number; facture_quantity: number; tva_rate: number }[]): Observable<PurchaseOrder> {
+    return this.api.patch<PurchaseOrder>(`/purchase-orders/${orderId}/facture-items`, { items });
+  }
+
   // ---------------------------------------------------------------------------
   // Helpers (delegating to StatusSeverityService)
   // ---------------------------------------------------------------------------

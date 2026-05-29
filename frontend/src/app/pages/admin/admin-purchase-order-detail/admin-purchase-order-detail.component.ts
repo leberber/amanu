@@ -240,6 +240,28 @@ export class AdminPurchaseOrderDetailComponent implements OnInit {
     );
   }
 
+  saveFactureData(): void {
+    const order = this.order();
+    if (!order) return;
+
+    this.saving.set(true);
+    this.orderService.updateFactureItems(order.id, this.editableItems().map(item => ({
+      item_id: item.id!,
+      facture_quantity: item.facture_quantity,
+      tva_rate: item.tva_rate
+    }))).pipe(
+      takeUntilDestroyed(this.destroyRef),
+      finalize(() => this.saving.set(false))
+    ).subscribe({
+      next: (updated) => {
+        this.order.set(updated);
+        this.initEditableItems(updated.items);
+        this.toast.showSuccess('Données de facturation enregistrées');
+      },
+      error: () => this.toast.showError('Erreur lors de la sauvegarde')
+    });
+  }
+
   deleteOrder(): void {
     const order = this.order();
     if (!order) return;

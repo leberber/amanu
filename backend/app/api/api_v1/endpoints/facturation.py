@@ -65,7 +65,7 @@ def user_to_client_view(u: User) -> FacturationClientView:
     )
 
 
-def facturation_to_response(f: Facturation) -> FacturationResponse:
+def facturation_to_response(f: Facturation, image_map: dict = {}, ppb_map: dict = {}) -> FacturationResponse:
     return FacturationResponse(
         id=f.id,
         reference=f.reference,
@@ -96,6 +96,8 @@ def facturation_to_response(f: Facturation) -> FacturationResponse:
                 tva_rate=item.tva_rate,
                 total_ht=item.total_ht,
                 total_ttc=item.total_ttc,
+                pieces_per_box=ppb_map.get(item.product_id, item.pieces_per_box) if item.product_id else item.pieces_per_box,
+                image_url=image_map.get(item.product_id) if item.product_id else None,
             )
             for item in f.items
         ]
@@ -246,7 +248,14 @@ async def get_facturation(facturation_id: int, session: Session = Depends(get_se
     f = session.get(Facturation, facturation_id)
     if not f:
         raise HTTPException(status_code=404, detail="Facturation not found")
-    return facturation_to_response(f)
+    product_ids = [item.product_id for item in f.items if item.product_id]
+    image_map = {}
+    ppb_map = {}
+    if product_ids:
+        products = session.exec(select(Product).where(Product.id.in_(product_ids))).all()
+        image_map = {p.id: p.image_url for p in products if p.image_url}
+        ppb_map = {p.id: p.pieces_per_box for p in products if p.pieces_per_box}
+    return facturation_to_response(f, image_map, ppb_map)
 
 
 @router.post("", response_model=FacturationResponse)
@@ -296,6 +305,7 @@ async def create_facturation(data: FacturationCreate, session: Session = Depends
                 reference=item_data.reference,
                 product_name=item_data.product_name,
                 unit=item_data.unit,
+                pieces_per_box=item_data.pieces_per_box,
                 quantity=item_data.quantity,
                 unit_price=item_data.unit_price,
                 tva_rate=item_data.tva_rate,
@@ -313,7 +323,14 @@ async def create_facturation(data: FacturationCreate, session: Session = Depends
         session.add(f)
         session.commit()
         session.refresh(f)
-        return facturation_to_response(f)
+        product_ids = [item_data.product_id for item_data in data.items if item_data.product_id]
+        image_map = {}
+        ppb_map = {}
+        if product_ids:
+            products = session.exec(select(Product).where(Product.id.in_(product_ids))).all()
+            image_map = {p.id: p.image_url for p in products if p.image_url}
+            ppb_map = {p.id: p.pieces_per_box for p in products if p.pieces_per_box}
+        return facturation_to_response(f, image_map, ppb_map)
 
     except HTTPException:
         raise

@@ -291,6 +291,7 @@ export class AdminFacturationDetailComponent implements OnInit {
         reference: item.product_id?.toString() ?? '',
         product_name: item.product_name,
         unit: item.unit,
+        pieces_per_box: item.pieces_per_box,
         quantity: item.quantity,
         unit_price: item.unit_price,
         tva_rate: item.tva_rate,

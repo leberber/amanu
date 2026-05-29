@@ -60,6 +60,7 @@ export interface FacturationItemCreate {
   reference: string;
   product_name: string;
   unit: string;
+  pieces_per_box: number;
   quantity: number;
   unit_price: number;
   tva_rate: number;
@@ -81,11 +82,13 @@ export interface FacturationItem {
   reference: string;
   product_name: string;
   unit: string;
+  pieces_per_box: number;
   quantity: number;
   unit_price: number;
   tva_rate: number;
   total_ht: number;
   total_ttc: number;
+  image_url?: string;
 }
 
 export interface Facturation {

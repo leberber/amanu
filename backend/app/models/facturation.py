@@ -59,6 +59,7 @@ class FacturationItem(SQLModel, table=True):
     reference: str = Field(default="")
     product_name: str
     unit: str = Field(default="U")
+    pieces_per_box: int = Field(default=1)
     quantity: int = Field(default=1)
     unit_price: float = Field(default=0)   # TTC
     tva_rate: int = Field(default=19)      # 0, 9, or 19
@@ -114,6 +115,7 @@ class FacturationItemCreate(BaseModel):
     reference: str = ""
     product_name: str
     unit: str = "U"
+    pieces_per_box: int = 1
     quantity: int = 1
     unit_price: float = 0
     tva_rate: int = 0
@@ -135,11 +137,13 @@ class FacturationItemResponse(BaseModel):
     reference: str
     product_name: str
     unit: str
+    pieces_per_box: int
     quantity: int
     unit_price: float
     tva_rate: int
     total_ht: float
     total_ttc: float
+    image_url: Optional[str] = None
 
 
 class FacturationResponse(BaseModel):

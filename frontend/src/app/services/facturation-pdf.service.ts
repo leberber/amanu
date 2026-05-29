@@ -60,8 +60,34 @@ export class FacturationPdfService {
     }
   }
 
-  generateFacturePdf(facture: Facturation, company: CompanySettings, download = false): void {
+  private async loadImageAsDataUrl(url: string): Promise<string | null> {
     try {
+      const response = await fetch(url);
+      const blob = await response.blob();
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = () => resolve(null);
+        reader.readAsDataURL(blob);
+      });
+    } catch {
+      return null;
+    }
+  }
+
+  async generateFacturePdf(facture: Facturation, company: CompanySettings, download = false): Promise<void> {
+    try {
+      // ─── Pre-load product images ───────────────────────────────────────────────
+      const imageMap: { [productId: number]: string } = {};
+      await Promise.all(
+        facture.items
+          .filter(item => item.product_id && item.image_url)
+          .map(async item => {
+            const dataUrl = await this.loadImageAsDataUrl(item.image_url!);
+            if (dataUrl && item.product_id) imageMap[item.product_id] = dataUrl;
+          })
+      );
+
       const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
       const pageWidth = doc.internal.pageSize.getWidth();
       const pageHeight = doc.internal.pageSize.getHeight();
@@ -72,52 +98,53 @@ export class FacturationPdfService {
       const darkGray: [number, number, number] = [30, 30, 30];
       const midGray: [number, number, number] = [100, 100, 100];
       const lightGray: [number, number, number] = [220, 220, 220];
-      const accent: [number, number, number] = [34, 85, 153];  // professional blue
+      const accent: [number, number, number] = [34, 85, 153];
       const accentLight: [number, number, number] = [235, 241, 253];
+
+      const modeLabel = facture.payment_mode === 'cheque' ? 'Cheque'
+        : facture.payment_mode === 'virement' ? 'Virement bancaire'
+        : 'Especes';
 
       // ─── Header band ──────────────────────────────────────────────────────────
       doc.setFillColor(...accent);
-      doc.rect(0, 0, pageWidth, 32, 'F');
+      doc.rect(0, 0, pageWidth, 34, 'F');
 
-      // Logo (top-right in header)
       if (this.logoImage) {
         const logoH = 14;
         const aspectRatio = this.logoImage.width / this.logoImage.height;
         const logoW = logoH * aspectRatio;
-        doc.addImage(this.logoImage, 'PNG', pageWidth - margin - logoW, 9, logoW, logoH);
+        doc.addImage(this.logoImage, 'PNG', pageWidth - margin - logoW, 10, logoW, logoH);
       }
 
-      // FACTURE label
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(22);
       doc.setTextColor(255, 255, 255);
-      doc.text('FACTURE', margin, 18);
+      doc.text('FACTURE', margin, 17);
 
-      // Reference + Date in header
-      doc.setFontSize(8);
+      doc.setFontSize(7.5);
       doc.setFont('helvetica', 'normal');
-      doc.text(`Ref: ${facture.reference}    Date: ${this.dateService.formatDateOnly(facture.created_at)}`, margin, 26);
+      doc.text(
+        `${facture.reference}   |   ${this.dateService.formatDateOnly(facture.created_at)}   |   Reglement: ${modeLabel}`,
+        margin, 26
+      );
 
       // ─── Company info (left block) ────────────────────────────────────────────
-      let y = 40;
+      let y = 42;
       const colLeft = margin;
       const colRight = pageWidth / 2 + 4;
       const blockWidth = contentWidth / 2 - 4;
 
-      // Company block label
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(7);
       doc.setTextColor(...midGray);
       doc.text('VENDEUR', colLeft, y);
 
-      // Company name
       y += 5;
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(10);
       doc.setTextColor(...darkGray);
       doc.text(this.normalizeText(company.name), colLeft, y);
 
-      // Company details
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(8);
       doc.setTextColor(...midGray);
@@ -125,11 +152,9 @@ export class FacturationPdfService {
       if (company.address)  { y += 4; doc.text(this.normalizeText(company.address),  colLeft, y); }
       if (company.phone)    { y += 4; doc.text(`Tel: ${company.phone}`,               colLeft, y); }
 
-      // Fiscal identifiers
       doc.setTextColor(...darkGray);
-      doc.setFont('helvetica', 'normal');
       doc.setFontSize(7.5);
-      let fiscY = 40 + 5 + 4 + 4; // align with first detail line
+      let fiscY = 42 + 5 + 4 + 4;
       const identifiers: [string, string | undefined][] = [
         ['RC', company.rc], ['N.A', company.na], ['NIF', company.nif], ['NIS', company.nis]
       ];
@@ -144,7 +169,7 @@ export class FacturationPdfService {
       }
 
       // ─── Client block (right) ────────────────────────────────────────────────
-      const clientBlockTop = 38;
+      const clientBlockTop = 40;
       doc.setFillColor(...accentLight);
       doc.roundedRect(colRight, clientBlockTop, blockWidth, 46, 2, 2, 'F');
       doc.setDrawColor(...accent);
@@ -187,31 +212,36 @@ export class FacturationPdfService {
 
       // ─── Items table ─────────────────────────────────────────────────────────
       const tableTop = Math.max(y, clientBlockTop + 46) + 8;
+      const hasImages = facture.items.some(item => item.product_id && imageMap[item.product_id]);
 
-      const tableRows = facture.items.map((item, i) => [
-        (i + 1).toString(),
-        this.normalizeText(item.reference) || '—',
-        this.normalizeText(item.product_name),
-        item.unit,
-        item.quantity.toString(),
-        this.formatAmount(item.unit_price),
-        `${item.tva_rate}%`,
-        this.formatAmount(item.total_ht),
-        this.formatAmount(item.total_ttc),
-      ]);
+      const tableRows = facture.items.map((item, i) => {
+        const puHt = item.tva_rate > 0 ? item.unit_price / (1 + item.tva_rate / 100) : item.unit_price;
+        const prixPcs = item.pieces_per_box > 1 ? this.formatAmount(item.unit_price / item.pieces_per_box) : '—';
+        return [
+          hasImages ? '' : (i + 1).toString(),
+          this.normalizeText(item.product_name),
+          prixPcs,
+          item.pieces_per_box > 1 ? `${item.pieces_per_box}pcs x ${item.unit}` : item.unit,
+          item.quantity.toString(),
+          this.formatAmount(puHt),
+          `${item.tva_rate}%`,
+          this.formatAmount(item.unit_price),
+          this.formatAmount(item.total_ttc),
+        ];
+      });
 
       autoTable(doc, {
         startY: tableTop,
         head: [[
-          { content: 'N°',  styles: { halign: 'center' } },
-          { content: 'Ref', styles: { halign: 'left'   } },
-          { content: 'Désignation', styles: { halign: 'left' } },
-          { content: 'U',   styles: { halign: 'center' } },
-          { content: 'Qté', styles: { halign: 'center' } },
-          { content: 'P.U TTC', styles: { halign: 'right' } },
-          { content: 'TVA', styles: { halign: 'center' } },
-          { content: 'M.T HT', styles: { halign: 'right' } },
-          { content: 'M.T TTC', styles: { halign: 'right' } },
+          { content: hasImages ? '' : 'N°', styles: { halign: 'center' } },
+          { content: 'Designation',  styles: { halign: 'left'   } },
+          { content: 'Prix/pcs',     styles: { halign: 'right'  } },
+          { content: 'Unite/Embal.', styles: { halign: 'left'   } },
+          { content: 'Qte',          styles: { halign: 'center' } },
+          { content: 'P.U HT',       styles: { halign: 'right'  } },
+          { content: 'TVA',          styles: { halign: 'center' } },
+          { content: 'P.U TTC',      styles: { halign: 'right'  } },
+          { content: 'M.T TTC',      styles: { halign: 'right'  } },
         ]],
         body: tableRows,
         theme: 'plain',
@@ -220,42 +250,70 @@ export class FacturationPdfService {
           textColor: [255, 255, 255],
           fontStyle: 'bold',
           fontSize: 8,
-          cellPadding: 3
+          cellPadding: 3.5
         },
         bodyStyles: {
           fontSize: 8.5,
-          cellPadding: 2.5,
+          cellPadding: 3,
+          minCellHeight: hasImages ? 14 : 0,
           textColor: [...darkGray]
         },
         alternateRowStyles: { fillColor: [248, 249, 252] },
-        margin: { left: margin, right: margin },
-        tableWidth: contentWidth,
+        margin: { left: 5, right: 5 },
+        tableWidth: pageWidth - 10,
         columnStyles: {
-          0: { cellWidth: 9,  halign: 'center' },
-          1: { cellWidth: 20, halign: 'left'   },
-          2: { cellWidth: 'auto' },
-          3: { cellWidth: 10, halign: 'center' },
-          4: { cellWidth: 12, halign: 'center' },
-          5: { cellWidth: 22, halign: 'right'  },
-          6: { cellWidth: 12, halign: 'center' },
-          7: { cellWidth: 22, halign: 'right'  },
-          8: { cellWidth: 24, halign: 'right', fontStyle: 'bold' },
+          0: { cellWidth: hasImages ? 14 : 9, halign: 'center' },
+          1: { cellWidth: 'auto' },
+          2: { cellWidth: 18, halign: 'right'  },
+          3: { cellWidth: 28, halign: 'left'   },
+          4: { cellWidth: 10, halign: 'center' },
+          5: { cellWidth: 18, halign: 'right'  },
+          6: { cellWidth: 10, halign: 'center' },
+          7: { cellWidth: 18, halign: 'right'  },
+          8: { cellWidth: 22, halign: 'right', fontStyle: 'bold' },
+        },
+        didDrawCell: (data: any) => {
+          if (!hasImages) return;
+          if (data.section === 'body' && data.column.index === 0) {
+            const item = facture.items[data.row.index];
+            if (item?.product_id && imageMap[item.product_id]) {
+              const imgSize = Math.min(data.cell.height - 2, 12);
+              const x = data.cell.x + (data.cell.width - imgSize) / 2;
+              const y = data.cell.y + (data.cell.height - imgSize) / 2;
+              try {
+                doc.addImage(imageMap[item.product_id], 'JPEG', x, y, imgSize, imgSize);
+              } catch { /* skip if image format not supported */ }
+            }
+          }
         }
       });
 
-      let finalY = (doc as any).lastAutoTable.finalY + 6;
+      const tableEndY = (doc as any).lastAutoTable.finalY;
 
-      // ─── Totals block (right-aligned) ─────────────────────────────────────────
+      // ─── Totals block — always pinned to bottom of page ───────────────────────
       const totWidth = 80;
-      const totX = pageWidth - margin - totWidth;
+      const totX = pageWidth - 5 - totWidth;
 
       const totRows: [string, string, boolean][] = [
-        ['Total HT',   this.formatAmount(facture.total_ht),  false],
-        ['Total TVA',  this.formatAmount(facture.total_tva), false],
-        ['Remise',    `-${this.formatAmount(facture.remise)}`, false],
-        ['Timbre',     this.formatAmount(facture.timbre),    false],
-        ['TOTAL TTC',  this.formatAmount(facture.total_ttc), true ],
+        ['Total HT',  this.formatAmount(facture.total_ht),  false],
+        ['Total TVA', this.formatAmount(facture.total_tva), false],
       ];
+      if (facture.remise > 0) totRows.push(['Remise', `-${this.formatAmount(facture.remise)}`, false]);
+      if (facture.timbre > 0) totRows.push(['Timbre',  this.formatAmount(facture.timbre),      false]);
+      totRows.push(['TOTAL TTC', this.formatAmount(facture.total_ttc), true]);
+
+      // Height: each normal row = 6mm, bold row = 10mm
+      const totBlockHeight = (totRows.length - 1) * 6 + 10;
+      let totY = pageHeight - 12 - 4 - totBlockHeight; // above footer line
+
+      // Notes between table and totals
+      if (facture.notes) {
+        const notesY = Math.min(tableEndY + 8, totY - 10);
+        doc.setFont('helvetica', 'italic');
+        doc.setFontSize(7.5);
+        doc.setTextColor(...midGray);
+        doc.text(`Note: ${this.normalizeText(facture.notes)}`, margin, notesY);
+      }
 
       doc.setLineWidth(0.2);
       doc.setDrawColor(...lightGray);
@@ -263,42 +321,23 @@ export class FacturationPdfService {
       totRows.forEach(([label, value, isBold]) => {
         if (isBold) {
           doc.setFillColor(...accent);
-          doc.rect(totX, finalY - 4, totWidth, 8, 'F');
+          doc.rect(totX, totY - 4, totWidth, 8, 'F');
           doc.setTextColor(255, 255, 255);
           doc.setFont('helvetica', 'bold');
           doc.setFontSize(9.5);
-          doc.text(label, totX + 4, finalY + 1);
-          doc.text(`${value} DA`, pageWidth - margin - 2, finalY + 1, { align: 'right' });
-          finalY += 10;
+          doc.text(label, totX + 4, totY + 1);
+          doc.text(`${value} DA`, pageWidth - 5 - 2, totY + 1, { align: 'right' });
+          totY += 10;
         } else {
           doc.setTextColor(...darkGray);
-          doc.setFont('helvetica', isBold ? 'bold' : 'normal');
+          doc.setFont('helvetica', 'normal');
           doc.setFontSize(8.5);
-          doc.text(label, totX + 4, finalY);
-          doc.text(`${value} DA`, pageWidth - margin - 2, finalY, { align: 'right' });
-          doc.line(totX, finalY + 1.5, pageWidth - margin, finalY + 1.5);
-          finalY += 6;
+          doc.text(label, totX + 4, totY);
+          doc.text(`${value} DA`, pageWidth - 5 - 2, totY, { align: 'right' });
+          doc.line(totX, totY + 1.5, pageWidth - 5, totY + 1.5);
+          totY += 6;
         }
       });
-
-      // ─── Payment mode ─────────────────────────────────────────────────────────
-      finalY += 4;
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(8);
-      doc.setTextColor(...midGray);
-      const modeLabel = facture.payment_mode === 'cheque' ? 'Chèque'
-        : facture.payment_mode === 'virement' ? 'Virement bancaire'
-        : 'Espèces';
-      doc.text(`Mode de règlement: ${modeLabel}`, margin, finalY);
-
-      // Notes
-      if (facture.notes) {
-        finalY += 6;
-        doc.setFont('helvetica', 'italic');
-        doc.setFontSize(7.5);
-        doc.setTextColor(...midGray);
-        doc.text(`Note: ${this.normalizeText(facture.notes)}`, margin, finalY);
-      }
 
       // ─── Footer ───────────────────────────────────────────────────────────────
       doc.setDrawColor(...lightGray);
@@ -308,7 +347,7 @@ export class FacturationPdfService {
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(6.5);
       doc.setTextColor(...midGray);
-      doc.text('Document généré automatiquement', pageWidth / 2, pageHeight - 7, { align: 'center' });
+      doc.text('Document genere automatiquement', pageWidth / 2, pageHeight - 7, { align: 'center' });
 
       // Output
       if (download) {
