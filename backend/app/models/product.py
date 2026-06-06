@@ -56,6 +56,7 @@ class ProductBase(SQLModel):
     weight: Optional[float] = Field(default=None)  # in kilograms (kg)
     # Pricing
     price: float = Field(ge=0)
+    tva_rate: int = Field(default=0)  # TVA rate: 0, 9, or 19
     # Inventory
     stock_quantity: int = Field(ge=0)
     is_active: bool = Field(default=True)
@@ -86,6 +87,7 @@ class Product(SQLModel, table=True):
 
     # Pricing
     price: float = Field(ge=0)
+    tva_rate: int = Field(default=0)  # TVA rate: 0, 9, or 19
 
     # Inventory
     stock_quantity: int = Field(default=0, ge=0)
@@ -138,6 +140,7 @@ class ProductUpdate(SQLModel):
     weight: Optional[float] = Field(default=None)  # in kilograms (kg)
     # Pricing
     price: Optional[float] = Field(default=None, ge=0)
+    tva_rate: Optional[int] = Field(default=None)
     # Inventory
     stock_quantity: Optional[int] = Field(default=None, ge=0)
     is_active: Optional[bool] = Field(default=None)

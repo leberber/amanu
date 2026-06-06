@@ -235,6 +235,23 @@
                       </div>
                     </div>
 
+                    <div class="form-row mt-4">
+                      <div class="form-field">
+                        <div class="field-box" [class.filled]="productForm.get('tva_rate')?.value > 0">
+                          <div class="field-box__icon field-box__icon--warning">
+                            <i class="pi pi-percentage"></i>
+                          </div>
+                          <div class="field-box__content">
+                            <label>TVA</label>
+                            <p-select formControlName="tva_rate"
+                              [options]="[{label:'0%',value:0},{label:'9%',value:9},{label:'19%',value:19}]"
+                              optionLabel="label" optionValue="value"
+                              styleClass="w-full" appendTo="body" />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
                     <div class="form-field mt-4">
                       <label class="field-label">
                         <i class="pi pi-image"></i>

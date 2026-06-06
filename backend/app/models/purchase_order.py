@@ -142,7 +142,6 @@ class DeliveryItemConfirmation(BaseModel):
     quantity_received: int
     facture_quantity: int = 0
     facture_unit_price: float = 0.0
-    tva_rate: int = 0
 
 
 class DeliveryConfirmation(BaseModel):

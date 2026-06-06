@@ -20,6 +20,7 @@ class CompanySettings(SQLModel, table=True):
     na: Optional[str] = Field(default=None)
     nif: Optional[str] = Field(default=None)
     nis: Optional[str] = Field(default=None)
+    email: Optional[str] = Field(default=None)
 
 
 class CompanySettingsUpdate(BaseModel):
@@ -31,6 +32,7 @@ class CompanySettingsUpdate(BaseModel):
     na: Optional[str] = None
     nif: Optional[str] = None
     nis: Optional[str] = None
+    email: Optional[str] = None
 
 
 class CompanySettingsResponse(BaseModel):
@@ -43,6 +45,7 @@ class CompanySettingsResponse(BaseModel):
     na: Optional[str]
     nif: Optional[str]
     nis: Optional[str]
+    email: Optional[str]
 
 
 # =============================================================================
@@ -58,6 +61,7 @@ class FacturationItem(SQLModel, table=True):
     product_id: Optional[int] = Field(default=None, foreign_key="products.id")
     reference: str = Field(default="")
     product_name: str
+    brand_name: Optional[str] = Field(default=None)
     unit: str = Field(default="U")
     pieces_per_box: int = Field(default=1)
     quantity: int = Field(default=1)
@@ -65,6 +69,7 @@ class FacturationItem(SQLModel, table=True):
     tva_rate: int = Field(default=19)      # 0, 9, or 19
     total_ht: float = Field(default=0)
     total_ttc: float = Field(default=0)
+    image_url: Optional[str] = Field(default=None)
 
     facturation: "Facturation" = Relationship(back_populates="items")
 
@@ -73,7 +78,13 @@ class Facturation(SQLModel, table=True):
     __tablename__ = "facturations"
 
     id: Optional[int] = Field(default=None, primary_key=True)
-    reference: str = Field(index=True, unique=True)  # F-2026-001
+    reference: str = Field(index=True, unique=True)  # F-2026-001 or BL-2026-001
+
+    # Document type: 'facture' or 'bon_de_livraison'
+    document_type: str = Field(default="facture")
+
+    # When a BL is converted to a facture, this points to the resulting facture
+    converted_to_facture_id: Optional[int] = Field(default=None, foreign_key="facturations.id")
 
     # Client reference (linked to users table)
     client_id: Optional[int] = Field(default=None, foreign_key="users.id")
@@ -114,15 +125,18 @@ class FacturationItemCreate(BaseModel):
     product_id: Optional[int] = None
     reference: str = ""
     product_name: str
+    brand_name: Optional[str] = None
     unit: str = "U"
     pieces_per_box: int = 1
     quantity: int = 1
     unit_price: float = 0
     tva_rate: int = 0
+    image_url: Optional[str] = None
 
 
 class FacturationCreate(BaseModel):
     client_id: int          # user.id
+    document_type: str = "facture"  # 'facture' or 'bon_de_livraison'
     fiscal_info: Optional[Dict[str, Any]] = None  # overrides user's fiscal_info for this invoice
     payment_mode: str = "espece"
     remise: float = 0
@@ -136,6 +150,7 @@ class FacturationItemResponse(BaseModel):
     product_id: Optional[int]
     reference: str
     product_name: str
+    brand_name: Optional[str]
     unit: str
     pieces_per_box: int
     quantity: int
@@ -143,12 +158,14 @@ class FacturationItemResponse(BaseModel):
     tva_rate: int
     total_ht: float
     total_ttc: float
-    image_url: Optional[str] = None
+    image_url: Optional[str]
 
 
 class FacturationResponse(BaseModel):
     id: int
     reference: str
+    document_type: str
+    converted_to_facture_id: Optional[int]
     client_id: Optional[int]
     client_name: str
     client_address: Optional[str]

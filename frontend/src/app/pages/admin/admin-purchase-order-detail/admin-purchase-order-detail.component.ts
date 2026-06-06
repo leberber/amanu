@@ -56,12 +56,6 @@ export class AdminPurchaseOrderDetailComponent implements OnInit {
   private orderService = inject(PurchaseOrderService);
   private translate = inject(TranslateService);
 
-  tvaOptions = [
-    { label: '0%', value: 0 },
-    { label: '9%', value: 9 },
-    { label: '19%', value: 19 },
-  ];
-
   // State
   loading = signal(true);
   saving = signal(false);
@@ -107,7 +101,6 @@ export class AdminPurchaseOrderDetailComponent implements OnInit {
       ...item,
       facture_quantity: item.facture_quantity ?? 0,
       facture_unit_price: item.facture_unit_price ?? 0,
-      tva_rate: item.tva_rate ?? 0,
     })));
   }
 
@@ -143,8 +136,7 @@ export class AdminPurchaseOrderDetailComponent implements OnInit {
         item_id: item.id!,
         quantity_received: item.quantity_ordered,
         facture_quantity: item.facture_quantity,
-        facture_unit_price: item.facture_unit_price,
-        tva_rate: item.tva_rate
+        facture_unit_price: item.facture_unit_price
       }))
     };
 
@@ -243,8 +235,7 @@ export class AdminPurchaseOrderDetailComponent implements OnInit {
     this.orderService.updateFactureItems(order.id, this.editableItems().map(item => ({
       item_id: item.id!,
       facture_quantity: item.facture_quantity,
-      facture_unit_price: item.facture_unit_price,
-      tva_rate: item.tva_rate
+      facture_unit_price: item.facture_unit_price
     }))).pipe(
       takeUntilDestroyed(this.destroyRef),
       finalize(() => this.saving.set(false))
@@ -281,5 +272,4 @@ export class AdminPurchaseOrderDetailComponent implements OnInit {
 interface EditableItem extends PurchaseOrderItem {
   facture_quantity: number;
   facture_unit_price: number;
-  tva_rate: number;
 }

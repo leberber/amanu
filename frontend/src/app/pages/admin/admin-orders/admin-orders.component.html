@@ -263,6 +263,10 @@
                             <i [class]="printingOrderId() === order.id ? 'pi pi-spin pi-spinner' : 'pi pi-print'"></i>
                           </button>
 
+                          <button class="action-btn" (click)="convertToFacture(order)" pTooltip="Créer une facture" tooltipPosition="top" style="color:var(--purple-500)">
+                            <i class="pi pi-receipt"></i>
+                          </button>
+
                           <!-- Desktop only: Inline status edit button -->
                           <button
                             class="action-btn edit desktop-only"

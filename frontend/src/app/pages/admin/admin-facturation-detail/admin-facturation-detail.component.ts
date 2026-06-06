@@ -1,7 +1,7 @@
 import {
   Component, OnInit, inject, DestroyRef, signal
 } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ConfirmationService } from 'primeng/api';
 import { trigger, transition, style, animate } from '@angular/animations';
@@ -12,20 +12,21 @@ import { ConfirmationDialogService } from '../../../core/services/confirmation-d
 import { ToastMessageService } from '../../../core/services/toast-message.service';
 import {
   FacturationService, Facturation, FacturationCreate, FacturationItemCreate,
-  CompanySettings, FacturationClient, FacturationCatalogItem
+  CompanySettings, FacturationClient, FacturationCatalogItem, FacturationDraft
 } from '../../../core/services/facturation.service';
 import { FacturationPdfService } from '../../../services/facturation-pdf.service';
 import { BrandService } from '../../../core/services/brand.service';
 import { Brand } from '../../../models/brand.model';
 import { ROUTES, RouteHelpers } from '../../../core/constants/routes.constants';
 
-import { DialogModule } from 'primeng/dialog';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { SelectModule } from 'primeng/select';
+import { PopoverModule } from 'primeng/popover';
 
 interface InvoiceItem {
   product_id?: number;
   product_name: string;
+  brand_name?: string;
   unit: string;
   pieces_per_box: number;
   quantity: number;
@@ -49,9 +50,10 @@ interface FiscalInfo {
   imports: [
     ...ADMIN_LIST_IMPORTS,
     PageLayoutComponent,
-    DialogModule,
     InputNumberModule,
     SelectModule,
+    PopoverModule,
+    RouterLink,
   ],
   providers: [ConfirmationService],
   templateUrl: './admin-facturation-detail.component.html',
@@ -69,7 +71,7 @@ export class AdminFacturationDetailComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private facturationService = inject(FacturationService);
-  pdfService = inject(FacturationPdfService);
+  private pdfService = inject(FacturationPdfService);
   private brandService = inject(BrandService);
   private confirmDialog = inject(ConfirmationDialogService);
   private confirmationService = inject(ConfirmationService);
@@ -82,6 +84,7 @@ export class AdminFacturationDetailComponent implements OnInit {
   // ── State ───────────────────────────────────────────────────────────────────
   loading = signal(false);
   saving = signal(false);
+  converting = signal(false);
   company = signal<CompanySettings | null>(null);
   facture = signal<Facturation | null>(null);
 
@@ -104,29 +107,19 @@ export class AdminFacturationDetailComponent implements OnInit {
     return this.allProducts.filter(p => p.brand_id === this.filterBrand);
   }
 
-  // ── Margin input state ────────────────────────────────────────────────────────
-  activeMarginIndex = signal<number | null>(null);
-  pendingMargin = 0;
-
-  openMarginInput(index: number): void {
-    this.pendingMargin = 0;
-    this.activeMarginIndex.set(index);
-  }
-
-  applyMargin(item: InvoiceItem): void {
-    if (this.pendingMargin !== 0) {
-      item.prix_vente_pcs = item.prix_vente_pcs * (1 + this.pendingMargin / 100);
-      this.recalculate(item);
-    }
-    this.activeMarginIndex.set(null);
-  }
-
   // ── Invoice form ─────────────────────────────────────────────────────────────
+  documentType: 'facture' | 'bon_de_livraison' = 'facture';
   paymentMode = 'espece';
+  marge = 0;
   remise = 0;
   timbre = 0;
   notes = '';
   items: InvoiceItem[] = [];
+
+  readonly margeOptions = [0, 3, 5, 10, 15].map(v => ({
+    label: v === 0 ? 'Aucune' : `${v}%`,
+    value: v,
+  }));
 
   // ── Totals ──────────────────────────────────────────────────────────────────
   get totalHt(): number {
@@ -139,10 +132,12 @@ export class AdminFacturationDetailComponent implements OnInit {
     return this.totalHt + this.totalTva - this.remise + this.timbre;
   }
 
+  readonly tvaRates = [0, 9, 19];
+
   paymentModeOptions = [
-    { label: 'Espèces', value: 'espece' },
-    { label: 'Chèque', value: 'cheque' },
-    { label: 'Virement bancaire', value: 'virement' },
+    { label: 'Espèces',  short: 'Espèces',  icon: 'pi pi-wallet', value: 'espece'   },
+    { label: 'Chèque',   short: 'Chèque',   icon: 'pi pi-file',   value: 'cheque'   },
+    { label: 'Virement bancaire', short: 'Virement', icon: 'pi pi-send', value: 'virement' },
   ];
   ngOnInit(): void {
     const id = this.route.snapshot.params['id'];
@@ -153,6 +148,10 @@ export class AdminFacturationDetailComponent implements OnInit {
       this.isCreateMode = true;
       this.loadClients();
       this.loadCatalog();
+      const fromOrder = this.route.snapshot.queryParams['from_order'];
+      if (fromOrder) {
+        this.loadFromOrder(+fromOrder);
+      }
     }
     this.loadCompanySettings();
   }
@@ -201,10 +200,47 @@ export class AdminFacturationDetailComponent implements OnInit {
       });
   }
 
+  private loadFromOrder(orderId: number): void {
+    this.loading.set(true);
+    this.facturationService.getFacturationDraftFromOrder(orderId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (draft: FacturationDraft) => {
+          this.selectedClient = draft.client;
+          this.fiscal = this.fiscalFromClient(draft.client);
+          this.items = draft.items.map(draftItem => {
+            const item: InvoiceItem = {
+              product_id: draftItem.product_id,
+              product_name: draftItem.product_name,
+              brand_name: draftItem.brand_name,
+              unit: draftItem.unit,
+              pieces_per_box: draftItem.pieces_per_box,
+              quantity: draftItem.quantity,
+              facture_unit_price: draftItem.original_unit_price,
+              prix_vente_pcs: draftItem.prix_vente_pcs,
+              unit_price: 0,
+              tva_rate: draftItem.tva_rate,
+              image_url: draftItem.image_url,
+            };
+            item.unit_price = this.pCtnTtc(item);
+            return item;
+          });
+          this.loading.set(false);
+        },
+        error: () => {
+          this.loading.set(false);
+          this.toast.showError('Erreur lors du chargement de la commande');
+        }
+      });
+  }
+
   onClientSelect(client: FacturationClient): void {
     this.selectedClient = client;
-    // Pre-fill fiscal info from user's saved profile
-    this.fiscal = {
+    this.fiscal = this.fiscalFromClient(client);
+  }
+
+  private fiscalFromClient(client: FacturationClient): FiscalInfo {
+    return {
       rc: client.fiscal_info?.rc ?? '',
       na: client.fiscal_info?.na ?? '',
       nif: client.fiscal_info?.nif ?? '',
@@ -217,28 +253,37 @@ export class AdminFacturationDetailComponent implements OnInit {
     this.fiscal = { rc: '', na: '', nif: '', nis: '' };
   }
 
+  // ── Marge ────────────────────────────────────────────────────────────────────
+  onMargeChange(): void {
+    this.items.forEach(item => {
+      item.prix_vente_pcs = item.facture_unit_price * (1 + this.marge / 100);
+      this.recalculate(item);
+    });
+  }
+
   // ── Catalog actions ──────────────────────────────────────────────────────────
   addProduct(product: FacturationCatalogItem): void {
     const existing = this.items.find(i => i.product_id === product.id);
     if (existing) {
       existing.quantity++;
-    } else {
-      const piecesPerBox = product.pieces_per_box ?? 1;
-      const facture_unit_price = product.facture_unit_price ?? 0;
-      const tva = product.tva_rate ?? 0;
-      this.items.push({
-        product_id: product.id,
-        product_name: product.name,
-        unit: this.mapPackagingType(product.packaging_type),
-        pieces_per_box: piecesPerBox,
-        quantity: 1,
-        facture_unit_price,
-        prix_vente_pcs: facture_unit_price,
-        unit_price: facture_unit_price * piecesPerBox * (1 + tva / 100),
-        tva_rate: tva,
-        image_url: product.image_url,
-      });
+      return;
     }
+    const basePrice = product.facture_unit_price ?? 0;
+    const item: InvoiceItem = {
+      product_id: product.id,
+      product_name: product.name,
+      brand_name: product.brand_name,
+      unit: this.mapPackagingType(product.packaging_type),
+      pieces_per_box: product.pieces_per_box ?? 1,
+      quantity: 1,
+      facture_unit_price: basePrice,
+      prix_vente_pcs: basePrice * (1 + this.marge / 100),
+      unit_price: 0,
+      tva_rate: product.tva_rate ?? 0,
+      image_url: product.image_url,
+    };
+    item.unit_price = this.pCtnTtc(item);
+    this.items.push(item);
   }
 
   removeItem(index: number): void {
@@ -279,10 +324,17 @@ export class AdminFacturationDetailComponent implements OnInit {
     item.unit_price = this.pCtnTtc(item);
   }
 
-  syncToAchat(item: InvoiceItem): void {
-    item.prix_vente_pcs = item.facture_unit_price / (1 + item.tva_rate / 100);
-    this.recalculate(item);
+  onTvaChange(item: InvoiceItem): void {
+    // Keep TTC per carton constant — back-calculate HT price per piece
+    item.prix_vente_pcs = item.unit_price / item.pieces_per_box / (1 + item.tva_rate / 100);
   }
+
+  tvaStyle(rate: number): Record<string, string> {
+    if (rate === 9)  return { background: '#fff7ed', color: '#c2410c', borderColor: '#fed7aa' };
+    if (rate === 19) return { background: '#fef2f2', color: '#b91c1c', borderColor: '#fecaca' };
+    return { background: 'var(--surface-100)', color: 'var(--text-color-secondary)', borderColor: 'var(--surface-border)' };
+  }
+
 
   // ── Save ─────────────────────────────────────────────────────────────────────
   save(): void {
@@ -304,6 +356,7 @@ export class AdminFacturationDetailComponent implements OnInit {
 
     const payload: FacturationCreate = {
       client_id: this.selectedClient.id,
+      document_type: this.documentType,
       fiscal_info: fiscalPayload,
       payment_mode: this.paymentMode,
       remise: this.remise,
@@ -313,11 +366,13 @@ export class AdminFacturationDetailComponent implements OnInit {
         product_id: item.product_id,
         reference: item.product_id?.toString() ?? '',
         product_name: item.product_name,
+        brand_name: item.brand_name,
         unit: item.unit,
         pieces_per_box: item.pieces_per_box,
         quantity: item.quantity,
         unit_price: item.unit_price,
         tva_rate: item.tva_rate,
+        image_url: item.image_url,
       } as FacturationItemCreate))
     };
 
@@ -340,16 +395,34 @@ export class AdminFacturationDetailComponent implements OnInit {
   }
 
   // ── View mode actions ─────────────────────────────────────────────────────────
-  print(): void {
-    const f = this.facture(); const company = this.company();
-    if (!f || !company) return;
-    this.pdfService.generateFacturePdf(f, company, false);
+  print(): void    { this.generatePdf(false); }
+  download(): void { this.generatePdf(true); }
+
+  convertToFacture(): void {
+    const f = this.facture();
+    if (!f) return;
+    this.converting.set(true);
+    this.facturationService.convertToFacture(f.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (created) => {
+          this.converting.set(false);
+          this.toast.showSuccess(`Facture ${created.reference} créée`);
+          const company = this.company();
+          if (company) this.pdfService.generateFacturePdf(created, company, false);
+          this.router.navigate([RouteHelpers.adminFacturationDetail(created.id)]);
+        },
+        error: () => {
+          this.converting.set(false);
+          this.toast.showError('Erreur lors de la conversion');
+        }
+      });
   }
 
-  download(): void {
+  private generatePdf(download: boolean): void {
     const f = this.facture(); const company = this.company();
     if (!f || !company) return;
-    this.pdfService.generateFacturePdf(f, company, true);
+    this.pdfService.generateFacturePdf(f, company, download);
   }
 
   confirmDelete(): void {
@@ -373,9 +446,6 @@ export class AdminFacturationDetailComponent implements OnInit {
         error: () => this.toast.showError('Erreur lors de la suppression')
       });
   }
-
-  closePdfPreview(): void { this.pdfService.closePdfPreview(); }
-  downloadCurrentPdf(): void { this.pdfService.downloadPdf('facture'); }
 
   paymentLabel(mode: string): string {
     return this.paymentModeOptions.find(o => o.value === mode)?.label ?? mode;

@@ -46,7 +46,6 @@
                   <th style="width: 10%" class="text-right">{{ 'admin.purchase_orders.detail.total_price' | translate }}</th>
                   <th style="width: 10%" class="text-center">Qté Fact.</th>
                   <th style="width: 12%" class="text-right">P. Fact./U</th>
-                  <th style="width: 12%" class="text-center">TVA</th>
                   @if (order()!.status === 'sent') {
                     <th style="width: 6%" class="text-center"></th>
                   }
@@ -120,17 +119,6 @@
                           [placeholder]="'0.00'"
                         />
                       </td>
-                      <td class="text-center">
-                        <p-select
-                          [options]="tvaOptions"
-                          [(ngModel)]="editableItems()[i].tva_rate"
-                          optionLabel="label"
-                          optionValue="value"
-                          appendTo="body"
-                          styleClass="w-full"
-                          [style]="{'min-width':'90px'}"
-                        />
-                      </td>
                       @if (order()!.status === 'sent') {
                         <td class="text-center">
                           <button
@@ -153,13 +141,6 @@
                           <span class="font-semibold">{{ item.facture_unit_price | appCurrency }}</span>
                         } @else {
                           <span class="text-secondary text-sm">—</span>
-                        }
-                      </td>
-                      <td class="text-center">
-                        @if (item.tva_rate > 0) {
-                          <span class="pill purple">{{ item.tva_rate }}%</span>
-                        } @else {
-                          <span class="text-secondary text-sm">0%</span>
                         }
                       </td>
                     }

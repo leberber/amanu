@@ -152,6 +152,7 @@ export class AdminAddProductComponent implements OnInit {
       packaging_type: [null, Validators.required],
       volume: [null],
       weight: [null],
+      tva_rate: [0],
     });
 
     this.loadCategories();
@@ -259,6 +260,7 @@ export class AdminAddProductComponent implements OnInit {
             packaging_type: product.packaging_type || null,
             volume: product.volume || '',
             weight: product.weight || '',
+            tva_rate: product.tva_rate ?? 0,
           });
 
           this.packagingTypeValue.set(product.packaging_type || null);
@@ -304,6 +306,7 @@ export class AdminAddProductComponent implements OnInit {
         packaging_type: formValues.packaging_type || null,
         volume: formValues.volume || null,
         weight: formValues.weight || null,
+        tva_rate: formValues.tva_rate ?? 0,
       }
     );
 

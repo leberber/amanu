@@ -40,4 +40,7 @@ export class PageLayoutComponent {
 
   // Optional: use static header instead of fixed (for use inside animated containers)
   staticHeader = input(false);
+
+  // Optional: remove side margins and max-width from content area
+  fullWidth = input(false);
 }

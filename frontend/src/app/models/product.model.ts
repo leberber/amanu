@@ -33,6 +33,7 @@ export interface Product {
     packaging_type?: PackagingType;  // Type of packaging (box, carton, crate, etc.)
     volume?: number;  // in liters (L)
     weight?: number;  // in kilograms (kg)
+    tva_rate?: number;  // TVA rate: 0, 9, or 19
     promotion?: ProductPromotion;  // Active promotion applied to this product
   }
   

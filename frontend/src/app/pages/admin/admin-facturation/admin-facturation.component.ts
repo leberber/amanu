@@ -3,6 +3,7 @@ import {
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { take } from 'rxjs';
 import { ConfirmationService } from 'primeng/api';
 import { trigger, transition, style, animate } from '@angular/animations';
 
@@ -90,23 +91,47 @@ export class AdminFacturationComponent implements OnInit {
 
   printFacture(event: Event, facture: Facturation): void {
     event.stopPropagation();
-    const company = this.company();
-    if (!company) { this.toast.showWarn('Paramètres société non chargés'); return; }
-    this.pdfService.generateFacturePdf(facture, company, false);
+    this.generatePdfForFacture(facture, false);
   }
 
   downloadFacture(event: Event, facture: Facturation): void {
     event.stopPropagation();
+    this.generatePdfForFacture(facture, true);
+  }
+
+  private generatePdfForFacture(facture: Facturation, download: boolean): void {
     const company = this.company();
-    if (!company) { this.toast.showWarn('Paramètres société non chargés'); return; }
-    this.pdfService.generateFacturePdf(facture, company, true);
+    if (company) {
+      this.pdfService.generateFacturePdf(facture, company, download);
+      return;
+    }
+    this.facturationService.getCompanySettings()
+      .pipe(take(1))
+      .subscribe({
+        next: (c) => { this.company.set(c); this.pdfService.generateFacturePdf(facture, c, download); },
+        error: () => this.toast.showError('Paramètres société introuvables')
+      });
+  }
+
+  convertBl(event: Event, facture: Facturation): void {
+    event.stopPropagation();
+    this.facturationService.convertToFacture(facture.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (created) => {
+          this.toast.showSuccess(`Facture ${created.reference} créée`);
+          this.loadFacturations();
+          this.router.navigate([RouteHelpers.adminFacturationDetail(created.id)]);
+        },
+        error: () => this.toast.showError('Erreur lors de la conversion')
+      });
   }
 
   confirmDelete(event: Event, facture: Facturation): void {
     event.stopPropagation();
     this.confirmDialog.confirmDelete(
       this.confirmationService,
-      `Facture ${facture.reference}`,
+      `${facture.reference}`,
       () => this.deleteFacture(facture)
     );
   }
@@ -123,9 +148,6 @@ export class AdminFacturationComponent implements OnInit {
         error: () => this.toast.showError('Erreur lors de la suppression')
       });
   }
-
-  closePdfPreview(): void { this.pdfService.closePdfPreview(); }
-  downloadCurrentPdf(): void { this.pdfService.downloadPdf('facture'); }
 
   paymentLabel(mode: string): string {
     const opts = [

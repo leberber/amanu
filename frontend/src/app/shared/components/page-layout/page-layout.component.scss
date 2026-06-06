@@ -279,6 +279,13 @@ $sticky-footer-height: 60px;
     border-radius: 8px;
     background: white;
   }
+
+  // Full-width variant — removes side margins and max-width
+  &--full-width {
+    margin-left: 0;
+    margin-right: 0;
+    max-width: 100%;
+  }
 }
 
 // -----------------------------------------------------------------------------

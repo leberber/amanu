@@ -19,7 +19,6 @@ class FactureItemUpdate(BaseModel):
     item_id: int
     facture_quantity: int
     facture_unit_price: float
-    tva_rate: int
 
 class FactureItemsBulkUpdate(BaseModel):
     items: list[FactureItemUpdate]
@@ -339,13 +338,14 @@ async def confirm_delivery(
                 item.quantity_received = quantity_received
                 item.facture_quantity = delivery_item.facture_quantity
                 item.facture_unit_price = delivery_item.facture_unit_price
-                item.tva_rate = delivery_item.tva_rate
 
                 product = None
 
                 # If item has product_id, get existing product
                 if item.product_id:
                     product = session.get(Product, item.product_id)
+                    if product:
+                        item.tva_rate = product.tva_rate
 
                 # If no product exists, try to create one from restock item
                 if not product:
@@ -505,7 +505,10 @@ async def update_facture_items(
             continue
         item.facture_quantity = update.facture_quantity
         item.facture_unit_price = update.facture_unit_price
-        item.tva_rate = update.tva_rate
+        if item.product_id:
+            product = session.get(Product, item.product_id)
+            if product:
+                item.tva_rate = product.tva_rate
         session.add(item)
     session.commit()
     session.refresh(order)

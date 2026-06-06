@@ -150,10 +150,4 @@ router-outlet + * {
   }
 }
 
-.page-layout--enhanced,
-.page-layout--enhanced *,
-.page-layout--enhanced *::before,
-.page-layout--enhanced *::after {
-  box-sizing: content-box !important;
-}
 

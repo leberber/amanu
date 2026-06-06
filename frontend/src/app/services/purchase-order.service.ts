@@ -96,7 +96,7 @@ export interface DeliveryConfirmation {
     item_id: number;
     quantity_received: number;
     facture_quantity: number;
-    tva_rate: number;
+    facture_unit_price: number;
   }[];
   notes?: string;
 }
@@ -173,7 +173,7 @@ export class PurchaseOrderService {
     return this.api.post<PurchaseOrder>(`/purchase-orders/${id}/deliver`, delivery);
   }
 
-  updateFactureItems(orderId: number, items: { item_id: number; facture_quantity: number; facture_unit_price: number; tva_rate: number }[]): Observable<PurchaseOrder> {
+  updateFactureItems(orderId: number, items: { item_id: number; facture_quantity: number; facture_unit_price: number }[]): Observable<PurchaseOrder> {
     return this.api.patch<PurchaseOrder>(`/purchase-orders/${orderId}/facture-items`, { items });
   }
 

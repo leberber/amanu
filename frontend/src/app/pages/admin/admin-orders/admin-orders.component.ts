@@ -261,6 +261,12 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
     this.baseRouter.navigate([RouteHelpers.adminOrderDetail(order.id)]);
   }
 
+  convertToFacture(order: Order): void {
+    this.baseRouter.navigate([ROUTES.ADMIN.FACTURATION_NEW], {
+      queryParams: { from_order: order.id }
+    });
+  }
+
   getStatusIcon(status: string): string {
     return this.statusSeverity.getOrderStatusIcon(status);
   }

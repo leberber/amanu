@@ -35,6 +35,7 @@
         <ng-template pTemplate="header">
           <tr>
             <th>Référence</th>
+            <th>Type</th>
             <th>Client</th>
             <th>Date</th>
             <th class="text-right">Total TTC</th>
@@ -44,7 +45,19 @@
         </ng-template>
         <ng-template pTemplate="body" let-facture>
           <tr class="cursor-pointer hover:surface-100" (click)="openDetail(facture)">
-            <td><span class="font-semibold text-primary">{{ facture.reference }}</span></td>
+            <td>
+              <div class="flex align-items-center gap-2">
+                <span class="font-semibold text-primary">{{ facture.reference }}</span>
+                @if (facture.converted_to_facture_id) {
+                  <p-tag value="Facturé" severity="success" [rounded]="true" styleClass="text-xs" />
+                }
+              </div>
+            </td>
+            <td>
+              <p-tag [value]="facture.document_type === 'bon_de_livraison' ? 'BL' : 'Facture'"
+                     [severity]="facture.document_type === 'bon_de_livraison' ? 'warn' : 'info'"
+                     [rounded]="true" styleClass="text-xs" />
+            </td>
             <td>
               <div class="font-medium">{{ facture.client_name }}</div>
               @if (facture.client_nif) { <div class="text-xs text-500">NIF: {{ facture.client_nif }}</div> }
@@ -58,6 +71,11 @@
             </td>
             <td>
               <div class="flex gap-2 justify-content-center">
+                @if (facture.document_type === 'bon_de_livraison' && !facture.converted_to_facture_id) {
+                  <p-button icon="pi pi-arrow-right-arrow-left" [rounded]="true" [text]="true"
+                            severity="secondary" pTooltip="Convertir en Facture"
+                            (onClick)="convertBl($event, facture)" />
+                }
                 <p-button icon="pi pi-print" [rounded]="true" [text]="true" severity="info"
                           pTooltip="Aperçu PDF" (onClick)="printFacture($event, facture)" />
                 <p-button icon="pi pi-download" [rounded]="true" [text]="true" severity="secondary"
@@ -75,24 +93,5 @@
 </app-agroclik-page-container>
 
 
-<!-- PDF PREVIEW -->
-<p-dialog
-  [visible]="pdfService.showPdfPreview()"
-  (visibleChange)="pdfService.showPdfPreview.set($event)"
-  [modal]="true"
-  [style]="{ width: '85vw', height: '90vh' }"
-  header="Aperçu de la facture"
-  [closable]="true"
-  (onHide)="closePdfPreview()"
->
-  @if (pdfService.pdfPreviewUrl()) {
-    <iframe [src]="pdfService.pdfPreviewUrl()" class="w-full"
-            style="height: calc(90vh - 130px); border: none;"></iframe>
-  }
-  <ng-template pTemplate="footer">
-    <p-button label="Fermer" severity="secondary" [text]="true" (onClick)="closePdfPreview()" />
-    <p-button label="Télécharger" icon="pi pi-download" (onClick)="downloadCurrentPdf()" />
-  </ng-template>
-</p-dialog>
 
 <p-toast />

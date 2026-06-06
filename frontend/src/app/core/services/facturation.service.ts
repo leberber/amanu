@@ -13,6 +13,7 @@ export interface FacturationCatalogItem {
   tva_rate: number;
   category_id?: number;
   brand_id?: number;
+  brand_name?: string;
   facture_stock: number;
   image_url?: string;
   facture_unit_price: number;
@@ -43,6 +44,7 @@ export interface CompanySettings {
   na?: string;
   nif?: string;
   nis?: string;
+  email?: string;
 }
 
 export interface CompanySettingsUpdate {
@@ -54,21 +56,25 @@ export interface CompanySettingsUpdate {
   na?: string;
   nif?: string;
   nis?: string;
+  email?: string;
 }
 
 export interface FacturationItemCreate {
   product_id?: number;
   reference: string;
   product_name: string;
+  brand_name?: string;
   unit: string;
   pieces_per_box: number;
   quantity: number;
   unit_price: number;
   tva_rate: number;
+  image_url?: string;
 }
 
 export interface FacturationCreate {
   client_id: number;
+  document_type: 'facture' | 'bon_de_livraison';
   fiscal_info?: { rc?: string; na?: string; nif?: string; nis?: string };
   payment_mode: string;
   remise: number;
@@ -82,6 +88,7 @@ export interface FacturationItem {
   product_id?: number;
   reference: string;
   product_name: string;
+  brand_name?: string;
   unit: string;
   pieces_per_box: number;
   quantity: number;
@@ -95,6 +102,8 @@ export interface FacturationItem {
 export interface Facturation {
   id: number;
   reference: string;
+  document_type: 'facture' | 'bon_de_livraison';
+  converted_to_facture_id?: number;
   client_id?: number;
   client_name: string;
   client_address?: string;
@@ -111,6 +120,24 @@ export interface Facturation {
   notes?: string;
   created_at: string;
   items: FacturationItem[];
+}
+
+export interface FacturationDraftItem {
+  product_id?: number;
+  product_name: string;
+  brand_name?: string;
+  unit: string;
+  pieces_per_box: number;
+  quantity: number;
+  prix_vente_pcs: number;
+  original_unit_price: number;
+  tva_rate: number;
+  image_url?: string;
+}
+
+export interface FacturationDraft {
+  client: FacturationClient;
+  items: FacturationDraftItem[];
 }
 
 export interface FacturationListResponse {
@@ -155,8 +182,16 @@ export class FacturationService {
     return this.http.get<Facturation>(`${this.apiUrl}/${id}`);
   }
 
+  getFacturationDraftFromOrder(orderId: number): Observable<FacturationDraft> {
+    return this.http.get<FacturationDraft>(`${this.apiUrl}/from-order/${orderId}`);
+  }
+
   createFacturation(data: FacturationCreate): Observable<Facturation> {
     return this.http.post<Facturation>(this.apiUrl, data);
+  }
+
+  convertToFacture(id: number): Observable<Facturation> {
+    return this.http.post<Facturation>(`${this.apiUrl}/${id}/convert`, {});
   }
 
   deleteFacturation(id: number): Observable<void> {
