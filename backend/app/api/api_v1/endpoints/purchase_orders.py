@@ -59,7 +59,6 @@ def order_to_response(order: PurchaseOrder) -> PurchaseOrderResponse:
             quantity_received=item.quantity_received,
             facture_quantity=item.facture_quantity,
             facture_unit_price=item.facture_unit_price,
-            tva_rate=item.tva_rate,
             unit_price=item.unit_price,
             total_price=item.total_price
         )
@@ -344,9 +343,6 @@ async def confirm_delivery(
                 # If item has product_id, get existing product
                 if item.product_id:
                     product = session.get(Product, item.product_id)
-                    if product:
-                        item.tva_rate = product.tva_rate
-
                 # If no product exists, try to create one from restock item
                 if not product:
                     # Find matching restock item by name
@@ -495,7 +491,7 @@ async def update_facture_items(
     data: FactureItemsBulkUpdate,
     session: Session = Depends(get_session)
 ):
-    """Bulk-update facture_quantity and tva_rate for all items on an order."""
+    """Bulk-update facture_quantity and facture_unit_price for all items on an order."""
     order = session.get(PurchaseOrder, order_id)
     if not order:
         raise HTTPException(status_code=404, detail="Purchase order not found")
@@ -505,10 +501,6 @@ async def update_facture_items(
             continue
         item.facture_quantity = update.facture_quantity
         item.facture_unit_price = update.facture_unit_price
-        if item.product_id:
-            product = session.get(Product, item.product_id)
-            if product:
-                item.tva_rate = product.tva_rate
         session.add(item)
     session.commit()
     session.refresh(order)

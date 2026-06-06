@@ -41,7 +41,6 @@ class PurchaseOrderItem(SQLModel, table=True):
     quantity_received: int = 0     # Actual quantity received (for partial deliveries)
     facture_quantity: int = Field(default=0)  # Units received with official invoice
     facture_unit_price: float = Field(default=0.0)  # Price per unit on supplier's official invoice
-    tva_rate: int = Field(default=0)          # TVA rate on supplier invoice (0, 9, or 19)
 
     # Pricing
     unit_price: float = 0          # Price per carton
@@ -161,7 +160,6 @@ class PurchaseOrderItemResponse(BaseModel):
     quantity_received: int
     facture_quantity: int
     facture_unit_price: float = 0.0
-    tva_rate: int = 0
     unit_price: float
     total_price: float
 
