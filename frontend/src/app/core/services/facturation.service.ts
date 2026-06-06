@@ -80,6 +80,7 @@ export interface FacturationCreate {
   remise: number;
   timbre: number;
   notes?: string;
+  converted_from_bl_reference?: string;
   items: FacturationItemCreate[];
 }
 
@@ -104,6 +105,8 @@ export interface Facturation {
   reference: string;
   document_type: 'facture' | 'bon_de_livraison';
   converted_to_facture_id?: number;
+  converted_to_facture_reference?: string;
+  converted_from_bl_reference?: string;
   client_id?: number;
   client_name: string;
   client_address?: string;

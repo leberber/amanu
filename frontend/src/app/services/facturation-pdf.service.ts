@@ -13,6 +13,15 @@ export class FacturationPdfService {
   private toast = inject(ToastMessageService);
   private dateService = inject(DateService);
 
+  private cleanAddress(address: string | null | undefined): string {
+    if (!address) return '';
+    return address
+      .replace(/\b[A-Z0-9]{4,8}\+[A-Z0-9]{2,3}\b\s*/g, '')
+      .replace(/^[\s,]+/, '')
+      .replace(/,?\s*Alg[eé]rie\s*$/i, '')
+      .trim();
+  }
+
   private money(value: number): string {
     return Number(value).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
   }
@@ -161,6 +170,10 @@ export class FacturationPdfService {
     font-size: 28px; font-weight: 900; color: #041f58;
     letter-spacing: 6px; line-height: 1; flex: 1;
   }
+  .inv-doctype-sub {
+    font-size: 8px; color: #aab4c8; font-weight: 500;
+    letter-spacing: 2px; text-transform: uppercase; margin-top: 6px;
+  }
   .inv-logo-center { flex: 1; display: flex; justify-content: center; align-items: center; }
   .inv-logo { height: 56px; width: auto; display: block; }
   .inv-meta-group { flex: 1; display: flex; gap: 28px; align-items: flex-start; justify-content: flex-end; }
@@ -267,7 +280,10 @@ export class FacturationPdfService {
 
   <div class="inv-hdr">
     <div class="inv-top-row">
-      <div class="inv-doctype">${facture.document_type === 'facture' ? 'FACTURE' : 'BON DE LIVRAISON'}</div>
+      <div class="inv-doctype">
+        ${facture.document_type === 'facture' ? 'FACTURE' : 'BON DE LIVRAISON'}
+        ${facture.document_type === 'bon_de_livraison' ? '<div class="inv-doctype-sub">suivi d\'une facture</div>' : ''}
+      </div>
       <div class="inv-logo-center">
         ${logoDataUrl ? `<img src="${logoDataUrl}" class="inv-logo" alt="Logo" />` : ''}
       </div>
@@ -329,7 +345,7 @@ export class FacturationPdfService {
       <h3 class="card-title">CLIENT</h3>
       <p class="card-name">${facture.client_name}</p>
       <p class="card-text">${[
-        facture.client_address,
+        this.cleanAddress(facture.client_address),
         facture.client_rc  ? 'RC : '    + facture.client_rc  : '',
         facture.client_na  ? 'N.A : '   + facture.client_na  : '',
         facture.client_nif ? 'N.I.F : ' + facture.client_nif : '',

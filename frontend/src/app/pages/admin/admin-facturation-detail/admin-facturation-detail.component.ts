@@ -3,6 +3,7 @@ import {
 } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { take } from 'rxjs';
 import { ConfirmationService } from 'primeng/api';
 import { trigger, transition, style, animate } from '@angular/animations';
 
@@ -18,10 +19,12 @@ import { FacturationPdfService } from '../../../services/facturation-pdf.service
 import { BrandService } from '../../../core/services/brand.service';
 import { Brand } from '../../../models/brand.model';
 import { ROUTES, RouteHelpers } from '../../../core/constants/routes.constants';
+import { CleanAddressPipe } from '../../../shared/pipes/clean-address.pipe';
 
 import { InputNumberModule } from 'primeng/inputnumber';
 import { SelectModule } from 'primeng/select';
 import { PopoverModule } from 'primeng/popover';
+import { DialogModule } from 'primeng/dialog';
 
 interface InvoiceItem {
   product_id?: number;
@@ -54,6 +57,8 @@ interface FiscalInfo {
     SelectModule,
     PopoverModule,
     RouterLink,
+    CleanAddressPipe,
+    DialogModule,
   ],
   providers: [ConfirmationService],
   templateUrl: './admin-facturation-detail.component.html',
@@ -114,6 +119,8 @@ export class AdminFacturationDetailComponent implements OnInit {
   remise = 0;
   timbre = 0;
   notes = '';
+  sourceBdlReference: string | null = null;
+  showSaveConfirm = signal(false);
   items: InvoiceItem[] = [];
 
   readonly margeOptions = [0, 3, 5, 10, 15].map(v => ({
@@ -150,7 +157,12 @@ export class AdminFacturationDetailComponent implements OnInit {
       this.loadCatalog();
       const fromOrder = this.route.snapshot.queryParams['from_order'];
       if (fromOrder) {
+        this.documentType = 'bon_de_livraison';
         this.loadFromOrder(+fromOrder);
+      }
+      const fromBdl = this.route.snapshot.queryParams['from_bdl'];
+      if (fromBdl) {
+        this.loadFromBdl(+fromBdl);
       }
     }
     this.loadCompanySettings();
@@ -337,6 +349,10 @@ export class AdminFacturationDetailComponent implements OnInit {
 
 
   // ── Save ─────────────────────────────────────────────────────────────────────
+  confirmSave(): void {
+    this.showSaveConfirm.set(true);
+  }
+
   save(): void {
     if (!this.selectedClient) {
       this.toast.showWarn('Sélectionnez un client');
@@ -362,6 +378,7 @@ export class AdminFacturationDetailComponent implements OnInit {
       remise: this.remise,
       timbre: this.timbre,
       notes: this.notes || undefined,
+      converted_from_bl_reference: this.sourceBdlReference ?? undefined,
       items: this.items.map(item => ({
         product_id: item.product_id,
         reference: item.product_id?.toString() ?? '',
@@ -394,6 +411,80 @@ export class AdminFacturationDetailComponent implements OnInit {
       });
   }
 
+  createFromBdl(): void {
+    const f = this.facture();
+    if (!f) return;
+    this.router.navigate([ROUTES.ADMIN.FACTURATION_NEW], { queryParams: { from_bdl: f.id } });
+  }
+
+  goToConvertedFacture(): void {
+    const f = this.facture();
+    if (!f?.converted_to_facture_id) return;
+    this.router.navigate([RouteHelpers.adminFacturationDetail(f.converted_to_facture_id)]);
+  }
+
+  goToSourceBl(): void {
+    const f = this.facture();
+    if (!f?.converted_from_bl_reference) return;
+    // Find the BL by reference from the list and navigate to it
+    this.facturationService.getFacturations(0, 200).pipe(take(1)).subscribe({
+      next: (res) => {
+        const bl = res.facturations.find(x => x.reference === f.converted_from_bl_reference);
+        if (bl) this.router.navigate([RouteHelpers.adminFacturationDetail(bl.id)]);
+      }
+    });
+  }
+
+  private loadFromBdl(bdlId: number): void {
+    this.loading.set(true);
+    this.facturationService.getFacturation(bdlId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (bdl) => {
+          this.sourceBdlReference = bdl.reference;
+          if (bdl.client_id) {
+            this.selectedClient = {
+              id: bdl.client_id,
+              display_name: bdl.client_name,
+              full_name: bdl.client_name,
+              address: bdl.client_address,
+              fiscal_info: {
+                rc: bdl.client_rc,
+                na: bdl.client_na,
+                nif: bdl.client_nif,
+                nis: bdl.client_nis,
+              }
+            };
+            this.fiscal = this.fiscalFromClient(this.selectedClient);
+          }
+          this.items = bdl.items.map(item => {
+            const prixVente = item.pieces_per_box > 0
+              ? item.unit_price / item.pieces_per_box / (1 + item.tva_rate / 100)
+              : 0;
+            const inv: InvoiceItem = {
+              product_id: item.product_id,
+              product_name: item.product_name,
+              brand_name: item.brand_name,
+              unit: item.unit,
+              pieces_per_box: item.pieces_per_box,
+              quantity: item.quantity,
+              facture_unit_price: prixVente,
+              prix_vente_pcs: prixVente,
+              unit_price: item.unit_price,
+              tva_rate: item.tva_rate,
+              image_url: item.image_url,
+            };
+            return inv;
+          });
+          this.loading.set(false);
+        },
+        error: () => {
+          this.loading.set(false);
+          this.toast.showError('Erreur lors du chargement du bon de livraison');
+        }
+      });
+  }
+
   // ── View mode actions ─────────────────────────────────────────────────────────
   print(): void    { this.generatePdf(false); }
   download(): void { this.generatePdf(true); }
@@ -401,8 +492,20 @@ export class AdminFacturationDetailComponent implements OnInit {
   convertToFacture(): void {
     const f = this.facture();
     if (!f) return;
+    this.confirmationService.confirm({
+      message: `Voulez-vous convertir ${f.reference} en facture ? Cette action est irréversible.`,
+      header: 'Confirmer la conversion',
+      icon: 'pi pi-arrow-right-arrow-left',
+      acceptLabel: 'Oui, convertir',
+      rejectLabel: 'Annuler',
+      acceptButtonStyleClass: 'p-button-success',
+      accept: () => this.doConvert(f.id),
+    });
+  }
+
+  private doConvert(id: number): void {
     this.converting.set(true);
-    this.facturationService.convertToFacture(f.id)
+    this.facturationService.convertToFacture(id)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (created) => {

@@ -35,7 +35,6 @@
         <ng-template pTemplate="header">
           <tr>
             <th>Référence</th>
-            <th>Type</th>
             <th>Client</th>
             <th>Date</th>
             <th class="text-right">Total TTC</th>
@@ -46,17 +45,26 @@
         <ng-template pTemplate="body" let-facture>
           <tr class="cursor-pointer hover:surface-100" (click)="openDetail(facture)">
             <td>
-              <div class="flex align-items-center gap-2">
+              <div class="flex flex-column gap-1">
                 <span class="font-semibold text-primary">{{ facture.reference }}</span>
-                @if (facture.converted_to_facture_id) {
-                  <p-tag value="Facturé" severity="success" [rounded]="true" styleClass="text-xs" />
-                }
+                <div class="flex align-items-center gap-1">
+                  <span class="inline-flex align-items-center gap-1"
+                        style="padding:2px 7px;border-radius:999px;font-size:10px;font-weight:600"
+                        [style.background]="facture.document_type === 'bon_de_livraison' ? '#fff7ed' : '#eff6ff'"
+                        [style.color]="facture.document_type === 'bon_de_livraison' ? '#ea580c' : '#3b82f6'">
+                    <i [class]="facture.document_type === 'bon_de_livraison' ? 'pi pi-truck' : 'pi pi-file'" style="font-size:8px"></i>
+                    {{ facture.document_type === 'bon_de_livraison' ? 'Bon de livraison' : 'Facture' }}
+                  </span>
+                  @if (facture.converted_to_facture_id) {
+                    <span style="padding:2px 7px;border-radius:999px;font-size:10px;font-weight:600;background:#f0fdf4;color:#16a34a">
+                      Facturé
+                    </span>
+                  }
+                  @if (facture.converted_from_bl_reference) {
+                    <span class="text-xs text-400">depuis {{ facture.converted_from_bl_reference }}</span>
+                  }
+                </div>
               </div>
-            </td>
-            <td>
-              <p-tag [value]="facture.document_type === 'bon_de_livraison' ? 'BL' : 'Facture'"
-                     [severity]="facture.document_type === 'bon_de_livraison' ? 'warn' : 'info'"
-                     [rounded]="true" styleClass="text-xs" />
             </td>
             <td>
               <div class="font-medium">{{ facture.client_name }}</div>

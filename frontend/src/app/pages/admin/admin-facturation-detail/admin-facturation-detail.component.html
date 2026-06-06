@@ -1,5 +1,6 @@
 <app-page-layout
   [title]="isCreateMode ? 'Nouvelle facture' : (facture()?.reference ?? 'Facture')"
+  [subtitle]="!isCreateMode && facture() ? (facture()!.created_at | appDate) : ''"
   icon="pi pi-receipt"
   [showBackButton]="true"
   backRoute="/admin/facturation"
@@ -7,39 +8,55 @@
 >
   <div pageActions class="flex gap-2">
     @if (isCreateMode) {
-      <div class="flex align-items-center" style="background:var(--surface-100);border-radius:10px;padding:4px;gap:3px">
-        <button type="button"
-                class="border-none cursor-pointer transition-all transition-duration-200 flex align-items-center gap-2"
-                style="border-radius:7px;padding:.35rem .85rem;font-size:.8rem;font-weight:600;outline:none;line-height:1.4"
-                [style.background]="documentType === 'facture' ? 'linear-gradient(135deg,#3b82f6,#1d4ed8)' : 'transparent'"
-                [style.color]="documentType === 'facture' ? '#fff' : 'var(--text-color-secondary)'"
-                [style.box-shadow]="documentType === 'facture' ? '0 3px 10px rgba(59,130,246,.4)' : 'none'"
-                (click)="documentType = 'facture'">
-          <i class="pi pi-file" style="font-size:.72rem"></i>
-          Facture
-        </button>
-        <button type="button"
-                class="border-none cursor-pointer transition-all transition-duration-200 flex align-items-center gap-2"
-                style="border-radius:7px;padding:.35rem .85rem;font-size:.8rem;font-weight:600;outline:none;line-height:1.4"
-                [style.background]="documentType === 'bon_de_livraison' ? 'linear-gradient(135deg,#f97316,#ea580c)' : 'transparent'"
-                [style.color]="documentType === 'bon_de_livraison' ? '#fff' : 'var(--text-color-secondary)'"
-                [style.box-shadow]="documentType === 'bon_de_livraison' ? '0 3px 10px rgba(249,115,22,.4)' : 'none'"
-                (click)="documentType = 'bon_de_livraison'">
-          <i class="pi pi-truck" style="font-size:.72rem"></i>
-          Bon de livraison
-        </button>
-      </div>
-      <p-button label="Créer" icon="pi pi-check" severity="success"
-                [loading]="saving()" (onClick)="save()" />
+      <!-- Doc type toggle -->
+      <button type="button"
+              class="inline-flex align-items-center gap-2 border-round-xl font-semibold cursor-pointer transition-all transition-duration-150 hover:opacity-80"
+              style="padding:.4rem 1rem;font-size:.8rem;outline:none"
+              [style.background]="documentType === 'facture' ? '#eff6ff' : '#fff7ed'"
+              [style.color]="documentType === 'facture' ? '#1d4ed8' : '#c2410c'"
+              [style.border]="documentType === 'facture' ? '1.5px solid #bfdbfe' : '1.5px solid #fed7aa'"
+              (click)="documentType = documentType === 'facture' ? 'bon_de_livraison' : 'facture'">
+        <i [class]="documentType === 'facture' ? 'pi pi-file' : 'pi pi-truck'" style="font-size:.85rem"></i>
+        {{ documentType === 'facture' ? 'Facture' : 'Bon de livraison' }}
+        <i class="pi pi-chevron-down" style="font-size:.6rem;opacity:.5"></i>
+      </button>
+
+      <!-- Save -->
+      <button type="button"
+              class="inline-flex align-items-center gap-2 border-round-xl font-semibold cursor-pointer transition-all transition-duration-150 hover:opacity-80"
+              style="padding:.4rem 1rem;font-size:.8rem;background:#f0fdf4;color:#15803d;border:1.5px solid #bbf7d0;outline:none"
+              [class.opacity-60]="saving()"
+              [disabled]="saving()"
+              (click)="confirmSave()">
+        <i [class]="saving() ? 'pi pi-spin pi-spinner' : 'pi pi-check'" style="font-size:.85rem"></i>
+        Créer
+      </button>
     } @else {
       @if (facture()?.document_type === 'bon_de_livraison') {
         @if (facture()?.converted_to_facture_id) {
-          <p-tag value="Facturé" severity="success" [rounded]="true" styleClass="text-xs" />
+          <span class="inline-flex align-items-center gap-2 border-round-xl font-semibold"
+                style="padding:.4rem 1rem;font-size:.8rem;background:#f0fdf4;color:#15803d;border:1.5px solid #bbf7d0">
+            <i class="pi pi-check-circle" style="font-size:.85rem"></i>
+            Facturé
+          </span>
         } @else {
-          <p-button label="Convertir en Facture" icon="pi pi-arrow-right-arrow-left"
-                    severity="secondary" size="small"
-                    [loading]="converting()" (onClick)="convertToFacture()" />
+          <button type="button"
+                  class="inline-flex align-items-center gap-2 border-round-xl font-semibold cursor-pointer transition-all transition-duration-150 hover:opacity-80"
+                  style="padding:.4rem 1rem;font-size:.8rem;background:#f5f3ff;color:#7c3aed;border:1.5px solid #ddd6fe;outline:none"
+                  [disabled]="converting()"
+                  [class.opacity-60]="converting()"
+                  (click)="convertToFacture()">
+            <i [class]="converting() ? 'pi pi-spin pi-spinner' : 'pi pi-arrow-right-arrow-left'" style="font-size:.85rem"></i>
+            Convertir
+          </button>
         }
+        <button type="button"
+                class="inline-flex align-items-center gap-2 border-round-xl font-semibold cursor-pointer border-none transition-all transition-duration-150 hover:opacity-80"
+                style="padding:.4rem 1rem;font-size:.8rem;background:#eff6ff;color:#1d4ed8;border:1.5px solid #bfdbfe !important;outline:none"
+                (click)="createFromBdl()">
+          <i class="pi pi-file-plus" style="font-size:.85rem"></i>
+          Créer une Facture
+        </button>
       }
       <p-button icon="pi pi-print" [rounded]="true" [text]="true" severity="info"
                 pTooltip="Aperçu PDF" (onClick)="print()" />
@@ -499,180 +516,133 @@
         <span class="text-500">Chargement...</span>
       </div>
     } @else if (facture()) {
-      <div class="flex flex-column gap-3 p-3" @pageAnimation>
+      <div class="flex flex-column gap-0" style="height:100%;overflow:hidden" @pageAnimation>
 
-        <!-- ── Reference Banner ── -->
-        <div class="surface-card border-round-xl border-1 surface-border">
-          <div class="flex align-items-center gap-3 px-4 py-3">
-            <div class="flex flex-column gap-1 flex-1">
-              <span class="font-bold text-900" style="font-size:1.3rem;letter-spacing:.01em">{{ facture()!.reference }}</span>
-              <span class="text-xs text-400 flex align-items-center gap-1">
-                <i class="pi pi-calendar" style="font-size:.6rem"></i>
-                {{ facture()!.created_at | appDate }}
-              </span>
-            </div>
-            <p-tag [value]="facture()!.document_type === 'bon_de_livraison' ? 'Bon de livraison' : 'Facture'"
-                   [severity]="facture()!.document_type === 'bon_de_livraison' ? 'warn' : 'info'"
-                   [rounded]="true" styleClass="text-xs" />
-            <p-tag [value]="paymentLabel(facture()!.payment_mode)"
-                   [severity]="getPaymentSeverity(facture()!.payment_mode)"
-                   [rounded]="true" styleClass="text-xs" />
-            <div class="flex flex-column align-items-end gap-0 pl-4 border-left-1 surface-border">
-              <span class="text-xs text-400 uppercase" style="letter-spacing:.05em">Total TTC</span>
-              <span class="font-bold text-primary" style="font-size:1.15rem">{{ facture()!.total_ttc | number:'1.2-2' }} DA</span>
-            </div>
-          </div>
-        </div>
+        <!-- ── Scrollable body ── -->
+        <div class="flex flex-column gap-3 p-3 overflow-y-auto flex-1">
 
-        <!-- ── Client card ── -->
-        <div class="surface-card border-round-xl border-1 surface-border overflow-hidden">
-          <div class="flex align-items-center gap-2 px-3 py-2 border-bottom-1 surface-border">
-            <span class="flex align-items-center justify-content-center border-round-lg flex-shrink-0"
-                  style="width:28px;height:28px;background:linear-gradient(135deg,#3b82f6,#1d4ed8)">
-              <i class="pi pi-user text-white text-sm"></i>
-            </span>
-            <span class="font-semibold text-900">Client</span>
-          </div>
-          <div class="px-3 py-2 flex align-items-center gap-3 flex-wrap">
-            <div class="flex flex-column gap-0">
-              <span class="font-semibold text-900">{{ facture()!.client_name }}</span>
-              @if (facture()!.client_address) {
-                <span class="text-xs text-500 flex align-items-center gap-1 mt-1">
-                  <i class="pi pi-map-marker" style="font-size:.65rem"></i>
-                  {{ facture()!.client_address }}
+        <!-- ── Compact header strip ── -->
+        <div>
+          <div class="flex align-items-center gap-4 px-2 py-3 flex-wrap">
+
+            <!-- Client (primary) -->
+            <div class="flex flex-column gap-1 flex-1" style="min-width:140px">
+              <span class="font-bold text-900" style="font-size:1rem">{{ facture()!.client_name }}</span>
+              <div class="flex align-items-center gap-2 flex-wrap">
+                @if (facture()!.client_address) {
+                  <span class="text-xs text-400">{{ facture()!.client_address | cleanAddress }}</span>
+                }
+                <!-- Link to resulting Facture (if this BL was converted) -->
+                @if (facture()!.converted_to_facture_reference) {
+                  <span class="inline-flex align-items-center gap-1"
+                        style="padding:2px 8px;border-radius:999px;font-size:11px;font-weight:600;background:#f0fdf4;color:#16a34a;cursor:pointer"
+                        (click)="goToConvertedFacture()">
+                    <i class="pi pi-arrow-right" style="font-size:9px"></i>
+                    {{ facture()!.converted_to_facture_reference }}
+                  </span>
+                }
+                <!-- Source BL link (if this Facture was converted from a BL) -->
+                @if (facture()!.converted_from_bl_reference) {
+                  <span class="inline-flex align-items-center gap-1"
+                        style="padding:2px 8px;border-radius:999px;font-size:11px;font-weight:600;background:#f5f3ff;color:#7c3aed;cursor:pointer"
+                        (click)="goToSourceBl()">
+                    <i class="pi pi-arrow-left" style="font-size:9px"></i>
+                    {{ facture()!.converted_from_bl_reference }}
+                  </span>
+                }
+                <!-- Doc type pill -->
+                <span class="inline-flex align-items-center gap-1"
+                      style="padding:2px 8px;border-radius:999px;font-size:11px;font-weight:600"
+                      [style.background]="facture()!.document_type === 'bon_de_livraison' ? '#fff7ed' : '#eff6ff'"
+                      [style.color]="facture()!.document_type === 'bon_de_livraison' ? '#ea580c' : '#3b82f6'">
+                  <i [class]="facture()!.document_type === 'bon_de_livraison' ? 'pi pi-truck' : 'pi pi-file'" style="font-size:9px"></i>
+                  {{ facture()!.document_type === 'bon_de_livraison' ? 'Bon de livraison' : 'Facture' }}
                 </span>
-              }
-            </div>
-            @if (facture()!.client_rc || facture()!.client_na || facture()!.client_nif || facture()!.client_nis) {
-              <div class="flex align-items-center gap-3 flex-wrap pl-3 border-left-1 surface-border">
-                @if (facture()!.client_rc) {
-                  <div class="flex flex-column gap-0">
-                    <span style="font-size:.6rem;color:var(--text-color-secondary)">RC</span>
-                    <span class="text-xs text-700">{{ facture()!.client_rc }}</span>
-                  </div>
-                }
-                @if (facture()!.client_na) {
-                  <div class="flex flex-column gap-0">
-                    <span style="font-size:.6rem;color:var(--text-color-secondary)">N.A</span>
-                    <span class="text-xs text-700">{{ facture()!.client_na }}</span>
-                  </div>
-                }
-                @if (facture()!.client_nif) {
-                  <div class="flex flex-column gap-0">
-                    <span style="font-size:.6rem;color:var(--text-color-secondary)">NIF</span>
-                    <span class="text-xs text-700">{{ facture()!.client_nif }}</span>
-                  </div>
-                }
-                @if (facture()!.client_nis) {
-                  <div class="flex flex-column gap-0">
-                    <span style="font-size:.6rem;color:var(--text-color-secondary)">NIS</span>
-                    <span class="text-xs text-700">{{ facture()!.client_nis }}</span>
-                  </div>
-                }
+                <!-- Payment pill -->
+                <span class="inline-flex align-items-center gap-1"
+                      style="padding:2px 8px;border-radius:999px;font-size:11px;font-weight:600"
+                      [style.background]="facture()!.payment_mode === 'espece' ? '#f0fdf4' : facture()!.payment_mode === 'cheque' ? '#fefce8' : '#f5f3ff'"
+                      [style.color]="facture()!.payment_mode === 'espece' ? '#16a34a' : facture()!.payment_mode === 'cheque' ? '#a16207' : '#7c3aed'">
+                  <i class="pi pi-wallet" style="font-size:9px"></i>
+                  {{ paymentLabel(facture()!.payment_mode) }}
+                </span>
               </div>
-            }
+            </div>
+
+            <!-- Total TTC -->
+            <div class="flex flex-column align-items-end gap-0 flex-shrink-0">
+              <span class="text-xs text-400 uppercase" style="letter-spacing:.05em">Total TTC</span>
+              <span class="font-bold text-primary" style="font-size:1rem">{{ facture()!.total_ttc | number:'1.2-2' }} DA</span>
+            </div>
+
           </div>
         </div>
 
         <!-- ── Items table ── -->
-        <div class="surface-card border-round-xl border-1 surface-border overflow-hidden">
-          <div class="flex align-items-center gap-2 px-3 py-2 border-bottom-1 surface-border">
-            <span class="flex align-items-center justify-content-center border-round-lg flex-shrink-0"
-                  style="width:28px;height:28px;background:linear-gradient(135deg,#8b5cf6,#6d28d9)">
-              <i class="pi pi-list text-white" style="font-size:.7rem"></i>
-            </span>
-            <span class="font-semibold text-900 text-sm">Articles</span>
-            <p-tag [value]="facture()!.items.length.toString()" severity="secondary" [rounded]="true" styleClass="text-xs ml-auto" />
-          </div>
-          <table class="w-full" style="border-collapse:collapse">
-            <thead class="sticky top-0 z-1" style="background:var(--surface-card)">
+        <div class="overflow-hidden" style="border-radius:10px;border:1px solid #e4ecf5">
+          <table class="w-full" style="border-collapse:collapse;font-size:12px;color:#071b4d">
+            <thead>
               <tr>
-                <th class="text-xs font-semibold text-left px-3 text-600 uppercase border-bottom-1 surface-border" style="letter-spacing:.06em;padding-top:1.1rem;padding-bottom:.85rem">Article</th>
-                <th class="text-xs font-semibold text-left px-2 text-600 uppercase border-bottom-1 surface-border" style="width:66px;letter-spacing:.06em;padding-top:1.1rem;padding-bottom:.85rem">Unité</th>
-                <th class="text-xs font-semibold text-right px-2 text-600 uppercase border-bottom-1 surface-border" style="width:70px;letter-spacing:.06em;padding-top:1.1rem;padding-bottom:.85rem">Prix/pcs</th>
-                <th class="text-xs font-semibold text-center px-2 text-600 uppercase border-bottom-1 surface-border" style="width:82px;letter-spacing:.06em;padding-top:1.1rem;padding-bottom:.85rem">Qté</th>
-                <th class="text-xs font-semibold text-right px-2 text-600 uppercase border-bottom-1 surface-border" style="width:78px;letter-spacing:.06em;padding-top:1.1rem;padding-bottom:.85rem">P.U HT</th>
-                <th class="text-xs font-semibold text-center px-2 text-600 uppercase border-bottom-1 surface-border" style="width:58px;letter-spacing:.06em;padding-top:1.1rem;padding-bottom:.85rem">TVA</th>
-                <th class="text-xs font-semibold text-right px-2 text-600 uppercase border-bottom-1 surface-border" style="width:78px;letter-spacing:.06em;padding-top:1.1rem;padding-bottom:.85rem">P.U TTC</th>
-                <th class="text-xs font-semibold text-right px-3 text-600 uppercase border-bottom-1 surface-border" style="width:82px;letter-spacing:.06em;padding-top:1.1rem;padding-bottom:.85rem">M.T TTC</th>
+                <th style="width:42px;padding:14px 7px;font-weight:600;text-align:center;color:var(--text-color-secondary);font-size:11px;text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid #e4ecf5"></th>
+                <th style="padding:14px 7px;font-weight:600;text-align:left;color:var(--text-color-secondary);font-size:11px;text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid #e4ecf5">Article</th>
+                <th style="padding:14px 7px;font-weight:600;text-align:left;color:var(--text-color-secondary);font-size:11px;text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid #e4ecf5">Marque</th>
+                <th style="padding:14px 7px;font-weight:600;text-align:center;color:var(--text-color-secondary);font-size:11px;text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid #e4ecf5">Colisage</th>
+                <th style="padding:14px 7px;font-weight:600;text-align:center;color:var(--text-color-secondary);font-size:11px;text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid #e4ecf5">Prix Unité</th>
+                <th style="padding:14px 7px;font-weight:600;text-align:center;color:var(--text-color-secondary);font-size:11px;text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid #e4ecf5">TVA</th>
+                <th style="padding:14px 7px;font-weight:600;text-align:center;color:var(--text-color-secondary);font-size:11px;text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid #e4ecf5">Qté</th>
+                <th style="padding:14px 7px;font-weight:600;text-align:center;color:var(--text-color-secondary);font-size:11px;text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid #e4ecf5">Total TTC</th>
               </tr>
             </thead>
             <tbody>
-              @for (item of facture()!.items; track item.id) {
-                <tr class="border-bottom-1 surface-border hover:surface-50 transition-colors transition-duration-150">
+              @for (item of facture()!.items; track item.id; let last = $last) {
+                <tr style="background:white" class="hover:surface-50 transition-colors transition-duration-150">
 
-                  <!-- Article -->
-                  <td class="px-3 py-2">
-                    <div class="flex align-items-center gap-2">
-                      @if (item.image_url) {
-                        <img [src]="item.image_url" alt="" loading="lazy"
-                             class="border-round flex-shrink-0"
-                             style="width:40px;height:40px;object-fit:cover"
-                             (error)="$any($event.target).style.display='none'" />
-                      } @else {
-                        <div class="flex align-items-center justify-content-center border-round flex-shrink-0"
-                             style="width:40px;height:40px;background:linear-gradient(135deg,#8b5cf6,#6d28d9)">
-                          <i class="pi pi-box text-white" style="font-size:.55rem"></i>
-                        </div>
-                      }
-                      <div class="flex flex-column">
-                        <span class="font-medium text-900 text-xs">{{ item.product_name }}</span>
-                        @if (item.brand_name) {
-                          <span class="text-400" style="font-size:.65rem">{{ item.brand_name }}</span>
-                        }
-                      </div>
-                    </div>
-                  </td>
-
-                  <!-- Unité -->
-                  <td class="px-2 py-2">
-                    <div class="flex flex-column gap-1 align-items-start">
-                      <span class="text-xs font-semibold text-700">{{ item.unit }}</span>
-                      @if (item.pieces_per_box > 1) {
-                        <span class="inline-flex px-2 border-round-xl font-medium"
-                              style="background:#eef2ff;color:#4338ca;font-size:.65rem;padding-top:.15rem;padding-bottom:.15rem">
-                          × {{ item.pieces_per_box }} pcs
-                        </span>
-                      }
-                    </div>
-                  </td>
-
-                  <!-- Prix/pcs -->
-                  <td class="px-2 py-2 text-right">
-                    @if (item.pieces_per_box > 1) {
-                      <span class="text-xs text-500">{{ (item.total_ht / item.quantity / item.pieces_per_box) | number:'1.2-2' }}</span>
-                    } @else {
-                      <span class="text-300 text-xs">—</span>
+                  <!-- Image -->
+                  <td style="padding:6px 4px;text-align:center" [style.border-bottom]="last ? 'none' : '1px solid #e4ecf5'">
+                    @if (item.image_url) {
+                      <img [src]="item.image_url" alt="" loading="lazy"
+                           style="width:30px;height:30px;object-fit:contain;border-radius:6px;display:block;margin:auto"
+                           (error)="$any($event.target).style.display='none'" />
                     }
                   </td>
 
-                  <!-- Qté -->
-                  <td class="px-4 py-2 text-center">
-                    <span class="text-xs font-semibold text-900">{{ item.quantity }}</span>
+                  <!-- Article -->
+                  <td style="padding:8px 7px;text-align:left" [style.border-bottom]="last ? 'none' : '1px solid #e4ecf5'">
+                    <span style="font-weight:500">{{ item.product_name }}</span>
                   </td>
 
-                  <!-- P.U HT -->
-                  <td class="px-2 py-2 text-right">
-                    <span class="text-xs text-green-600">{{ (item.total_ht / item.quantity) | number:'1.2-2' }}</span>
+                  <!-- Marque -->
+                  <td style="padding:8px 7px;text-align:left;color:#6b7280" [style.border-bottom]="last ? 'none' : '1px solid #e4ecf5'">
+                    {{ item.brand_name ?? '' }}
+                  </td>
+
+                  <!-- Colisage -->
+                  <td style="padding:8px 7px;text-align:center" [style.border-bottom]="last ? 'none' : '1px solid #e4ecf5'">
+                    {{ item.pieces_per_box }} Pcs × {{ item.unit }}
+                  </td>
+
+                  <!-- Prix Unité HT/pcs -->
+                  <td style="padding:8px 7px;text-align:center" [style.border-bottom]="last ? 'none' : '1px solid #e4ecf5'">
+                    {{ (item.total_ht / item.quantity / item.pieces_per_box) | number:'1.2-2' }}
                   </td>
 
                   <!-- TVA -->
-                  <td class="px-1 py-2 text-center">
-                    <span class="border-round-xl font-bold"
-                          style="padding:.2rem .4rem;font-size:.7rem;border-width:1px;border-style:solid;display:inline-block"
-                          [ngStyle]="tvaStyle(item.tva_rate)">
+                  <td style="padding:8px 7px;text-align:center" [style.border-bottom]="last ? 'none' : '1px solid #e4ecf5'">
+                    <span style="display:inline-block;padding:3px 10px;border-radius:999px;font-weight:bold;font-size:11px"
+                          [style.background]="item.tva_rate === 19 ? '#fff0dd' : item.tva_rate === 0 ? '#f0f0f0' : '#e8f7e5'"
+                          [style.color]="item.tva_rate === 19 ? '#d16600' : item.tva_rate === 0 ? '#666' : '#168a2f'">
                       {{ item.tva_rate }}%
                     </span>
                   </td>
 
-                  <!-- P.U TTC -->
-                  <td class="px-2 py-2 text-right">
-                    <span class="text-xs font-semibold text-700">{{ item.unit_price | number:'1.2-2' }}</span>
+                  <!-- Qté -->
+                  <td style="padding:8px 7px;text-align:center;font-weight:600" [style.border-bottom]="last ? 'none' : '1px solid #e4ecf5'">
+                    {{ item.quantity }}
                   </td>
 
-                  <!-- M.T TTC -->
-                  <td class="px-3 py-2 text-right">
-                    <span class="text-xs font-bold text-primary">{{ item.total_ttc | number:'1.2-2' }}</span>
+                  <!-- Total TTC -->
+                  <td style="padding:8px 7px;text-align:center" [style.border-bottom]="last ? 'none' : '1px solid #e4ecf5'">
+                    <strong>{{ item.total_ttc | number:'1.2-2' }}</strong>
                   </td>
 
                 </tr>
@@ -681,49 +651,55 @@
           </table>
         </div>
 
-        <!-- ── Totals + notes ── -->
-        <div class="flex gap-3 justify-content-end flex-wrap">
-          @if (facture()!.notes) {
-            <div class="surface-card border-round-xl border-1 surface-border p-3 flex-1" style="min-width:200px">
-              <div class="flex align-items-center gap-2 mb-2">
-                <span class="flex align-items-center justify-content-center border-round flex-shrink-0"
-                      style="width:22px;height:22px;background:var(--surface-200)">
-                  <i class="pi pi-comment" style="font-size:.6rem;color:var(--text-color-secondary)"></i>
-                </span>
-                <span class="text-xs text-500 font-medium uppercase" style="letter-spacing:.05em">Notes</span>
-              </div>
-              <p class="m-0 text-sm text-700 line-height-3">{{ facture()!.notes }}</p>
+        @if (facture()!.notes) {
+          <div class="surface-card border-round-xl border-1 surface-border p-3" style="min-width:200px">
+            <div class="flex align-items-center gap-2 mb-2">
+              <span class="flex align-items-center justify-content-center border-round flex-shrink-0"
+                    style="width:22px;height:22px;background:var(--surface-200)">
+                <i class="pi pi-comment" style="font-size:.6rem;color:var(--text-color-secondary)"></i>
+              </span>
+              <span class="text-xs text-500 font-medium uppercase" style="letter-spacing:.05em">Notes</span>
+            </div>
+            <p class="m-0 text-sm text-700 line-height-3">{{ facture()!.notes }}</p>
+          </div>
+        }
+
+        </div><!-- end scrollable body -->
+
+        <!-- ── Totals footer (pinned) ── -->
+        <div class="border-top-1 surface-border px-4 py-3 flex align-items-center gap-3 flex-shrink-0"
+             style="background:var(--surface-card)">
+          <div class="flex align-items-center gap-2">
+            <span class="text-xs text-400">Total HT</span>
+            <span class="text-xs font-semibold text-700">{{ facture()!.total_ht | number:'1.2-2' }} DA</span>
+          </div>
+          <div class="flex-shrink-0" style="width:1px;height:14px;background:var(--surface-border)"></div>
+          <div class="flex align-items-center gap-2">
+            <span class="text-xs text-400">TVA</span>
+            <span class="text-xs font-semibold text-700">{{ facture()!.total_tva | number:'1.2-2' }} DA</span>
+          </div>
+          @if (facture()!.remise > 0) {
+            <div class="flex-shrink-0" style="width:1px;height:14px;background:var(--surface-border)"></div>
+            <div class="flex align-items-center gap-2">
+              <span class="text-xs text-400">Remise</span>
+              <span class="text-xs font-semibold text-red-500">−{{ facture()!.remise | number:'1.2-2' }} DA</span>
             </div>
           }
-          <div class="surface-card border-1 surface-border border-round-xl overflow-hidden flex-shrink-0" style="min-width:230px">
-              <div class="flex justify-content-between align-items-center px-4 py-2 border-bottom-1 surface-border">
-                <span class="text-xs text-400">Total HT</span>
-                <span class="text-xs font-medium text-700">{{ facture()!.total_ht | number:'1.2-2' }} DA</span>
-              </div>
-              <div class="flex justify-content-between align-items-center px-4 py-2 border-bottom-1 surface-border">
-                <span class="text-xs text-400">Total TVA</span>
-                <span class="text-xs font-medium text-700">{{ facture()!.total_tva | number:'1.2-2' }} DA</span>
-              </div>
-              @if (facture()!.remise > 0) {
-                <div class="flex justify-content-between align-items-center px-4 py-2 border-bottom-1 surface-border">
-                  <span class="text-xs text-400">Remise</span>
-                  <span class="text-xs font-medium text-red-500">−{{ facture()!.remise | number:'1.2-2' }} DA</span>
-                </div>
-              }
-              @if (facture()!.timbre > 0) {
-                <div class="flex justify-content-between align-items-center px-4 py-2 border-bottom-1 surface-border">
-                  <span class="text-xs text-400">Timbre</span>
-                  <span class="text-xs font-medium text-700">+{{ facture()!.timbre | number:'1.2-2' }} DA</span>
-                </div>
-              }
-              <div class="flex justify-content-between align-items-center px-4 py-3 surface-50">
-                <span class="text-xs font-semibold text-900 uppercase" style="letter-spacing:.06em">Total TTC</span>
-                <span class="font-bold text-primary" style="font-size:1.05rem">{{ facture()!.total_ttc | number:'1.2-2' }} DA</span>
-              </div>
+          @if (facture()!.timbre > 0) {
+            <div class="flex-shrink-0" style="width:1px;height:14px;background:var(--surface-border)"></div>
+            <div class="flex align-items-center gap-2">
+              <span class="text-xs text-400">Timbre</span>
+              <span class="text-xs font-semibold text-700">+{{ facture()!.timbre | number:'1.2-2' }} DA</span>
+            </div>
+          }
+          <div class="ml-auto flex align-items-center gap-3">
+            <div class="flex-shrink-0" style="width:1px;height:20px;background:var(--surface-border)"></div>
+            <span class="text-xs font-semibold text-500 uppercase" style="letter-spacing:.06em">Total TTC</span>
+            <span class="font-bold" style="font-size:1.1rem;color:#16a34a">{{ facture()!.total_ttc | number:'1.2-2' }} DA</span>
           </div>
         </div>
 
-      </div>
+      </div><!-- end height:100% container -->
     }
   }
 
@@ -733,3 +709,28 @@
 
 <p-toast />
 <p-confirmDialog />
+
+<!-- Save confirmation dialog -->
+<p-dialog [(visible)]="showSaveConfirm" [modal]="true" [closable]="true"
+          [style]="{ width: '360px' }" header="Confirmer la création">
+  <div class="flex flex-column align-items-center gap-3 py-3">
+    <span class="flex align-items-center justify-content-center border-round-xl flex-shrink-0"
+          style="width:52px;height:52px"
+          [style.background]="documentType === 'facture' ? '#eff6ff' : '#fff7ed'">
+      <i [class]="documentType === 'facture' ? 'pi pi-file' : 'pi pi-truck'"
+         style="font-size:1.4rem"
+         [style.color]="documentType === 'facture' ? '#1d4ed8' : '#c2410c'"></i>
+    </span>
+    <p class="m-0 text-center text-700">
+      Vous êtes sur le point de créer
+      <span class="font-bold" style="color:#dc2626">
+        {{ documentType === 'facture' ? 'une Facture' : 'un Bon de livraison' }}
+      </span>.
+      Voulez-vous continuer ?
+    </p>
+  </div>
+  <ng-template pTemplate="footer">
+    <p-button label="Annuler" severity="secondary" [text]="true" (onClick)="showSaveConfirm.set(false)" />
+    <p-button [label]="'Oui, créer'" severity="success" (onClick)="showSaveConfirm.set(false); save()" />
+  </ng-template>
+</p-dialog>

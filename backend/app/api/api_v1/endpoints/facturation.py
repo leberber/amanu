@@ -92,12 +92,19 @@ def user_to_client_view(u: User) -> FacturationClientView:
     )
 
 
-def facturation_to_response(f: Facturation) -> FacturationResponse:
+def facturation_to_response(f: Facturation, session: Optional[Session] = None) -> FacturationResponse:
+    converted_to_facture_reference = None
+    if f.converted_to_facture_id and session:
+        linked = session.get(Facturation, f.converted_to_facture_id)
+        if linked:
+            converted_to_facture_reference = linked.reference
     return FacturationResponse(
         id=f.id,
         reference=f.reference,
         document_type=f.document_type,
         converted_to_facture_id=f.converted_to_facture_id,
+        converted_to_facture_reference=converted_to_facture_reference,
+        converted_from_bl_reference=f.converted_from_bl_reference,
         client_id=f.client_id,
         client_name=f.client_name,
         client_address=f.client_address,
@@ -362,7 +369,7 @@ async def list_facturations(
     facturations = session.exec(
         select(Facturation).order_by(Facturation.created_at.desc()).offset(skip).limit(limit)
     ).all()
-    return FacturationListResponse(facturations=[facturation_to_response(f) for f in facturations], total=total)
+    return FacturationListResponse(facturations=[facturation_to_response(f, session) for f in facturations], total=total)
 
 
 @router.get("/{facturation_id}", response_model=FacturationResponse)
@@ -370,7 +377,7 @@ async def get_facturation(facturation_id: int, session: Session = Depends(get_se
     f = session.get(Facturation, facturation_id)
     if not f:
         raise HTTPException(status_code=404, detail="Facturation not found")
-    return facturation_to_response(f)
+    return facturation_to_response(f, session)
 
 
 @router.post("", response_model=FacturationResponse)
@@ -413,6 +420,7 @@ async def create_facturation(data: FacturationCreate, session: Session = Depends
             remise=data.remise,
             timbre=data.timbre,
             notes=data.notes,
+            converted_from_bl_reference=data.converted_from_bl_reference,
         )
         session.add(f)
         session.flush()
@@ -448,7 +456,7 @@ async def create_facturation(data: FacturationCreate, session: Session = Depends
         session.add(f)
         session.commit()
         session.refresh(f)
-        return facturation_to_response(f)
+        return facturation_to_response(f, session)
 
     except HTTPException:
         raise
@@ -472,6 +480,7 @@ async def convert_bl_to_facture(facturation_id: int, session: Session = Depends(
         f = Facturation(
             reference=generate_reference(session, "facture"),
             document_type="facture",
+            converted_from_bl_reference=bl.reference,
             client_id=bl.client_id,
             client_name=bl.client_name,
             client_address=bl.client_address,
@@ -511,7 +520,7 @@ async def convert_bl_to_facture(facturation_id: int, session: Session = Depends(
         session.add(bl)
         session.commit()
         session.refresh(f)
-        return facturation_to_response(f)
+        return facturation_to_response(f, session)
 
     except HTTPException:
         raise

@@ -86,6 +86,9 @@ class Facturation(SQLModel, table=True):
     # When a BL is converted to a facture, this points to the resulting facture
     converted_to_facture_id: Optional[int] = Field(default=None, foreign_key="facturations.id")
 
+    # When a Facture is created from a BL, stores the source BL reference string
+    converted_from_bl_reference: Optional[str] = Field(default=None)
+
     # Client reference (linked to users table)
     client_id: Optional[int] = Field(default=None, foreign_key="users.id")
 
@@ -142,6 +145,7 @@ class FacturationCreate(BaseModel):
     remise: float = 0
     timbre: float = 0
     notes: Optional[str] = None
+    converted_from_bl_reference: Optional[str] = None  # e.g. "BL-2026-002"
     items: List[FacturationItemCreate]
 
 
@@ -166,6 +170,8 @@ class FacturationResponse(BaseModel):
     reference: str
     document_type: str
     converted_to_facture_id: Optional[int]
+    converted_to_facture_reference: Optional[str] = None
+    converted_from_bl_reference: Optional[str] = None
     client_id: Optional[int]
     client_name: str
     client_address: Optional[str]
