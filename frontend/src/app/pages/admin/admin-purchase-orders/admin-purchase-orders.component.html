@@ -110,7 +110,11 @@
             </button>
           </div>
         } @else {
-          <div class="table-wrapper">
+          <div class="table-wrapper"
+               appInfiniteScroll
+               [scrollThreshold]="200"
+               [disabled]="!hasMore()"
+               (scrolledToBottom)="loadMoreOrders()">
             <table class="table">
               <thead>
                 <tr>
@@ -124,7 +128,7 @@
                 </tr>
               </thead>
               <tbody>
-                @for (order of paginatedOrders(); track order.id; let i = $index) {
+                @for (order of displayedOrders(); track order.id; let i = $index) {
                   <tr class="table-row-animate clickable-row" [style.--row-delay]="(i * 40) + 'ms'" (click)="viewOrder(order)">
                     <!-- Reference -->
                     @if (isColumnVisible('reference')) {
@@ -205,26 +209,10 @@
             </table>
           </div>
 
-          <!-- Pagination -->
-          @if (orders().length > rows) {
-            <div class="table-footer">
-              <p-paginator
-                [first]="first"
-                [rows]="rows"
-                [totalRecords]="orders().length"
-                (onPageChange)="onPageChange($event)"
-                [showCurrentPageReport]="true"
-                currentPageReportTemplate="Affichage {first} - {last} sur {totalRecords}"
-              ></p-paginator>
-            </div>
-          }
-
           <!-- Results Info -->
-          @if (orders().length <= rows) {
-            <div class="table-footer results-info">
-              <span>{{ 'admin.purchase_orders.showing_orders' | translate: { count: orders().length, total: allOrders().length } }}</span>
-            </div>
-          }
+          <div class="table-footer results-info">
+            <span>{{ displayedOrders().length }} / {{ orders().length }} commandes</span>
+          </div>
         }
       </div>
     }

@@ -6,6 +6,7 @@ import { TranslateService } from '@ngx-translate/core';
 
 import { ADMIN_LIST_IMPORTS } from '../../../shared/imports/admin-shared.imports';
 import { TableSkeletonComponent, SkeletonColumn } from '../../../shared/components/table-skeleton/table-skeleton.component';
+import { InfiniteScrollDirective } from '../../../shared/directives/infinite-scroll.directive';
 import { AgroclikPageContainerComponent } from '../../../shared/components/agroclik-page-container/agroclik-page-container.component';
 import { ConfirmationDialogService } from '../../../core/services/confirmation-dialog.service';
 import { BaseAdminListComponent, ColumnOption } from '../../../shared/base/base-admin-list.component';
@@ -24,6 +25,7 @@ import { PurchasingPdfService } from '../../../services/purchasing-pdf.service';
   imports: [
     ...ADMIN_LIST_IMPORTS,
     TableSkeletonComponent,
+    InfiniteScrollDirective,
     AgroclikPageContainerComponent
   ],
   providers: [ConfirmationService],
@@ -31,10 +33,14 @@ import { PurchasingPdfService } from '../../../services/purchasing-pdf.service';
   styleUrl: './admin-purchase-orders.component.scss'
 })
 export class AdminPurchaseOrdersComponent extends BaseAdminListComponent implements OnInit {
+  private readonly BATCH_SIZE = 20;
+
   // Data signals
   allOrders = signal<PurchaseOrder[]>([]);
   orders = signal<PurchaseOrder[]>([]);
-  paginatedOrders = signal<PurchaseOrder[]>([]);
+  displayedOrders = signal<PurchaseOrder[]>([]);
+
+  hasMore = computed(() => this.displayedOrders().length < this.orders().length);
 
   // Computed counts - single pass through orders
   private statusCounts = computed(() => {
@@ -94,13 +100,14 @@ export class AdminPurchaseOrdersComponent extends BaseAdminListComponent impleme
         next: (response) => {
           this.allOrders.set(response.orders);
           this.orders.set(response.orders);
-          this.updatePaginatedItems();
+          this.displayedOrders.set(response.orders.slice(0, this.BATCH_SIZE));
           this.loading = false;
           this.markTableInitialized();
         },
         error: () => {
           this.allOrders.set([]);
           this.orders.set([]);
+          this.displayedOrders.set([]);
           this.loading = false;
           this.baseToast.showError(this.translate.instant('admin.purchase_orders.load_error'));
         }
@@ -129,12 +136,20 @@ export class AdminPurchaseOrdersComponent extends BaseAdminListComponent impleme
     }
 
     this.orders.set(filtered);
-    this.resetPagination();
-    this.updatePaginatedItems();
+    this.displayedOrders.set(filtered.slice(0, this.BATCH_SIZE));
+  }
+
+  loadMoreOrders(): void {
+    if (!this.hasMore()) return;
+    const current = this.displayedOrders().length;
+    this.displayedOrders.update(list => [
+      ...list,
+      ...this.orders().slice(current, current + this.BATCH_SIZE)
+    ]);
   }
 
   updatePaginatedItems(): void {
-    this.paginatedOrders.set(this.orders().slice(this.first, this.first + this.rows));
+    // Not used - using client-side infinite scroll
   }
 
   getSearchDebounceKey(): string {
@@ -174,13 +189,17 @@ export class AdminPurchaseOrdersComponent extends BaseAdminListComponent impleme
   }
 
   deleteOrder(order: PurchaseOrder): void {
-    this.handleDeleteWithSignal(
-      () => this.orderService.deleteOrder(order.id),
-      this.allOrders,
-      order.id,
-      this.translate.instant('admin.purchase_orders.delete_success'),
-      this.translate.instant('admin.purchase_orders.delete_error')
-    );
+    this.orderService.deleteOrder(order.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.baseToast.showSuccess(this.translate.instant('admin.purchase_orders.delete_success'));
+          this.loadOrders();
+        },
+        error: () => {
+          this.baseToast.showError(this.translate.instant('admin.purchase_orders.delete_error'));
+        }
+      });
   }
 
   getStatusLabel(status: PurchaseOrderStatus): string {

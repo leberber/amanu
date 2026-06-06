@@ -146,6 +146,8 @@ export class AdminFacturationDetailComponent implements OnInit {
     { label: 'Chèque',   short: 'Chèque',   icon: 'pi pi-file',   value: 'cheque'   },
     { label: 'Virement bancaire', short: 'Virement', icon: 'pi pi-send', value: 'virement' },
   ];
+  private static readonly DRAFT_KEY = 'facturation_new_draft';
+
   ngOnInit(): void {
     const id = this.route.snapshot.params['id'];
     if (id) {
@@ -156,16 +158,63 @@ export class AdminFacturationDetailComponent implements OnInit {
       this.loadClients();
       this.loadCatalog();
       const fromOrder = this.route.snapshot.queryParams['from_order'];
+      const fromBdl = this.route.snapshot.queryParams['from_bdl'];
       if (fromOrder) {
         this.documentType = 'bon_de_livraison';
         this.loadFromOrder(+fromOrder);
-      }
-      const fromBdl = this.route.snapshot.queryParams['from_bdl'];
-      if (fromBdl) {
+      } else if (fromBdl) {
         this.loadFromBdl(+fromBdl);
+      } else {
+        this.restoreDraft();
       }
+
+      // Auto-save draft to localStorage every 1.5s while in create mode
+      const intervalId = setInterval(() => this.saveDraft(), 1500);
+      this.destroyRef.onDestroy(() => clearInterval(intervalId));
     }
     this.loadCompanySettings();
+  }
+
+  private saveDraft(): void {
+    try {
+      localStorage.setItem(AdminFacturationDetailComponent.DRAFT_KEY, JSON.stringify({
+        selectedClient: this.selectedClient,
+        fiscal: this.fiscal,
+        documentType: this.documentType,
+        paymentMode: this.paymentMode,
+        marge: this.marge,
+        remise: this.remise,
+        timbre: this.timbre,
+        notes: this.notes,
+        items: this.items,
+        sourceBdlReference: this.sourceBdlReference,
+      }));
+    } catch { /* storage quota exceeded */ }
+  }
+
+  private restoreDraft(): void {
+    try {
+      const raw = localStorage.getItem(AdminFacturationDetailComponent.DRAFT_KEY);
+      if (!raw) return;
+      const draft = JSON.parse(raw);
+      this.selectedClient = draft.selectedClient ?? null;
+      this.fiscal = draft.fiscal ?? { rc: '', na: '', nif: '', nis: '' };
+      this.documentType = draft.documentType ?? 'facture';
+      this.paymentMode = draft.paymentMode ?? 'espece';
+      this.marge = draft.marge ?? 0;
+      this.remise = draft.remise ?? 0;
+      this.timbre = draft.timbre ?? 0;
+      this.notes = draft.notes ?? '';
+      this.items = draft.items ?? [];
+      this.sourceBdlReference = draft.sourceBdlReference ?? null;
+      if (this.items.length > 0 || this.selectedClient) {
+        this.toast.showInfo('Brouillon restauré');
+      }
+    } catch { /* corrupted data */ }
+  }
+
+  private clearDraft(): void {
+    localStorage.removeItem(AdminFacturationDetailComponent.DRAFT_KEY);
   }
 
   private loadCompanySettings(): void {
@@ -399,6 +448,7 @@ export class AdminFacturationDetailComponent implements OnInit {
       .subscribe({
         next: (created) => {
           this.saving.set(false);
+          this.clearDraft();
           this.toast.showSuccess(`Facture ${created.reference} créée`);
           const company = this.company();
           if (company) this.pdfService.generateFacturePdf(created, company, false);
