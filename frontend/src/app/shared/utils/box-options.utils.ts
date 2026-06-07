@@ -16,6 +16,7 @@ export interface BoxProduct {
   stock_quantity: number;
   pieces_per_box?: number;
   price: number;
+  max_order_cartons?: number | null;
   promotion?: {
     discounted_price?: number;
   } | null;
@@ -55,7 +56,9 @@ export function generateBoxOptions(
   const piecesPerBox = getPiecesPerBox(product);
   const effectivePrice = getEffectivePrice(product);
   const maxBoxes = getMaxBoxes(product);
-  const max = Math.min(maxBoxes, PRODUCT.MAX_BOX_OPTIONS);
+  const max = product.max_order_cartons != null
+    ? Math.min(maxBoxes, product.max_order_cartons)
+    : maxBoxes;
 
   for (let i = 1; i <= max; i++) {
     const pieces = i * piecesPerBox;

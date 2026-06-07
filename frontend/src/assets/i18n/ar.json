@@ -371,6 +371,11 @@
       "product": "المنتج",
       "actions": "الإجراءات",
       "class": "text-right"
+    },
+    "errors": {
+      "update_failed": "تعذّر تحديث الكمية",
+      "remove_failed": "تعذّر حذف المنتج",
+      "max_order_limit": "هذا المنتج محدود بـ {{limit}} كرتون لكل طلب — نريد إتاحة الفرصة لجميع الزبائن للحصول على حصتهم!"
     }
   },
   "promotions": {
@@ -1665,6 +1670,8 @@
         "pieces_per_box": "القطع لكل عبوة",
         "pieces_per_box_placeholder": "مثال: 12",
         "pieces_per_box_hint": "عدد القطع الفردية في الكرتون الواحد",
+        "max_order_cartons": "الحد الأقصى للطلب (كراتين)",
+        "max_order_cartons_placeholder": "بلا حد",
         "volume": "الحجم",
         "volume_placeholder": "مثال: 1.5",
         "weight": "الوزن",

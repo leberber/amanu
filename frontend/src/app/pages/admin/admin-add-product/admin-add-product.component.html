@@ -328,6 +328,17 @@
                           </div>
                         </div>
                       </div>
+                      <div class="form-field">
+                        <div class="field-box" [class.filled]="productForm.get('max_order_cartons')?.value">
+                          <div class="field-box__icon field-box__icon--warn">
+                            <i class="pi pi-sort-amount-up-alt"></i>
+                          </div>
+                          <div class="field-box__content">
+                            <label>{{ 'admin.products.form.max_order_cartons' | translate }}</label>
+                            <p-inputNumber formControlName="max_order_cartons" [placeholder]="'admin.products.form.max_order_cartons_placeholder' | translate" [min]="1" styleClass="w-full" />
+                          </div>
+                        </div>
+                      </div>
                     </div>
 
                     <div class="form-row mt-4">

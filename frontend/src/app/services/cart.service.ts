@@ -22,6 +22,7 @@ export interface CartItem {
   brand_id?: number;
   weight?: number;  // in kg
   volume?: number;  // in liters
+  max_order_cartons?: number | null;
 }
 
 /**
@@ -94,6 +95,8 @@ export class CartService {
   addToCart(product: Product, quantity: number): CartItem | null {
     if (!product?.id || quantity < 1) return null;
     if (product.stock_quantity !== undefined && quantity > product.stock_quantity) return null;
+    const piecesPerBox = product.pieces_per_box || 1;
+    if (product.max_order_cartons != null && Math.ceil(quantity / piecesPerBox) > product.max_order_cartons) return null;
 
     const items = [...this._items()];
     const existingIndex = items.findIndex(item => item.product_id === product.id);
@@ -103,6 +106,7 @@ export class CartService {
     if (existingIndex !== -1) {
       const newQuantity = items[existingIndex].quantity + quantity;
       if (product.stock_quantity !== undefined && newQuantity > product.stock_quantity) return null;
+      if (product.max_order_cartons != null && Math.ceil(newQuantity / piecesPerBox) > product.max_order_cartons) return null;
       cartItem = { ...items[existingIndex], quantity: newQuantity };
       items[existingIndex] = cartItem;
     } else {
@@ -118,6 +122,8 @@ export class CartService {
   setQuantity(product: Product, quantity: number): CartItem | null {
     if (!product?.id || quantity < 1) return null;
     if (product.stock_quantity !== undefined && quantity > product.stock_quantity) return null;
+    const piecesPerBox = product.pieces_per_box || 1;
+    if (product.max_order_cartons != null && Math.ceil(quantity / piecesPerBox) > product.max_order_cartons) return null;
 
     const items = [...this._items()];
     const existingIndex = items.findIndex(item => item.product_id === product.id);
@@ -146,6 +152,7 @@ export class CartService {
 
     const item = items[index];
     if (item.stock_quantity !== undefined && quantity > item.stock_quantity) return null;
+    if (item.max_order_cartons != null && Math.ceil(quantity / (item.pieces_per_box || 1)) > item.max_order_cartons) return null;
 
     items[index] = { ...item, quantity };
     this._items.set(items);
@@ -259,6 +266,7 @@ export class CartService {
       brand_id: product.brand_id,
       weight: product.weight,
       volume: product.volume,
+      max_order_cartons: product.max_order_cartons,
       quantity
     };
   }

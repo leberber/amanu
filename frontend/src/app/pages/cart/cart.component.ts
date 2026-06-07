@@ -118,6 +118,20 @@ export class CartComponent implements OnInit {
     const item = this.cartItems().find(i => i.id === itemId);
     if (!item) return;
 
+    if (newQuantity < 1) {
+      this.removeItem(itemId);
+      return;
+    }
+
+    if (item.max_order_cartons != null) {
+      const cartonsRequested = Math.ceil(newQuantity / (item.pieces_per_box || 1));
+      if (cartonsRequested > item.max_order_cartons) {
+        this.toast.showWarnSticky('cart.errors.max_order_limit', { limit: item.max_order_cartons });
+        this.productQuantities[itemId] = item.quantity;
+        return;
+      }
+    }
+
     const updated = this.cartService.updateItem(itemId, newQuantity);
     if (updated) {
       this.productQuantities[itemId] = newQuantity;

@@ -34,6 +34,7 @@ export interface Product {
     volume?: number;  // in liters (L)
     weight?: number;  // in kilograms (kg)
     tva_rate?: number;  // TVA rate: 0, 9, or 19
+    max_order_cartons?: number | null;  // Max cartons a customer can order; null = no limit
     promotion?: ProductPromotion;  // Active promotion applied to this product
   }
   
