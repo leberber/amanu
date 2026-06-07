@@ -222,7 +222,7 @@ export class ProductListComponent implements OnInit {
     if (!this.selectedBoxOptions[productId]) {
       const product = this.products().find(p => p.id === productId);
       if (product) {
-        this.initializeBoxOption(product);
+        this.initializeBoxOption(product, this.getCartQuantity(productId));
       }
     }
     return this.selectedBoxOptions[productId] || null;
