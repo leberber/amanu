@@ -280,14 +280,12 @@ export class ProductListComponent implements OnInit {
   }
 
   confirmQuantitySelection(): void {
-    const productId = this.activeProduct()?.id;
+    const product = this.activeProduct();
+    const option = product ? this.selectedBoxOptions[product.id] : null;
     this.closeQuantitySelector();
 
-    if (productId) {
-      setTimeout(() => {
-        this.highlightedProductId.set(productId);
-        setTimeout(() => this.highlightedProductId.set(null), ANIMATION.HIGHLIGHT_DURATION);
-      }, ANIMATION.HIGHLIGHT_DELAY);
+    if (product && option) {
+      this.handleAddToCart(product, option.pieces);
     }
   }
 
