@@ -92,12 +92,19 @@ def user_to_client_view(u: User) -> FacturationClientView:
     )
 
 
-def facturation_to_response(f: Facturation, session: Optional[Session] = None) -> FacturationResponse:
+def facturation_to_response(
+    f: Facturation,
+    session: Optional[Session] = None,
+    converted_ref_map: Optional[dict[int, str]] = None,
+) -> FacturationResponse:
     converted_to_facture_reference = None
-    if f.converted_to_facture_id and session:
-        linked = session.get(Facturation, f.converted_to_facture_id)
-        if linked:
-            converted_to_facture_reference = linked.reference
+    if f.converted_to_facture_id:
+        if converted_ref_map is not None:
+            converted_to_facture_reference = converted_ref_map.get(f.converted_to_facture_id)
+        elif session:
+            linked = session.get(Facturation, f.converted_to_facture_id)
+            if linked:
+                converted_to_facture_reference = linked.reference
     return FacturationResponse(
         id=f.id,
         reference=f.reference,
@@ -219,31 +226,40 @@ async def get_facturation_catalog(session: Session = Depends(get_session)):
 
     product_ids = [p.id for p in products]
 
-    # Step 2: Received facture_quantity per product (from purchase orders)
-    received_rows = session.exec(
+    # Step 2+3: Single query — sum(facture_quantity) and max(facture_unit_price) per product
+    po_agg_rows = session.exec(
         select(
             PurchaseOrderItem.product_id,
             func.sum(PurchaseOrderItem.facture_quantity),
+            func.max(PurchaseOrderItem.facture_unit_price),
         )
-        .where(
-            PurchaseOrderItem.product_id.in_(product_ids),
-            PurchaseOrderItem.facture_quantity > 0
-        )
+        .where(PurchaseOrderItem.product_id.in_(product_ids))
         .group_by(PurchaseOrderItem.product_id)
     ).all()
 
-    received_map = {row[0]: int(row[1] or 0) for row in received_rows}
+    received_map: dict[int, int] = {}
+    facture_price_map: dict[int, float] = {}
+    for pid, total_qty, max_price in po_agg_rows:
+        if total_qty:
+            received_map[pid] = int(total_qty)
+        if max_price and max_price > 0:
+            facture_price_map[pid] = float(max_price)
 
-    # Step 3: Most recent facture_unit_price per product
-    price_rows = session.exec(
-        select(PurchaseOrderItem.product_id, func.max(PurchaseOrderItem.facture_unit_price))
-        .where(
-            PurchaseOrderItem.product_id.in_(product_ids),
-            PurchaseOrderItem.facture_unit_price > 0
-        )
-        .group_by(PurchaseOrderItem.product_id)
-    ).all()
-    facture_price_map = {row[0]: float(row[1] or 0) for row in price_rows}
+    # Step 3b: Fallback — use latest PO unit_price/units_per_carton for products without facture_unit_price
+    fallback_ids = [pid for pid in product_ids if pid not in facture_price_map]
+    po_price_map: dict[int, float] = {}
+    if fallback_ids:
+        latest_ids = select(func.max(PurchaseOrderItem.id)).where(
+            PurchaseOrderItem.product_id.in_(fallback_ids)
+        ).group_by(PurchaseOrderItem.product_id)
+        po_rows = session.exec(
+            select(PurchaseOrderItem.product_id, PurchaseOrderItem.unit_price, PurchaseOrderItem.units_per_carton)
+            .where(PurchaseOrderItem.id.in_(latest_ids))
+        ).all()
+        po_price_map = {
+            pid: round((unit_price or 0) / max(1, units_per_carton or 1), 4)
+            for pid, unit_price, units_per_carton in po_rows
+        }
 
     # Step 4: Total already billed to clients per product
     invoiced_rows = session.exec(
@@ -274,7 +290,7 @@ async def get_facturation_catalog(session: Session = Depends(get_session)):
             brand_name=brand_map.get(p.brand_id) if p.brand_id else None,
             facture_stock=max(0, received_map.get(p.id, 0) - invoiced_map.get(p.id, 0)),
             image_url=p.image_url,
-            facture_unit_price=facture_price_map.get(p.id, 0.0),
+            facture_unit_price=facture_price_map.get(p.id) or po_price_map.get(p.id, 0.0),
         )
         for p in products
     ]
@@ -319,11 +335,13 @@ async def get_facturation_draft_from_order(order_id: int, session: Session = Dep
         'bottle': 'Bouteille', 'palette': 'Palette',
     }
 
-    # Pre-load brand names for all products in this order
+    # Pre-load all products and brands for this order in bulk
     order_product_ids = [item.product_id for item in order.items if item.product_id]
+    product_map: dict[int, Product] = {}
     brand_name_map: dict[int, str] = {}
     if order_product_ids:
         order_products = session.exec(select(Product).where(Product.id.in_(order_product_ids))).all()
+        product_map = {p.id: p for p in order_products}
         order_brand_ids = list({p.brand_id for p in order_products if p.brand_id})
         if order_brand_ids:
             order_brands = session.exec(select(Brand).where(Brand.id.in_(order_brand_ids))).all()
@@ -332,7 +350,7 @@ async def get_facturation_draft_from_order(order_id: int, session: Session = Dep
 
     draft_items = []
     for item in order.items:
-        product = session.get(Product, item.product_id) if item.product_id else None
+        product = product_map.get(item.product_id) if item.product_id else None
         tva_rate = product.tva_rate if product else 0
         pieces_per_box = (product.pieces_per_box or 1) if product else 1
         unit = packaging_map.get(
@@ -369,7 +387,18 @@ async def list_facturations(
     facturations = session.exec(
         select(Facturation).order_by(Facturation.created_at.desc()).offset(skip).limit(limit)
     ).all()
-    return FacturationListResponse(facturations=[facturation_to_response(f, session) for f in facturations], total=total)
+
+    # Pre-load all referenced converted factures in one query instead of one per row
+    converted_ids = [f.converted_to_facture_id for f in facturations if f.converted_to_facture_id]
+    converted_ref_map: dict[int, str] = {}
+    if converted_ids:
+        linked = session.exec(select(Facturation.id, Facturation.reference).where(Facturation.id.in_(converted_ids))).all()
+        converted_ref_map = {f_id: ref for f_id, ref in linked}
+
+    return FacturationListResponse(
+        facturations=[facturation_to_response(f, converted_ref_map=converted_ref_map) for f in facturations],
+        total=total
+    )
 
 
 @router.get("/{facturation_id}", response_model=FacturationResponse)

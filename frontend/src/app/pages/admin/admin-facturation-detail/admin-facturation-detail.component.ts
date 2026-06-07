@@ -330,6 +330,8 @@ export class AdminFacturationDetailComponent implements OnInit {
       return;
     }
     const basePrice = product.facture_unit_price ?? 0;
+    const tvaRate = product.tva_rate ?? 0;
+    const htCost = tvaRate ? basePrice / (1 + tvaRate / 100) : basePrice;
     const item: InvoiceItem = {
       product_id: product.id,
       product_name: product.name,
@@ -338,9 +340,9 @@ export class AdminFacturationDetailComponent implements OnInit {
       pieces_per_box: product.pieces_per_box ?? 1,
       quantity: 1,
       facture_unit_price: basePrice,
-      prix_vente_pcs: basePrice * (1 + this.marge / 100),
+      prix_vente_pcs: htCost * (1 + this.marge / 100),
       unit_price: 0,
-      tva_rate: product.tva_rate ?? 0,
+      tva_rate: tvaRate,
       image_url: product.image_url,
     };
     item.unit_price = this.pCtnTtc(item);
