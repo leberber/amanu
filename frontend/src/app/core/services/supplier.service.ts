@@ -1,7 +1,11 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, BehaviorSubject, tap, map, of } from 'rxjs';
-import { Supplier, SupplierCreate, SupplierUpdate } from '../../models/supplier.model';
+import {
+  Supplier, SupplierCreate, SupplierUpdate,
+  SupplierStats, SupplierPayment, SupplierPaymentCreate,
+  SupplierProductPrice, SupplierPurchaseOrder
+} from '../../models/supplier.model';
 import { environment } from '../../../environments/environment';
 
 @Injectable({
@@ -65,5 +69,31 @@ export class SupplierService {
    */
   clearCache(): void {
     this.suppliersCache$.next([]);
+  }
+
+  getStats(id: number): Observable<SupplierStats> {
+    return this.http.get<SupplierStats>(`${this.apiUrl}/${id}/stats`);
+  }
+
+  getPayments(id: number): Observable<SupplierPayment[]> {
+    return this.http.get<SupplierPayment[]>(`${this.apiUrl}/${id}/payments`);
+  }
+
+  addPayment(id: number, payment: SupplierPaymentCreate): Observable<SupplierPayment> {
+    return this.http.post<SupplierPayment>(`${this.apiUrl}/${id}/payments`, payment);
+  }
+
+  deletePayment(supplierId: number, paymentId: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${supplierId}/payments/${paymentId}`);
+  }
+
+  getProductPrices(id: number, productId?: number): Observable<SupplierProductPrice[]> {
+    let params = new HttpParams();
+    if (productId) params = params.set('product_id', productId.toString());
+    return this.http.get<SupplierProductPrice[]>(`${this.apiUrl}/${id}/product-prices`, { params });
+  }
+
+  getPurchaseOrders(id: number): Observable<SupplierPurchaseOrder[]> {
+    return this.http.get<SupplierPurchaseOrder[]>(`${this.apiUrl}/${id}/purchase-orders`);
   }
 }

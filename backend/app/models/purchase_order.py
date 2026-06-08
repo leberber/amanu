@@ -58,7 +58,10 @@ class PurchaseOrder(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     reference: str = Field(index=True, unique=True)  # e.g., "BC-2024-001"
 
-    # Supplier info
+    # Supplier link (optional FK — null for legacy orders created before supplier linking)
+    supplier_id: Optional[int] = Field(default=None, foreign_key="suppliers.id", index=True)
+
+    # Supplier info (snapshot at time of order)
     supplier_name: str
     supplier_address: Optional[str] = None
     supplier_phone: Optional[str] = None
@@ -101,6 +104,7 @@ class PurchaseOrderItemCreate(BaseModel):
 
 class PurchaseOrderCreate(BaseModel):
     """Model for creating a purchase order"""
+    supplier_id: Optional[int] = None
     supplier_name: str
     supplier_address: Optional[str] = None
     supplier_phone: Optional[str] = None
@@ -168,6 +172,7 @@ class PurchaseOrderResponse(BaseModel):
     """Response model for purchase order"""
     id: int
     reference: str
+    supplier_id: Optional[int] = None
     supplier_name: str
     supplier_address: Optional[str]
     supplier_phone: Optional[str]

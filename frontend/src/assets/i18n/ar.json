@@ -1952,6 +1952,59 @@
         "is_active": "مورد نشط",
         "supplier_active": "هذا المورد نشط ويمكن اختياره",
         "supplier_inactive": "هذا المورد غير نشط"
+      },
+      "detail": "تفاصيل المورد",
+      "view_details": "عرض التفاصيل",
+      "payment_added": "تم تسجيل الدفعة بنجاح",
+      "payment_deleted": "تم حذف الدفعة",
+      "payment_error": "خطأ في حفظ الدفعة",
+      "stats": {
+        "total_ordered": "إجمالي الطلبات",
+        "total_paid": "إجمالي المدفوع",
+        "balance_owed": "الرصيد المستحق",
+        "orders": "الطلبات",
+        "pending": "قيد التنفيذ",
+        "financial_summary": "الملخص المالي",
+        "paid": "مدفوع"
+      },
+      "info": "معلومات",
+      "tabs": {
+        "payments": "المدفوعات",
+        "analytics": "التحليلات",
+        "orders": "أوامر الشراء"
+      },
+      "analytics": {
+        "period": "الفترة",
+        "period_3m": "3 أشهر",
+        "period_6m": "6 أشهر",
+        "period_1y": "سنة",
+        "period_5y": "5 سنوات",
+        "period_all": "الكل",
+        "purchases_over_time": "المشتريات عبر الزمن",
+        "top_products": "أفضل 5 منتجات مشتراة",
+        "product_analysis": "تحليل حسب المنتج",
+        "select_product": "اختر منتجاً...",
+        "price_evolution": "تطور الأسعار (دج/وحدة)",
+        "quantities": "الكميات المستلمة",
+        "payments_history": "سجل المدفوعات",
+        "order_cost": "التكلفة لكل تسليم"
+      },
+      "payments": {
+        "title": "دفعات",
+        "add": "تسجيل دفعة",
+        "empty": "لا توجد مدفوعات مسجلة",
+        "date": "التاريخ",
+        "amount": "المبلغ",
+        "method": "طريقة الدفع",
+        "notes": "ملاحظات"
+      },
+      "orders": {
+        "empty": "لا توجد أوامر شراء مرتبطة بهذا المورد",
+        "reference": "المرجع",
+        "status": "الحالة",
+        "total": "الإجمالي",
+        "items": "الأصناف",
+        "date": "التاريخ"
       }
     },
     "brands": {

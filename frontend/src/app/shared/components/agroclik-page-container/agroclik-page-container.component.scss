@@ -83,7 +83,7 @@
     padding-top: var(--space-4);
     padding-bottom: var(--page-padding);
     flex: 1;
-    overflow-y: auto;
+    overflow-y: scroll;
     min-height: 0;
 
     &::-webkit-scrollbar {

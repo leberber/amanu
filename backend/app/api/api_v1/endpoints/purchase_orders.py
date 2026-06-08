@@ -13,6 +13,7 @@ from app.models.purchase_order import (
 )
 from app.models.product import Product, ProductUnit
 from app.models.restock import RestockItem
+from app.models.supplier import SupplierProductPrice
 
 
 class FactureItemUpdate(BaseModel):
@@ -68,6 +69,7 @@ def order_to_response(order: PurchaseOrder) -> PurchaseOrderResponse:
     return PurchaseOrderResponse(
         id=order.id,
         reference=order.reference,
+        supplier_id=order.supplier_id,
         supplier_name=order.supplier_name,
         supplier_address=order.supplier_address,
         supplier_phone=order.supplier_phone,
@@ -150,6 +152,7 @@ async def create_purchase_order(
         # Create order
         order = PurchaseOrder(
             reference=reference,
+            supplier_id=data.supplier_id,
             supplier_name=data.supplier_name,
             supplier_address=data.supplier_address,
             supplier_phone=data.supplier_phone,
@@ -398,6 +401,22 @@ async def confirm_delivery(
                     session.add(product)
 
                 session.add(item)
+
+        # Auto-create price history entries if order is linked to a supplier
+        if order.supplier_id:
+            now = datetime.now(timezone.utc)
+            for item in order.items:
+                if item.product_id and item.id in received_map:
+                    delivery_item = received_map[item.id]
+                    price_entry = SupplierProductPrice(
+                        supplier_id=order.supplier_id,
+                        product_id=item.product_id,
+                        purchase_order_id=order.id,
+                        unit_price=item.unit_price,
+                        quantity_received=delivery_item.quantity_received,
+                        date=now
+                    )
+                    session.add(price_entry)
 
         # Update order status and notes
         order.status = PurchaseOrderStatus.DELIVERED

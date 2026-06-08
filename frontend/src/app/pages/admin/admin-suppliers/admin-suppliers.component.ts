@@ -126,6 +126,10 @@ export class AdminSuppliersComponent extends BaseAdminListComponent implements O
     this.baseRouter.navigate([ROUTES.ADMIN.ADD_SUPPLIER]);
   }
 
+  viewSupplier(supplier: Supplier): void {
+    this.baseRouter.navigate([RouteHelpers.adminSupplierDetail(supplier.id)]);
+  }
+
   editSupplier(supplier: Supplier): void {
     this.baseRouter.navigate([RouteHelpers.adminEditSupplier(supplier.id)]);
   }

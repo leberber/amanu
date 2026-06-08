@@ -1965,6 +1965,59 @@
         "is_active": "Active Supplier",
         "supplier_active": "This supplier is active and can be selected",
         "supplier_inactive": "This supplier is inactive"
+      },
+      "detail": "Supplier Details",
+      "view_details": "View Details",
+      "payment_added": "Payment recorded successfully",
+      "payment_deleted": "Payment deleted",
+      "payment_error": "Error saving payment",
+      "stats": {
+        "total_ordered": "Total Ordered",
+        "total_paid": "Total Paid",
+        "balance_owed": "Balance Owed",
+        "orders": "Orders",
+        "pending": "pending",
+        "financial_summary": "Financial Summary",
+        "paid": "paid"
+      },
+      "info": "Information",
+      "tabs": {
+        "payments": "Payments",
+        "analytics": "Analytics",
+        "orders": "Purchase Orders"
+      },
+      "analytics": {
+        "period": "Period",
+        "period_3m": "3M",
+        "period_6m": "6M",
+        "period_1y": "1Y",
+        "period_5y": "5Y",
+        "period_all": "All",
+        "purchases_over_time": "Purchases over time",
+        "top_products": "Top 5 purchased products",
+        "product_analysis": "Product analysis",
+        "select_product": "Select a product...",
+        "price_evolution": "Price evolution (DA/unit)",
+        "quantities": "Received quantities",
+        "payments_history": "Payment history",
+        "order_cost": "Cost per delivery"
+      },
+      "payments": {
+        "title": "payments",
+        "add": "Record Payment",
+        "empty": "No payments recorded yet",
+        "date": "Date",
+        "amount": "Amount",
+        "method": "Method",
+        "notes": "Notes"
+      },
+      "orders": {
+        "empty": "No purchase orders linked to this supplier",
+        "reference": "Reference",
+        "status": "Status",
+        "total": "Total",
+        "items": "Items",
+        "date": "Date"
       }
     },
     "brands": {

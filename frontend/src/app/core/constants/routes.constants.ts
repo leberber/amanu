@@ -88,6 +88,7 @@ export const ROUTES = {
     SUPPLIERS: '/admin/suppliers',
     ADD_SUPPLIER: '/admin/suppliers/new',
     EDIT_SUPPLIER: '/admin/suppliers/:id/edit',
+    SUPPLIER_DETAIL: '/admin/suppliers/:id',
     FACTURATION: '/admin/facturation',
     FACTURATION_NEW: '/admin/facturation/new',
     COMPANY_SETTINGS: '/admin/company-settings'
@@ -111,6 +112,7 @@ export const RouteHelpers = {
   adminEditUserGroup: (id: number | string) => `/admin/user-groups/edit/${id}`,
   driverTripDetail: (id: number | string) => `/driver/trip/${id}`,
   adminPurchaseOrderDetail: (id: number | string) => `/admin/purchase-orders/${id}`,
+  adminSupplierDetail: (id: number | string) => `/admin/suppliers/${id}`,
   adminEditSupplier: (id: number | string) => `/admin/suppliers/${id}/edit`,
   adminFacturationDetail: (id: number | string) => `/admin/facturation/${id}`
 };

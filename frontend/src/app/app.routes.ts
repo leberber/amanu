@@ -295,6 +295,12 @@ export const routes: Routes = [
     canActivate: [adminGuard],
     data: { mode: 'edit', hideBottomNav: true }
   },
+  {
+    path: 'admin/suppliers/:id',
+    loadComponent: () => import('./pages/admin/admin-supplier-detail/admin-supplier-detail.component').then(m => m.AdminSupplierDetailComponent),
+    canActivate: [adminGuard],
+    data: { hideBottomNav: true }
+  },
 
   // Facturation Routes
   {

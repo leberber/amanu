@@ -1964,6 +1964,59 @@
         "is_active": "Fournisseur actif",
         "supplier_active": "Ce fournisseur est actif et peut être sélectionné",
         "supplier_inactive": "Ce fournisseur est inactif"
+      },
+      "detail": "Détails du fournisseur",
+      "view_details": "Voir détails",
+      "payment_added": "Paiement enregistré avec succès",
+      "payment_deleted": "Paiement supprimé",
+      "payment_error": "Erreur lors de l'enregistrement du paiement",
+      "stats": {
+        "total_ordered": "Total commandé",
+        "total_paid": "Total payé",
+        "balance_owed": "Solde dû",
+        "orders": "Commandes",
+        "pending": "en cours",
+        "financial_summary": "Résumé financier",
+        "paid": "payé"
+      },
+      "info": "Informations",
+      "tabs": {
+        "payments": "Paiements",
+        "analytics": "Analytiques",
+        "orders": "Bons de commande"
+      },
+      "analytics": {
+        "period": "Période",
+        "period_3m": "3 Mois",
+        "period_6m": "6 Mois",
+        "period_1y": "1 An",
+        "period_5y": "5 Ans",
+        "period_all": "Tout",
+        "purchases_over_time": "Achats dans le temps",
+        "top_products": "Top 5 produits achetés",
+        "product_analysis": "Analyse par produit",
+        "select_product": "Sélectionner un produit...",
+        "price_evolution": "Évolution des prix (DA/unité)",
+        "quantities": "Quantités reçues",
+        "payments_history": "Historique des paiements",
+        "order_cost": "Coût par livraison"
+      },
+      "payments": {
+        "title": "paiements",
+        "add": "Enregistrer un paiement",
+        "empty": "Aucun paiement enregistré",
+        "date": "Date",
+        "amount": "Montant",
+        "method": "Méthode",
+        "notes": "Notes"
+      },
+      "orders": {
+        "empty": "Aucun bon de commande lié à ce fournisseur",
+        "reference": "Référence",
+        "status": "Statut",
+        "total": "Total",
+        "items": "Articles",
+        "date": "Date"
       }
     },
     "brands": {

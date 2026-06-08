@@ -82,6 +82,7 @@ html, body {
   margin: 0 !important;
   touch-action: manipulation; // Prevent double-tap zoom
   -webkit-text-size-adjust: 100%; // Prevent text size adjustment on orientation change
+  scrollbar-gutter: stable; // Prevent layout shift when scrollbar appears/disappears
 }
 
 .grid { margin: 0 !important; }

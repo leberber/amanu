@@ -1,0 +1,410 @@
+<app-agroclik-page-container>
+
+  <!-- Top Section: Header -->
+  <div pageTop>
+    <div class="admin-list-header animate-item" style="--item-delay: 0ms;">
+      <div class="header-title">
+        <div class="admin-icon-wrapper">
+          <div class="icon-bg"></div>
+          <div class="icon-circle">
+            <i class="pi pi-truck"></i>
+          </div>
+        </div>
+        <div class="title-text">
+          <div class="flex align-items-center gap-2">
+            @if (stats(); as s) {
+              <h1>{{ s.supplier.name }}</h1>
+              <p-tag
+                [value]="s.supplier.is_active ? ('common.active' | translate) : ('common.inactive' | translate)"
+                [severity]="s.supplier.is_active ? 'success' : 'danger'" />
+            } @else {
+              <h1>{{ 'admin.suppliers.detail' | translate }}</h1>
+            }
+          </div>
+          @if (stats(); as s) {
+            <p class="flex align-items-center gap-3 flex-wrap">
+              @if (s.supplier.city) {
+                <span><i class="pi pi-map-marker mr-1"></i>{{ s.supplier.city }}</span>
+              }
+              @if (s.supplier.phone) {
+                <span><i class="pi pi-phone mr-1"></i>{{ s.supplier.phone }}</span>
+              }
+              @if (s.supplier.contact_person) {
+                <span><i class="pi pi-user mr-1"></i>{{ s.supplier.contact_person }}</span>
+              }
+            </p>
+          }
+        </div>
+      </div>
+      <div class="flex align-items-center gap-2">
+        <p-button icon="pi pi-plus" [label]="'admin.suppliers.payments.add' | translate" severity="success" [raised]="true" (click)="openPaymentDialog()" />
+        <p-button icon="pi pi-pencil" [label]="'common.edit' | translate" severity="secondary" [outlined]="true" (click)="editSupplier()" />
+      </div>
+      <app-back-button [customHandler]="true" (buttonClick)="goBack()" />
+    </div>
+  </div>
+
+  <!-- Main Section -->
+  <div pageMain>
+
+    @if (loading()) {
+      <div class="flex gap-4 align-items-start">
+        <div class="flex-1">
+          <div class="skeleton" style="height:420px;border-radius:12px"></div>
+        </div>
+        <div style="width:240px;min-width:240px;" class="flex flex-column gap-3">
+          @for (i of [1,2,3,4,5]; track i) {
+            <div class="skeleton" style="height:80px;border-radius:12px"></div>
+          }
+        </div>
+      </div>
+    }
+
+    @if (!loading()) {
+      @if (stats(); as s) {
+        <div @pageAnimation style="display:grid; grid-template-columns: 1fr 240px; gap: 1rem; align-items: start;">
+
+          <!-- Left: Tabs -->
+          <div class="animate-item flex flex-column gap-3" style="--item-delay: 100ms; min-width: 0;">
+
+            <!-- Tab bar -->
+            <div class="segment-control segment-control--glass segment-control--sliding" style="--segment-count: 3; width: 100%;">
+              <div class="segment-control__slider"></div>
+              <button class="segment-control__item" [class.active]="activeTab() === 0" (click)="activeTab.set(0)">
+                <i class="pi pi-wallet"></i>
+                <span>{{ 'admin.suppliers.tabs.payments' | translate }}</span>
+                @if (payments().length > 0) {
+                  <span class="count">{{ payments().length }}</span>
+                }
+              </button>
+              <button class="segment-control__item" [class.active]="activeTab() === 1" (click)="activeTab.set(1)">
+                <i class="pi pi-chart-bar"></i>
+                <span>{{ 'admin.suppliers.tabs.analytics' | translate }}</span>
+              </button>
+              <button class="segment-control__item" [class.active]="activeTab() === 2" (click)="activeTab.set(2)">
+                <i class="pi pi-list"></i>
+                <span>{{ 'admin.suppliers.tabs.orders' | translate }}</span>
+                @if (purchaseOrders().length > 0) {
+                  <span class="count">{{ purchaseOrders().length }}</span>
+                }
+              </button>
+            </div>
+
+            <!-- Tab content -->
+            <div class="surface-card border-round-xl shadow-1 p-3">
+
+              <!-- Payments -->
+              @if (activeTab() === 0) {
+                @if (payments().length === 0) {
+                  <div class="empty-state">
+                    <div class="empty-state__icon"><i class="pi pi-wallet"></i></div>
+                    <h3 class="empty-state__title">{{ 'admin.suppliers.payments.empty' | translate }}</h3>
+                  </div>
+                } @else {
+                  <div class="table-wrapper">
+                    <table class="table">
+                      <thead>
+                        <tr>
+                          <th>{{ 'admin.suppliers.payments.date' | translate }}</th>
+                          <th>{{ 'admin.suppliers.payments.amount' | translate }}</th>
+                          <th>{{ 'admin.suppliers.payments.method' | translate }}</th>
+                          <th>{{ 'admin.suppliers.payments.notes' | translate }}</th>
+                          <th></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        @for (payment of payments(); track payment.id) {
+                          <tr>
+                            <td>{{ payment.payment_date | appDate }}</td>
+                            <td><span class="pill success">{{ payment.amount | appCurrency }}</span></td>
+                            <td><span class="pill secondary">{{ getPaymentMethodLabel(payment.payment_method) }}</span></td>
+                            <td class="text-secondary text-sm">{{ payment.notes || '—' }}</td>
+                            <td class="text-center">
+                              <button class="action-btn delete"
+                                [disabled]="deletingPaymentId() === payment.id"
+                                (click)="deletePayment(payment.id)">
+                                <i class="pi pi-trash"></i>
+                              </button>
+                            </td>
+                          </tr>
+                        }
+                      </tbody>
+                    </table>
+                  </div>
+                }
+              }
+
+              <!-- Analytics -->
+              @if (activeTab() === 1) {
+                <div class="flex flex-column gap-3">
+
+                  <!-- Product selector + period filter row -->
+                  <div class="flex align-items-center gap-2">
+                    <p-select
+                      [options]="availableProducts()"
+                      optionLabel="label"
+                      optionValue="value"
+                      [ngModel]="selectedProductName()"
+                      (ngModelChange)="selectedProductName.set($event)"
+                      [showClear]="true"
+                      [placeholder]="'admin.suppliers.analytics.select_product' | translate"
+                      styleClass="flex-1" />
+                    <div class="segment-control segment-control--glass segment-control--sliding" style="--segment-count: 5; flex-shrink: 0;">
+                      <div class="segment-control__slider"></div>
+                      <button class="segment-control__item" [class.active]="selectedPeriod() === '3m'" (click)="selectedPeriod.set('3m')">{{ 'admin.suppliers.analytics.period_3m' | translate }}</button>
+                      <button class="segment-control__item" [class.active]="selectedPeriod() === '6m'" (click)="selectedPeriod.set('6m')">{{ 'admin.suppliers.analytics.period_6m' | translate }}</button>
+                      <button class="segment-control__item" [class.active]="selectedPeriod() === '1y'" (click)="selectedPeriod.set('1y')">{{ 'admin.suppliers.analytics.period_1y' | translate }}</button>
+                      <button class="segment-control__item" [class.active]="selectedPeriod() === '5y'" (click)="selectedPeriod.set('5y')">{{ 'admin.suppliers.analytics.period_5y' | translate }}</button>
+                      <button class="segment-control__item" [class.active]="selectedPeriod() === 'all'" (click)="selectedPeriod.set('all')">{{ 'admin.suppliers.analytics.period_all' | translate }}</button>
+                    </div>
+                  </div>
+
+                  <!-- Top full-width chart -->
+                  <div>
+                    <div class="text-xs font-semibold text-secondary mb-1 uppercase" style="letter-spacing:0.05em">
+                      {{ (selectedProductName() ? 'admin.suppliers.analytics.price_evolution' : 'admin.suppliers.analytics.purchases_over_time') | translate }}
+                    </div>
+                    <div style="height:250px;">
+                      @if (selectedProductName()) {
+                        <app-line-chart [data]="productPriceHistoryData()" [formatAsCurrency]="true" [fill]="true" color="success" />
+                      } @else {
+                        <app-line-chart [data]="timelineChartData()" [loading]="loading()" [formatAsCurrency]="true" [fill]="true" color="primary" />
+                      }
+                    </div>
+                  </div>
+
+                  <!-- Two bottom charts 50/50 -->
+                  <div class="grid m-0" style="gap:0">
+                    <div class="col-6" style="padding-left:0; padding-right:0.5rem;">
+                      <div class="text-xs font-semibold text-secondary mb-1 uppercase" style="letter-spacing:0.05em">
+                        {{ (selectedProductName() ? 'admin.suppliers.analytics.quantities' : 'admin.suppliers.analytics.top_products') | translate }}
+                      </div>
+                      <div style="height:230px;">
+                        @if (selectedProductName()) {
+                          <app-bar-chart [data]="productQuantityData()" [formatAsCurrency]="false" color="info" />
+                        } @else {
+                          <app-bar-chart [data]="topProductsChartData()" [loading]="loading()" [horizontal]="true" color="mixed" [formatAsCurrency]="true" />
+                        }
+                      </div>
+                    </div>
+                    <div class="col-6" style="padding-left:0.5rem; padding-right:0;">
+                      <div class="text-xs font-semibold text-secondary mb-1 uppercase" style="letter-spacing:0.05em">
+                        {{ (selectedProductName() ? 'admin.suppliers.analytics.order_cost' : 'admin.suppliers.analytics.payments_history') | translate }}
+                      </div>
+                      <div style="height:230px;">
+                        @if (selectedProductName()) {
+                          <app-bar-chart [data]="productOrderCostData()" [formatAsCurrency]="true" color="warning" />
+                        } @else {
+                          <app-line-chart [data]="paymentTimelineData()" [formatAsCurrency]="true" [fill]="true" color="success" />
+                        }
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+              }
+
+              <!-- Purchase Orders -->
+              @if (activeTab() === 2) {
+                @if (purchaseOrders().length === 0) {
+                  <div class="empty-state">
+                    <div class="empty-state__icon"><i class="pi pi-inbox"></i></div>
+                    <h3 class="empty-state__title">{{ 'admin.suppliers.orders.empty' | translate }}</h3>
+                  </div>
+                } @else {
+                  <div class="table-wrapper">
+                    <table class="table">
+                      <thead>
+                        <tr>
+                          <th>{{ 'admin.suppliers.orders.reference' | translate }}</th>
+                          <th>{{ 'admin.suppliers.orders.status' | translate }}</th>
+                          <th>{{ 'admin.suppliers.orders.total' | translate }}</th>
+                          <th>{{ 'admin.suppliers.orders.items' | translate }}</th>
+                          <th>{{ 'admin.suppliers.orders.date' | translate }}</th>
+                          <th></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        @for (order of purchaseOrders(); track order.id) {
+                          <tr class="clickable-row" (click)="goToPurchaseOrder(order.id)">
+                            <td class="font-semibold">{{ order.reference }}</td>
+                            <td><p-tag [value]="('admin.purchase_orders.status_labels.' + order.status) | translate" [severity]="getStatusSeverity(order.status)" /></td>
+                            <td><span class="font-semibold">{{ order.total_amount | appCurrency }}</span></td>
+                            <td><span class="pill secondary">{{ order.item_count }} art.</span></td>
+                            <td class="text-secondary text-sm">{{ order.created_at | appDate }}</td>
+                            <td class="text-center" (click)="$event.stopPropagation()">
+                              <button class="action-btn" (click)="goToPurchaseOrder(order.id)">
+                                <i class="pi pi-eye"></i>
+                              </button>
+                            </td>
+                          </tr>
+                        }
+                      </tbody>
+                    </table>
+                  </div>
+                }
+              }
+
+            </div>
+          </div>
+
+          <!-- Right Sidebar -->
+          <div class="flex flex-column gap-3 animate-item" style="--item-delay: 50ms; align-self: start;">
+
+            <!-- Orders card — TOP -->
+            <div class="surface-card border-round-xl shadow-1 p-3">
+              <div class="flex justify-content-between align-items-center">
+                <div>
+                  <div class="text-secondary text-xs mb-1">{{ 'admin.suppliers.stats.orders' | translate }}</div>
+                  <div class="text-2xl font-bold">{{ s.order_count }}</div>
+                </div>
+                <i class="pi pi-box text-2xl text-secondary"></i>
+              </div>
+              @if (s.pending_order_count > 0) {
+                <p-tag class="mt-2" [value]="s.pending_order_count + ' ' + ('admin.suppliers.stats.pending' | translate)" severity="warn" />
+              }
+            </div>
+
+            <!-- Total ordered -->
+            <div class="surface-card border-round-xl shadow-1 p-3">
+              <div class="flex justify-content-between align-items-center">
+                <div>
+                  <div class="text-secondary text-xs mb-1">{{ 'admin.suppliers.stats.total_ordered' | translate }}</div>
+                  <div class="font-bold text-lg">{{ s.total_ordered | appCurrency }}</div>
+                </div>
+                <i class="pi pi-shopping-cart text-xl text-secondary"></i>
+              </div>
+            </div>
+
+            <!-- Total paid -->
+            <div class="surface-card border-round-xl shadow-1 p-3">
+              <div class="flex justify-content-between align-items-center">
+                <div>
+                  <div class="text-secondary text-xs mb-1">{{ 'admin.suppliers.stats.total_paid' | translate }}</div>
+                  <div class="font-bold text-lg" style="color:#16a34a">{{ s.total_paid | appCurrency }}</div>
+                </div>
+                <i class="pi pi-check-circle text-xl" style="color:#16a34a"></i>
+              </div>
+              @if (s.total_ordered > 0) {
+                <div class="mt-2">
+                  <div style="height:5px;border-radius:3px;background:#e5e7eb;overflow:hidden;">
+                    <div [style.width]="getPaymentPercent(s) + '%'"
+                         [style.background]="getBalanceColor(s)"
+                         style="height:100%;border-radius:3px;transition:width 0.4s ease;"></div>
+                  </div>
+                  <span class="text-xs text-secondary" style="display:block;margin-top:3px;">{{ getPaymentPercent(s) }}% {{ 'admin.suppliers.stats.paid' | translate }}</span>
+                </div>
+              }
+            </div>
+
+            <!-- Balance owed — conditionally colored -->
+            <div class="surface-card border-round-xl shadow-1 p-3">
+              <div class="flex justify-content-between align-items-center">
+                <div>
+                  <div class="text-xs mb-1" [style.color]="getBalanceLabelColor(s)">{{ 'admin.suppliers.stats.balance_owed' | translate }}</div>
+                  <div class="font-bold text-lg" [style.color]="getBalanceTextColor(s)">{{ s.balance_owed | appCurrency }}</div>
+                </div>
+                <i class="pi pi-wallet text-xl" [style.color]="getBalanceTextColor(s)"></i>
+              </div>
+            </div>
+
+            <!-- Contact info card -->
+            @if (s.supplier.phone || s.supplier.city || s.supplier.email || s.supplier.address || s.supplier.notes) {
+              <div class="surface-card border-round-xl shadow-1 overflow-hidden">
+                <div class="p-3 border-bottom-1 surface-border">
+                  <span class="font-semibold text-sm">{{ 'admin.suppliers.info' | translate }}</span>
+                </div>
+                <div class="p-3 flex flex-column gap-2">
+                  @if (s.supplier.phone) {
+                    <div class="flex align-items-center gap-2">
+                      <i class="pi pi-phone text-secondary" style="font-size:13px;flex-shrink:0"></i>
+                      <span class="text-sm">{{ s.supplier.phone }}</span>
+                    </div>
+                  }
+                  @if (s.supplier.city) {
+                    <div class="flex align-items-center gap-2">
+                      <i class="pi pi-map-marker text-secondary" style="font-size:13px;flex-shrink:0"></i>
+                      <span class="text-sm">{{ s.supplier.city }}</span>
+                    </div>
+                  }
+                  @if (s.supplier.email) {
+                    <div class="flex align-items-start gap-2">
+                      <i class="pi pi-envelope text-secondary mt-1" style="font-size:13px;flex-shrink:0"></i>
+                      <span class="text-sm" style="word-break:break-all">{{ s.supplier.email }}</span>
+                    </div>
+                  }
+                  @if (s.supplier.address) {
+                    <div class="flex align-items-start gap-2">
+                      <i class="pi pi-map text-secondary mt-1" style="font-size:13px;flex-shrink:0"></i>
+                      <span class="text-sm text-secondary">{{ s.supplier.address }}</span>
+                    </div>
+                  }
+                  @if (s.supplier.notes) {
+                    <div class="flex align-items-start gap-2">
+                      <i class="pi pi-comment text-secondary mt-1" style="font-size:13px;flex-shrink:0"></i>
+                      <span class="text-sm text-secondary">{{ s.supplier.notes }}</span>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+
+
+          </div>
+
+        </div>
+      }
+    }
+
+  </div>
+</app-agroclik-page-container>
+
+<!-- Record Payment Dialog -->
+<p-dialog
+  [header]="'admin.suppliers.payments.add' | translate"
+  [visible]="showPaymentDialog()"
+  (visibleChange)="showPaymentDialog.set($event)"
+  [modal]="true"
+  [style]="{ width: '420px' }"
+  [draggable]="false">
+
+  <form [formGroup]="paymentForm" class="flex flex-column gap-3 pt-2">
+    <div class="flex flex-column gap-1">
+      <label class="font-medium text-sm">{{ 'admin.suppliers.payments.amount' | translate }} *</label>
+      <p-inputNumber
+        formControlName="amount"
+        [minFractionDigits]="2"
+        [maxFractionDigits]="2"
+        styleClass="w-full" />
+    </div>
+
+    <div class="flex flex-column gap-1">
+      <label class="font-medium text-sm">{{ 'admin.suppliers.payments.method' | translate }}</label>
+      <p-select
+        formControlName="payment_method"
+        [options]="paymentMethods"
+        optionLabel="label"
+        optionValue="value"
+        styleClass="w-full" />
+    </div>
+
+    <div class="flex flex-column gap-1">
+      <label class="font-medium text-sm">{{ 'admin.suppliers.payments.date' | translate }}</label>
+      <input pInputText type="date" formControlName="payment_date" class="w-full" />
+    </div>
+
+    <div class="flex flex-column gap-1">
+      <label class="font-medium text-sm">{{ 'admin.suppliers.payments.notes' | translate }}</label>
+      <textarea pTextarea formControlName="notes" rows="2" class="w-full"></textarea>
+    </div>
+  </form>
+
+  <ng-template pTemplate="footer">
+    <p-button label="{{ 'common.cancel' | translate }}" severity="secondary" (click)="showPaymentDialog.set(false)" />
+    <p-button
+      label="{{ 'common.save' | translate }}"
+      [loading]="savingPayment()"
+      [disabled]="paymentForm.invalid"
+      (click)="savePayment()" />
+  </ng-template>
+</p-dialog>

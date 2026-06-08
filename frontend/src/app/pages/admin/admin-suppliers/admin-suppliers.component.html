@@ -126,7 +126,7 @@
               </thead>
               <tbody>
                 @for (supplier of paginatedSuppliers(); track supplier.id; let i = $index) {
-                  <tr class="table-row-animate clickable-row" [style.--row-delay]="(i * 40) + 'ms'" (click)="editSupplier(supplier)">
+                  <tr class="table-row-animate clickable-row" [style.--row-delay]="(i * 40) + 'ms'" (click)="viewSupplier(supplier)">
                     <!-- Name -->
                     @if (isColumnVisible('name')) {
                       <td>
@@ -186,6 +186,9 @@
                     @if (isColumnVisible('actions')) {
                       <td class="text-center" (click)="$event.stopPropagation()">
                         <div class="table-cell-actions justify-content-center">
+                          <button class="action-btn" (click)="viewSupplier(supplier)" [pTooltip]="'admin.suppliers.view_details' | translate" tooltipPosition="top">
+                            <i class="pi pi-eye"></i>
+                          </button>
                           <button class="action-btn edit" (click)="editSupplier(supplier)" [pTooltip]="'common.edit' | translate" tooltipPosition="top">
                             <i class="pi pi-pencil"></i>
                           </button>
