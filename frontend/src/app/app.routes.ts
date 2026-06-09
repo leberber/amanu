@@ -46,9 +46,9 @@ export const routes: Routes = [
 },
 
   { 
-    path: 'admin', 
+    path: 'admin',
     loadComponent: () => import('./pages/admin/admin-dashboard/admin-dashboard.component').then(m => m.AdminDashboardComponent),
-    canActivate: [adminOnlyGuard]
+    canActivate: [adminGuard]
   },
   { 
     path: 'admin/products', 
@@ -162,18 +162,18 @@ export const routes: Routes = [
   {
     path: 'admin/users',
     loadComponent: () => import('./pages/admin/admin-users/admin-users.component').then(m => m.AdminUsersComponent),
-    canActivate: [adminOnlyGuard]
+    canActivate: [adminGuard]
   },
   {
     path: 'admin/users/map',
     loadComponent: () => import('./pages/admin/admin-users-map/admin-users-map.component').then(m => m.AdminUsersMapComponent),
-    canActivate: [adminOnlyGuard],
+    canActivate: [adminGuard],
     data: { hideBottomNav: true }
   },
   {
     path: 'admin/users/:id/edit',
     loadComponent: () => import('./pages/admin/admin-edit-user/admin-edit-user.component').then(m => m.AdminEditUserComponent),
-    canActivate: [adminOnlyGuard],
+    canActivate: [adminGuard],
     data: { hideBottomNav: true }
   },
   // User Groups Routes
@@ -198,7 +198,7 @@ export const routes: Routes = [
   {
     path: 'admin/shipping',
     loadComponent: () => import('./pages/admin/admin-shipping-config/admin-shipping-config.component').then(m => m.AdminShippingConfigComponent),
-    canActivate: [adminOnlyGuard],
+    canActivate: [adminGuard],
     data: { hideBottomNav: true }
   },
   // Batching Route
@@ -211,14 +211,14 @@ export const routes: Routes = [
   {
     path: 'admin/logs',
     loadComponent: () => import('./pages/admin/admin-logs/admin-logs.component').then(m => m.AdminLogsComponent),
-    canActivate: [adminOnlyGuard],
+    canActivate: [adminGuard],
     data: { hideBottomNav: true }
   },
   // System Monitoring Route (admin only)
   {
     path: 'admin/system',
     loadComponent: () => import('./pages/admin/admin-system/admin-system.component').then(m => m.AdminSystemComponent),
-    canActivate: [adminOnlyGuard],
+    canActivate: [adminGuard],
     data: { hideBottomNav: true }
   },
   // Sales Report Route (admin only)

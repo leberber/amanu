@@ -37,7 +37,7 @@ export const ADMIN_NAV_ITEMS: AdminNavItem[] = [
     labelKey: 'admin.navigation.dashboard',
     icon: 'pi pi-chart-bar',
     route: ROUTES.ADMIN.DASHBOARD,
-    adminOnly: true
+    staffOnly: true
   },
   {
     labelKey: 'admin.navigation.sales_report',
@@ -79,84 +79,84 @@ export const ADMIN_NAV_ITEMS: AdminNavItem[] = [
     labelKey: 'admin.navigation.users',
     icon: 'pi pi-users',
     route: ROUTES.ADMIN.USERS,
-    adminOnly: true
+    staffOnly: true
   },
   {
     labelKey: 'admin.navigation.users_map',
     icon: 'pi pi-map-marker',
     route: ROUTES.ADMIN.USERS_MAP,
-    adminOnly: true
+    staffOnly: true
   },
   {
     labelKey: 'admin.navigation.user_groups',
     icon: 'pi pi-th-large',
     route: ROUTES.ADMIN.USER_GROUPS,
-    adminOnly: true
+    staffOnly: true
   },
   {
     labelKey: 'admin.navigation.drivers',
     icon: 'pi pi-car',
     route: ROUTES.ADMIN.DRIVER_MANAGEMENT,
-    adminOnly: true
+    staffOnly: true
   },
   {
     labelKey: 'admin.navigation.notifications',
     icon: 'pi pi-bell',
     route: ROUTES.ADMIN.NOTIFICATIONS,
-    adminOnly: true
+    staffOnly: true
   },
   {
     labelKey: 'admin.navigation.shipping',
     icon: 'pi pi-truck',
     route: ROUTES.ADMIN.SHIPPING,
-    adminOnly: true
+    staffOnly: true
   },
   {
     labelKey: 'admin.navigation.batching',
     icon: 'pi pi-sitemap',
     route: ROUTES.ADMIN.BATCHING,
-    adminOnly: true
+    staffOnly: true
   },
   {
     labelKey: 'admin.navigation.stock',
     icon: 'pi pi-box',
     route: ROUTES.ADMIN.STOCK,
-    adminOnly: true
+    staffOnly: true
   },
   {
     labelKey: 'admin.navigation.purchase_orders',
     icon: 'pi pi-file-edit',
     route: ROUTES.ADMIN.PURCHASE_ORDERS,
-    adminOnly: true
+    staffOnly: true
   },
   {
     labelKey: 'admin.navigation.suppliers',
     icon: 'pi pi-id-card',
     route: ROUTES.ADMIN.SUPPLIERS,
-    adminOnly: true
+    staffOnly: true
   },
   {
     labelKey: 'admin.navigation.facturation',
     icon: 'pi pi-receipt',
     route: ROUTES.ADMIN.FACTURATION,
-    adminOnly: true
+    staffOnly: true
   },
   {
     labelKey: 'admin.navigation.company_settings',
     icon: 'pi pi-building',
     route: ROUTES.ADMIN.COMPANY_SETTINGS,
-    adminOnly: true
+    staffOnly: true
   },
   {
     labelKey: 'admin.navigation.logs',
     icon: 'pi pi-file',
     route: ROUTES.ADMIN.LOGS,
-    adminOnly: true
+    staffOnly: true
   },
   {
     labelKey: 'admin.navigation.system',
     icon: 'pi pi-server',
     route: ROUTES.ADMIN.SYSTEM,
-    adminOnly: true
+    staffOnly: true
   }
 ];
