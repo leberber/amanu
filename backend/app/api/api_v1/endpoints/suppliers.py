@@ -280,6 +280,7 @@ def get_supplier_product_prices(
             unit_price=price.unit_price,
             quantity_received=price.quantity_received,
             date=price.date,
+            stock_quantity=product.stock_quantity,
         )
         for price, product, po in rows
     ]

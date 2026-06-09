@@ -62,6 +62,16 @@ export interface SupplierProductPrice {
   unit_price: number;
   quantity_received: number;
   date: string;
+  stock_quantity: number;
+}
+
+export interface ProductStockStats {
+  stock_quantity: number;
+  total_received: number;
+  total_facture_received: number;
+  total_invoiced: number;
+  facture_remaining: number;
+  total_left: number;
 }
 
 export interface SupplierStats {

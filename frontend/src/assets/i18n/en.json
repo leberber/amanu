@@ -1933,7 +1933,7 @@
       "delete_success": "Supplier deleted successfully",
       "delete_error": "Error deleting supplier",
       "table": {
-        "name": "Name",
+        "name": "Company",
         "contact": "Contact",
         "phone": "Phone",
         "city": "City",
@@ -2001,7 +2001,12 @@
         "price_evolution": "Price evolution (DA/unit)",
         "quantities": "Received quantities",
         "payments_history": "Payment history",
-        "order_cost": "Cost per delivery"
+        "order_cost": "Cost per delivery",
+        "stock_overview": "Available stock",
+        "available_stock": "Available stock",
+        "total_invoiced": "Total invoiced",
+        "facture_remaining": "Remaining to invoice",
+        "total_left": "Total purchased"
       },
       "payments": {
         "title": "payments",

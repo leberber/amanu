@@ -1920,7 +1920,7 @@
       "delete_success": "تم حذف المورد بنجاح",
       "delete_error": "خطأ في حذف المورد",
       "table": {
-        "name": "الاسم",
+        "name": "المؤسسة",
         "contact": "جهة الاتصال",
         "phone": "الهاتف",
         "city": "المدينة",
@@ -1988,7 +1988,12 @@
         "price_evolution": "تطور الأسعار (دج/وحدة)",
         "quantities": "الكميات المستلمة",
         "payments_history": "سجل المدفوعات",
-        "order_cost": "التكلفة لكل تسليم"
+        "order_cost": "التكلفة لكل تسليم",
+        "stock_overview": "المخزون المتاح",
+        "available_stock": "المخزون المتاح",
+        "total_invoiced": "إجمالي الفواتير",
+        "facture_remaining": "المتبقي للفوترة",
+        "total_left": "إجمالي المشتريات"
       },
       "payments": {
         "title": "دفعات",

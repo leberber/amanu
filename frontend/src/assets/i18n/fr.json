@@ -1932,7 +1932,7 @@
       "delete_success": "Fournisseur supprimé avec succès",
       "delete_error": "Erreur lors de la suppression du fournisseur",
       "table": {
-        "name": "Nom",
+        "name": "Entreprise",
         "contact": "Contact",
         "phone": "Téléphone",
         "city": "Ville",
@@ -2000,7 +2000,12 @@
         "price_evolution": "Évolution des prix (DA/unité)",
         "quantities": "Quantités reçues",
         "payments_history": "Historique des paiements",
-        "order_cost": "Coût par livraison"
+        "order_cost": "Coût par livraison",
+        "stock_overview": "Stocks disponibles",
+        "available_stock": "Stock disponible",
+        "total_invoiced": "Total facturé",
+        "facture_remaining": "Reste à facturer",
+        "total_left": "Total acheté"
       },
       "payments": {
         "title": "paiements",

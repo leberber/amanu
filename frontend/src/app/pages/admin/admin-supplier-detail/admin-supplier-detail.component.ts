@@ -27,7 +27,7 @@ import { ROUTES, RouteHelpers } from '../../../core/constants/routes.constants';
 import { SupplierService } from '../../../core/services/supplier.service';
 import {
   SupplierStats, SupplierPayment, SupplierPaymentCreate,
-  SupplierProductPrice, SupplierPurchaseOrder, ProductPriceHistoryPoint
+  SupplierProductPrice, SupplierPurchaseOrder, ProductPriceHistoryPoint, ProductStockStats
 } from '../../../models/supplier.model';
 
 @Component({
@@ -88,6 +88,7 @@ export class AdminSupplierDetailComponent implements OnInit {
   selectedProductName = signal<string | null>(null);
   globalPriceHistory = signal<ProductPriceHistoryPoint[]>([]);
   loadingProductHistory = signal(false);
+  stockStats = signal<ProductStockStats | null>(null);
 
   private selectedProductId = computed(() => {
     const name = this.selectedProductName();
@@ -164,6 +165,24 @@ export class AdminSupplierDetailComponent implements OnInit {
         value: o.total_amount
       }))
   );
+
+  stockTableData = computed(() => {
+    const seen = new Map<string, number>();
+    for (const p of this.productPrices()) {
+      if (!seen.has(p.product_name)) {
+        seen.set(p.product_name, p.stock_quantity);
+      }
+    }
+    const items = Array.from(seen.entries())
+      .map(([name, qty]) => ({ name, qty }))
+      .sort((a, b) => b.qty - a.qty);
+    const max = items[0]?.qty || 1;
+    return items.map(item => {
+      const pct = Math.round((item.qty / max) * 100);
+      const color = pct > 60 ? '#22c55e' : pct > 25 ? '#f59e0b' : '#ef4444';
+      return { name: item.name, qty: item.qty, pct, color };
+    });
+  });
 
   dualAxisChartData = computed(() => {
     const history = this.sortedGlobalHistory();
@@ -257,6 +276,7 @@ export class AdminSupplierDetailComponent implements OnInit {
           position: 'left',
           beginAtZero: false,
           grid: { color: 'rgba(0,0,0,0.05)' },
+          title: { display: true, text: 'DA', font: { size: 11 }, color: 'rgba(100,100,100,0.8)' },
           ticks: {
             font: { size: 12 },
             callback: (value: number) => {
@@ -271,6 +291,7 @@ export class AdminSupplierDetailComponent implements OnInit {
           position: 'right',
           beginAtZero: true,
           grid: { drawOnChartArea: false },
+          title: { display: true, text: 'Units (cartons)', font: { size: 11 }, color: 'rgba(100,100,100,0.8)' },
           ticks: {
             font: { size: 12 },
             color: 'rgba(100,100,100,0.8)',
@@ -299,19 +320,27 @@ export class AdminSupplierDetailComponent implements OnInit {
       this.supplierId.set(id);
       this.selectedProductName.set(null);
       this.globalPriceHistory.set([]);
+      this.stockStats.set(null);
       this.loadAll();
     });
 
     this.productId$.pipe(
       switchMap(productId => {
-        if (!productId) return of([] as ProductPriceHistoryPoint[]);
+        if (!productId) {
+          this.stockStats.set(null);
+          return of({ history: [] as ProductPriceHistoryPoint[], stats: null });
+        }
         this.loadingProductHistory.set(true);
-        return this.supplierService.getProductPriceHistory(productId);
+        return forkJoin({
+          history: this.supplierService.getProductPriceHistory(productId),
+          stats: this.supplierService.getProductStockStats(productId)
+        });
       }),
       takeUntilDestroyed(this.destroyRef)
     ).subscribe({
-      next: data => {
-        this.globalPriceHistory.set(data);
+      next: ({ history, stats }) => {
+        this.globalPriceHistory.set(history);
+        this.stockStats.set(stats);
         this.loadingProductHistory.set(false);
       },
       error: () => this.loadingProductHistory.set(false)

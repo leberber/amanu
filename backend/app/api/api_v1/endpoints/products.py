@@ -9,6 +9,7 @@ from sqlalchemy import Text
 
 from app.database import get_session
 from app.models.product import Product, ProductCreate, ProductUpdate, ProductRead, ProductPromotion
+from app.models.facturation import FacturationItem
 from app.models.category import Category
 from app.models.promotion import Promotion, PromotionScope
 from app.models.restock import RestockItem
@@ -500,6 +501,57 @@ async def upload_product_image(
         "url": result,
         "key": key
     }
+
+
+class ProductStockStats(BaseModel):
+    stock_quantity: int
+    total_received: int
+    total_facture_received: int
+    total_invoiced: int
+    facture_remaining: int
+    total_left: int
+
+
+@router.get("/{product_id}/stock-stats", response_model=ProductStockStats)
+def get_product_stock_stats(
+    product_id: int,
+    session: Session = Depends(get_session),
+    current_user: User = Depends(get_current_staff_user),
+):
+    """Return stock statistics for a product: physical stock, facture remaining, and total left."""
+    product = session.get(Product, product_id)
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+
+    total_received = session.exec(
+        select(func.coalesce(func.sum(PurchaseOrderItem.quantity_received), 0))
+        .join(PurchaseOrder, PurchaseOrderItem.purchase_order_id == PurchaseOrder.id)
+        .where(PurchaseOrderItem.product_id == product_id, PurchaseOrder.status == PurchaseOrderStatus.DELIVERED)
+    ).one()
+
+    total_facture_received = session.exec(
+        select(func.coalesce(func.sum(PurchaseOrderItem.facture_quantity), 0))
+        .join(PurchaseOrder, PurchaseOrderItem.purchase_order_id == PurchaseOrder.id)
+        .where(PurchaseOrderItem.product_id == product_id, PurchaseOrder.status == PurchaseOrderStatus.DELIVERED)
+    ).one()
+
+    total_invoiced = session.exec(
+        select(func.coalesce(func.sum(FacturationItem.quantity), 0))
+        .where(FacturationItem.product_id == product_id)
+    ).one()
+
+    tr = int(total_received)
+    tfr = int(total_facture_received)
+    ti = int(total_invoiced)
+
+    return ProductStockStats(
+        stock_quantity=product.stock_quantity,
+        total_received=tr,
+        total_facture_received=tfr,
+        total_invoiced=ti,
+        facture_remaining=tfr - ti,
+        total_left=tr - ti,
+    )
 
 
 class ProductPriceHistoryPoint(BaseModel):

@@ -114,6 +114,7 @@ class SupplierProductPriceResponse(BaseModel):
     unit_price: float
     quantity_received: int
     date: datetime
+    stock_quantity: int = 0
 
 
 # =============================================================================
