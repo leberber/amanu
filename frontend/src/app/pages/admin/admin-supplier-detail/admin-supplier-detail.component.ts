@@ -7,14 +7,12 @@ import { forkJoin } from 'rxjs';
 import { trigger, transition, style, animate } from '@angular/animations';
 
 import { ButtonModule } from 'primeng/button';
-import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { SelectModule } from 'primeng/select';
 import { TextareaModule } from 'primeng/textarea';
-import { TooltipModule } from 'primeng/tooltip';
 import { TranslateModule } from '@ngx-translate/core';
 
 import { AgroclikPageContainerComponent } from '../../../shared/components/agroclik-page-container/agroclik-page-container.component';
@@ -39,14 +37,12 @@ import {
     FormsModule,
     ReactiveFormsModule,
     ButtonModule,
-    TableModule,
     TagModule,
     DialogModule,
     InputTextModule,
     InputNumberModule,
     SelectModule,
     TextareaModule,
-    TooltipModule,
     TranslateModule,
     AgroclikPageContainerComponent,
     BackButtonComponent,
@@ -323,12 +319,6 @@ export class AdminSupplierDetailComponent implements OnInit {
     if (s.balance_owed === 0) return '#4ade80';
     if (this.getOwedPercent(s) > 50) return '#f87171';
     return '#fb923c';
-  }
-
-  getBalanceColor(s: SupplierStats): string {
-    if (s.balance_owed === 0) return '#16a34a';
-    if (this.getOwedPercent(s) > 50) return '#dc2626';
-    return '#ea580c';
   }
 
   getStatusSeverity(status: string): 'success' | 'warn' | 'info' | 'danger' | 'secondary' {

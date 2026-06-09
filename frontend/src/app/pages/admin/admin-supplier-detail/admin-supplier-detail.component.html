@@ -58,9 +58,7 @@
           }
         </div>
       </div>
-    }
-
-    @if (!loading()) {
+    } @else {
       @if (stats(); as s) {
         <div @pageAnimation style="display:grid; grid-template-columns: 1fr 240px; gap: 1rem; align-items: start;">
 
@@ -168,7 +166,7 @@
                       @if (selectedProductName()) {
                         <app-line-chart [data]="productPriceHistoryData()" [formatAsCurrency]="true" [fill]="true" color="success" />
                       } @else {
-                        <app-line-chart [data]="timelineChartData()" [loading]="loading()" [formatAsCurrency]="true" [fill]="true" color="primary" />
+                        <app-line-chart [data]="timelineChartData()" [formatAsCurrency]="true" [fill]="true" color="primary" />
                       }
                     </div>
                   </div>
@@ -183,7 +181,7 @@
                         @if (selectedProductName()) {
                           <app-bar-chart [data]="productQuantityData()" [formatAsCurrency]="false" color="info" />
                         } @else {
-                          <app-bar-chart [data]="topProductsChartData()" [loading]="loading()" [horizontal]="true" color="mixed" [formatAsCurrency]="true" />
+                          <app-bar-chart [data]="topProductsChartData()" [horizontal]="true" color="mixed" [formatAsCurrency]="true" />
                         }
                       </div>
                     </div>
@@ -230,7 +228,7 @@
                             <td class="font-semibold">{{ order.reference }}</td>
                             <td><p-tag [value]="('admin.purchase_orders.status_labels.' + order.status) | translate" [severity]="getStatusSeverity(order.status)" /></td>
                             <td><span class="font-semibold">{{ order.total_amount | appCurrency }}</span></td>
-                            <td><span class="pill secondary">{{ order.item_count }} art.</span></td>
+                            <td><span class="pill secondary">{{ order.item_count }} {{ 'common.items' | translate }}</span></td>
                             <td class="text-secondary text-sm">{{ order.created_at | appDate }}</td>
                             <td class="text-center" (click)="$event.stopPropagation()">
                               <button class="action-btn" (click)="goToPurchaseOrder(order.id)">
@@ -289,7 +287,7 @@
                 <div class="mt-2">
                   <div style="height:5px;border-radius:3px;background:#e5e7eb;overflow:hidden;">
                     <div [style.width]="getPaymentPercent(s) + '%'"
-                         [style.background]="getBalanceColor(s)"
+                         [style.background]="getBalanceTextColor(s)"
                          style="height:100%;border-radius:3px;transition:width 0.4s ease;"></div>
                   </div>
                   <span class="text-xs text-secondary" style="display:block;margin-top:3px;">{{ getPaymentPercent(s) }}% {{ 'admin.suppliers.stats.paid' | translate }}</span>
