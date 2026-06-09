@@ -529,7 +529,11 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
   }
 
   private loadProducts(): void {
-    this.loading = true;
+    // Only show skeleton on initial load — not on search/filter refreshes.
+    // This prevents the @if(loading) block from destroying the search input and losing focus.
+    if (this.displayedProducts().length === 0) {
+      this.loading = true;
+    }
 
     this.productService.getProductsPaginated({
       skip: 0,
