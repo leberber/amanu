@@ -6,7 +6,7 @@ import { CurrencyService } from '../../../core/services/currency.service';
 import { onLanguageChange } from '../../../core/utils/language-change.util';
 
 export interface LineChartDataPoint {
-  label: string;
+  label: string | string[];
   value: number;
 }
 
@@ -74,6 +74,9 @@ export class LineChartComponent implements OnInit {
   showLegend = input<boolean>(false);
   tension = input<number>(0.4);
   formatAsCurrency = input<boolean>(true);
+  tooltipLabels = input<string[]>([]);
+  pointColors = input<string[]>([]);
+  tickColors = input<string[]>([]);
 
   // Services
   private translateService = inject(TranslateService);
@@ -99,6 +102,8 @@ export class LineChartComponent implements OnInit {
     const _ = this.languageTrigger;
     const items = this.data();
     const colorScheme = LINE_COLORS[this.color()];
+    const perPointColors = this.pointColors();
+    const hasPerPointColors = perPointColors.length > 0;
 
     return {
       labels: items.map(item => item.label),
@@ -109,12 +114,12 @@ export class LineChartComponent implements OnInit {
         borderColor: colorScheme.border,
         backgroundColor: colorScheme.background,
         tension: this.tension(),
-        pointBackgroundColor: colorScheme.point,
+        pointBackgroundColor: hasPerPointColors ? perPointColors : colorScheme.point,
         pointBorderColor: '#ffffff',
         pointHoverBackgroundColor: '#ffffff',
-        pointHoverBorderColor: colorScheme.point,
-        pointRadius: 4,
-        pointHoverRadius: 6
+        pointHoverBorderColor: hasPerPointColors ? perPointColors : colorScheme.point,
+        pointRadius: hasPerPointColors ? 7 : 4,
+        pointHoverRadius: hasPerPointColors ? 9 : 6
       }]
     };
   });
@@ -124,6 +129,8 @@ export class LineChartComponent implements OnInit {
     const _ = this.languageTrigger;
     const formatAsCurrency = this.formatAsCurrency();
     const currencyService = this.currencyService;
+    const tooltipLabelsArr = this.tooltipLabels();
+    const tickColorsArr = this.tickColors();
 
     return {
       responsive: true,
@@ -145,6 +152,10 @@ export class LineChartComponent implements OnInit {
               return formatAsCurrency
                 ? currencyService.formatCurrency(value)
                 : value.toLocaleString();
+            },
+            afterLabel: (context: { dataIndex: number }) => {
+              const label = tooltipLabelsArr[context.dataIndex];
+              return label ? `↑ ${label}` : '';
             }
           }
         },
@@ -156,7 +167,10 @@ export class LineChartComponent implements OnInit {
           ticks: {
             font: { size: 12 },
             maxRotation: 45,
-            minRotation: 0
+            minRotation: 0,
+            color: tickColorsArr.length > 0
+              ? (context: { index: number }) => tickColorsArr[context.index] ?? 'rgba(100,100,100,0.8)'
+              : undefined
           }
         },
         y: {

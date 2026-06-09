@@ -12,6 +12,7 @@ from app.models.product import Product, ProductCreate, ProductUpdate, ProductRea
 from app.models.category import Category
 from app.models.promotion import Promotion, PromotionScope
 from app.models.restock import RestockItem
+from app.models.purchase_order import PurchaseOrder, PurchaseOrderItem, PurchaseOrderStatus
 from app.core.security import get_current_staff_user, get_current_active_user
 from app.core.translation import TranslationService
 from app.models.user import User
@@ -499,3 +500,44 @@ async def upload_product_image(
         "url": result,
         "key": key
     }
+
+
+class ProductPriceHistoryPoint(BaseModel):
+    date: str
+    unit_price: float
+    quantity_received: int
+    supplier_id: Optional[int]
+    supplier_name: str
+    purchase_order_id: int
+    purchase_order_reference: str
+
+
+@router.get("/{product_id}/price-history", response_model=List[ProductPriceHistoryPoint])
+def get_product_price_history(
+    product_id: int,
+    session: Session = Depends(get_session),
+    current_user: User = Depends(get_current_staff_user),
+):
+    """Return full price history for a product across all suppliers (delivered orders only)."""
+    rows = session.exec(
+        select(PurchaseOrderItem, PurchaseOrder)
+        .join(PurchaseOrder, PurchaseOrderItem.purchase_order_id == PurchaseOrder.id)
+        .where(
+            PurchaseOrderItem.product_id == product_id,
+            PurchaseOrder.status == PurchaseOrderStatus.DELIVERED
+        )
+        .order_by(PurchaseOrder.delivered_at, PurchaseOrder.created_at)
+    ).all()
+
+    return [
+        ProductPriceHistoryPoint(
+            date=(order.delivered_at or order.created_at).isoformat(),
+            unit_price=item.unit_price,
+            quantity_received=item.quantity_received,
+            supplier_id=order.supplier_id,
+            supplier_name=order.supplier_name,
+            purchase_order_id=order.id,
+            purchase_order_reference=order.reference
+        )
+        for item, order in rows
+    ]

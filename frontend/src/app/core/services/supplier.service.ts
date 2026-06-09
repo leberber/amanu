@@ -4,7 +4,7 @@ import { Observable, BehaviorSubject, tap, map, of } from 'rxjs';
 import {
   Supplier, SupplierCreate, SupplierUpdate,
   SupplierStats, SupplierPayment, SupplierPaymentCreate,
-  SupplierProductPrice, SupplierPurchaseOrder
+  SupplierProductPrice, SupplierPurchaseOrder, ProductPriceHistoryPoint
 } from '../../models/supplier.model';
 import { environment } from '../../../environments/environment';
 
@@ -95,5 +95,11 @@ export class SupplierService {
 
   getPurchaseOrders(id: number): Observable<SupplierPurchaseOrder[]> {
     return this.http.get<SupplierPurchaseOrder[]>(`${this.apiUrl}/${id}/purchase-orders`);
+  }
+
+  getProductPriceHistory(productId: number): Observable<ProductPriceHistoryPoint[]> {
+    return this.http.get<ProductPriceHistoryPoint[]>(
+      `${environment.apiUrl}/products/${productId}/price-history`
+    );
   }
 }

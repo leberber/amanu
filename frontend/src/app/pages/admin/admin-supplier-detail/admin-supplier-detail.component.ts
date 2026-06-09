@@ -2,8 +2,8 @@ import { Component, OnInit, inject, signal, computed, DestroyRef } from '@angula
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { forkJoin } from 'rxjs';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
+import { forkJoin, of, switchMap } from 'rxjs';
 import { trigger, transition, style, animate } from '@angular/animations';
 
 import { ButtonModule } from 'primeng/button';
@@ -18,15 +18,16 @@ import { TranslateModule } from '@ngx-translate/core';
 import { AgroclikPageContainerComponent } from '../../../shared/components/agroclik-page-container/agroclik-page-container.component';
 import { BackButtonComponent } from '../../../shared/components/back-button/back-button.component';
 import { LineChartComponent, LineChartDataPoint } from '../../../shared/components/charts/line-chart.component';
-import { BarChartComponent, BarChartDataPoint } from '../../../shared/components/charts/bar-chart.component';
+import { ChartModule } from 'primeng/chart';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
+import { CurrencyService } from '../../../core/services/currency.service';
 import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
 import { DateFormatPipe } from '../../../shared/pipes/date-format.pipe';
 import { ROUTES, RouteHelpers } from '../../../core/constants/routes.constants';
 import { SupplierService } from '../../../core/services/supplier.service';
 import {
   SupplierStats, SupplierPayment, SupplierPaymentCreate,
-  SupplierProductPrice, SupplierPurchaseOrder
+  SupplierProductPrice, SupplierPurchaseOrder, ProductPriceHistoryPoint
 } from '../../../models/supplier.model';
 
 @Component({
@@ -47,7 +48,7 @@ import {
     AgroclikPageContainerComponent,
     BackButtonComponent,
     LineChartComponent,
-    BarChartComponent,
+    ChartModule,
     CurrencyPipe,
     DateFormatPipe
   ],
@@ -67,10 +68,12 @@ export class AdminSupplierDetailComponent implements OnInit {
   private router = inject(Router);
   private destroyRef = inject(DestroyRef);
   private toast = inject(ToastMessageService);
+  private currencyService = inject(CurrencyService);
   private supplierService = inject(SupplierService);
   private fb = inject(FormBuilder);
 
   loading = signal(true);
+  allSuppliers = signal<{ label: string; value: number }[]>([]);
   stats = signal<SupplierStats | null>(null);
   payments = signal<SupplierPayment[]>([]);
   productPrices = signal<SupplierProductPrice[]>([]);
@@ -83,6 +86,16 @@ export class AdminSupplierDetailComponent implements OnInit {
   activeTab = signal(0);
   selectedPeriod = signal<'3m' | '6m' | '1y' | '5y' | 'all'>('3m');
   selectedProductName = signal<string | null>(null);
+  globalPriceHistory = signal<ProductPriceHistoryPoint[]>([]);
+  loadingProductHistory = signal(false);
+
+  private selectedProductId = computed(() => {
+    const name = this.selectedProductName();
+    if (!name) return null;
+    return this.productPrices().find(p => p.product_name === name)?.product_id ?? null;
+  });
+
+  private productId$ = toObservable(this.selectedProductId);
 
   paymentMethods = [
     { label: 'Espèce', value: 'espece' },
@@ -97,7 +110,7 @@ export class AdminSupplierDetailComponent implements OnInit {
     notes: ['']
   });
 
-  supplierId = computed(() => Number(this.route.snapshot.paramMap.get('id')));
+  supplierId = signal<number>(Number(this.route.snapshot.paramMap.get('id')));
 
   private periodCutoff = computed((): Date | null => {
     const period = this.selectedPeriod();
@@ -116,23 +129,32 @@ export class AdminSupplierDetailComponent implements OnInit {
     return this.purchaseOrders().filter(o => new Date(o.created_at) >= cutoff);
   });
 
-  private filteredPrices = computed(() => {
-    const cutoff = this.periodCutoff();
-    if (!cutoff) return this.productPrices();
-    return this.productPrices().filter(p => new Date(p.date) >= cutoff);
-  });
-
-  private filteredPayments = computed(() => {
-    const cutoff = this.periodCutoff();
-    if (!cutoff) return this.payments();
-    return this.payments().filter(p => new Date(p.payment_date) >= cutoff);
-  });
-
   availableProducts = computed(() =>
     [...new Set(this.productPrices().map(p => p.product_name))]
       .sort()
       .map(n => ({ label: n, value: n }))
   );
+
+  private readonly supplierPalette = [
+    '#6366f1', '#22c55e', '#ef4444', '#eab308',
+    '#0ea5e9', '#8b5cf6', '#ec4899', '#f97316', '#14b8a6'
+  ];
+
+  private supplierColorMap = computed((): Map<string, string> => {
+    const names = [...new Set(this.globalPriceHistory().map(p => p.supplier_name))].sort();
+    const map = new Map<string, string>();
+    names.forEach((name, i) => map.set(name, this.supplierPalette[i % this.supplierPalette.length]));
+    return map;
+  });
+
+  private sortedGlobalHistory = computed(() =>
+    [...this.globalPriceHistory()].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+  );
+
+  private globalPricePointColors = computed((): string[] => {
+    const colorMap = this.supplierColorMap();
+    return this.sortedGlobalHistory().map(p => colorMap.get(p.supplier_name) ?? '#6366f1');
+  });
 
   timelineChartData = computed((): LineChartDataPoint[] =>
     [...this.filteredOrders()]
@@ -143,64 +165,157 @@ export class AdminSupplierDetailComponent implements OnInit {
       }))
   );
 
-  topProductsChartData = computed((): BarChartDataPoint[] => {
-    const productMap = new Map<string, number>();
-    for (const p of this.filteredPrices()) {
-      productMap.set(p.product_name, (productMap.get(p.product_name) ?? 0) + p.unit_price * p.quantity_received);
-    }
-    return Array.from(productMap.entries())
-      .map(([label, value]) => ({ label, value }))
-      .sort((a, b) => b.value - a.value)
-      .slice(0, 5);
+  dualAxisChartData = computed(() => {
+    const history = this.sortedGlobalHistory();
+    const colorMap = this.supplierColorMap();
+    const toRgba = (hex: string, alpha: number) => {
+      const r = parseInt(hex.slice(1, 3), 16);
+      const g = parseInt(hex.slice(3, 5), 16);
+      const b = parseInt(hex.slice(5, 7), 16);
+      return `rgba(${r},${g},${b},${alpha})`;
+    };
+    const perPointColors = history.map(p => colorMap.get(p.supplier_name) ?? '#6366f1');
+
+    return {
+      labels: history.map(p => [
+        new Date(p.date).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: '2-digit' }),
+        p.supplier_name.length > 14 ? p.supplier_name.slice(0, 13) + '…' : p.supplier_name
+      ]),
+      datasets: [
+        {
+          type: 'line',
+          label: 'Prix',
+          data: history.map(p => p.unit_price),
+          yAxisID: 'yPrice',
+          borderColor: '#22c55e',
+          backgroundColor: 'rgba(34,197,94,0.08)',
+          fill: true,
+          tension: 0.4,
+          pointBackgroundColor: perPointColors,
+          pointBorderColor: '#ffffff',
+          pointHoverBackgroundColor: '#ffffff',
+          pointHoverBorderColor: perPointColors,
+          pointRadius: 7,
+          pointHoverRadius: 9,
+          order: 1
+        },
+        {
+          type: 'bar',
+          label: 'Quantité',
+          data: history.map(p => p.quantity_received),
+          yAxisID: 'yQty',
+          backgroundColor: perPointColors.map(c => toRgba(c, 0.35)),
+          borderColor: perPointColors,
+          borderWidth: 1.5,
+          borderRadius: 4,
+          minBarLength: 4,
+          order: 2
+        }
+      ]
+    };
   });
 
-  paymentTimelineData = computed((): LineChartDataPoint[] =>
-    [...this.filteredPayments()]
-      .sort((a, b) => new Date(a.payment_date).getTime() - new Date(b.payment_date).getTime())
-      .map(p => ({
-        label: new Date(p.payment_date).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: '2-digit' }),
-        value: p.amount
-      }))
-  );
+  dualAxisChartOptions = computed(() => {
+    const currencyService = this.currencyService;
+    const tickColors = this.globalPricePointColors();
 
-  productPriceHistoryData = computed((): LineChartDataPoint[] => {
-    const name = this.selectedProductName();
-    if (!name) return [];
-    return this.filteredPrices()
-      .filter(p => p.product_name === name)
-      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-      .map(p => ({
-        label: new Date(p.date).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: '2-digit' }),
-        value: p.unit_price
-      }));
-  });
-
-  productQuantityData = computed((): BarChartDataPoint[] => {
-    const name = this.selectedProductName();
-    if (!name) return [];
-    return this.filteredPrices()
-      .filter(p => p.product_name === name)
-      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-      .map(p => ({
-        label: new Date(p.date).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: '2-digit' }),
-        value: p.quantity_received
-      }));
-  });
-
-  productOrderCostData = computed((): BarChartDataPoint[] => {
-    const name = this.selectedProductName();
-    if (!name) return [];
-    return this.filteredPrices()
-      .filter(p => p.product_name === name)
-      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-      .map(p => ({
-        label: new Date(p.date).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: '2-digit' }),
-        value: Math.round(p.unit_price * p.quantity_received)
-      }));
+    return {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: 'rgba(0,0,0,0.8)',
+          titleFont: { size: 14, weight: 'bold' },
+          bodyFont: { size: 13 },
+          padding: 12,
+          cornerRadius: 8,
+          displayColors: false,
+          callbacks: {
+            label: (context: { dataset: { yAxisID: string }; raw: number }) => {
+              if (context.dataset.yAxisID === 'yPrice') {
+                return currencyService.formatCurrency(context.raw);
+              }
+              return context.raw.toLocaleString() + ' u.';
+            }
+          }
+        },
+        datalabels: { display: false }
+      },
+      scales: {
+        x: {
+          grid: { display: false },
+          ticks: {
+            font: { size: 12 },
+            maxRotation: 45,
+            minRotation: 0,
+            color: (context: { index: number }) => tickColors[context.index] ?? 'rgba(100,100,100,0.8)'
+          }
+        },
+        yPrice: {
+          type: 'linear',
+          position: 'left',
+          beginAtZero: false,
+          grid: { color: 'rgba(0,0,0,0.05)' },
+          ticks: {
+            font: { size: 12 },
+            callback: (value: number) => {
+              if (value >= 1000000) return (value / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
+              if (value >= 1000) return (value / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
+              return value.toString();
+            }
+          }
+        },
+        yQty: {
+          type: 'linear',
+          position: 'right',
+          beginAtZero: true,
+          grid: { drawOnChartArea: false },
+          ticks: {
+            font: { size: 12 },
+            color: 'rgba(100,100,100,0.8)',
+            callback: (value: number) => value % 1 === 0 ? value.toString() : ''
+          }
+        }
+      },
+      interaction: {
+        intersect: false,
+        mode: 'index'
+      },
+      animation: {
+        duration: 400,
+        easing: 'easeOutQuart'
+      }
+    };
   });
 
   ngOnInit(): void {
-    this.loadAll();
+    this.supplierService.getSuppliers(false).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(
+      suppliers => this.allSuppliers.set(suppliers.map(s => ({ label: s.name, value: s.id })))
+    );
+
+    this.route.paramMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(params => {
+      const id = Number(params.get('id'));
+      this.supplierId.set(id);
+      this.selectedProductName.set(null);
+      this.globalPriceHistory.set([]);
+      this.loadAll();
+    });
+
+    this.productId$.pipe(
+      switchMap(productId => {
+        if (!productId) return of([] as ProductPriceHistoryPoint[]);
+        this.loadingProductHistory.set(true);
+        return this.supplierService.getProductPriceHistory(productId);
+      }),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
+      next: data => {
+        this.globalPriceHistory.set(data);
+        this.loadingProductHistory.set(false);
+      },
+      error: () => this.loadingProductHistory.set(false)
+    });
   }
 
   loadAll(): void {
@@ -281,6 +396,10 @@ export class AdminSupplierDetailComponent implements OnInit {
           this.toast.showError('admin.suppliers.payment_error');
         }
       });
+  }
+
+  switchSupplier(id: number): void {
+    this.router.navigate([RouteHelpers.adminSupplierDetail(id)]);
   }
 
   goBack(): void {

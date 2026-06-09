@@ -12,13 +12,20 @@
         </div>
         <div class="title-text">
           <div class="flex align-items-center gap-2">
+            <p-select
+              [options]="allSuppliers()"
+              optionLabel="label"
+              optionValue="value"
+              [ngModel]="supplierId()"
+              (ngModelChange)="switchSupplier($event)"
+              [filter]="true"
+              filterBy="label"
+              appendTo="body"
+              styleClass="supplier-switcher font-bold text-xl" />
             @if (stats(); as s) {
-              <h1>{{ s.supplier.name }}</h1>
               <p-tag
                 [value]="s.supplier.is_active ? ('common.active' | translate) : ('common.inactive' | translate)"
                 [severity]="s.supplier.is_active ? 'success' : 'danger'" />
-            } @else {
-              <h1>{{ 'admin.suppliers.detail' | translate }}</h1>
             }
           </div>
           @if (stats(); as s) {
@@ -157,45 +164,21 @@
                     </div>
                   </div>
 
-                  <!-- Top full-width chart -->
+                  <!-- Chart -->
                   <div>
                     <div class="text-xs font-semibold text-secondary mb-1 uppercase" style="letter-spacing:0.05em">
                       {{ (selectedProductName() ? 'admin.suppliers.analytics.price_evolution' : 'admin.suppliers.analytics.purchases_over_time') | translate }}
                     </div>
-                    <div style="height:250px;">
+                    <div class="dual-axis-chart" style="height:420px;">
                       @if (selectedProductName()) {
-                        <app-line-chart [data]="productPriceHistoryData()" [formatAsCurrency]="true" [fill]="true" color="success" />
+                        @if (loadingProductHistory()) {
+                          <div class="skeleton" style="width:100%;height:100%;border-radius:8px;"></div>
+                        } @else {
+                          <p-chart type="bar" [data]="dualAxisChartData()" [options]="dualAxisChartOptions()"></p-chart>
+                        }
                       } @else {
                         <app-line-chart [data]="timelineChartData()" [formatAsCurrency]="true" [fill]="true" color="primary" />
                       }
-                    </div>
-                  </div>
-
-                  <!-- Two bottom charts 50/50 -->
-                  <div class="grid m-0" style="gap:0">
-                    <div class="col-6" style="padding-left:0; padding-right:0.5rem;">
-                      <div class="text-xs font-semibold text-secondary mb-1 uppercase" style="letter-spacing:0.05em">
-                        {{ (selectedProductName() ? 'admin.suppliers.analytics.quantities' : 'admin.suppliers.analytics.top_products') | translate }}
-                      </div>
-                      <div style="height:230px;">
-                        @if (selectedProductName()) {
-                          <app-bar-chart [data]="productQuantityData()" [formatAsCurrency]="false" color="info" />
-                        } @else {
-                          <app-bar-chart [data]="topProductsChartData()" [horizontal]="true" color="mixed" [formatAsCurrency]="true" />
-                        }
-                      </div>
-                    </div>
-                    <div class="col-6" style="padding-left:0.5rem; padding-right:0;">
-                      <div class="text-xs font-semibold text-secondary mb-1 uppercase" style="letter-spacing:0.05em">
-                        {{ (selectedProductName() ? 'admin.suppliers.analytics.order_cost' : 'admin.suppliers.analytics.payments_history') | translate }}
-                      </div>
-                      <div style="height:230px;">
-                        @if (selectedProductName()) {
-                          <app-bar-chart [data]="productOrderCostData()" [formatAsCurrency]="true" color="warning" />
-                        } @else {
-                          <app-line-chart [data]="paymentTimelineData()" [formatAsCurrency]="true" [fill]="true" color="success" />
-                        }
-                      </div>
                     </div>
                   </div>
 

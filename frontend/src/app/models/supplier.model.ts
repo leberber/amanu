@@ -82,3 +82,13 @@ export interface SupplierPurchaseOrder {
   delivered_at?: string;
   item_count: number;
 }
+
+export interface ProductPriceHistoryPoint {
+  date: string;
+  unit_price: number;
+  quantity_received: number;
+  supplier_id: number | null;
+  supplier_name: string;
+  purchase_order_id: number;
+  purchase_order_reference: string;
+}

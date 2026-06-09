@@ -1,2 +1,35 @@
 // Supplier detail page — minimal custom styles
 // Layout handled by PrimeNG utilities
+
+::ng-deep .supplier-switcher.p-select {
+  border: none;
+  background: transparent;
+  box-shadow: none;
+  padding: 0;
+
+  &:hover, &.p-focus {
+    border: none;
+    box-shadow: none;
+    background: rgba(0, 0, 0, 0.04);
+    border-radius: var(--border-radius);
+  }
+
+  .p-select-label {
+    font-size: 1.5rem;
+    font-weight: 700;
+    padding: 0.25rem 0.5rem;
+    color: var(--text-color);
+  }
+
+  .p-select-dropdown {
+    color: var(--text-color-secondary);
+  }
+}
+
+::ng-deep .dual-axis-chart {
+  p-chart {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+}
