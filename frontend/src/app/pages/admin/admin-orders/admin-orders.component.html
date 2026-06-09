@@ -1,317 +1,134 @@
-<!-- src/app/pages/admin/admin-orders/admin-orders.component.html -->
 <app-agroclik-page-container>
 
-  <!-- Top Section: Header + Filters -->
-  <div pageTop [class.initialized]="tableInitialized()">
-    <!-- Page Header -->
-    <div class="admin-list-header animate-item" style="--item-delay: 0ms;">
-      <div class="header-title">
-        <div class="admin-icon-wrapper">
-          <div class="icon-bg"></div>
-          <div class="icon-circle">
-            <i class="pi pi-shopping-cart"></i>
-          </div>
-        </div>
-        <div class="title-text">
-          <h1>{{ 'admin.orders.title' | translate }}</h1>
-          <p>{{ 'admin.orders.subtitle' | translate }}</p>
-        </div>
+  <!-- PAGE HEADER -->
+  <div pageTop>
+    <div class="flex align-items-center justify-content-between gap-3 mb-3">
+      <div>
+        <h2 class="text-xl font-bold text-900 m-0">{{ 'admin.orders.title' | translate }}</h2>
+        <p class="text-sm text-500 m-0 mt-1">{{ allOrders().length }} {{ 'admin.orders.orders' | translate }}</p>
+      </div>
+      <div class="flex gap-2">
+        <p-button icon="pi pi-refresh" [rounded]="true" [text]="true" severity="secondary"
+                  (onClick)="loadAllOrders()" [pTooltip]="'admin.orders.refresh' | translate" />
       </div>
     </div>
 
-    <!-- Status Segmented Control -->
-    <div class="flex align-items-center justify-content-between gap-3 flex-wrap mb-4 md:mb-4 segment-wrapper animate-item" style="--item-delay: 50ms;">
-      <div class="segment-control segment-control--glass">
-        <button
-          class="segment-control__item"
-          [class.active]="statusFilter === 'all'"
-          (click)="onStatusFilterChange('all')">
-          <span>{{ 'common.all' | translate }}</span>
-          <span class="count">{{ allOrders().length }}</span>
-        </button>
-        <button
-          class="segment-control__item"
-          [class.active]="statusFilter === 'pending'"
-          (click)="onStatusFilterChange('pending')">
-          <span>{{ 'admin.orders.status.pending' | translate }}</span>
-          <span class="count pending">{{ pendingCount() }}</span>
-        </button>
-        <button
-          class="segment-control__item"
-          [class.active]="statusFilter === 'confirmed'"
-          (click)="onStatusFilterChange('confirmed')">
-          <span>{{ 'admin.orders.status.confirmed' | translate }}</span>
-          <span class="count confirmed">{{ confirmedCount() }}</span>
-        </button>
-        <button
-          class="segment-control__item"
-          [class.active]="statusFilter === 'in_transit'"
-          (click)="onStatusFilterChange('in_transit')">
-          <span>{{ 'admin.orders.status.in_transit' | translate }}</span>
-          <span class="count shipped">{{ inTransitCount() }}</span>
-        </button>
-        <button
-          class="segment-control__item"
-          [class.active]="statusFilter === 'delivered'"
-          (click)="onStatusFilterChange('delivered')">
-          <span>{{ 'admin.orders.status.delivered' | translate }}</span>
-          <span class="count delivered">{{ deliveredCount() }}</span>
-        </button>
-        <button
-          class="segment-control__item"
-          [class.active]="statusFilter === 'cancelled'"
-          (click)="onStatusFilterChange('cancelled')">
-          <span>{{ 'admin.orders.status.cancelled' | translate }}</span>
-          <span class="count cancelled">{{ cancelledCount() }}</span>
-        </button>
-      </div>
+    <!-- Status Filter -->
+    <div class="flex gap-2 flex-wrap mb-3">
+      <p-button size="small" [label]="('common.all' | translate) + ' (' + allOrders().length + ')'"
+                [severity]="statusFilter === 'all' ? 'primary' : 'secondary'" [outlined]="statusFilter !== 'all'"
+                (onClick)="onStatusFilterChange('all')" />
+      <p-button size="small" [label]="('admin.orders.status.pending' | translate) + ' (' + pendingCount() + ')'"
+                [severity]="statusFilter === 'pending' ? 'warn' : 'secondary'" [outlined]="statusFilter !== 'pending'"
+                (onClick)="onStatusFilterChange('pending')" />
+      <p-button size="small" [label]="('admin.orders.status.confirmed' | translate) + ' (' + confirmedCount() + ')'"
+                [severity]="statusFilter === 'confirmed' ? 'info' : 'secondary'" [outlined]="statusFilter !== 'confirmed'"
+                (onClick)="onStatusFilterChange('confirmed')" />
+      <p-button size="small" [label]="('admin.orders.status.in_transit' | translate) + ' (' + inTransitCount() + ')'"
+                [severity]="statusFilter === 'in_transit' ? 'contrast' : 'secondary'" [outlined]="statusFilter !== 'in_transit'"
+                (onClick)="onStatusFilterChange('in_transit')" />
+      <p-button size="small" [label]="('admin.orders.status.delivered' | translate) + ' (' + deliveredCount() + ')'"
+                [severity]="statusFilter === 'delivered' ? 'success' : 'secondary'" [outlined]="statusFilter !== 'delivered'"
+                (onClick)="onStatusFilterChange('delivered')" />
+      <p-button size="small" [label]="('admin.orders.status.cancelled' | translate) + ' (' + cancelledCount() + ')'"
+                [severity]="statusFilter === 'cancelled' ? 'danger' : 'secondary'" [outlined]="statusFilter !== 'cancelled'"
+                (onClick)="onStatusFilterChange('cancelled')" />
     </div>
+
+    <!-- Search -->
+    <p-iconfield>
+      <p-inputicon styleClass="pi pi-search" />
+      <input pInputText class="w-full" [placeholder]="'common.search' | translate"
+             [ngModel]="searchQuery" (ngModelChange)="searchQuery = $event; onSearchInput()" />
+    </p-iconfield>
   </div>
 
-  <!-- Main Section: Table -->
+  <!-- TABLE -->
   <div pageMain>
     @if (loading) {
-      <app-table-skeleton
-        [columns]="skeletonColumns"
-        [rows]="6"
-        [actionCount]="2"
-      />
-    } @else if (orders().length === 0 && !hasActiveFilters()) {
-      <!-- Empty State - No Orders -->
-      <div class="empty-state animate-item" style="--item-delay: 100ms;">
-        <div class="empty-state__icon">
-          <i class="pi pi-shopping-cart"></i>
-        </div>
-        <h3 class="empty-state__title">{{ 'admin.orders.no_orders' | translate }}</h3>
-        <p class="empty-state__description">{{ 'admin.orders.orders_will_appear' | translate }}</p>
-      </div>
-    } @else {
-      <div class="table-container scrollable animate-item" [class.fullscreen]="isFullscreen()" style="--item-delay: 100ms;">
-        <div class="table-header">
-          <app-table-search
-            [(query)]="searchQuery"
-            (search)="onSearchInput()"
-            (clear)="filterItems()"
-          />
-          <div class="table-actions">
-            @if (hasActiveFilters()) {
-              <button class="clear-filters-btn" (click)="clearFilters()" [pTooltip]="'admin.orders.clear_filters' | translate">
-                <i class="pi pi-filter-slash"></i>
-              </button>
-            }
-            <button class="table-action-btn refresh-btn" (click)="loadAllOrders()" [pTooltip]="'admin.orders.refresh' | translate">
-              <i class="pi pi-refresh"></i>
-            </button>
-            <button class="table-action-btn" (click)="toggleFullscreen()" [pTooltip]="(isFullscreen() ? 'common.exit_fullscreen' : 'common.fullscreen') | translate">
-              <i [class]="isFullscreen() ? 'pi pi-window-minimize' : 'pi pi-window-maximize'"></i>
-            </button>
-            <button class="table-action-btn" (click)="tableOptionsMenu.toggle($event)" [pTooltip]="'admin.orders.table_options' | translate" tooltipPosition="left">
-              <i class="pi pi-ellipsis-v"></i>
-            </button>
-            <p-popover #tableOptionsMenu>
-              <div class="table-options-menu">
-                <div class="table-options-section">
-                  <span class="table-options-label">{{ 'admin.orders.visible_columns' | translate }}</span>
-                  <div class="table-options-columns">
-                    @for (col of columnOptions; track col.field) {
-                      <label class="column-toggle">
-                        <input
-                          type="checkbox"
-                          [checked]="col.visible"
-                          (change)="toggleColumn(col.field)">
-                        <span>{{ col.label | translate }}</span>
-                      </label>
-                    }
-                  </div>
-                </div>
-              </div>
-            </p-popover>
-          </div>
-        </div>
-
-        @if (orders().length === 0) {
-          <!-- Empty State - No Match -->
-          <div class="empty-state">
-            <div class="empty-state__icon empty-state__icon--warning">
-              <i class="pi pi-filter"></i>
-            </div>
-            <h3 class="empty-state__title">{{ 'admin.orders.no_match' | translate }}</h3>
-            <p class="empty-state__description">{{ 'admin.orders.try_adjusting' | translate }}</p>
-            <button class="btn-secondary" (click)="clearFilters()">
-              <i class="pi pi-filter-slash"></i>
-              {{ 'admin.orders.clear_filters' | translate }}
-            </button>
-          </div>
-        } @else {
-          <div class="table-wrapper"
-               appInfiniteScroll
-               [scrollThreshold]="200"
-               [disabled]="loadingMore() || !hasMore()"
-               (scrolledToBottom)="loadMoreOrders()">
-            <table class="table">
-              <thead>
-                <tr>
-                  @if (isColumnVisible('order_id')) { <th style="width: 8%">{{ 'admin.orders.table.order_id' | translate }}</th> }
-                  @if (isColumnVisible('customer')) { <th style="width: 20%">{{ 'admin.orders.table.customer' | translate }}</th> }
-                  @if (isColumnVisible('date')) { <th style="width: 12%" class="text-center">{{ 'admin.orders.table.date' | translate }}</th> }
-                  @if (isColumnVisible('status')) { <th style="width: 14%" class="text-center">{{ 'admin.orders.table.status' | translate }}</th> }
-                  @if (isColumnVisible('driver')) { <th style="width: 18%">{{ 'admin.orders.table.driver' | translate }}</th> }
-                  @if (isColumnVisible('total')) { <th style="width: 12%" class="text-center">{{ 'admin.orders.table.total' | translate }}</th> }
-                  @if (isColumnVisible('actions')) { <th style="width: 18%" class="text-center">{{ 'admin.orders.table.actions' | translate }}</th> }
-                </tr>
-              </thead>
-              <tbody>
-                @for (order of displayedOrders(); track order.id; let i = $index) {
-                  <tr class="table-row-animate clickable-row" [style.--row-delay]="((i < 10 ? i : 10) * 40) + 'ms'" (click)="openOrderDetails(order)">
-                    <!-- Order ID -->
-                    @if (isColumnVisible('order_id')) {
-                      <td>
-                        <span class="table-id">#{{ order.id }}</span>
-                      </td>
-                    }
-
-                    <!-- Customer -->
-                    @if (isColumnVisible('customer')) {
-                      <td>
-                        <div class="info-display">
-                          <span class="info-display__name">
-                            {{ order.user?.full_name || ('admin.orders.user_id' | translate) + ': ' + order.user_id }}
-                          </span>
-                          @if (order.contact_phone) {
-                            <span class="info-display__tertiary">{{ order.contact_phone | appPhone }}</span>
-                          }
-                        </div>
-                      </td>
-                    }
-
-                    <!-- Date -->
-                    @if (isColumnVisible('date')) {
-                      <td class="text-center">
-                        <span class="date-display">{{ order.created_at | appDate }}</span>
-                      </td>
-                    }
-
-                    <!-- Status - Clickable to open popover -->
-                    @if (isColumnVisible('status')) {
-                      <td class="text-center status-cell" (click)="$event.stopPropagation()">
-                        <div class="status-display"
-                             [class.editable]="canEditStatus(order.status)"
-                             (click)="canEditStatus(order.status) && openStatusPopover($event, order)">
-                          <span class="status-badge" [class]="order.status">
-                            <i [class]="getStatusIcon(order.status)"></i>
-                            {{ 'admin.orders.status.' + order.status | translate }}
-                          </span>
-                          @if (canEditStatus(order.status)) {
-                            <i class="pi pi-chevron-down edit-hint"></i>
-                          }
-                        </div>
-                      </td>
-                    }
-
-                    <!-- Driver -->
-                    @if (isColumnVisible('driver')) {
-                      <td>
-                        @if (order.driver) {
-                          <div class="info-display">
-                            <span class="info-display__name">{{ order.driver.full_name }}</span>
-                            <div class="flex align-items-center gap-2">
-                              @if (order.driver.phone) {
-                                <span class="info-display__tertiary">{{ order.driver.phone | appPhone }}</span>
-                              }
-                              @if (order.driver.vehicle_type) {
-                                <span class="vehicle-pill" [class]="order.driver.vehicle_type">
-                                  {{ 'driver.vehicle.' + order.driver.vehicle_type | translate }}
-                                </span>
-                              }
-                            </div>
-                          </div>
-                        } @else if ((order.status === 'confirmed' || order.status === 'pending') && !isPickupOrder(order)) {
-                          <button
-                            class="waiting-driver-badge waiting-driver-badge--clickable"
-                            (click)="openDriverPopover($event, order)">
-                            <i class="pi pi-clock"></i>
-                            {{ 'admin.orders.waiting_for_driver' | translate }}
-                            <i class="pi pi-chevron-down"></i>
-                          </button>
-                        } @else if (isPickupOrder(order)) {
-                          <span class="pickup-badge">
-                            <i class="pi pi-map-marker"></i>
-                            {{ 'order_summary.pickup' | translate }}
-                          </span>
-                        } @else {
-                          <span class="text-secondary">—</span>
-                        }
-                      </td>
-                    }
-
-                    <!-- Total -->
-                    @if (isColumnVisible('total')) {
-                      <td class="text-center">
-                        <span class="amount-display">{{ order.total_amount | appCurrency }}</span>
-                      </td>
-                    }
-
-                    <!-- Actions -->
-                    @if (isColumnVisible('actions')) {
-                      <td class="text-center" (click)="$event.stopPropagation()">
-                        <div class="table-cell-actions justify-content-center">
-                          <button class="action-btn view" (click)="openOrderDetails(order)" [pTooltip]="'admin.orders.view_details' | translate" tooltipPosition="top">
-                            <i class="pi pi-eye"></i>
-                          </button>
-
-                          <button class="action-btn view" (click)="printOrder(order)" [disabled]="printingOrderId() === order.id" [pTooltip]="'PDF'" tooltipPosition="top">
-                            <i [class]="printingOrderId() === order.id ? 'pi pi-spin pi-spinner' : 'pi pi-print'"></i>
-                          </button>
-
-                          <button class="action-btn" (click)="convertToFacture(order)" pTooltip="Créer une facture" tooltipPosition="top" style="color:var(--purple-500)">
-                            <i class="pi pi-receipt"></i>
-                          </button>
-
-                          <!-- Desktop only: Inline status edit button -->
-                          <button
-                            class="action-btn edit desktop-only"
-                            [class.disabled]="!canEditStatus(order.status)"
-                            [class.delivered]="order.status === 'delivered'"
-                            [class.cancelled]="order.status === 'cancelled'"
-                            [disabled]="!canEditStatus(order.status)"
-                            (click)="startEditStatus(order)"
-                            [pTooltip]="'admin.orders.change_status' | translate"
-                            tooltipPosition="top">
-                            <i class="pi pi-sync"></i>
-                          </button>
-                        </div>
-                      </td>
-                    }
-                  </tr>
-                }
-                <!-- Loading skeleton rows -->
-                @if (loadingMore()) {
-                  <app-table-loading-rows
-                    [columns]="getLoadingColumns()"
-                    [rowCount]="3"
-                    [actionCount]="3"
-                  />
-                }
-              </tbody>
-            </table>
-          </div>
-
-          <!-- Infinite Scroll Footer -->
-          <div class="table-footer">
-            <div class="results-info">
-              <span>{{ 'admin.orders.showing' | translate }} {{ displayedOrders().length }} {{ 'admin.orders.of' | translate }} {{ orders().length }} {{ 'admin.orders.orders' | translate }}</span>
-            </div>
-            @if (hasMore() && !loadingMore()) {
-              <div class="scroll-hint">
-                <i class="pi pi-angle-double-down"></i>
-                <span>{{ 'admin.orders.scroll_for_more' | translate }}</span>
-              </div>
-            }
+      <div class="flex flex-column gap-2 p-3">
+        @for (i of [1,2,3,4,5,6]; track i) {
+          <div class="surface-card border-round p-3 flex gap-4 align-items-center">
+            <div class="skeleton skeleton-text" style="width:50px"></div>
+            <div class="skeleton skeleton-text" style="width:160px"></div>
+            <div class="skeleton skeleton-text" style="width:90px"></div>
+            <div class="skeleton skeleton-badge" style="width:80px"></div>
+            <div class="skeleton skeleton-text" style="width:80px; margin-left:auto"></div>
           </div>
         }
       </div>
+    } @else if (orders().length === 0 && !hasActiveFilters()) {
+      <div class="flex flex-column align-items-center justify-content-center gap-3 py-8">
+        <i class="pi pi-shopping-cart text-5xl text-300"></i>
+        <p class="text-500 text-lg m-0">{{ 'admin.orders.no_orders' | translate }}</p>
+      </div>
+    } @else if (orders().length === 0) {
+      <div class="flex flex-column align-items-center justify-content-center gap-3 py-8">
+        <i class="pi pi-filter text-5xl text-300"></i>
+        <p class="text-500 text-lg m-0">{{ 'admin.orders.no_match' | translate }}</p>
+        <p-button label="{{ 'admin.orders.clear_filters' | translate }}" icon="pi pi-filter-slash"
+                  severity="secondary" [outlined]="true" (onClick)="clearFilters()" />
+      </div>
+    } @else {
+      <p-table [value]="orders()" styleClass="p-datatable-sm" [scrollable]="true"
+               [paginator]="true" [rows]="25" [rowsPerPageOptions]="[25, 50, 100]"
+               [showCurrentPageReport]="true"
+               currentPageReportTemplate="{{ 'admin.orders.showing' | translate }} {first}-{last} {{ 'admin.orders.of' | translate }} {totalRecords}">
+        <ng-template pTemplate="header">
+          <tr>
+            <th>#</th>
+            <th>{{ 'admin.orders.table.customer' | translate }}</th>
+            <th>{{ 'admin.orders.table.date' | translate }}</th>
+            <th>{{ 'admin.orders.table.status' | translate }}</th>
+            <th class="text-right">{{ 'admin.orders.table.total' | translate }}</th>
+            <th class="text-center">{{ 'admin.orders.table.actions' | translate }}</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-order>
+          <tr class="cursor-pointer hover:surface-100" (click)="openOrderDetails(order)">
+            <td>
+              <span class="font-semibold text-primary">#{{ order.id }}</span>
+            </td>
+            <td>
+              <div class="font-medium">{{ order.user?.full_name || order.user_id }}</div>
+              @if (order.contact_phone) {
+                <div class="text-xs text-500">{{ order.contact_phone | appPhone }}</div>
+              }
+            </td>
+            <td class="text-500 text-sm">{{ order.created_at | appDate }}</td>
+            <td>
+              <p-tag
+                [value]="'admin.orders.status.' + order.status | translate"
+                [severity]="getStatusSeverity(order.status)"
+                [rounded]="true"
+                styleClass="text-xs" />
+            </td>
+            <td class="text-right font-semibold">{{ order.total_amount | appCurrency }}</td>
+            <td (click)="$event.stopPropagation()">
+              <div class="flex gap-1 justify-content-center">
+                <p-button icon="pi pi-eye" [rounded]="true" [text]="true" severity="info"
+                          [pTooltip]="'admin.orders.view_details' | translate"
+                          (onClick)="openOrderDetails(order)" />
+                <p-button icon="pi pi-print" [rounded]="true" [text]="true" severity="secondary"
+                          [loading]="printingOrderId() === order.id"
+                          pTooltip="PDF"
+                          (onClick)="printOrder(order)" />
+                <p-button icon="pi pi-receipt" [rounded]="true" [text]="true" severity="secondary"
+                          pTooltip="Créer une facture"
+                          (onClick)="convertToFacture(order)" />
+                @if (canEditStatus(order.status)) {
+                  <p-button icon="pi pi-sync" [rounded]="true" [text]="true" severity="secondary"
+                            [pTooltip]="'admin.orders.change_status' | translate"
+                            (onClick)="openStatusPopover($event, order)" />
+                }
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
     }
   </div>
+
 </app-agroclik-page-container>
 
 <!-- Status Update Popover -->

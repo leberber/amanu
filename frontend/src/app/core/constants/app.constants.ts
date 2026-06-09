@@ -3,6 +3,18 @@
  * Contains app-level defaults, storage keys, breakpoints, pagination, and search settings
  */
 
+// Company Information
+export const COMPANY_INFO = {
+  NAME: 'AgroClik',
+  ADDRESS: "Route de l'Hôpital, Ouadhia",
+  CITY: 'Tizi Ouzou, Algérie',
+  PHONE_1: '0551 27 10 08',
+  PHONE_2: '0551 83 32 16',
+  EMAIL: 'support@agroclik.com',
+  WEBSITE: 'agroclik.com',
+  PLAY_STORE_URL: 'https://play.google.com/store/apps/details?id=com.elsuqhub.app',
+} as const;
+
 // Application Defaults
 export const DEFAULTS = {
   LANGUAGE: 'en',

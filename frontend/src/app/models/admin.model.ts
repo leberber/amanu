@@ -86,6 +86,7 @@ export interface DashboardStats {
     };
     pickup_date?: string;
     delivery_type?: string;
+    delivery_notes?: string;
     // Driver fields
     driver_id?: number;
     driver?: DriverInfo;
@@ -100,6 +101,7 @@ export interface DashboardStats {
     quantity: number;
     product_unit: string;
     image_url?: string;
+    brand_name?: string;
     pieces_per_box?: number;
     packaging_type?: string;
   }

@@ -480,7 +480,8 @@ def read_order(
                 product_unit=item.product_unit,
                 pieces_per_box=item.pieces_per_box,
                 packaging_type=item.packaging_type,
-                image_url=item.product.image_url if item.product else None
+                image_url=item.product.image_url if item.product else None,
+                brand_name=item.product.brand.name if item.product and item.product.brand else None
             )
             for item in order.items
         ]

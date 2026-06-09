@@ -236,6 +236,7 @@ class OrderItemRead(SQLModel):
     pieces_per_box: Optional[int] = None
     packaging_type: Optional[str] = None
     image_url: Optional[str] = None
+    brand_name: Optional[str] = None
 
 
 class PromotionInfo(SQLModel):

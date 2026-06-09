@@ -23,59 +23,81 @@ export const ORDER_STATUS_CONFIG = {
     icon: 'pi pi-clock',
     iconClass: 'pi-clock',
     severity: 'warn' as const,
-    color: '#f57c00',  // Orange - matches --color-pending
+    color: '#c2410c',
+    bgColor: '#fff7ed',
     label: 'order.status.pending'
   },
   [ORDER_STATUS.CONFIRMED]: {
     icon: 'pi pi-check-circle',
     iconClass: 'pi-check-circle',
     severity: 'info' as const,
-    color: '#1976d2',  // Blue - matches --color-confirmed
+    color: '#1d4ed8',
+    bgColor: '#eff6ff',
     label: 'order.status.confirmed'
   },
   [ORDER_STATUS.ASSIGNED]: {
     icon: 'pi pi-user',
     iconClass: 'pi-user',
     severity: 'info' as const,
-    color: '#7c3aed',  // Purple - driver assigned
+    color: '#6d28d9',
+    bgColor: '#f5f3ff',
     label: 'order.status.assigned'
   },
   [ORDER_STATUS.PICKED_UP]: {
     icon: 'pi pi-box',
     iconClass: 'pi-box',
     severity: 'info' as const,
-    color: '#0891b2',  // Cyan - picked up from warehouse
+    color: '#92400e',
+    bgColor: '#fef3c7',
     label: 'order.status.picked_up'
   },
   [ORDER_STATUS.IN_TRANSIT]: {
     icon: 'pi pi-truck',
     iconClass: 'pi-truck',
     severity: 'info' as const,
-    color: '#512da8',  // Purple - matches --color-shipped
+    color: '#4338ca',
+    bgColor: '#eef2ff',
     label: 'order.status.in_transit'
   },
   [ORDER_STATUS.READY]: {
     icon: 'pi pi-inbox',
     iconClass: 'pi-inbox',
     severity: 'success' as const,
-    color: '#059669',  // Green - ready for pickup
+    color: '#047857',
+    bgColor: '#ecfdf5',
     label: 'order.status.ready'
   },
   [ORDER_STATUS.DELIVERED]: {
     icon: 'pi pi-check-square',
     iconClass: 'pi-check-square',
     severity: 'success' as const,
-    color: '#2e7d32',  // Dark green - matches --color-delivered
+    color: '#15803d',
+    bgColor: '#f0fdf4',
     label: 'order.status.delivered'
   },
   [ORDER_STATUS.CANCELLED]: {
     icon: 'pi pi-times-circle',
     iconClass: 'pi-times-circle',
     severity: 'danger' as const,
-    color: '#d32f2f',  // Red - matches --color-cancelled
+    color: '#b91c1c',
+    bgColor: '#fef2f2',
     label: 'order.status.cancelled'
   }
 } as const;
+
+// Brand color palette for PDF rendering — each brand gets a distinct color
+export const BRAND_COLOR_PALETTE: Array<{ bg: string; text: string }> = [
+  { bg: '#eff6ff', text: '#1d4ed8' }, // blue
+  { bg: '#f0fdf4', text: '#15803d' }, // green
+  { bg: '#fdf4ff', text: '#7e22ce' }, // purple
+  { bg: '#fff7ed', text: '#c2410c' }, // orange
+  { bg: '#fef3c7', text: '#92400e' }, // amber
+  { bg: '#ecfdf5', text: '#065f46' }, // emerald
+  { bg: '#fef2f2', text: '#b91c1c' }, // red
+  { bg: '#f0f9ff', text: '#0369a1' }, // sky
+  { bg: '#fdf2f8', text: '#9d174d' }, // pink
+  { bg: '#fffbeb', text: '#78350f' }, // yellow
+];
 
 // Driver Order Status Transitions
 // Defines what status a driver can transition an order to from the current status

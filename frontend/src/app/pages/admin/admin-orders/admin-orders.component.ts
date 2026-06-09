@@ -271,6 +271,10 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
     return this.statusSeverity.getOrderStatusIcon(status);
   }
 
+  getStatusSeverity(status: string): 'success' | 'secondary' | 'info' | 'warn' | 'danger' | 'contrast' {
+    return this.statusSeverity.getOrderStatusSeverity(status);
+  }
+
   // Get status index for timeline visualization
   getStatusIndex(status: string, order?: Order): number {
     const statusOrder = order && this.isPickupOrder(order)

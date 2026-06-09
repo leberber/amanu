@@ -36,6 +36,7 @@
     "primeflex": "^4.0.0",
     "primeicons": "^7.0.0",
     "primeng": "^20.0.0",
+    "qrcode-generator": "^2.0.4",
     "rxjs": "~7.8.1",
     "tailwindcss-primeui": "^0.6.1",
     "tslib": "^2.6.2",
