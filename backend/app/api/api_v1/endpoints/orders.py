@@ -272,6 +272,7 @@ def create_order(
             product_name=product.name,
             product_unit=product.unit,
             pieces_per_box=product.pieces_per_box,
+            packaging_type=product.packaging_type,
             order_id=0  # Will be updated after order creation
         )
 
@@ -478,6 +479,7 @@ def read_order(
                 product_name=item.product_name,
                 product_unit=item.product_unit,
                 pieces_per_box=item.pieces_per_box,
+                packaging_type=item.packaging_type,
                 image_url=item.product.image_url if item.product else None
             )
             for item in order.items

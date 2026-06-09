@@ -10,7 +10,7 @@ import { FormsModule } from '@angular/forms';
 
 import { PageLayoutComponent } from '../../../shared/components/page-layout/page-layout.component';
 import { AdminService } from '../../../services/admin.service';
-import { Order } from '../../../models/admin.model';
+import { Order, OrderItem } from '../../../models/admin.model';
 import { DriverProfileWithFlags } from '../../../models/driver.model';
 import { StatusSeverityService } from '../../../core/services/status-severity.service';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
@@ -21,6 +21,7 @@ import { UnitPipe } from '../../../shared/pipes/unit.pipe';
 import { DateFormatPipe } from '../../../shared/pipes/date-format.pipe';
 import { DateService } from '../../../core/services/date.service';
 import { OrderPdfService } from '../../../services/order-pdf.service';
+import { PackagingTypeService } from '../../../core/services/packaging-type.service';
 import { DRIVER_STATUS } from '../../../core/constants/driver.constants';
 import { ORDER_STATUS } from '../../../core/constants/order.constants';
 
@@ -54,6 +55,7 @@ export class AdminOrderDetailComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly dateService = inject(DateService);
   private readonly orderPdf = inject(OrderPdfService);
+  private readonly packagingTypeService = inject(PackagingTypeService);
 
   // Route constant for back navigation
   readonly ROUTES = ROUTES;
@@ -255,6 +257,15 @@ export class AdminOrderDetailComponent implements OnInit {
           this.toast.showApiError(error, 'admin.orders.update_error');
         }
       });
+  }
+
+  getItemCartonCount(item: OrderItem): number {
+    return Math.floor(item.quantity / (item.pieces_per_box || 1));
+  }
+
+  getItemPackagingLabel(item: OrderItem): string {
+    const count = this.getItemCartonCount(item);
+    return this.packagingTypeService.getPackagingTypeForCount(item.packaging_type || 'carton', count);
   }
 
   // Driver loading

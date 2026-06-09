@@ -101,6 +101,7 @@ export interface DashboardStats {
     product_unit: string;
     image_url?: string;
     pieces_per_box?: number;
+    packaging_type?: string;
   }
   
   export interface UserManage {

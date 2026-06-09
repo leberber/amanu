@@ -353,7 +353,13 @@
             </div>
             <div class="order-item-card__info">
               <span class="order-item-card__name">{{ item.product_name }}</span>
-              <span class="order-item-card__qty">{{ item.quantity }} {{ item.product_unit | appUnit }} × {{ item.unit_price | appCurrency }}</span>
+              @if ((item.pieces_per_box || 1) > 1) {
+                <span class="order-item-card__qty">
+                  {{ getItemCartonCount(item) }} {{ getItemPackagingLabel(item) }} ({{ item.quantity }} {{ item.product_unit | appUnit }}) × {{ item.unit_price | appCurrency }}
+                </span>
+              } @else {
+                <span class="order-item-card__qty">{{ item.quantity }} {{ item.product_unit | appUnit }} × {{ item.unit_price | appCurrency }}</span>
+              }
             </div>
             <span class="order-item-card__total">{{ item.unit_price * item.quantity | appCurrency }}</span>
           </div>

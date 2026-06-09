@@ -43,6 +43,7 @@ class OrderItem(OrderItemBase, table=True):
     product_name: str
     product_unit: str
     pieces_per_box: Optional[int] = Field(default=None)
+    packaging_type: Optional[str] = Field(default=None)
 
     # Relationships
     order: "Order" = Relationship(back_populates="items")
@@ -233,6 +234,7 @@ class OrderItemRead(SQLModel):
     product_name: str
     product_unit: str
     pieces_per_box: Optional[int] = None
+    packaging_type: Optional[str] = None
     image_url: Optional[str] = None
 
 
