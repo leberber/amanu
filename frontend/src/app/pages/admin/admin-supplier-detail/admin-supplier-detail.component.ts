@@ -85,7 +85,7 @@ export class AdminSupplierDetailComponent implements OnInit {
   deletingPaymentId = signal<number | null>(null);
 
   activeTab = signal(0);
-  selectedPeriod = signal<'3m' | '6m' | '1y' | '5y' | 'all'>('all');
+  selectedPeriod = signal<'3m' | '6m' | '1y' | '5y' | 'all'>('3m');
   selectedProductName = signal<string | null>(null);
 
   paymentMethods = [

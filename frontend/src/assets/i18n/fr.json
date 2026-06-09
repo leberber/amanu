@@ -1,5 +1,6 @@
 {
   "common": {
+    "no_data": "Aucune donnée disponible",
     "welcome": "Bienvenue",
     "home": "Accueil",
     "products": "Produits",
