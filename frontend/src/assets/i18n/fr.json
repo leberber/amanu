@@ -2634,8 +2634,9 @@
     "email_us": "Envoyez-nous un Email",
     "call_us": "Appelez-Nous",
     "whatsapp": "WhatsApp",
+    "address": "Notre Adresse",
     "hours": "Heures d'Ouverture",
-    "hours_value": "Lun-Ven: 8h - 18h",
+    "hours_value": "Tous les jours: 8h - 17h",
     "success_title": "Message Envoyé",
     "success_message": "Merci pour votre message. Nous vous répondrons bientôt !"
   },

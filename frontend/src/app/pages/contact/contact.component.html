@@ -6,9 +6,9 @@
   [backRoute]="routes.PRODUCTS"
   [fullscreen]="true">
 
-  <div class="contact-grid">
+  <div class="grid">
     <!-- Contact Form -->
-    <div class="contact-form-section">
+    <div class="col-12 lg:col-7">
       <div class="card card--no-hover">
         <div class="card-header">
           <div class="card-header__icon card-header__icon--primary">
@@ -19,9 +19,9 @@
           </div>
         </div>
         <div class="card-body">
-          <form (ngSubmit)="onSubmit()" class="contact-form">
-            <div class="form-field">
-              <label for="name" class="form-field__label">{{ 'contact.name' | translate }}</label>
+          <form (ngSubmit)="onSubmit()" class="flex flex-column gap-4">
+            <div class="flex flex-column gap-2">
+              <label for="name" class="font-medium text-color">{{ 'contact.name' | translate }}</label>
               <input
                 pInputText
                 id="name"
@@ -33,8 +33,8 @@
               />
             </div>
 
-            <div class="form-field">
-              <label for="email" class="form-field__label">{{ 'contact.email' | translate }}</label>
+            <div class="flex flex-column gap-2">
+              <label for="email" class="font-medium text-color">{{ 'contact.email' | translate }}</label>
               <input
                 pInputText
                 id="email"
@@ -47,8 +47,8 @@
               />
             </div>
 
-            <div class="form-field">
-              <label for="subject" class="form-field__label">{{ 'contact.subject' | translate }}</label>
+            <div class="flex flex-column gap-2">
+              <label for="subject" class="font-medium text-color">{{ 'contact.subject' | translate }}</label>
               <input
                 pInputText
                 id="subject"
@@ -60,8 +60,8 @@
               />
             </div>
 
-            <div class="form-field">
-              <label for="message" class="form-field__label">{{ 'contact.message' | translate }}</label>
+            <div class="flex flex-column gap-2">
+              <label for="message" class="font-medium text-color">{{ 'contact.message' | translate }}</label>
               <textarea
                 pTextarea
                 id="message"
@@ -87,50 +87,67 @@
     </div>
 
     <!-- Contact Info -->
-    <div class="contact-info-section">
-      <!-- Email Card -->
-      <div class="contact-card">
-        <div class="contact-card__icon contact-card__icon--primary">
+    <div class="col-12 lg:col-5">
+    <div class="flex flex-column gap-3">
+
+      <!-- Email -->
+      <div class="surface-card border-round-xl p-4 flex align-items-center gap-3 shadow-1">
+        <div class="card-header__icon card-header__icon--primary flex-shrink-0">
           <i class="pi pi-envelope"></i>
         </div>
-        <div class="contact-card__content">
-          <h3 class="contact-card__title">{{ 'contact.email_us' | translate }}</h3>
-          <a href="mailto:support@elsuq.com" class="contact-card__link">support&#64;elsuq.com</a>
+        <div class="flex flex-column gap-1">
+          <span class="font-semibold text-color">{{ 'contact.email_us' | translate }}</span>
+          <a href="mailto:support@agroclik.com" class="text-primary no-underline hover:underline">support&#64;agroclik.com</a>
         </div>
       </div>
 
-      <!-- Phone Card -->
-      <div class="contact-card">
-        <div class="contact-card__icon contact-card__icon--success">
+      <!-- Phone -->
+      <div class="surface-card border-round-xl p-4 flex align-items-center gap-3 shadow-1">
+        <div class="card-header__icon card-header__icon--success flex-shrink-0">
           <i class="pi pi-phone"></i>
         </div>
-        <div class="contact-card__content">
-          <h3 class="contact-card__title">{{ 'contact.call_us' | translate }}</h3>
-          <a href="tel:+212500000000" class="contact-card__link">+212 5 00 00 00 00</a>
+        <div class="flex flex-column gap-1">
+          <span class="font-semibold text-color">{{ 'contact.call_us' | translate }}</span>
+          <a href="tel:+213551271008" class="text-primary no-underline hover:underline">0551 27 10 08</a>
+          <a href="tel:+213551833216" class="text-primary no-underline hover:underline">0551 83 32 16</a>
         </div>
       </div>
 
-      <!-- WhatsApp Card -->
-      <div class="contact-card">
-        <div class="contact-card__icon contact-card__icon--whatsapp">
-          <i class="pi pi-whatsapp"></i>
+      <!-- WhatsApp -->
+      <div class="surface-card border-round-xl p-4 flex align-items-center gap-3 shadow-1">
+        <div class="card-header__icon card-header__icon--success flex-shrink-0" style="background: #25D366;">
+          <i class="pi pi-whatsapp" style="color: white;"></i>
         </div>
-        <div class="contact-card__content">
-          <h3 class="contact-card__title">{{ 'contact.whatsapp' | translate }}</h3>
-          <a href="https://wa.me/212500000000" target="_blank" class="contact-card__link">+212 5 00 00 00 00</a>
+        <div class="flex flex-column gap-1">
+          <span class="font-semibold text-color">{{ 'contact.whatsapp' | translate }}</span>
+          <a href="https://wa.me/213551271008" target="_blank" class="text-primary no-underline hover:underline">0551 27 10 08</a>
         </div>
       </div>
 
-      <!-- Hours Card -->
-      <div class="contact-card">
-        <div class="contact-card__icon contact-card__icon--warning">
+      <!-- Address -->
+      <div class="surface-card border-round-xl p-4 flex align-items-center gap-3 shadow-1">
+        <div class="card-header__icon card-header__icon--info flex-shrink-0">
+          <i class="pi pi-map-marker"></i>
+        </div>
+        <div class="flex flex-column gap-1">
+          <span class="font-semibold text-color">{{ 'contact.address' | translate }}</span>
+          <span class="text-color-secondary text-sm">Route de l'Hôpital, Ouadhia</span>
+          <span class="text-color-secondary text-sm">Tizi Ouzou, Algérie</span>
+        </div>
+      </div>
+
+      <!-- Hours -->
+      <div class="surface-card border-round-xl p-4 flex align-items-center gap-3 shadow-1">
+        <div class="card-header__icon card-header__icon--warning flex-shrink-0">
           <i class="pi pi-clock"></i>
         </div>
-        <div class="contact-card__content">
-          <h3 class="contact-card__title">{{ 'contact.hours' | translate }}</h3>
-          <p class="contact-card__text">{{ 'contact.hours_value' | translate }}</p>
+        <div class="flex flex-column gap-1">
+          <span class="font-semibold text-color">{{ 'contact.hours' | translate }}</span>
+          <span class="text-color-secondary text-sm">{{ 'contact.hours_value' | translate }}</span>
         </div>
       </div>
+
+    </div>
     </div>
   </div>
 </app-page-layout>
