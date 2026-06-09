@@ -13,6 +13,7 @@ import { AgroclikPageContainerComponent } from '../../../shared/components/agroc
 import { onLanguageChange } from '../../../core/utils/language-change.util';
 import { ProductService } from '../../../services/product.service';
 import { BrandService } from '../../../core/services/brand.service';
+import { SupplierService } from '../../../core/services/supplier.service';
 import { TranslationHelperService } from '../../../core/services/translation-helper.service';
 import { UnitsService } from '../../../core/services/units.service';
 import { StockStatusService } from '../../../core/services/stock-status.service';
@@ -125,6 +126,7 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
       { field: 'brand', label: 'admin.products.table.brand', visible: !isMobile },
       { field: 'volume', label: 'admin.products.table.volume', visible: !isMobile },
       { field: 'weight', label: 'admin.products.table.weight', visible: !isMobile },
+      { field: 'tva', label: 'admin.products.table.tva', visible: !isMobile },
       { field: 'price', label: 'admin.products.table.price', visible: true },
       { field: 'stock', label: 'admin.products.table.stock', visible: true },
       { field: 'status', label: 'admin.products.table.status', visible: !isMobile },
@@ -140,6 +142,7 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
     { width: '8%', type: 'pill-sm', headerWidth: '50px' },
     { width: '6%', type: 'text', headerWidth: '50px' },
     { width: '6%', type: 'text', headerWidth: '50px' },
+    { width: '5%', type: 'text', headerWidth: '40px' },
     { width: '10%', type: 'price', headerWidth: '50px' },
     { width: '13%', type: 'stock', headerWidth: '50px' },
     { width: '10%', type: 'toggle', headerWidth: '60px' },
@@ -155,6 +158,7 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
       { type: 'pill-sm', visible: this.isColumnVisible('brand') },
       { type: 'text-sm', visible: this.isColumnVisible('volume') },
       { type: 'text-sm', visible: this.isColumnVisible('weight') },
+      { type: 'text-sm', visible: this.isColumnVisible('tva') },
       { type: 'text-sm', visible: this.isColumnVisible('price') },
       { type: 'stock', visible: this.isColumnVisible('stock') },
       { type: 'toggle', visible: this.isColumnVisible('status') },
@@ -165,6 +169,7 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
   // Services
   private productService = inject(ProductService);
   private brandService = inject(BrandService);
+  private supplierService = inject(SupplierService);
   private translateService = inject(TranslateService);
   private translationHelper = inject(TranslationHelperService);
   private unitsService = inject(UnitsService);
@@ -470,6 +475,29 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
 
   isEditingStock(productId: number): boolean {
     return this.stockEdit.isEditing(productId);
+  }
+
+  navigateToSupplierAnalytics(product: Product, event: Event): void {
+    event.stopPropagation();
+    this.supplierService.getProductPriceHistory(product.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (history) => {
+          const sorted = [...history]
+            .filter(h => h.supplier_id != null)
+            .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+          const latest = sorted[0];
+          if (!latest?.supplier_id) {
+            this.baseToast.showError('admin.products.no_supplier_history');
+            return;
+          }
+          this.baseRouter.navigate(
+            [RouteHelpers.adminSupplierDetail(latest.supplier_id)],
+            { queryParams: { product: this.getProductName(product) } }
+          );
+        },
+        error: () => this.baseToast.showError('admin.products.no_supplier_history')
+      });
   }
 
   hasMultiplePiecesPerBox(product: Product): boolean {

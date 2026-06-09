@@ -13,6 +13,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { SelectModule } from 'primeng/select';
 import { TextareaModule } from 'primeng/textarea';
+import { TooltipModule } from 'primeng/tooltip';
 import { TranslateModule } from '@ngx-translate/core';
 
 import { AgroclikPageContainerComponent } from '../../../shared/components/agroclik-page-container/agroclik-page-container.component';
@@ -44,6 +45,7 @@ import {
     InputNumberModule,
     SelectModule,
     TextareaModule,
+    TooltipModule,
     TranslateModule,
     AgroclikPageContainerComponent,
     BackButtonComponent,
@@ -86,6 +88,7 @@ export class AdminSupplierDetailComponent implements OnInit {
   activeTab = signal(0);
   selectedPeriod = signal<'3m' | '6m' | '1y' | '5y' | 'all'>('3m');
   selectedProductName = signal<string | null>(null);
+  stockTableExpanded = signal(false);
   globalPriceHistory = signal<ProductPriceHistoryPoint[]>([]);
   loadingProductHistory = signal(false);
   stockStats = signal<ProductStockStats | null>(null);
@@ -259,7 +262,7 @@ export class AdminSupplierDetailComponent implements OnInit {
             }
           }
         },
-        datalabels: { display: false }
+        datalabels: false
       },
       scales: {
         x: {
@@ -317,11 +320,12 @@ export class AdminSupplierDetailComponent implements OnInit {
 
     this.route.paramMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(params => {
       const id = Number(params.get('id'));
+      const productParam = this.route.snapshot.queryParamMap.get('product');
       this.supplierId.set(id);
       this.selectedProductName.set(null);
       this.globalPriceHistory.set([]);
       this.stockStats.set(null);
-      this.loadAll();
+      this.loadAll(productParam ?? undefined);
     });
 
     this.productId$.pipe(
@@ -347,7 +351,7 @@ export class AdminSupplierDetailComponent implements OnInit {
     });
   }
 
-  loadAll(): void {
+  loadAll(selectProduct?: string): void {
     this.loading.set(true);
     const id = this.supplierId();
 
@@ -364,6 +368,10 @@ export class AdminSupplierDetailComponent implements OnInit {
           this.productPrices.set(productPrices);
           this.purchaseOrders.set(purchaseOrders);
           this.loading.set(false);
+          if (selectProduct) {
+            this.activeTab.set(0);
+            this.selectedProductName.set(selectProduct);
+          }
         },
         error: () => {
           this.toast.showError('admin.suppliers.load_error');

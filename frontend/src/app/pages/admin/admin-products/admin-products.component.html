@@ -197,6 +197,7 @@
                 @if (isColumnVisible('brand')) { <th style="width: 10%" class="text-center">{{ 'admin.products.table.brand' | translate }}</th> }
                 @if (isColumnVisible('volume')) { <th style="width: 8%" class="text-center">{{ 'admin.products.table.volume' | translate }}</th> }
                 @if (isColumnVisible('weight')) { <th style="width: 8%" class="text-center">{{ 'admin.products.table.weight' | translate }}</th> }
+                @if (isColumnVisible('tva')) { <th style="width: 6%" class="text-center">{{ 'admin.products.table.tva' | translate }}</th> }
                 @if (isColumnVisible('price')) { <th style="width: 10%" class="text-center">{{ 'admin.products.table.price' | translate }}</th> }
                 @if (isColumnVisible('stock')) { <th style="width: 14%" class="text-center">{{ 'admin.products.table.stock' | translate }}</th> }
                 @if (isColumnVisible('status')) { <th style="width: 12%" class="text-center">{{ 'admin.products.table.status' | translate }}</th> }
@@ -275,6 +276,13 @@
                       } @else {
                         <span class="text-muted">-</span>
                       }
+                    </td>
+                  }
+
+                  <!-- TVA -->
+                  @if (isColumnVisible('tva')) {
+                    <td class="text-center">
+                      <span class="pill">{{ (product.tva_rate ?? 0) }}%</span>
                     </td>
                   }
 
@@ -401,6 +409,9 @@
                   @if (isColumnVisible('actions')) {
                     <td class="text-center" (click)="$event.stopPropagation()">
                       <div class="table-cell-actions justify-content-center">
+                        <button class="action-btn" (click)="navigateToSupplierAnalytics(product, $event)" [pTooltip]="'admin.products.supplier_analytics' | translate" tooltipPosition="top">
+                          <i class="pi pi-chart-line"></i>
+                        </button>
                         <button class="action-btn view" (click)="viewProduct(product)" [pTooltip]="'common.view' | translate" tooltipPosition="top">
                           <i class="pi pi-eye"></i>
                         </button>
