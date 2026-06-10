@@ -1600,6 +1600,7 @@
         "weight": "Poids",
         "tva": "TVA",
         "price": "Prix",
+        "purchase_price": "Prix d'achat",
         "profit": "Marge",
         "stock": "Stock",
         "availability": "Disponibilité",

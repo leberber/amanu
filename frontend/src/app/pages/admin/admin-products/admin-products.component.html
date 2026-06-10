@@ -199,6 +199,7 @@
                 @if (isColumnVisible('weight')) { <th style="width: 8%" class="text-center">{{ 'admin.products.table.weight' | translate }}</th> }
                 @if (isColumnVisible('tva')) { <th style="width: 6%" class="text-center">{{ 'admin.products.table.tva' | translate }}</th> }
                 @if (isColumnVisible('price')) { <th style="width: 10%" class="text-center">{{ 'admin.products.table.price' | translate }}</th> }
+                @if (isColumnVisible('purchase_price')) { <th style="width: 12%" class="text-center">{{ 'admin.products.table.purchase_price' | translate }}</th> }
                 @if (isColumnVisible('profit')) { <th style="width: 10%" class="text-center">{{ 'admin.products.table.profit' | translate }}</th> }
                 @if (isColumnVisible('stock')) { <th style="width: 14%" class="text-center">{{ 'admin.products.table.stock' | translate }}</th> }
                 @if (isColumnVisible('status')) { <th style="width: 12%" class="text-center">{{ 'admin.products.table.status' | translate }}</th> }
@@ -312,6 +313,24 @@
                         </button>
                       </div>
                     }
+                    </td>
+                  }
+
+                  <!-- Purchase Price (CMUP tiers) -->
+                  @if (isColumnVisible('purchase_price')) {
+                    <td class="text-center" (click)="$event.stopPropagation()">
+                      @if (getPriceTiers(product.id); as tiers) {
+                        <div class="flex flex-column align-items-center gap-1">
+                          @for (tier of tiers; track tier.unit_price) {
+                            <div class="flex align-items-center gap-1 text-xs">
+                              <span class="font-semibold" style="white-space:nowrap;">{{ tier.unit_price | appCurrency }}</span>
+                              <span class="text-color-secondary" style="white-space:nowrap;">× {{ tier.total_cartons }}</span>
+                            </div>
+                          }
+                        </div>
+                      } @else {
+                        <span class="text-muted">—</span>
+                      }
                     </td>
                   }
 

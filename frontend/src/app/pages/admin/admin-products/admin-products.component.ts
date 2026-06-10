@@ -14,7 +14,7 @@ import { onLanguageChange } from '../../../core/utils/language-change.util';
 import { ProductService } from '../../../services/product.service';
 import { BrandService } from '../../../core/services/brand.service';
 import { SupplierService } from '../../../core/services/supplier.service';
-import { PurchaseOrderService } from '../../../services/purchase-order.service';
+import { PurchaseOrderService, PriceTier } from '../../../services/purchase-order.service';
 import { TranslationHelperService } from '../../../core/services/translation-helper.service';
 import { UnitsService } from '../../../core/services/units.service';
 import { StockStatusService } from '../../../core/services/stock-status.service';
@@ -100,6 +100,7 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
 
   // CMUP (weighted average cost) per product
   cmupMap = signal<Record<number, number>>({});
+  priceTiersMap = signal<Record<number, PriceTier[]>>({});
 
   // Inline editing state
   priceEdit = new InlineEditState<number>(0);
@@ -126,12 +127,13 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
     return [
       { field: 'image', label: 'admin.products.table.image', visible: !isMobile },
       { field: 'name', label: 'admin.products.table.product_name', visible: true },
-      { field: 'category', label: 'admin.products.table.category', visible: !isMobile },
+      { field: 'category', label: 'admin.products.table.category', visible: false },
       { field: 'brand', label: 'admin.products.table.brand', visible: !isMobile },
-      { field: 'volume', label: 'admin.products.table.volume', visible: !isMobile },
-      { field: 'weight', label: 'admin.products.table.weight', visible: !isMobile },
+      { field: 'volume', label: 'admin.products.table.volume', visible: false },
+      { field: 'weight', label: 'admin.products.table.weight', visible: false },
       { field: 'tva', label: 'admin.products.table.tva', visible: !isMobile },
       { field: 'price', label: 'admin.products.table.price', visible: true },
+      { field: 'purchase_price', label: 'admin.products.table.purchase_price', visible: !isMobile },
       { field: 'stock', label: 'admin.products.table.stock', visible: true },
       { field: 'profit', label: 'admin.products.table.profit', visible: !isMobile },
       { field: 'status', label: 'admin.products.table.status', visible: !isMobile },
@@ -191,6 +193,7 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
     this.loadBrands();
     this.loadProducts();
     this.loadCmup();
+    this.loadPriceTiers();
     // On language change, reload to get translations
     onLanguageChange(this.translateService, this.destroyRef, () => this.loadProducts());
   }
@@ -580,8 +583,18 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
       .subscribe({ next: (data) => this.cmupMap.set(data), error: () => {} });
   }
 
+  private loadPriceTiers(): void {
+    this.purchaseOrderService.getCmupTiers()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({ next: (data) => this.priceTiersMap.set(data), error: () => {} });
+  }
+
   getCmup(productId: number): number | null {
     return this.cmupMap()[productId] ?? null;
+  }
+
+  getPriceTiers(productId: number): PriceTier[] | null {
+    return this.priceTiersMap()[productId] ?? null;
   }
 
   getProfit(product: Product): number | null {

@@ -7,6 +7,12 @@ import { StatusSeverityService } from '../core/services/status-severity.service'
 // Models
 // ============================================================================
 
+export interface PriceTier {
+  unit_price: number;       // DA/unité
+  total_cartons: number;
+  units_per_carton: number;
+}
+
 export interface PurchaseOrderItem {
   id?: number;
   product_id?: number;  // Link to products table for stock sync
@@ -178,6 +184,10 @@ export class PurchaseOrderService {
 
   getCmup(): Observable<Record<number, number>> {
     return this.api.get<Record<number, number>>('/purchase-orders/cmup');
+  }
+
+  getCmupTiers(): Observable<Record<number, PriceTier[]>> {
+    return this.api.get<Record<number, PriceTier[]>>('/purchase-orders/cmup-tiers');
   }
 
   // ---------------------------------------------------------------------------

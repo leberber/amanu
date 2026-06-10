@@ -153,6 +153,37 @@ async def get_products_cmup(
     return {row[0]: round(row[1], 2) for row in rows if row[1] is not None}
 
 
+@router.get("/cmup-tiers", response_model=dict[int, list[dict]])
+async def get_products_cmup_tiers(session: Session = Depends(get_session)):
+    """Get price tiers per product (grouped by unit price) from delivered purchase orders."""
+    rows = session.exec(
+        select(
+            PurchaseOrderItem.product_id,
+            PurchaseOrderItem.unit_price,
+            PurchaseOrderItem.units_per_carton,
+            func.sum(PurchaseOrderItem.quantity_ordered).label("total_cartons")
+        )
+        .join(PurchaseOrder, PurchaseOrderItem.purchase_order_id == PurchaseOrder.id)
+        .where(PurchaseOrder.status == PurchaseOrderStatus.DELIVERED)
+        .where(PurchaseOrderItem.product_id != None)
+        .where(PurchaseOrderItem.unit_price > 0)
+        .where(PurchaseOrderItem.units_per_carton > 0)
+        .group_by(PurchaseOrderItem.product_id, PurchaseOrderItem.unit_price, PurchaseOrderItem.units_per_carton)
+        .order_by(PurchaseOrderItem.product_id, PurchaseOrderItem.unit_price.desc())
+    ).all()
+
+    result: dict[int, list[dict]] = {}
+    for product_id, unit_price, units_per_carton, total_cartons in rows:
+        if product_id not in result:
+            result[product_id] = []
+        result[product_id].append({
+            "unit_price": round(unit_price / units_per_carton, 2),
+            "total_cartons": int(total_cartons),
+            "units_per_carton": units_per_carton
+        })
+    return result
+
+
 @router.get("/{order_id}", response_model=PurchaseOrderResponse)
 async def get_purchase_order(
     order_id: int,
