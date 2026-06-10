@@ -225,8 +225,17 @@
 
                     <!-- Dual-axis chart -->
                     <div>
-                      <div class="text-xs font-semibold text-secondary mb-1 uppercase" style="letter-spacing:0.05em;">
-                        {{ 'admin.suppliers.analytics.price_evolution' | translate }}
+                      <div class="flex align-items-center gap-2 mb-1">
+                        <span class="text-xs font-semibold text-secondary uppercase" style="letter-spacing:0.05em;">
+                          {{ 'admin.suppliers.analytics.price_evolution' | translate }}
+                        </span>
+                        @if ((stockStats()?.units_per_carton ?? 0) > 1) {
+                          <p-button
+                            [label]="priceAxisMode() === 'unit' ? 'Unité' : currentPkgLabel()"
+                            severity="primary"
+                            size="small"
+                            (click)="priceAxisMode.set(priceAxisMode() === 'unit' ? 'carton' : 'unit')" />
+                        }
                       </div>
                       <div class="dual-axis-chart" style="height:calc(100vh - 435px);">
                         @if (loadingProductHistory()) {

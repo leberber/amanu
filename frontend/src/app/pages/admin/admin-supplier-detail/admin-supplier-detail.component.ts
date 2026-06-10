@@ -93,6 +93,12 @@ export class AdminSupplierDetailComponent implements OnInit {
   globalPriceHistory = signal<ProductPriceHistoryPoint[]>([]);
   loadingProductHistory = signal(false);
   stockStats = signal<ProductStockStats | null>(null);
+  priceAxisMode = signal<'carton' | 'unit'>('unit');
+
+  currentPkgLabel = computed(() => {
+    const st = this.stockStats();
+    return st ? (this.packagingLabel(st) || 'Carton') : 'Carton';
+  });
 
   private selectedProductId = computed(() => {
     const name = this.selectedProductName();
@@ -198,6 +204,8 @@ export class AdminSupplierDetailComponent implements OnInit {
 
   dualAxisChartData = computed(() => {
     const history = this.sortedGlobalHistory();
+    const st = this.stockStats();
+    const upc = this.priceAxisMode() === 'unit' && st && st.units_per_carton > 1 ? st.units_per_carton : 1;
     const colorMap = this.supplierColorMap();
     const toRgba = (hex: string, alpha: number) => {
       const r = parseInt(hex.slice(1, 3), 16);
@@ -216,7 +224,7 @@ export class AdminSupplierDetailComponent implements OnInit {
         {
           type: 'line',
           label: 'Prix',
-          data: history.map(p => p.unit_price),
+          data: history.map(p => upc > 1 ? +(p.unit_price / upc).toFixed(2) : p.unit_price),
           yAxisID: 'yPrice',
           borderColor: '#22c55e',
           backgroundColor: 'rgba(34,197,94,0.08)',
@@ -249,6 +257,10 @@ export class AdminSupplierDetailComponent implements OnInit {
   dualAxisChartOptions = computed(() => {
     const currencyService = this.currencyService;
     const tickColors = this.globalPricePointColors();
+    const st = this.stockStats();
+    const upc = this.priceAxisMode() === 'unit' && st && st.units_per_carton > 1 ? st.units_per_carton : 1;
+    const pkgLabel = st ? (this.packagingLabel(st) || 'carton') : 'carton';
+    const priceAxisTitle = upc > 1 ? 'DA/unité' : `DA/${pkgLabel}`;
 
     return {
       responsive: true,
@@ -271,7 +283,7 @@ export class AdminSupplierDetailComponent implements OnInit {
             }
           }
         },
-        datalabels: false
+        datalabels: { display: false }
       },
       scales: {
         x: {
@@ -288,7 +300,7 @@ export class AdminSupplierDetailComponent implements OnInit {
           position: 'left',
           beginAtZero: false,
           grid: { color: 'rgba(0,0,0,0.05)' },
-          title: { display: true, text: 'DA', font: { size: 11 }, color: 'rgba(100,100,100,0.8)' },
+          title: { display: true, text: priceAxisTitle, font: { size: 11 }, color: 'rgba(100,100,100,0.8)' },
           ticks: {
             font: { size: 12 },
             callback: (value: number) => {
@@ -354,6 +366,7 @@ export class AdminSupplierDetailComponent implements OnInit {
       next: ({ history, stats }) => {
         this.globalPriceHistory.set(history);
         this.stockStats.set(stats);
+        this.priceAxisMode.set('unit');
         this.loadingProductHistory.set(false);
       },
       error: () => this.loadingProductHistory.set(false)

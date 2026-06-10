@@ -4,11 +4,8 @@ import { ChartModule } from 'primeng/chart';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { CurrencyService } from '../../../core/services/currency.service';
 import { onLanguageChange } from '../../../core/utils/language-change.util';
-import Chart from 'chart.js/auto';
+import { Chart } from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
-
-// Register the datalabels plugin
-Chart.register(ChartDataLabels);
 
 export interface BarChartDataPoint {
   label: string;
@@ -65,7 +62,7 @@ const MIXED_COLORS = {
           <div class="skeleton" style="width: 100%; height: 100%; border-radius: var(--radius-md);"></div>
         </div>
       } @else if (hasData()) {
-        <p-chart type="bar" [data]="chartData()" [options]="chartOptions()"></p-chart>
+        <p-chart type="bar" [data]="chartData()" [options]="chartOptions()" [plugins]="chartPlugins"></p-chart>
       } @else {
         <div class="empty-state empty-state--compact">
           <div class="empty-state__icon">
@@ -98,6 +95,8 @@ const MIXED_COLORS = {
   `]
 })
 export class BarChartComponent implements OnInit {
+  readonly chartPlugins = [ChartDataLabels];
+
   // Inputs
   data = input.required<BarChartDataPoint[]>();
   label = input<string>('');
