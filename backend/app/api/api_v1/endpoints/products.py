@@ -510,6 +510,8 @@ class ProductStockStats(BaseModel):
     total_invoiced: int
     facture_remaining: int
     total_left: int
+    units_per_carton: int
+    packaging_type: Optional[str]
 
 
 @router.get("/{product_id}/stock-stats", response_model=ProductStockStats)
@@ -553,6 +555,8 @@ def get_product_stock_stats(
         total_invoiced=ti,
         facture_remaining=tfr - ti,
         total_left=tr - ti,
+        units_per_carton=product.pieces_per_box or 1,
+        packaging_type=product.packaging_type.value if product.packaging_type else None,
     )
 
 

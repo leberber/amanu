@@ -2011,7 +2011,8 @@
         "available_stock": "Stock disponible",
         "total_invoiced": "Total facturé",
         "facture_remaining": "Reste à facturer",
-        "total_left": "Total acheté"
+        "total_left": "Total acheté",
+        "units": "unités"
       },
       "payments": {
         "title": "paiements",

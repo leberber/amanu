@@ -14,7 +14,7 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { SelectModule } from 'primeng/select';
 import { TextareaModule } from 'primeng/textarea';
 import { TooltipModule } from 'primeng/tooltip';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { AgroclikPageContainerComponent } from '../../../shared/components/agroclik-page-container/agroclik-page-container.component';
 import { BackButtonComponent } from '../../../shared/components/back-button/back-button.component';
@@ -73,6 +73,7 @@ export class AdminSupplierDetailComponent implements OnInit {
   private currencyService = inject(CurrencyService);
   private supplierService = inject(SupplierService);
   private fb = inject(FormBuilder);
+  private translateService = inject(TranslateService);
 
   loading = signal(true);
   allSuppliers = signal<{ label: string; value: number }[]>([]);
@@ -170,20 +171,24 @@ export class AdminSupplierDetailComponent implements OnInit {
   );
 
   stockTableData = computed(() => {
-    const seen = new Map<string, number>();
+    const seen = new Map<string, { qty: number; unitsPerCarton: number; packagingType: string | null }>();
     for (const p of this.productPrices()) {
       if (!seen.has(p.product_name)) {
-        seen.set(p.product_name, p.stock_quantity);
+        seen.set(p.product_name, { qty: p.stock_quantity, unitsPerCarton: p.units_per_carton, packagingType: p.packaging_type });
       }
     }
     const items = Array.from(seen.entries())
-      .map(([name, qty]) => ({ name, qty }))
+      .map(([name, data]) => ({ name, ...data }))
       .sort((a, b) => b.qty - a.qty);
     const max = items[0]?.qty || 1;
     return items.map(item => {
       const pct = Math.round((item.qty / max) * 100);
       const color = pct > 60 ? '#22c55e' : pct > 25 ? '#f59e0b' : '#ef4444';
-      return { name: item.name, qty: item.qty, pct, color };
+      const cartons = item.unitsPerCarton > 1 ? Math.floor(item.qty / item.unitsPerCarton) : item.qty;
+      const pkgLabel = item.packagingType
+        ? this.translateService.instant(`products.product.packaging_types.${item.packagingType}`)
+        : '';
+      return { name: item.name, qty: item.qty, cartons, pkgLabel, unitsPerCarton: item.unitsPerCarton, pct, color };
     });
   });
 
@@ -475,6 +480,15 @@ export class AdminSupplierDetailComponent implements OnInit {
     if (s.balance_owed === 0) return '#4ade80';
     if (this.getOwedPercent(s) > 50) return '#f87171';
     return '#fb923c';
+  }
+
+  toCartons(units: number, st: { units_per_carton: number }): number {
+    return st.units_per_carton > 1 ? Math.floor(units / st.units_per_carton) : units;
+  }
+
+  packagingLabel(st: { packaging_type: string | null }): string {
+    if (!st.packaging_type) return '';
+    return this.translateService.instant(`products.product.packaging_types.${st.packaging_type}`);
   }
 
   getStatusSeverity(status: string): 'success' | 'warn' | 'info' | 'danger' | 'secondary' {

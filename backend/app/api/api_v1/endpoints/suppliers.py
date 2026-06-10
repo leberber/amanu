@@ -281,6 +281,8 @@ def get_supplier_product_prices(
             quantity_received=price.quantity_received,
             date=price.date,
             stock_quantity=product.stock_quantity,
+            units_per_carton=product.pieces_per_box or 1,
+            packaging_type=product.packaging_type.value if product.packaging_type else None,
         )
         for price, product, po in rows
     ]

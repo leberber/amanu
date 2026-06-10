@@ -115,6 +115,8 @@ class SupplierProductPriceResponse(BaseModel):
     quantity_received: int
     date: datetime
     stock_quantity: int = 0
+    units_per_carton: int = 1
+    packaging_type: Optional[str] = None
 
 
 # =============================================================================

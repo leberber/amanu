@@ -1999,7 +1999,8 @@
         "available_stock": "المخزون المتاح",
         "total_invoiced": "إجمالي الفواتير",
         "facture_remaining": "المتبقي للفوترة",
-        "total_left": "إجمالي المشتريات"
+        "total_left": "إجمالي المشتريات",
+        "units": "وحدات"
       },
       "payments": {
         "title": "دفعات",

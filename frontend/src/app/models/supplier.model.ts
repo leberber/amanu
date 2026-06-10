@@ -63,6 +63,8 @@ export interface SupplierProductPrice {
   quantity_received: number;
   date: string;
   stock_quantity: number;
+  units_per_carton: number;
+  packaging_type: string | null;
 }
 
 export interface ProductStockStats {
@@ -72,6 +74,8 @@ export interface ProductStockStats {
   total_invoiced: number;
   facture_remaining: number;
   total_left: number;
+  units_per_carton: number;
+  packaging_type: string | null;
 }
 
 export interface SupplierStats {
