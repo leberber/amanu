@@ -123,6 +123,36 @@ async def list_purchase_orders(
     )
 
 
+@router.get("/cmup", response_model=dict[int, float])
+async def get_products_cmup(
+    session: Session = Depends(get_session)
+):
+    """Get CMUP (weighted average cost per piece) for all products.
+    Formula: SUM(quantity_ordered * unit_price) / SUM(quantity_ordered * units_per_carton)
+    Uses P.U/pcs = unit_price / units_per_carton from delivered purchase orders.
+    """
+    rows = session.exec(
+        select(
+            PurchaseOrderItem.product_id,
+            (
+                func.sum(PurchaseOrderItem.quantity_ordered * PurchaseOrderItem.unit_price) /
+                func.nullif(
+                    func.sum(PurchaseOrderItem.quantity_ordered * PurchaseOrderItem.units_per_carton),
+                    0
+                )
+            ).label("cmup")
+        )
+        .join(PurchaseOrder, PurchaseOrderItem.purchase_order_id == PurchaseOrder.id)
+        .where(PurchaseOrder.status == PurchaseOrderStatus.DELIVERED)
+        .where(PurchaseOrderItem.product_id != None)
+        .where(PurchaseOrderItem.unit_price > 0)
+        .where(PurchaseOrderItem.units_per_carton > 0)
+        .group_by(PurchaseOrderItem.product_id)
+    ).all()
+
+    return {row[0]: round(row[1], 2) for row in rows if row[1] is not None}
+
+
 @router.get("/{order_id}", response_model=PurchaseOrderResponse)
 async def get_purchase_order(
     order_id: int,

@@ -14,6 +14,7 @@ import { onLanguageChange } from '../../../core/utils/language-change.util';
 import { ProductService } from '../../../services/product.service';
 import { BrandService } from '../../../core/services/brand.service';
 import { SupplierService } from '../../../core/services/supplier.service';
+import { PurchaseOrderService } from '../../../services/purchase-order.service';
 import { TranslationHelperService } from '../../../core/services/translation-helper.service';
 import { UnitsService } from '../../../core/services/units.service';
 import { StockStatusService } from '../../../core/services/stock-status.service';
@@ -97,6 +98,9 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
     ];
   });
 
+  // CMUP (weighted average cost) per product
+  cmupMap = signal<Record<number, number>>({});
+
   // Inline editing state
   priceEdit = new InlineEditState<number>(0);
   stockEdit = new InlineEditState<number>(0);
@@ -129,6 +133,7 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
       { field: 'tva', label: 'admin.products.table.tva', visible: !isMobile },
       { field: 'price', label: 'admin.products.table.price', visible: true },
       { field: 'stock', label: 'admin.products.table.stock', visible: true },
+      { field: 'profit', label: 'admin.products.table.profit', visible: !isMobile },
       { field: 'status', label: 'admin.products.table.status', visible: !isMobile },
       { field: 'actions', label: 'admin.products.table.actions', visible: !isMobile }
     ];
@@ -170,6 +175,7 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
   private productService = inject(ProductService);
   private brandService = inject(BrandService);
   private supplierService = inject(SupplierService);
+  private purchaseOrderService = inject(PurchaseOrderService);
   private translateService = inject(TranslateService);
   private translationHelper = inject(TranslationHelperService);
   private unitsService = inject(UnitsService);
@@ -184,6 +190,7 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
     this.loadCategories();
     this.loadBrands();
     this.loadProducts();
+    this.loadCmup();
     // On language change, reload to get translations
     onLanguageChange(this.translateService, this.destroyRef, () => this.loadProducts());
   }
@@ -565,6 +572,28 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
   filterItems(): void {
     // Reload from server with current filters
     this.loadProducts();
+  }
+
+  private loadCmup(): void {
+    this.purchaseOrderService.getCmup()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({ next: (data) => this.cmupMap.set(data), error: () => {} });
+  }
+
+  getCmup(productId: number): number | null {
+    return this.cmupMap()[productId] ?? null;
+  }
+
+  getProfit(product: Product): number | null {
+    const cmup = this.getCmup(product.id);
+    if (cmup === null) return null;
+    return product.price - cmup;
+  }
+
+  getProfitMargin(product: Product): number | null {
+    const profit = this.getProfit(product);
+    if (profit === null || product.price === 0) return null;
+    return (profit / product.price) * 100;
   }
 
   private deleteProduct(product: Product): void {

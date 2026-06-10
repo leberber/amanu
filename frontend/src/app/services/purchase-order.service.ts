@@ -176,6 +176,10 @@ export class PurchaseOrderService {
     return this.api.patch<PurchaseOrder>(`/purchase-orders/${orderId}/facture-items`, { items });
   }
 
+  getCmup(): Observable<Record<number, number>> {
+    return this.api.get<Record<number, number>>('/purchase-orders/cmup');
+  }
+
   // ---------------------------------------------------------------------------
   // Helpers (delegating to StatusSeverityService)
   // ---------------------------------------------------------------------------

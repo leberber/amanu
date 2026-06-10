@@ -199,6 +199,7 @@
                 @if (isColumnVisible('weight')) { <th style="width: 8%" class="text-center">{{ 'admin.products.table.weight' | translate }}</th> }
                 @if (isColumnVisible('tva')) { <th style="width: 6%" class="text-center">{{ 'admin.products.table.tva' | translate }}</th> }
                 @if (isColumnVisible('price')) { <th style="width: 10%" class="text-center">{{ 'admin.products.table.price' | translate }}</th> }
+                @if (isColumnVisible('profit')) { <th style="width: 10%" class="text-center">{{ 'admin.products.table.profit' | translate }}</th> }
                 @if (isColumnVisible('stock')) { <th style="width: 14%" class="text-center">{{ 'admin.products.table.stock' | translate }}</th> }
                 @if (isColumnVisible('status')) { <th style="width: 12%" class="text-center">{{ 'admin.products.table.status' | translate }}</th> }
                 @if (isColumnVisible('actions')) { <th style="width: 12%" class="text-center">{{ 'admin.products.table.actions' | translate }}</th> }
@@ -311,6 +312,22 @@
                         </button>
                       </div>
                     }
+                    </td>
+                  }
+
+                  <!-- Profit (CMUP-based) -->
+                  @if (isColumnVisible('profit')) {
+                    <td class="text-center">
+                      @if (getProfit(product) !== null) {
+                        <div class="flex flex-column align-items-center gap-1">
+                          <span [class]="getProfit(product)! >= 0 ? 'text-green-500 font-semibold' : 'text-red-500 font-semibold'">
+                            {{ getProfit(product)! | appCurrency }}
+                          </span>
+                          <span class="text-xs text-color-secondary">{{ getProfitMargin(product)! | number:'1.0-1' }}%</span>
+                        </div>
+                      } @else {
+                        <span class="text-muted">—</span>
+                      }
                     </td>
                   }
 
