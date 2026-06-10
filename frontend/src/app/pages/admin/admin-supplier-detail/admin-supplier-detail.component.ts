@@ -134,11 +134,15 @@ export class AdminSupplierDetailComponent implements OnInit {
     return this.purchaseOrders().filter(o => new Date(o.created_at) >= cutoff);
   });
 
-  availableProducts = computed(() =>
-    [...new Set(this.productPrices().map(p => p.product_name))]
-      .sort()
-      .map(n => ({ label: n, value: n }))
-  );
+  availableProducts = computed(() => {
+    const seen = new Map<string, string | undefined>();
+    for (const p of this.productPrices()) {
+      if (!seen.has(p.product_name)) seen.set(p.product_name, p.product_image ?? undefined);
+    }
+    return [...seen.entries()]
+      .sort((a, b) => a[0].localeCompare(b[0]))
+      .map(([name, image]) => ({ label: name, value: name, image }));
+  });
 
   private readonly supplierPalette = [
     '#6366f1', '#22c55e', '#ef4444', '#eab308',

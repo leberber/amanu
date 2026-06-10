@@ -26,6 +26,46 @@
   }
 }
 
+::ng-deep .product-select-dropdown.p-select {
+  height: 48px;
+  border-radius: 12px;
+  border: 1.5px solid var(--surface-border);
+  background: var(--surface-card);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  transition: border-color 0.2s, box-shadow 0.2s;
+
+  &:hover {
+    border-color: var(--primary-color);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  &.p-focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(var(--primary-color-rgb, 99,102,241), 0.15);
+  }
+
+  .p-select-label {
+    font-size: 0.9rem;
+    font-weight: 400;
+    display: flex;
+    align-items: center;
+    height: 100%;
+  }
+
+  .p-select-placeholder {
+    padding-left: 2.2rem;
+    color: var(--text-color-secondary);
+    opacity: 0.55;
+    font-weight: 400 !important;
+    font-size: 0.9rem;
+  }
+
+  .p-select-dropdown {
+    width: 3rem;
+    border-radius: 0 12px 12px 0;
+  }
+}
+
 ::ng-deep .dual-axis-chart {
   p-chart {
     display: block;
