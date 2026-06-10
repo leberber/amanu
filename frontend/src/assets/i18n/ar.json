@@ -719,6 +719,8 @@
       "timeline": {
         "order_placed": "تم تقديم الطلب",
         "order_confirmed": "تم تأكيد الطلب",
+        "driver_assigned": "تم تعيين السائق",
+        "order_picked_up": "تم استلام الطلب",
         "order_shipped": "تم شحن الطلب",
         "order_delivered": "تم تسليم الطلب",
         "order_cancelled": "تم إلغاء الطلب"

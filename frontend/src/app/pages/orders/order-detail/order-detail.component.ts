@@ -124,8 +124,14 @@ export class OrderDetailComponent implements OnInit {
     this.lightbox.closeImage();
   }
 
-  getCartonDisplay(item: { quantity: number; pieces_per_box?: number }): string {
-    return getOrderCartonDisplay(item.quantity, item.pieces_per_box);
+  getCartonDisplay(item: OrderItem): string {
+    const packagingLabel = item.packaging_type
+      ? this.translateService.instant(`products.product.packaging_types.${item.packaging_type}`)
+      : undefined;
+    const unitLabel = item.product_unit
+      ? this.translateService.instant(`units.${item.product_unit}_short`)
+      : undefined;
+    return getOrderCartonDisplay(item.quantity, item.pieces_per_box, packagingLabel, unitLabel);
   }
 
   // Private methods

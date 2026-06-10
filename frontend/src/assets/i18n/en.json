@@ -717,6 +717,8 @@
       "timeline": {
         "order_placed": "Order Placed",
         "order_confirmed": "Order Confirmed",
+        "driver_assigned": "Driver Assigned",
+        "order_picked_up": "Order Picked Up",
         "order_shipped": "Order Shipped",
         "order_delivered": "Order Delivered",
         "order_cancelled": "Order Cancelled"

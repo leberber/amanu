@@ -714,6 +714,8 @@
       "timeline": {
         "order_placed": "Commande Passée",
         "order_confirmed": "Commande Confirmée",
+        "driver_assigned": "Livreur Assigné",
+        "order_picked_up": "Commande Récupérée",
         "order_shipped": "Commande Expédiée",
         "order_delivered": "Commande Livrée",
         "order_cancelled": "Commande Annulée"

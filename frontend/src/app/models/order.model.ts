@@ -15,6 +15,7 @@ export interface OrderItem {
   quantity: number;
   product_unit: string;
   pieces_per_box?: number;
+  packaging_type?: string;
 }
 
 export interface OrderCreateItem {
