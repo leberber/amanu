@@ -9,7 +9,7 @@ from sqlalchemy import Text
 
 from app.database import get_session
 from app.models.product import Product, ProductCreate, ProductUpdate, ProductRead, ProductPromotion
-from app.models.facturation import FacturationItem
+from app.models.facturation import FacturationItem, Facturation
 from app.models.category import Category
 from app.models.promotion import Promotion, PromotionScope
 from app.models.restock import RestockItem
@@ -537,7 +537,9 @@ def get_product_stock_stats(
 
     total_invoiced = session.exec(
         select(func.coalesce(func.sum(FacturationItem.quantity), 0))
+        .join(Facturation, FacturationItem.facturation_id == Facturation.id)
         .where(FacturationItem.product_id == product_id)
+        .where(Facturation.document_type == 'facture')
     ).one()
 
     tr = int(total_received)
