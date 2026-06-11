@@ -292,6 +292,18 @@ export class AdminPurchaseOrderDetailComponent implements OnInit {
     );
   }
 
+  confirmSaveFacture(): void {
+    this.confirmationService.confirm({
+      message: 'Voulez-vous mettre à jour ce bon de commande ?',
+      header: 'Mettre à jour',
+      icon: 'pi pi-save',
+      acceptLabel: 'Mettre à jour',
+      rejectLabel: 'Annuler',
+      acceptButtonStyleClass: 'p-button-success',
+      accept: () => this.saveFactureData()
+    });
+  }
+
   saveFactureData(): void {
     const order = this.order();
     if (!order) return;

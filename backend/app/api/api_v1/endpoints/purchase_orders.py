@@ -385,7 +385,8 @@ async def update_purchase_order(
         order.total_amount = sum(item.total_price for item in order.items)
         order.updated_at = datetime.now(timezone.utc)
 
-        log_audit(session, current_user, "update_order", "purchase_order", order_id)
+        if order.status == PurchaseOrderStatus.DELIVERED:
+            log_audit(session, current_user, "update_order", "purchase_order", order_id)
         session.add(order)
         session.commit()
         session.refresh(order)
@@ -677,8 +678,9 @@ async def delete_purchase_order_item(
         # Calculate new total BEFORE deleting (exclude the item being deleted)
         new_total = sum(i.total_price for i in order.items if i.id != item_id)
 
-        log_audit(session, current_user, "delete_item", "purchase_order", order_id,
-                  {"item_id": item_id, "product_name": item.product_name})
+        if order.status == PurchaseOrderStatus.DELIVERED:
+            log_audit(session, current_user, "delete_item", "purchase_order", order_id,
+                      {"item_id": item_id, "product_name": item.product_name})
 
         # Delete the item
         session.delete(item)
@@ -712,10 +714,21 @@ async def update_facture_items(
     if not order:
         raise HTTPException(status_code=404, detail="Purchase order not found")
     from datetime import date as date_type
+    item_changes = []
     for update in data.items:
         item = session.get(PurchaseOrderItem, update.item_id)
         if not item or item.purchase_order_id != order_id:
             continue
+
+        # Capture old values before update
+        change = {"product_name": item.product_name}
+        if item.facture_quantity != update.facture_quantity:
+            change["facture_quantity"] = {"old": item.facture_quantity, "new": update.facture_quantity}
+        if item.facture_unit_price != update.facture_unit_price:
+            change["facture_unit_price"] = {"old": item.facture_unit_price, "new": update.facture_unit_price}
+        if len(change) > 1:  # more than just product_name
+            item_changes.append(change)
+
         item.facture_quantity = update.facture_quantity
         item.facture_unit_price = update.facture_unit_price
         session.add(item)
@@ -742,7 +755,8 @@ async def update_facture_items(
                         pass
                 session.add(lot)
 
-    log_audit(session, current_user, "update_facture", "purchase_order", order_id)
+    log_audit(session, current_user, "update_facture", "purchase_order", order_id,
+              {"items": item_changes} if item_changes else None)
     session.commit()
     session.refresh(order)
     return order_to_response(order)
@@ -767,8 +781,6 @@ async def delete_purchase_order(
         )
 
     try:
-        log_audit(session, current_user, "delete", "purchase_order", order_id,
-                  {"reference": order.reference})
         session.delete(order)
         session.commit()
         return {"success": True, "message": "Purchase order deleted"}
