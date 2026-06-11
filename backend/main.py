@@ -35,6 +35,7 @@ from app.models.major_road import MajorRoad  # Register model for table creation
 from app.models.purchase_order import PurchaseOrder, PurchaseOrderItem  # Register models for table creation
 from app.models.facturation import CompanySettings, Facturation, FacturationItem  # Register models for table creation
 from app.models.supplier import SupplierPayment, SupplierProductPrice  # Register models for table creation
+from app.models.product_purchase_lot import ProductPurchaseLot  # Register model for table creation
 
 app = FastAPI(
     title=settings.PROJECT_NAME,

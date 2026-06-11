@@ -47,6 +47,9 @@
                   <th style="width: 10%" class="text-center">Qté Fact.</th>
                   <th style="width: 12%" class="text-right">P. Fact./U</th>
                   @if (order()!.status === 'sent') {
+                    <th style="width: 10%" class="text-center">Refusés</th>
+                    <th style="width: 12%" class="text-center">Fabrication</th>
+                    <th style="width: 12%" class="text-center">Expiration</th>
                     <th style="width: 6%" class="text-center"></th>
                   }
                 </tr>
@@ -120,6 +123,36 @@
                         />
                       </td>
                       @if (order()!.status === 'sent') {
+                        <td class="text-center">
+                          <p-inputNumber
+                            [(ngModel)]="editableItems()[i].quantity_rejected"
+                            [min]="0"
+                            [max]="editableItems()[i].quantity_ordered"
+                            [showButtons]="false"
+                            styleClass="w-full"
+                            inputStyleClass="text-center"
+                          />
+                        </td>
+                        <td class="text-center">
+                          <p-datepicker
+                            [(ngModel)]="editableItems()[i].made_date"
+                            dateFormat="dd/mm/yy"
+                            [showButtonBar]="true"
+                            placeholder="JJ/MM/AA"
+                            styleClass="w-full"
+                            inputStyleClass="text-center text-sm"
+                          />
+                        </td>
+                        <td class="text-center">
+                          <p-datepicker
+                            [(ngModel)]="editableItems()[i].expiry_date"
+                            dateFormat="dd/mm/yy"
+                            [showButtonBar]="true"
+                            placeholder="JJ/MM/AA"
+                            styleClass="w-full"
+                            inputStyleClass="text-center text-sm"
+                          />
+                        </td>
                         <td class="text-center">
                           <button
                             class="action-btn delete"

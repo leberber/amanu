@@ -14,6 +14,7 @@ from app.models.purchase_order import (
 from app.models.product import Product, ProductUnit
 from app.models.restock import RestockItem
 from app.models.supplier import SupplierProductPrice
+from app.models.product_purchase_lot import ProductPurchaseLot
 
 
 class FactureItemUpdate(BaseModel):
@@ -123,34 +124,20 @@ async def list_purchase_orders(
     )
 
 
-@router.get("/cmup", response_model=dict[int, float])
-async def get_products_cmup(
-    session: Session = Depends(get_session)
-):
-    """Get CMUP (weighted average cost per piece) for all products.
-    Formula: SUM(quantity_ordered * unit_price) / SUM(quantity_ordered * units_per_carton)
-    Uses P.U/pcs = unit_price / units_per_carton from delivered purchase orders.
-    """
+@router.get("/current-cmup", response_model=dict[int, float])
+async def get_current_cmup(session: Session = Depends(get_session)):
+    """Get the current CMUP per product from the latest product_purchase_lot record."""
+    from sqlalchemy import text
     rows = session.exec(
-        select(
-            PurchaseOrderItem.product_id,
-            (
-                func.sum(PurchaseOrderItem.quantity_ordered * PurchaseOrderItem.unit_price) /
-                func.nullif(
-                    func.sum(PurchaseOrderItem.quantity_ordered * PurchaseOrderItem.units_per_carton),
-                    0
-                )
-            ).label("cmup")
+        text(
+            """
+            SELECT DISTINCT ON (product_id) product_id, cmup
+            FROM product_purchase_lots
+            ORDER BY product_id, created_at DESC
+            """
         )
-        .join(PurchaseOrder, PurchaseOrderItem.purchase_order_id == PurchaseOrder.id)
-        .where(PurchaseOrder.status == PurchaseOrderStatus.DELIVERED)
-        .where(PurchaseOrderItem.product_id != None)
-        .where(PurchaseOrderItem.unit_price > 0)
-        .where(PurchaseOrderItem.units_per_carton > 0)
-        .group_by(PurchaseOrderItem.product_id)
     ).all()
-
-    return {row[0]: round(row[1], 2) for row in rows if row[1] is not None}
+    return {row[0]: round(row[1], 4) for row in rows}
 
 
 @router.get("/cmup-tiers", response_model=dict[int, list[dict]])
@@ -182,6 +169,34 @@ async def get_products_cmup_tiers(session: Session = Depends(get_session)):
             "units_per_carton": units_per_carton
         })
     return result
+
+
+@router.get("/product-lots/{product_id}")
+async def get_product_lots(product_id: int, session: Session = Depends(get_session)):
+    """Get all purchase lots for a product, ordered newest first."""
+    lots = session.exec(
+        select(ProductPurchaseLot)
+        .where(ProductPurchaseLot.product_id == product_id)
+        .order_by(ProductPurchaseLot.created_at.desc())
+    ).all()
+    return [
+        {
+            "id": lot.id,
+            "purchase_order_id": lot.purchase_order_id,
+            "stock_before": lot.stock_before,
+            "quantity_added": lot.quantity_added,
+            "quantity_rejected": lot.quantity_rejected,
+            "units_per_carton": lot.units_per_carton,
+            "unit_price_per_carton": lot.unit_price_per_carton,
+            "unit_price": lot.unit_price,
+            "cmup": lot.cmup,
+            "made_date": lot.made_date.isoformat() if lot.made_date else None,
+            "expiry_date": lot.expiry_date.isoformat() if lot.expiry_date else None,
+            "created_at": lot.created_at.isoformat(),
+        }
+        for lot in lots
+    ]
+
 
 
 @router.get("/{order_id}", response_model=PurchaseOrderResponse)
@@ -454,10 +469,60 @@ async def confirm_delivery(
                         restock_item.product_id = product.id
                         session.add(restock_item)
 
-                # Update stock if product exists
+                # Update stock and record CMUP lot if product exists
                 if product:
-                    units_to_add = quantity_received * item.units_per_carton
-                    product.stock_quantity = (product.stock_quantity or 0) + units_to_add
+                    qty_rejected = delivery_item.quantity_rejected
+                    cartons_accepted = quantity_received - qty_rejected
+                    units_to_add = cartons_accepted * item.units_per_carton
+                    stock_before = float(product.stock_quantity or 0)
+                    unit_price_per_unit = (item.unit_price / item.units_per_carton) if item.units_per_carton > 0 else item.unit_price
+
+                    # Get previous CMUP from latest lot for this product
+                    last_lot = session.exec(
+                        select(ProductPurchaseLot)
+                        .where(ProductPurchaseLot.product_id == product.id)
+                        .order_by(ProductPurchaseLot.created_at.desc())
+                    ).first()
+                    prev_cmup = last_lot.cmup if last_lot else unit_price_per_unit
+
+                    # CMUP mobile formula
+                    if stock_before + units_to_add > 0:
+                        new_cmup = (stock_before * prev_cmup + units_to_add * unit_price_per_unit) / (stock_before + units_to_add)
+                    else:
+                        new_cmup = unit_price_per_unit
+
+                    # Create lot record
+                    from datetime import date as date_type
+                    made_date = None
+                    if delivery_item.made_date:
+                        try:
+                            made_date = date_type.fromisoformat(delivery_item.made_date)
+                        except ValueError:
+                            pass
+                    expiry_date = None
+                    if delivery_item.expiry_date:
+                        try:
+                            expiry_date = date_type.fromisoformat(delivery_item.expiry_date)
+                        except ValueError:
+                            pass
+
+                    lot = ProductPurchaseLot(
+                        product_id=product.id,
+                        purchase_order_id=order.id,
+                        purchase_order_item_id=item.id,
+                        stock_before=stock_before,
+                        quantity_added=float(units_to_add),
+                        quantity_rejected=qty_rejected,
+                        units_per_carton=item.units_per_carton,
+                        unit_price_per_carton=item.unit_price,
+                        unit_price=round(unit_price_per_unit, 4),
+                        cmup=round(new_cmup, 4),
+                        made_date=made_date,
+                        expiry_date=expiry_date,
+                    )
+                    session.add(lot)
+
+                    product.stock_quantity = stock_before + units_to_add
                     product.updated_at = datetime.now(timezone.utc)
                     session.add(product)
 

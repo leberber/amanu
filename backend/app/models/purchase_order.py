@@ -143,8 +143,11 @@ class DeliveryItemConfirmation(BaseModel):
     """Model for confirming delivery of a single item"""
     item_id: int
     quantity_received: int
+    quantity_rejected: int = 0
     facture_quantity: int = 0
     facture_unit_price: float = 0.0
+    made_date: Optional[str] = None    # ISO format: YYYY-MM-DD
+    expiry_date: Optional[str] = None  # ISO format: YYYY-MM-DD
 
 
 class DeliveryConfirmation(BaseModel):

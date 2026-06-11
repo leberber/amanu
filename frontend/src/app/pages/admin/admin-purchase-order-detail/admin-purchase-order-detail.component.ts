@@ -7,6 +7,7 @@ import { finalize } from 'rxjs';
 
 import { ButtonModule } from 'primeng/button';
 import { InputNumberModule } from 'primeng/inputnumber';
+import { DatePickerModule } from 'primeng/datepicker';
 import { SelectModule } from 'primeng/select';
 import { TooltipModule } from 'primeng/tooltip';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
@@ -34,6 +35,7 @@ import {
     FormsModule,
     ButtonModule,
     InputNumberModule,
+    DatePickerModule,
     SelectModule,
     TooltipModule,
     ConfirmDialogModule,
@@ -101,6 +103,9 @@ export class AdminPurchaseOrderDetailComponent implements OnInit {
       ...item,
       facture_quantity: item.facture_quantity ?? 0,
       facture_unit_price: item.facture_unit_price ?? 0,
+      quantity_rejected: 0,
+      made_date: null,
+      expiry_date: null,
     })));
   }
 
@@ -135,8 +140,11 @@ export class AdminPurchaseOrderDetailComponent implements OnInit {
       items: this.editableItems().map(item => ({
         item_id: item.id!,
         quantity_received: item.quantity_ordered,
+        quantity_rejected: item.quantity_rejected,
         facture_quantity: item.facture_quantity,
-        facture_unit_price: item.facture_unit_price
+        facture_unit_price: item.facture_unit_price,
+        made_date: item.made_date ? item.made_date.toISOString().split('T')[0] : null,
+        expiry_date: item.expiry_date ? item.expiry_date.toISOString().split('T')[0] : null
       }))
     };
 
@@ -272,4 +280,7 @@ export class AdminPurchaseOrderDetailComponent implements OnInit {
 interface EditableItem extends PurchaseOrderItem {
   facture_quantity: number;
   facture_unit_price: number;
+  quantity_rejected: number;
+  made_date: Date | null;
+  expiry_date: Date | null;
 }

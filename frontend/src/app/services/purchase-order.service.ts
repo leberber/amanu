@@ -13,6 +13,21 @@ export interface PriceTier {
   units_per_carton: number;
 }
 
+export interface ProductPurchaseLot {
+  id: number;
+  purchase_order_id: number;
+  stock_before: number;
+  quantity_added: number;
+  quantity_rejected: number;
+  units_per_carton: number;
+  unit_price_per_carton: number;
+  unit_price: number;
+  cmup: number;
+  made_date: string | null;
+  expiry_date: string | null;
+  created_at: string;
+}
+
 export interface PurchaseOrderItem {
   id?: number;
   product_id?: number;  // Link to products table for stock sync
@@ -182,13 +197,18 @@ export class PurchaseOrderService {
     return this.api.patch<PurchaseOrder>(`/purchase-orders/${orderId}/facture-items`, { items });
   }
 
-  getCmup(): Observable<Record<number, number>> {
-    return this.api.get<Record<number, number>>('/purchase-orders/cmup');
+  getCurrentCmup(): Observable<Record<number, number>> {
+    return this.api.get<Record<number, number>>('/purchase-orders/current-cmup');
   }
 
   getCmupTiers(): Observable<Record<number, PriceTier[]>> {
     return this.api.get<Record<number, PriceTier[]>>('/purchase-orders/cmup-tiers');
   }
+
+  getProductLots(productId: number): Observable<ProductPurchaseLot[]> {
+    return this.api.get<ProductPurchaseLot[]>(`/purchase-orders/product-lots/${productId}`);
+  }
+
 
   // ---------------------------------------------------------------------------
   // Helpers (delegating to StatusSeverityService)

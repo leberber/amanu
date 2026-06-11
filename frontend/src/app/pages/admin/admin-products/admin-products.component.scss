@@ -2,6 +2,17 @@
   --table-max-height: calc(100vh - 340px);
 }
 
+// Lots drawer: remove default PrimeNG drawer content padding
+:host ::ng-deep .p-drawer-content {
+  padding: 0 !important;
+  overflow: hidden !important;
+}
+
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
 // Infinite scroll footer
 .table-footer {
   .results-info {

@@ -3,6 +3,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ConfirmationService } from 'primeng/api';
 import { SelectModule } from 'primeng/select';
 import { PopoverModule } from 'primeng/popover';
+import { DrawerModule } from 'primeng/drawer';
 import { TranslateService } from '@ngx-translate/core';
 
 import { ADMIN_LIST_IMPORTS, ADMIN_DIALOG_IMPORTS } from '../../../shared/imports/admin-shared.imports';
@@ -14,7 +15,7 @@ import { onLanguageChange } from '../../../core/utils/language-change.util';
 import { ProductService } from '../../../services/product.service';
 import { BrandService } from '../../../core/services/brand.service';
 import { SupplierService } from '../../../core/services/supplier.service';
-import { PurchaseOrderService, PriceTier } from '../../../services/purchase-order.service';
+import { PurchaseOrderService, PriceTier, ProductPurchaseLot } from '../../../services/purchase-order.service';
 import { TranslationHelperService } from '../../../core/services/translation-helper.service';
 import { UnitsService } from '../../../core/services/units.service';
 import { StockStatusService } from '../../../core/services/stock-status.service';
@@ -35,6 +36,7 @@ import { BreakpointService } from '../../../core/services/breakpoint.service';
     ...ADMIN_DIALOG_IMPORTS,
     SelectModule,
     PopoverModule,
+    DrawerModule,
     TableSkeletonComponent,
     TableLoadingRowsComponent,
     InfiniteScrollDirective,
@@ -101,6 +103,12 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
   // CMUP (weighted average cost) per product
   cmupMap = signal<Record<number, number>>({});
   priceTiersMap = signal<Record<number, PriceTier[]>>({});
+
+  // Lots drawer
+  lotsProduct = signal<Product | null>(null);
+  lots = signal<ProductPurchaseLot[]>([]);
+  lotsLoading = signal(false);
+  expandedLots = signal<Set<number>>(new Set());
 
   // Inline editing state
   priceEdit = new InlineEditState<number>(0);
@@ -578,7 +586,7 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
   }
 
   private loadCmup(): void {
-    this.purchaseOrderService.getCmup()
+    this.purchaseOrderService.getCurrentCmup()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({ next: (data) => this.cmupMap.set(data), error: () => {} });
   }
@@ -607,6 +615,86 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
     const profit = this.getProfit(product);
     if (profit === null || product.price === 0) return null;
     return (profit / product.price) * 100;
+  }
+
+  openLots(product: Product, event: Event): void {
+    event.stopPropagation();
+    this.lotsProduct.set(product);
+    this.lots.set([]);
+    this.expandedLots.set(new Set());
+    this.lotsLoading.set(true);
+    this.purchaseOrderService.getProductLots(product.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (data) => { this.lots.set(data); this.lotsLoading.set(false); },
+        error: () => this.lotsLoading.set(false)
+      });
+  }
+
+  closeLots(): void {
+    this.lotsProduct.set(null);
+    this.expandedLots.set(new Set());
+  }
+
+  toggleLot(lotId: number): void {
+    this.expandedLots.update(set => {
+      const next = new Set(set);
+      next.has(lotId) ? next.delete(lotId) : next.add(lotId);
+      return next;
+    });
+  }
+
+  isLotExpanded(lotId: number): boolean {
+    return this.expandedLots().has(lotId);
+  }
+
+  getTimeToExpiry(lot: ProductPurchaseLot): { label: string; color: string; percentage: number | null } | null {
+    if (!lot.expiry_date) return null;
+
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    const expiry = new Date(lot.expiry_date); expiry.setHours(0, 0, 0, 0);
+    const diffDays = Math.ceil((expiry.getTime() - today.getTime()) / 86400000);
+
+    // Human-readable remaining time
+    let label: string;
+    if (diffDays < 0)       label = 'Expiré';
+    else if (diffDays === 0) label = "Expire aujourd'hui";
+    else if (diffDays < 30)  label = `${diffDays} jour${diffDays > 1 ? 's' : ''}`;
+    else if (diffDays < 365) label = `${Math.floor(diffDays / 30)} mois`;
+    else {
+      const y = Math.floor(diffDays / 365);
+      const m = Math.floor((diffDays % 365) / 30);
+      label = m > 0 ? `${y} an${y > 1 ? 's' : ''} ${m} mois` : `${y} an${y > 1 ? 's' : ''}`;
+    }
+
+    // If we have made_date, calculate % of lifecycle consumed
+    if (lot.made_date) {
+      const made = new Date(lot.made_date); made.setHours(0, 0, 0, 0);
+      const totalLife = expiry.getTime() - made.getTime();
+      const elapsed   = today.getTime()  - made.getTime();
+      const pct = totalLife > 0 ? Math.min(100, Math.max(0, (elapsed / totalLife) * 100)) : 100;
+
+      let color: string;
+      if (diffDays <= 0) color = '#ef4444';
+      else if (pct >= 75) color = '#ef4444';
+      else if (pct >= 50) color = '#f97316';
+      else                color = '#22c55e';
+
+      return { label, color, percentage: Math.round(pct) };
+    }
+
+    // Fallback without made_date
+    const color = diffDays <= 0 ? '#ef4444' : diffDays < 30 ? '#ef4444' : diffDays < 90 ? '#f97316' : '#22c55e';
+    return { label, color, percentage: null };
+  }
+
+  getLotCmupTrend(index: number): 'up' | 'down' | 'same' | null {
+    const prev = this.lots()[index + 1];
+    if (!prev) return null;
+    const diff = this.lots()[index].cmup - prev.cmup;
+    if (diff > 0.01) return 'up';
+    if (diff < -0.01) return 'down';
+    return 'same';
   }
 
   private deleteProduct(product: Product): void {
