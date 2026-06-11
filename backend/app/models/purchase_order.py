@@ -169,6 +169,9 @@ class PurchaseOrderItemResponse(BaseModel):
     facture_unit_price: float = 0.0
     unit_price: float
     total_price: float
+    made_date: Optional[str] = None
+    expiry_date: Optional[str] = None
+    quantity_rejected: Optional[int] = None
 
 
 class PurchaseOrderResponse(BaseModel):

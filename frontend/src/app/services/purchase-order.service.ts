@@ -49,6 +49,9 @@ export interface PurchaseOrderItem {
   facture_unit_price?: number;   // Price per unit on supplier's official invoice
   unit_price: number;
   total_price: number;
+  made_date?: string | null;
+  expiry_date?: string | null;
+  quantity_rejected?: number | null;
 }
 
 export interface PurchaseOrder {
@@ -214,7 +217,7 @@ export class PurchaseOrderService {
     return this.api.get<Record<number, PriceTier[]>>('/purchase-orders/cmup-tiers');
   }
 
-  getProductLifecycles(): Observable<Record<number, { made_date: string; expiry_date: string }>> {
+  getProductLifecycles(): Observable<Record<number, { made_date: string; expiry_date: string }[]>> {
     return this.api.get('/purchase-orders/product-lifecycles');
   }
 

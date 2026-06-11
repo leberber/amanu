@@ -1,5 +1,7 @@
 import { Component, OnInit, inject, DestroyRef, signal, computed } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Router, NavigationEnd } from '@angular/router';
+import { filter } from 'rxjs';
 import { ConfirmationService } from 'primeng/api';
 import { SelectModule } from 'primeng/select';
 import { PopoverModule } from 'primeng/popover';
@@ -103,13 +105,13 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
   // CMUP (weighted average cost) per product
   cmupMap = signal<Record<number, number>>({});
   priceTiersMap = signal<Record<number, PriceTier[]>>({});
-  lifecycleMap = signal<Record<number, { made_date: string; expiry_date: string }>>({});
+  lifecycleMap = signal<Record<number, { made_date: string; expiry_date: string }[]>>({});
 
   // Lots drawer
   lotsProduct = signal<Product | null>(null);
   lots = signal<ProductPurchaseLot[]>([]);
   lotsLoading = signal(false);
-  expandedLots = signal<Set<number>>(new Set());
+  drawerExiting = signal(false);
 
   // Inline editing state
   priceEdit = new InlineEditState<number>(0);
@@ -207,6 +209,15 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
     this.loadLifecycles();
     // On language change, reload to get translations
     onLanguageChange(this.translateService, this.destroyRef, () => this.loadProducts());
+    // Refresh lifecycle/cmup when navigating back (route is cached by RouteReuseStrategy)
+    inject(Router).events.pipe(
+      filter(e => e instanceof NavigationEnd),
+      filter((e: NavigationEnd) => e.urlAfterRedirects.includes('/admin/products')),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(() => {
+      this.loadLifecycles();
+      this.loadCmup();
+    });
   }
 
   /** Called by InfiniteScrollDirective when user scrolls near bottom */
@@ -606,38 +617,60 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
       .subscribe({ next: (data) => this.lifecycleMap.set(data), error: () => {} });
   }
 
-  getProductLifecycle(productId: number): { percentage: number; color: string; label: string } | null {
-    const lc = this.lifecycleMap()[productId];
-    if (!lc) return null;
+  getProductLifecycle(productId: number): { percentage: number; color: string; label: string; totalLabel: string }[] {
+    const lots = this.lifecycleMap()[productId];
+    if (!lots?.length) return [];
 
     const today = new Date(); today.setHours(0, 0, 0, 0);
-    const made   = new Date(lc.made_date);   made.setHours(0, 0, 0, 0);
-    const expiry = new Date(lc.expiry_date); expiry.setHours(0, 0, 0, 0);
 
-    const totalLife = expiry.getTime() - made.getTime();
-    if (totalLife <= 0) return null;
+    // Deduplicate by expiry_date
+    const seen = new Set<string>();
+    const result = [];
 
-    const elapsed  = today.getTime() - made.getTime();
-    const pct      = Math.min(100, Math.max(0, (elapsed / totalLife) * 100));
-    const diffDays = Math.ceil((expiry.getTime() - today.getTime()) / 86400000);
+    for (const lc of lots) {
+      if (seen.has(lc.expiry_date)) continue;
+      seen.add(lc.expiry_date);
 
-    let label: string;
-    if (diffDays <= 0)       label = 'Expiré';
-    else if (diffDays < 30)  label = `${diffDays}j`;
-    else if (diffDays < 365) label = `${Math.floor(diffDays / 30)} mois`;
-    else {
-      const y = Math.floor(diffDays / 365);
-      const m = Math.floor((diffDays % 365) / 30);
-      label = m > 0 ? `${y}a ${m}m` : `${y} an${y > 1 ? 's' : ''}`;
+      const made   = new Date(lc.made_date);   made.setHours(0, 0, 0, 0);
+      const expiry = new Date(lc.expiry_date); expiry.setHours(0, 0, 0, 0);
+
+      const totalLife = expiry.getTime() - made.getTime();
+      if (totalLife <= 0) continue;
+
+      const elapsed  = today.getTime() - made.getTime();
+      const pct      = Math.min(100, Math.max(0, (elapsed / totalLife) * 100));
+      const diffDays = Math.ceil((expiry.getTime() - today.getTime()) / 86400000);
+
+      let label: string;
+      if (diffDays <= 0)       label = 'Expiré';
+      else if (diffDays < 30)  label = `${diffDays}j restants`;
+      else if (diffDays < 365) label = `${Math.floor(diffDays / 30)} mois restants`;
+      else {
+        const y = Math.floor(diffDays / 365);
+        const m = Math.floor((diffDays % 365) / 30);
+        label = m > 0 ? `${y}a ${m}m restants` : `${y} an${y > 1 ? 's' : ''} restants`;
+      }
+
+      const totalDays = Math.ceil(totalLife / 86400000);
+      let totalLabel: string;
+      if (totalDays < 30)       totalLabel = `${totalDays}j`;
+      else if (totalDays < 365) totalLabel = `${Math.floor(totalDays / 30)} mois`;
+      else {
+        const y = Math.floor(totalDays / 365);
+        const m = Math.floor((totalDays % 365) / 30);
+        totalLabel = m > 0 ? `${y} an${y > 1 ? 's' : ''} ${m} mois` : `${y} an${y > 1 ? 's' : ''}`;
+      }
+
+      let color: string;
+      if (diffDays <= 0)   color = '#ef4444';
+      else if (pct >= 75)  color = '#ef4444';
+      else if (pct >= 50)  color = '#f97316';
+      else                 color = '#22c55e';
+
+      result.push({ percentage: Math.round(100 - pct), color, label, totalLabel });
     }
 
-    let color: string;
-    if (diffDays <= 0)   color = '#ef4444';
-    else if (pct >= 75)  color = '#ef4444';
-    else if (pct >= 50)  color = '#f97316';
-    else                 color = '#22c55e';
-
-    return { percentage: Math.round(pct), color, label };
+    return result;
   }
 
   getCmup(productId: number): number | null {
@@ -664,7 +697,6 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
     event.stopPropagation();
     this.lotsProduct.set(product);
     this.lots.set([]);
-    this.expandedLots.set(new Set());
     this.lotsLoading.set(true);
     this.purchaseOrderService.getProductLots(product.id)
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -674,22 +706,15 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
       });
   }
 
-  closeLots(): void {
-    this.lotsProduct.set(null);
-    this.expandedLots.set(new Set());
+  closeLotsDrawer(): void {
+    if (this.drawerExiting()) return;
+    this.drawerExiting.set(true);
+    setTimeout(() => {
+      this.drawerExiting.set(false);
+      this.lotsProduct.set(null);
+    }, 220);
   }
 
-  toggleLot(lotId: number): void {
-    this.expandedLots.update(set => {
-      const next = new Set(set);
-      next.has(lotId) ? next.delete(lotId) : next.add(lotId);
-      return next;
-    });
-  }
-
-  isLotExpanded(lotId: number): boolean {
-    return this.expandedLots().has(lotId);
-  }
 
   getTimeToExpiry(lot: ProductPurchaseLot): { label: string; color: string; percentage: number | null } | null {
     if (!lot.expiry_date) return null;
@@ -723,7 +748,7 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
       else if (pct >= 50) color = '#f97316';
       else                color = '#22c55e';
 
-      return { label, color, percentage: Math.round(pct) };
+      return { label, color, percentage: Math.round(100 - pct) };
     }
 
     // Fallback without made_date

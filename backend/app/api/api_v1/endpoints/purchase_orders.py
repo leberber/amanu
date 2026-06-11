@@ -55,8 +55,20 @@ def generate_reference(session: Session) -> str:
     return f"{date_prefix}-{next_num:04d}"
 
 
-def order_to_response(order: PurchaseOrder) -> PurchaseOrderResponse:
+def order_to_response(order: PurchaseOrder, session: Session = None) -> PurchaseOrderResponse:
     """Convert database model to response model"""
+    # Build lot data lookup keyed by purchase_order_item_id
+    lot_map: dict = {}
+    if session:
+        lots = session.exec(
+            select(ProductPurchaseLot)
+            .where(ProductPurchaseLot.purchase_order_id == order.id)
+            .order_by(ProductPurchaseLot.created_at.desc())
+        ).all()
+        for lot in lots:
+            if lot.purchase_order_item_id and lot.purchase_order_item_id not in lot_map:
+                lot_map[lot.purchase_order_item_id] = lot
+
     items = [
         PurchaseOrderItemResponse(
             id=item.id,
@@ -69,7 +81,10 @@ def order_to_response(order: PurchaseOrder) -> PurchaseOrderResponse:
             facture_quantity=item.facture_quantity,
             facture_unit_price=item.facture_unit_price,
             unit_price=item.unit_price,
-            total_price=item.total_price
+            total_price=item.total_price,
+            made_date=lot_map[item.id].made_date.isoformat() if item.id in lot_map and lot_map[item.id].made_date else None,
+            expiry_date=lot_map[item.id].expiry_date.isoformat() if item.id in lot_map and lot_map[item.id].expiry_date else None,
+            quantity_rejected=lot_map[item.id].quantity_rejected if item.id in lot_map else None,
         )
         for item in order.items
     ]
@@ -180,23 +195,27 @@ async def get_products_cmup_tiers(session: Session = Depends(get_session)):
 
 @router.get("/product-lifecycles")
 async def get_product_lifecycles(session: Session = Depends(get_session)):
-    """Get the latest lot with both made_date and expiry_date per product."""
+    """Get all lots with dates per product, ordered by expiry date ascending."""
     from sqlalchemy import text
     rows = session.exec(
         text("""
-            SELECT DISTINCT ON (product_id) product_id, made_date, expiry_date
+            SELECT product_id, made_date, expiry_date
             FROM product_purchase_lots
             WHERE made_date IS NOT NULL AND expiry_date IS NOT NULL
-            ORDER BY product_id, created_at DESC
+            ORDER BY product_id, expiry_date ASC
         """)
     ).all()
-    return {
-        row[0]: {
+    result: dict = {}
+    for row in rows:
+        pid = row[0]
+        entry = {
             "made_date": row[1].isoformat() if row[1] else None,
             "expiry_date": row[2].isoformat() if row[2] else None,
         }
-        for row in rows
-    }
+        if pid not in result:
+            result[pid] = []
+        result[pid].append(entry)
+    return result
 
 
 @router.get("/product-lots/{product_id}")
@@ -263,7 +282,7 @@ async def get_purchase_order(
     if not order:
         raise HTTPException(status_code=404, detail="Purchase order not found")
 
-    return order_to_response(order)
+    return order_to_response(order, session)
 
 
 @router.post("", response_model=PurchaseOrderResponse)
@@ -391,7 +410,7 @@ async def update_purchase_order(
         session.commit()
         session.refresh(order)
 
-        return order_to_response(order)
+        return order_to_response(order, session)
 
     except HTTPException:
         raise
@@ -437,7 +456,7 @@ async def update_purchase_order_status(
         session.commit()
         session.refresh(order)
 
-        return order_to_response(order)
+        return order_to_response(order, session)
 
     except HTTPException:
         raise
@@ -624,7 +643,7 @@ async def confirm_delivery(
         session.commit()
         session.refresh(order)
 
-        return order_to_response(order)
+        return order_to_response(order, session)
 
     except HTTPException:
         raise
@@ -693,7 +712,7 @@ async def delete_purchase_order_item(
         session.commit()
         session.refresh(order)
 
-        return order_to_response(order)
+        return order_to_response(order, session)
 
     except HTTPException:
         raise
@@ -759,7 +778,7 @@ async def update_facture_items(
               {"items": item_changes} if item_changes else None)
     session.commit()
     session.refresh(order)
-    return order_to_response(order)
+    return order_to_response(order, session)
 
 
 @router.delete("/{order_id}")

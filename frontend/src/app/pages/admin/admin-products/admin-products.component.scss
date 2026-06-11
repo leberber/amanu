@@ -8,6 +8,27 @@
   overflow: hidden !important;
 }
 
+// Drawer pop in/out
+@keyframes drawerPopIn {
+  from { opacity: 0; scale: 0.97; }
+  to   { opacity: 1; scale: 1; }
+}
+
+@keyframes drawerPopOut {
+  from { opacity: 1; scale: 1; }
+  to   { opacity: 0; scale: 0.97; }
+}
+
+:host ::ng-deep {
+  .p-drawer {
+    animation: drawerPopIn 200ms ease forwards;
+
+    &.drawer-exiting {
+      animation: drawerPopOut 200ms ease forwards !important;
+    }
+  }
+}
+
 @keyframes fadeSlideIn {
   from { opacity: 0; transform: translateY(8px); }
   to   { opacity: 1; transform: translateY(0); }

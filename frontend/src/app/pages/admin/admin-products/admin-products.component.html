@@ -56,6 +56,8 @@
           [placeholder]="'admin.products.filters.all_categories' | translate"
           (onChange)="onCategoryChange()"
           [showClear]="categoryFilter !== null"
+          [filter]="true"
+          filterPlaceholder="Rechercher..."
           styleClass="filter-select--glass"
           panelStyleClass="filter-select-panel--glass"
           appendTo="body">
@@ -83,6 +85,8 @@
           [placeholder]="'admin.products.filters.all_brands' | translate"
           (onChange)="onBrandChange()"
           [showClear]="brandFilter !== null"
+          [filter]="true"
+          filterPlaceholder="Rechercher..."
           styleClass="filter-select--glass"
           panelStyleClass="filter-select-panel--glass"
           appendTo="body">
@@ -405,15 +409,19 @@
                   <!-- Lifecycle progress bar -->
                   @if (isColumnVisible('lifecycle')) {
                     <td class="text-center">
-                      @if (getProductLifecycle(product.id); as lc) {
-                        <div class="flex flex-column align-items-center gap-1 px-2">
-                          <div style="width:100%;height:8px;border-radius:4px;background:var(--border-color);overflow:hidden;position:relative;">
-                            <div style="height:100%;border-radius:4px;transition:width .3s ease;"
-                                 [style.width]="lc.percentage + '%'"
-                                 [style.background]="lc.color">
+                      @if (getProductLifecycle(product.id).length > 0) {
+                        <div class="flex flex-column gap-2 px-2">
+                          @for (lc of getProductLifecycle(product.id); track lc.totalLabel) {
+                            <div class="flex flex-column align-items-center gap-1">
+                              <div style="width:100%;height:6px;border-radius:3px;background:#e5e7eb;overflow:hidden;">
+                                <div style="height:100%;border-radius:3px;transition:width .3s ease;"
+                                     [style.width]="lc.percentage + '%'"
+                                     [style.background]="lc.color">
+                                </div>
+                              </div>
+                              <span class="text-xs font-semibold" [style.color]="lc.color">{{ lc.label }}</span>
                             </div>
-                          </div>
-                          <span class="text-xs font-semibold" [style.color]="lc.color">{{ lc.label }}</span>
+                          }
                         </div>
                       } @else {
                         <span class="text-color-secondary">—</span>
@@ -507,26 +515,32 @@
 <!-- Lots History Drawer -->
 <p-drawer
   [visible]="!!lotsProduct()"
-  (visibleChange)="$event ? null : closeLots()"
+  (visibleChange)="$event ? null : closeLotsDrawer()"
   position="right"
-  [style]="{'width': '820px', 'max-width': '100vw', 'padding': '0'}">
-
-  <ng-template pTemplate="header">
-    <div class="flex align-items-center gap-3">
-      <div class="flex align-items-center justify-content-center border-round" style="width:36px;height:36px;background:var(--primary-50,rgba(var(--primary-rgb),.1));">
-        <i class="pi pi-history" style="color:var(--primary-color);font-size:1rem;"></i>
-      </div>
-      <div class="flex flex-column gap-1">
-        <span class="font-semibold text-sm uppercase" style="letter-spacing:.05em;color:var(--text-color-secondary);">Historique des lots</span>
-        @if (lotsProduct()) {
-          <span class="font-bold" style="font-size:1rem;color:var(--text-color);">{{ getProductName(lotsProduct()!) }}</span>
-        }
-      </div>
-    </div>
-  </ng-template>
+  transformOptions="translateX(0%)"
+  transitionOptions="0ms"
+  [styleClass]="drawerExiting() ? 'drawer-exiting' : ''"
+  [showCloseIcon]="false"
+  [style]="{'width': '100vw', 'padding': '0'}">
 
   <ng-template pTemplate="content">
-    <div class="flex flex-column gap-4 p-4" style="height:100%;overflow-y:auto;">
+    <div class="flex flex-column gap-4 p-4" style="height:100%;overflow-y:auto;padding-left:10% !important;padding-right:10% !important;">
+
+      <!-- Header row -->
+      <div class="flex align-items-center justify-content-between">
+        <div class="flex align-items-center gap-3">
+          <div class="flex align-items-center justify-content-center border-round" style="width:36px;height:36px;background:var(--primary-50,rgba(var(--primary-rgb),.1));">
+            <i class="pi pi-history" style="color:var(--primary-color);font-size:1rem;"></i>
+          </div>
+          <div class="flex flex-column gap-1">
+            <span class="font-semibold text-sm uppercase" style="letter-spacing:.05em;color:var(--text-color-secondary);">Historique des lots</span>
+            @if (lotsProduct()) {
+              <span class="font-bold" style="font-size:1rem;color:var(--text-color);">{{ getProductName(lotsProduct()!) }}</span>
+            }
+          </div>
+        </div>
+        <p-button icon="pi pi-times" [text]="true" severity="secondary" (onClick)="closeLotsDrawer()" />
+      </div>
 
       @if (lotsLoading()) {
         <!-- Skeleton -->
@@ -571,9 +585,20 @@
               <span class="text-sm text-color-secondary">Coût moyen unitaire pondéré</span>
             </div>
           </div>
-          <div class="flex align-items-baseline gap-2">
-            <span class="font-bold text-primary" style="font-size:2.2rem;line-height:1;">{{ lots()[0].cmup | appCurrency }}</span>
-            <span class="text-base text-color-secondary font-normal">/unité</span>
+          <div class="flex align-items-center gap-5">
+            <div class="flex align-items-baseline gap-2">
+              <span class="font-bold text-primary" style="font-size:2.2rem;line-height:1;">{{ lots()[0].cmup | appCurrency }}</span>
+              <span class="text-base text-color-secondary font-normal">/unité</span>
+            </div>
+            <div style="width:1px;height:40px;background:var(--border-color-light);"></div>
+            <div class="flex flex-column gap-1">
+              <span class="text-xs font-semibold uppercase text-color-secondary" style="letter-spacing:.04em;">Stock actuel</span>
+              <div class="flex align-items-baseline gap-2">
+                <span class="font-bold" style="font-size:2.2rem;line-height:1;">{{ lotsProduct()!.stock_quantity / lots()[0].units_per_carton | number:'1.0-0' }}</span>
+                <span class="text-base text-color-secondary font-normal">ctn,</span>
+                <span class="font-semibold text-color-secondary">{{ lotsProduct()!.stock_quantity | number:'1.0-0' }} unités</span>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -613,139 +638,110 @@
                 </div>
                 <div class="flex align-items-center gap-2">
                   <span class="pill purple">#{{ lot.purchase_order_id }}</span>
-                  <p-button
-                    [icon]="isLotExpanded(lot.id) ? 'pi pi-chevron-up' : 'pi pi-chevron-down'"
-                    [text]="true"
-                    severity="secondary"
-                    size="small"
-                    (onClick)="toggleLot(lot.id)"
-                  />
                 </div>
               </div>
 
-              <!-- Always visible: Prix d'achat | CMUP | Stock avant -->
+              <!-- Single row: all columns -->
               <div class="flex" style="background:var(--surface-card);">
                 <!-- Prix d'achat -->
-                <div class="flex-1 p-4 flex gap-3 align-items-start" style="border-right:1px solid var(--border-color-light);">
-                  <div class="flex align-items-center justify-content-center border-round flex-shrink-0"
-                       style="width:36px;height:36px;background:rgba(249,115,22,.1);">
-                    <i class="pi pi-tag" style="color:#f97316;font-size:.85rem;"></i>
+                <div class="flex-1 p-3 flex flex-column gap-1" style="border-right:1px solid var(--border-color-light);">
+                  <span class="text-xs font-semibold uppercase text-color-secondary" style="letter-spacing:.04em;">Prix d'achat</span>
+                  <div class="flex align-items-baseline gap-1">
+                    <span class="font-bold">{{ lot.unit_price | appCurrency }}</span>
+                    <span class="text-xs text-color-secondary">/unité</span>
                   </div>
-                  <div class="flex flex-column gap-1">
-                    <span class="text-xs font-semibold uppercase text-color-secondary" style="letter-spacing:.04em;">Prix d'achat</span>
-                    <div class="flex align-items-baseline gap-1">
-                      <span class="font-bold" style="font-size:1.15rem;">{{ lot.unit_price | appCurrency }}</span>
-                      <span class="text-xs text-color-secondary">/unité</span>
-                    </div>
-                    <span class="text-xs text-color-secondary">{{ lot.unit_price_per_carton | appCurrency }}/carton</span>
-                  </div>
+                  <span class="text-xs text-color-secondary">{{ lot.unit_price_per_carton | appCurrency }}/ctn</span>
                 </div>
 
                 <!-- CMUP -->
-                <div class="flex-1 p-4 flex gap-3 align-items-start" style="border-right:1px solid var(--border-color-light);">
-                  <div class="flex align-items-center justify-content-center border-round flex-shrink-0"
-                       style="width:36px;height:36px;background:rgba(var(--primary-rgb),.1);">
-                    <i class="pi pi-chart-line" style="color:var(--primary-color);font-size:.85rem;"></i>
+                <div class="flex-1 p-3 flex flex-column gap-1" style="border-right:1px solid var(--border-color-light);">
+                  <span class="text-xs font-semibold uppercase text-color-secondary" style="letter-spacing:.04em;">CMUP</span>
+                  <div class="flex align-items-center gap-1">
+                    <span class="font-bold text-primary">{{ lot.cmup | appCurrency }}</span>
+                    @switch (getLotCmupTrend(i)) {
+                      @case ('up')   { <i class="pi pi-arrow-up text-xs" style="color:#ef4444;"></i> }
+                      @case ('down') { <i class="pi pi-arrow-down text-xs" style="color:#22c55e;"></i> }
+                    }
                   </div>
-                  <div class="flex flex-column gap-1">
-                    <span class="text-xs font-semibold uppercase text-color-secondary" style="letter-spacing:.04em;">CMUP</span>
-                    <div class="flex align-items-center gap-2">
-                      <span class="font-bold text-primary" style="font-size:1.15rem;">{{ lot.cmup | appCurrency }}</span>
-                      @switch (getLotCmupTrend(i)) {
-                        @case ('up')   { <i class="pi pi-arrow-up text-xs" style="color:#ef4444;"></i> }
-                        @case ('down') { <i class="pi pi-arrow-down text-xs" style="color:#22c55e;"></i> }
-                      }
-                    </div>
-                    <span class="text-xs text-color-secondary">/unité</span>
-                  </div>
+                  <span class="text-xs text-color-secondary">/unité</span>
                 </div>
 
                 <!-- Stock avant -->
-                <div class="flex-1 p-4 flex gap-3 align-items-start">
-                  <div class="flex align-items-center justify-content-center border-round flex-shrink-0"
-                       style="width:36px;height:36px;background:rgba(99,102,241,.1);">
-                    <i class="pi pi-box" style="color:#6366f1;font-size:.85rem;"></i>
+                <div class="flex-1 p-3 flex flex-column gap-1" style="border-right:1px solid var(--border-color-light);">
+                  <span class="text-xs font-semibold uppercase text-color-secondary" style="letter-spacing:.04em;">Stock avant</span>
+                  <div class="flex align-items-baseline gap-1 flex-wrap">
+                    <span class="font-bold">{{ lot.stock_before / lot.units_per_carton | number:'1.0-0' }}</span>
+                    <span class="text-xs text-color-secondary">ctn,</span>
+                    <span class="text-sm text-color-secondary">{{ lot.stock_before | number:'1.0-0' }} unités</span>
                   </div>
-                  <div class="flex flex-column gap-1">
-                    <span class="text-xs font-semibold uppercase text-color-secondary" style="letter-spacing:.04em;">Stock avant</span>
+                </div>
+
+                <!-- Acheté -->
+                <div class="flex-1 p-3 flex flex-column gap-1" style="border-right:1px solid var(--border-color-light);">
+                  <span class="text-xs font-semibold uppercase text-color-secondary" style="letter-spacing:.04em;">Acheté</span>
+                  <div class="flex align-items-baseline gap-1 flex-wrap">
+                    <span class="font-bold">{{ lot.quantity_added / lot.units_per_carton | number:'1.0-0' }}</span>
+                    <span class="text-xs text-color-secondary">ctn,</span>
+                    <span class="text-sm text-color-secondary">{{ lot.quantity_added | number:'1.0-0' }} unités</span>
+                  </div>
+                </div>
+
+                <!-- Refusés -->
+                <div class="flex-1 p-3 flex flex-column gap-1" style="border-right:1px solid var(--border-color-light);">
+                  <span class="text-xs font-semibold uppercase text-color-secondary" style="letter-spacing:.04em;">Refusés</span>
+                  @if (lot.quantity_rejected > 0) {
                     <div class="flex align-items-baseline gap-1">
-                      <span class="font-bold" style="font-size:1.15rem;">{{ lot.stock_before / lot.units_per_carton | number:'1.0-0' }}</span>
+                      <span class="font-bold text-orange-500">{{ lot.quantity_rejected }}</span>
                       <span class="text-xs text-color-secondary">ctn</span>
                     </div>
-                    <span class="text-xs text-color-secondary">{{ lot.stock_before | number:'1.0-0' }} unités</span>
-                  </div>
+                  } @else {
+                    <span class="font-bold text-color-secondary">—</span>
+                  }
+                </div>
+
+                <!-- Fabrication -->
+                <div class="flex-1 p-3 flex flex-column gap-1" style="border-right:1px solid var(--border-color-light);">
+                  <span class="text-xs font-semibold uppercase text-color-secondary" style="letter-spacing:.04em;">Fabrication</span>
+                  @if (lot.made_date) {
+                    <span class="text-sm" style="color:#a5b4fc;">{{ lot.made_date }}</span>
+                  } @else {
+                    <span class="font-bold text-color-secondary">—</span>
+                  }
+                </div>
+
+                <!-- Expiration -->
+                <div class="flex-1 p-3 flex flex-column gap-1" style="border-right:1px solid var(--border-color-light);">
+                  <span class="text-xs font-semibold uppercase text-color-secondary" style="letter-spacing:.04em;">Expiration</span>
+                  @if (lot.expiry_date) {
+                    @if (getTimeToExpiry(lot); as ttl) {
+                      <span class="text-sm" [style.color]="ttl.color" style="opacity:0.75;">{{ lot.expiry_date }}</span>
+                    } @else {
+                      <span class="text-sm text-color-secondary">{{ lot.expiry_date }}</span>
+                    }
+                  } @else {
+                    <span class="font-bold text-color-secondary">—</span>
+                  }
+                </div>
+
+                <!-- Cycle de vie -->
+                <div class="flex-1 p-3 flex flex-column gap-2">
+                  <span class="text-xs font-semibold uppercase text-color-secondary" style="letter-spacing:.04em;">Cycle de vie</span>
+                  @if (getTimeToExpiry(lot); as ttl) {
+                    <span class="font-bold text-sm" [style.color]="ttl.color">{{ ttl.label }}</span>
+                    @if (ttl.percentage !== null) {
+                      <div style="height:6px;border-radius:3px;background:#e5e7eb;overflow:hidden;">
+                        <div style="height:100%;border-radius:3px;transition:width .3s ease;"
+                             [style.width]="ttl.percentage + '%'"
+                             [style.background]="ttl.color">
+                        </div>
+                      </div>
+                      <span class="text-xs text-color-secondary">{{ ttl.percentage }}% restant</span>
+                    }
+                  } @else {
+                    <span class="text-xs text-color-secondary">—</span>
+                  }
                 </div>
               </div>
-
-              <!-- Collapsible: Reçus / Refusés / Date d'expiration -->
-              @if (isLotExpanded(lot.id)) {
-                <div class="flex flex-column" style="border-top:1px solid var(--border-color-light);background:var(--surface-ground);">
-                  <div class="flex">
-                    <!-- Reçus -->
-                    <div class="flex-1 p-3 flex flex-column gap-1" style="border-right:1px solid var(--border-color-light);">
-                      <span class="text-xs font-semibold uppercase text-color-secondary" style="letter-spacing:.04em;">Reçus</span>
-                      <div class="flex align-items-baseline gap-1">
-                        <span class="font-bold">{{ lot.quantity_added / lot.units_per_carton | number:'1.0-0' }}</span>
-                        <span class="text-xs text-color-secondary">ctn</span>
-                      </div>
-                      <span class="text-xs text-color-secondary">{{ lot.quantity_added | number:'1.0-0' }} unités</span>
-                    </div>
-
-                    <!-- Refusés -->
-                    <div class="flex-1 p-3 flex flex-column gap-1">
-                      <span class="text-xs font-semibold uppercase text-color-secondary" style="letter-spacing:.04em;">Refusés</span>
-                      @if (lot.quantity_rejected > 0) {
-                        <div class="flex align-items-baseline gap-1">
-                          <span class="font-bold text-orange-500">{{ lot.quantity_rejected }}</span>
-                          <span class="text-xs text-color-secondary">ctn</span>
-                        </div>
-                      } @else {
-                        <span class="font-bold text-color-secondary">—</span>
-                      }
-                    </div>
-                  </div>
-
-                  <!-- Fabrication + Temps avant expiration -->
-                  <div class="flex" style="border-top:1px solid var(--border-color-light);">
-                    <div class="flex-1 p-3 flex flex-column gap-1" style="border-right:1px solid var(--border-color-light);">
-                      <span class="text-xs font-semibold uppercase text-color-secondary" style="letter-spacing:.04em;">Fabrication</span>
-                      @if (lot.made_date) {
-                        <span class="text-sm" style="color:#a5b4fc;">{{ lot.made_date }}</span>
-                      } @else {
-                        <span class="font-bold text-color-secondary">—</span>
-                      }
-                      <span class="text-xs font-semibold uppercase text-color-secondary mt-2" style="letter-spacing:.04em;">Expiration</span>
-                      @if (lot.expiry_date) {
-                        @if (getTimeToExpiry(lot); as ttl) {
-                          <span class="text-sm" [style.color]="ttl.color" style="opacity:0.75;">{{ lot.expiry_date }}</span>
-                        } @else {
-                          <span class="text-sm text-color-secondary">{{ lot.expiry_date }}</span>
-                        }
-                      } @else {
-                        <span class="font-bold text-color-secondary">—</span>
-                      }
-                    </div>
-                    <div class="flex-1 p-3 flex flex-column gap-2">
-                      <span class="text-xs font-semibold uppercase text-color-secondary" style="letter-spacing:.04em;">Cycle de vie</span>
-                      @if (getTimeToExpiry(lot); as ttl) {
-                        <span class="font-bold text-sm" [style.color]="ttl.color">{{ ttl.label }}</span>
-                        @if (ttl.percentage !== null) {
-                          <div style="height:6px;border-radius:3px;background:var(--border-color-light);overflow:hidden;">
-                            <div style="height:100%;border-radius:3px;transition:width .3s ease;"
-                                 [style.width]="ttl.percentage + '%'"
-                                 [style.background]="ttl.color">
-                            </div>
-                          </div>
-                          <span class="text-xs text-color-secondary">{{ ttl.percentage }}% écoulé</span>
-                        }
-                      } @else {
-                        <span class="text-xs text-color-secondary">Pas de date d'expiration enregistrée</span>
-                      }
-                    </div>
-                  </div>
-
-                </div>
-              }
             </div>
           }
         </div>

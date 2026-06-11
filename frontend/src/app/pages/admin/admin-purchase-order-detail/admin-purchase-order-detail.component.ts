@@ -157,9 +157,9 @@ export class AdminPurchaseOrderDetailComponent implements OnInit {
       ...item,
       facture_quantity: item.facture_quantity ?? 0,
       facture_unit_price: item.facture_unit_price ?? 0,
-      quantity_rejected: 0,
-      made_date: null,
-      expiry_date: null,
+      quantity_rejected: item.quantity_rejected ?? 0,
+      made_date: item.made_date ? new Date(item.made_date) : null,
+      expiry_date: item.expiry_date ? new Date(item.expiry_date) : null,
     })));
   }
 
@@ -350,7 +350,7 @@ export class AdminPurchaseOrderDetailComponent implements OnInit {
   }
 }
 
-interface EditableItem extends PurchaseOrderItem {
+interface EditableItem extends Omit<PurchaseOrderItem, 'made_date' | 'expiry_date' | 'quantity_rejected'> {
   facture_quantity: number;
   facture_unit_price: number;
   quantity_rejected: number;
