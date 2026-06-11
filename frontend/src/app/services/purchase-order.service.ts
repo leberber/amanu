@@ -13,6 +13,15 @@ export interface PriceTier {
   units_per_carton: number;
 }
 
+export interface AuditLog {
+  id: number;
+  user_id: number;
+  user_name: string;
+  action: string;
+  changes: Record<string, any> | null;
+  created_at: string;
+}
+
 export interface ProductPurchaseLot {
   id: number;
   purchase_order_id: number;
@@ -193,7 +202,7 @@ export class PurchaseOrderService {
     return this.api.post<PurchaseOrder>(`/purchase-orders/${id}/deliver`, delivery);
   }
 
-  updateFactureItems(orderId: number, items: { item_id: number; facture_quantity: number; facture_unit_price: number }[]): Observable<PurchaseOrder> {
+  updateFactureItems(orderId: number, items: { item_id: number; facture_quantity: number; facture_unit_price: number; quantity_rejected?: number; made_date?: string | null; expiry_date?: string | null }[]): Observable<PurchaseOrder> {
     return this.api.patch<PurchaseOrder>(`/purchase-orders/${orderId}/facture-items`, { items });
   }
 
@@ -211,6 +220,10 @@ export class PurchaseOrderService {
 
   getProductLots(productId: number): Observable<ProductPurchaseLot[]> {
     return this.api.get<ProductPurchaseLot[]>(`/purchase-orders/product-lots/${productId}`);
+  }
+
+  getOrderAuditLogs(orderId: number): Observable<AuditLog[]> {
+    return this.api.get<AuditLog[]>(`/purchase-orders/${orderId}/audit-logs`);
   }
 
 

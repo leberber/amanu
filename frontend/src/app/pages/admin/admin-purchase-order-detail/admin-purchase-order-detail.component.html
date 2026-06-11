@@ -46,7 +46,7 @@
                   <th style="width: 10%" class="text-right">{{ 'admin.purchase_orders.detail.total_price' | translate }}</th>
                   <th style="width: 10%" class="text-center">Qté Fact.</th>
                   <th style="width: 12%" class="text-right">P. Fact./U</th>
-                  @if (order()!.status === 'sent') {
+                  @if (order()!.status === 'sent' || order()!.status === 'delivered') {
                     <th style="width: 10%" class="text-center">Refusés</th>
                     <th style="width: 12%" class="text-center">Fabrication</th>
                     <th style="width: 12%" class="text-center">Expiration</th>
@@ -69,7 +69,7 @@
                       <span class="text-secondary">{{ item.units_per_carton }}</span>
                     </td>
                     <td class="text-center">
-                      @if (order()!.status === 'sent') {
+                      @if (order()!.status === 'sent' || order()!.status === 'delivered') {
                         <div class="quantity-controls quantity-controls--sm">
                           <p-button
                             icon="pi pi-minus"
@@ -122,7 +122,7 @@
                           [placeholder]="'0.00'"
                         />
                       </td>
-                      @if (order()!.status === 'sent') {
+                      @if (order()!.status === 'sent' || order()!.status === 'delivered') {
                         <td class="text-center">
                           <p-inputNumber
                             [(ngModel)]="editableItems()[i].quantity_rejected"
@@ -139,8 +139,8 @@
                             dateFormat="dd/mm/yy"
                             [showButtonBar]="true"
                             placeholder="JJ/MM/AA"
-                            styleClass="w-full"
-                            inputStyleClass="text-center text-sm"
+                            inputStyleClass="date-pill date-pill--made"
+                            appendTo="body"
                           />
                         </td>
                         <td class="text-center">
@@ -149,8 +149,8 @@
                             dateFormat="dd/mm/yy"
                             [showButtonBar]="true"
                             placeholder="JJ/MM/AA"
-                            styleClass="w-full"
-                            inputStyleClass="text-center text-sm"
+                            inputStyleClass="date-pill date-pill--expiry"
+                            appendTo="body"
                           />
                         </td>
                         <td class="text-center">
@@ -345,6 +345,66 @@
                 <i class="pi pi-envelope"></i>
                 {{ order()!.supplier_email }}
               </p>
+            }
+          </div>
+        </div>
+        <!-- Audit Log -->
+        <div class="sidebar-card">
+          <div class="sidebar-card__header">
+            <i class="pi pi-history"></i>
+            <span>Historique des modifications</span>
+          </div>
+          <div class="sidebar-card__body" style="padding:0;">
+            @if (auditLoading()) {
+              <div class="flex flex-column gap-2 p-3">
+                @for (i of [1,2,3]; track i) {
+                  <div class="flex gap-2 align-items-start">
+                    <div class="skeleton skeleton-avatar" style="width:28px;height:28px;flex-shrink:0;"></div>
+                    <div class="flex flex-column gap-1 flex-1">
+                      <div class="skeleton skeleton-text" style="width:70%;"></div>
+                      <div class="skeleton skeleton-text" style="width:40%;"></div>
+                    </div>
+                  </div>
+                }
+              </div>
+            } @else if (auditLogs().length === 0) {
+              <p class="text-xs text-color-secondary p-3">Aucune modification enregistrée.</p>
+            } @else {
+              <div class="flex flex-column" style="max-height:360px;overflow-y:auto;">
+                @for (log of auditLogs(); track log.id; let last = $last) {
+                  <div class="flex gap-3 px-3 py-3" [style.border-bottom]="last ? 'none' : '1px solid var(--border-color-light)'">
+                    <!-- Icon dot -->
+                    <div class="flex flex-column align-items-center" style="flex-shrink:0;">
+                      <div class="flex align-items-center justify-content-center border-round-xl"
+                           style="width:30px;height:30px;"
+                           [style.background]="getActionColor(log.action) + '1a'">
+                        <i [class]="getActionIcon(log.action)" style="font-size:.75rem;" [style.color]="getActionColor(log.action)"></i>
+                      </div>
+                    </div>
+                    <!-- Content -->
+                    <div class="flex flex-column gap-1 flex-1 min-w-0">
+                      <div class="flex align-items-center justify-content-between gap-2">
+                        <span class="text-xs font-semibold" [style.color]="getActionColor(log.action)">{{ getActionLabel(log.action) }}</span>
+                        <span class="text-xs text-color-secondary" style="white-space:nowrap;">{{ log.created_at | appDate }}</span>
+                      </div>
+                      <span class="text-xs text-color-secondary">{{ log.user_name }}</span>
+                      <!-- Changes -->
+                      @if (log.changes) {
+                        @if (log.changes['status']) {
+                          <span class="text-xs" style="color:var(--text-color);">
+                            <span class="text-color-secondary">{{ log.changes['status']['old'] }}</span>
+                            <i class="pi pi-arrow-right mx-1 text-xs text-color-secondary"></i>
+                            <span class="font-semibold">{{ log.changes['status']['new'] }}</span>
+                          </span>
+                        }
+                        @if (log.changes['product_name']) {
+                          <span class="text-xs text-color-secondary">{{ log.changes['product_name'] }}</span>
+                        }
+                      }
+                    </div>
+                  </div>
+                }
+              </div>
             }
           </div>
         </div>

@@ -710,7 +710,17 @@
                     <div class="flex-1 p-3 flex flex-column gap-1" style="border-right:1px solid var(--border-color-light);">
                       <span class="text-xs font-semibold uppercase text-color-secondary" style="letter-spacing:.04em;">Fabrication</span>
                       @if (lot.made_date) {
-                        <span class="font-bold text-sm">{{ lot.made_date }}</span>
+                        <span class="text-sm" style="color:#a5b4fc;">{{ lot.made_date }}</span>
+                      } @else {
+                        <span class="font-bold text-color-secondary">—</span>
+                      }
+                      <span class="text-xs font-semibold uppercase text-color-secondary mt-2" style="letter-spacing:.04em;">Expiration</span>
+                      @if (lot.expiry_date) {
+                        @if (getTimeToExpiry(lot); as ttl) {
+                          <span class="text-sm" [style.color]="ttl.color" style="opacity:0.75;">{{ lot.expiry_date }}</span>
+                        } @else {
+                          <span class="text-sm text-color-secondary">{{ lot.expiry_date }}</span>
+                        }
                       } @else {
                         <span class="font-bold text-color-secondary">—</span>
                       }

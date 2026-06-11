@@ -15,12 +15,19 @@ from app.models.product import Product, ProductUnit
 from app.models.restock import RestockItem
 from app.models.supplier import SupplierProductPrice
 from app.models.product_purchase_lot import ProductPurchaseLot
+from app.models.audit_log import AuditLog
+from app.models.user import User
+from app.core.security import get_current_staff_user
+from app.core.audit import log_audit
 
 
 class FactureItemUpdate(BaseModel):
     item_id: int
     facture_quantity: int
     facture_unit_price: float
+    quantity_rejected: Optional[int] = None
+    made_date: Optional[str] = None
+    expiry_date: Optional[str] = None
 
 class FactureItemsBulkUpdate(BaseModel):
     items: list[FactureItemUpdate]
@@ -220,6 +227,32 @@ async def get_product_lots(product_id: int, session: Session = Depends(get_sessi
 
 
 
+@router.get("/{order_id}/audit-logs")
+async def get_order_audit_logs(
+    order_id: int,
+    session: Session = Depends(get_session),
+    current_user: User = Depends(get_current_staff_user),
+):
+    """Return all audit log entries for a purchase order, newest first."""
+    logs = session.exec(
+        select(AuditLog)
+        .where(AuditLog.entity_type == "purchase_order")
+        .where(AuditLog.entity_id == order_id)
+        .order_by(AuditLog.created_at.desc())
+    ).all()
+    return [
+        {
+            "id": log.id,
+            "user_id": log.user_id,
+            "user_name": log.user_name,
+            "action": log.action,
+            "changes": log.changes,
+            "created_at": log.created_at.isoformat(),
+        }
+        for log in logs
+    ]
+
+
 @router.get("/{order_id}", response_model=PurchaseOrderResponse)
 async def get_purchase_order(
     order_id: int,
@@ -236,7 +269,8 @@ async def get_purchase_order(
 @router.post("", response_model=PurchaseOrderResponse)
 async def create_purchase_order(
     data: PurchaseOrderCreate,
-    session: Session = Depends(get_session)
+    session: Session = Depends(get_session),
+    current_user: User = Depends(get_current_staff_user),
 ):
     """Create a new purchase order"""
     try:
@@ -277,6 +311,8 @@ async def create_purchase_order(
             )
             session.add(item)
 
+        log_audit(session, current_user, "create", "purchase_order", order.id,
+                  {"reference": order.reference, "supplier": order.supplier_name, "item_count": len(data.items)})
         session.commit()
         session.refresh(order)
 
@@ -291,15 +327,16 @@ async def create_purchase_order(
 async def update_purchase_order(
     order_id: int,
     data: PurchaseOrderUpdate,
-    session: Session = Depends(get_session)
+    session: Session = Depends(get_session),
+    current_user: User = Depends(get_current_staff_user),
 ):
     """Update a purchase order (including items)"""
     order = session.get(PurchaseOrder, order_id)
     if not order:
         raise HTTPException(status_code=404, detail="Purchase order not found")
 
-    # Only allow editing draft or sent orders
-    if order.status not in [PurchaseOrderStatus.DRAFT, PurchaseOrderStatus.SENT]:
+    # Only allow editing draft, sent, or delivered orders
+    if order.status not in [PurchaseOrderStatus.DRAFT, PurchaseOrderStatus.SENT, PurchaseOrderStatus.DELIVERED]:
         raise HTTPException(
             status_code=400,
             detail=f"Cannot edit order with status '{order.status.value}'"
@@ -348,6 +385,7 @@ async def update_purchase_order(
         order.total_amount = sum(item.total_price for item in order.items)
         order.updated_at = datetime.now(timezone.utc)
 
+        log_audit(session, current_user, "update_order", "purchase_order", order_id)
         session.add(order)
         session.commit()
         session.refresh(order)
@@ -365,7 +403,8 @@ async def update_purchase_order(
 async def update_purchase_order_status(
     order_id: int,
     status: str = Query(..., description="New status"),
-    session: Session = Depends(get_session)
+    session: Session = Depends(get_session),
+    current_user: User = Depends(get_current_staff_user),
 ):
     """Update purchase order status"""
     order = session.get(PurchaseOrder, order_id)
@@ -379,6 +418,7 @@ async def update_purchase_order_status(
         except ValueError:
             raise HTTPException(status_code=400, detail=f"Invalid status: {status}")
 
+        old_status = order.status.value if isinstance(order.status, PurchaseOrderStatus) else str(order.status)
         order.status = new_status
         now = datetime.now(timezone.utc)
 
@@ -390,6 +430,8 @@ async def update_purchase_order_status(
             order.delivered_at = now
 
         order.updated_at = now
+        log_audit(session, current_user, "status_change", "purchase_order", order_id,
+                  {"status": {"old": old_status, "new": status}})
         session.add(order)
         session.commit()
         session.refresh(order)
@@ -407,7 +449,8 @@ async def update_purchase_order_status(
 async def confirm_delivery(
     order_id: int,
     delivery: DeliveryConfirmation,
-    session: Session = Depends(get_session)
+    session: Session = Depends(get_session),
+    current_user: User = Depends(get_current_staff_user),
 ):
     """
     Confirm delivery with received quantities.
@@ -574,6 +617,8 @@ async def confirm_delivery(
             existing_notes = order.notes or ""
             order.notes = f"{existing_notes}\n[Livraison] {delivery.notes}".strip()
 
+        log_audit(session, current_user, "confirm_delivery", "purchase_order", order_id,
+                  {"item_count": len(delivery.items)})
         session.add(order)
         session.commit()
         session.refresh(order)
@@ -593,7 +638,8 @@ async def confirm_delivery(
 async def delete_purchase_order_item(
     order_id: int,
     item_id: int,
-    session: Session = Depends(get_session)
+    session: Session = Depends(get_session),
+    current_user: User = Depends(get_current_staff_user),
 ):
     """
     Delete an item from a purchase order.
@@ -604,8 +650,8 @@ async def delete_purchase_order_item(
     if not order:
         raise HTTPException(status_code=404, detail="Purchase order not found")
 
-    # Only allow deleting items from draft or sent orders
-    if order.status not in [PurchaseOrderStatus.DRAFT, PurchaseOrderStatus.SENT]:
+    # Only allow deleting items from draft, sent, or delivered orders
+    if order.status not in [PurchaseOrderStatus.DRAFT, PurchaseOrderStatus.SENT, PurchaseOrderStatus.DELIVERED]:
         raise HTTPException(
             status_code=400,
             detail=f"Cannot delete items from order with status '{order.status.value}'"
@@ -631,6 +677,9 @@ async def delete_purchase_order_item(
         # Calculate new total BEFORE deleting (exclude the item being deleted)
         new_total = sum(i.total_price for i in order.items if i.id != item_id)
 
+        log_audit(session, current_user, "delete_item", "purchase_order", order_id,
+                  {"item_id": item_id, "product_name": item.product_name})
+
         # Delete the item
         session.delete(item)
 
@@ -655,12 +704,14 @@ async def delete_purchase_order_item(
 async def update_facture_items(
     order_id: int,
     data: FactureItemsBulkUpdate,
-    session: Session = Depends(get_session)
+    session: Session = Depends(get_session),
+    current_user: User = Depends(get_current_staff_user),
 ):
     """Bulk-update facture_quantity and facture_unit_price for all items on an order."""
     order = session.get(PurchaseOrder, order_id)
     if not order:
         raise HTTPException(status_code=404, detail="Purchase order not found")
+    from datetime import date as date_type
     for update in data.items:
         item = session.get(PurchaseOrderItem, update.item_id)
         if not item or item.purchase_order_id != order_id:
@@ -668,6 +719,30 @@ async def update_facture_items(
         item.facture_quantity = update.facture_quantity
         item.facture_unit_price = update.facture_unit_price
         session.add(item)
+
+        # Also update the corresponding lot record if dates/rejected changed
+        if update.quantity_rejected is not None or update.made_date is not None or update.expiry_date is not None:
+            lot = session.exec(
+                select(ProductPurchaseLot)
+                .where(ProductPurchaseLot.purchase_order_item_id == update.item_id)
+                .order_by(ProductPurchaseLot.created_at.desc())
+            ).first()
+            if lot:
+                if update.quantity_rejected is not None:
+                    lot.quantity_rejected = update.quantity_rejected
+                if update.made_date is not None:
+                    try:
+                        lot.made_date = date_type.fromisoformat(update.made_date)
+                    except ValueError:
+                        pass
+                if update.expiry_date is not None:
+                    try:
+                        lot.expiry_date = date_type.fromisoformat(update.expiry_date)
+                    except ValueError:
+                        pass
+                session.add(lot)
+
+    log_audit(session, current_user, "update_facture", "purchase_order", order_id)
     session.commit()
     session.refresh(order)
     return order_to_response(order)
@@ -676,7 +751,8 @@ async def update_facture_items(
 @router.delete("/{order_id}")
 async def delete_purchase_order(
     order_id: int,
-    session: Session = Depends(get_session)
+    session: Session = Depends(get_session),
+    current_user: User = Depends(get_current_staff_user),
 ):
     """Delete a purchase order (only drafts can be deleted)"""
     order = session.get(PurchaseOrder, order_id)
@@ -691,6 +767,8 @@ async def delete_purchase_order(
         )
 
     try:
+        log_audit(session, current_user, "delete", "purchase_order", order_id,
+                  {"reference": order.reference})
         session.delete(order)
         session.commit()
         return {"success": True, "message": "Purchase order deleted"}

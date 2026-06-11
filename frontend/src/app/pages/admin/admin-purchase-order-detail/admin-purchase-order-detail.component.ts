@@ -24,7 +24,8 @@ import {
   PurchaseOrderService,
   PurchaseOrder,
   PurchaseOrderItem,
-  PurchaseOrderStatus
+  PurchaseOrderStatus,
+  AuditLog
 } from '../../../services/purchase-order.service';
 
 @Component({
@@ -64,7 +65,9 @@ export class AdminPurchaseOrderDetailComponent implements OnInit {
   order = signal<PurchaseOrder | null>(null);
   deliveryWarning = signal<string | null>(null);
   editableItems = signal<EditableItem[]>([]);
-  sidebarCollapsed = signal(true);
+  sidebarCollapsed = signal(false);
+  auditLogs = signal<AuditLog[]>([]);
+  auditLoading = signal(false);
 
   // Computed - only keep what's used in template
   canDelete = computed(() => {
@@ -90,12 +93,63 @@ export class AdminPurchaseOrderDetailComponent implements OnInit {
       next: (order) => {
         this.order.set(order);
         this.initEditableItems(order.items);
+        this.loadAuditLogs(order.id);
       },
       error: () => {
         this.toast.showError(this.translate.instant('admin.purchase_orders.detail.not_found'));
         this.router.navigate([ROUTES.ADMIN.PURCHASE_ORDERS]);
       }
     });
+  }
+
+  loadAuditLogs(orderId: number): void {
+    this.auditLoading.set(true);
+    this.orderService.getOrderAuditLogs(orderId).pipe(
+      takeUntilDestroyed(this.destroyRef),
+      finalize(() => this.auditLoading.set(false))
+    ).subscribe({
+      next: (logs) => this.auditLogs.set(logs),
+      error: () => this.auditLogs.set([])
+    });
+  }
+
+  getActionLabel(action: string): string {
+    const labels: Record<string, string> = {
+      create:           'Création',
+      status_change:    'Changement de statut',
+      confirm_delivery: 'Livraison confirmée',
+      update_order:     'Modification',
+      update_facture:   'Facture mise à jour',
+      delete_item:      'Article supprimé',
+      delete:           'Suppression',
+    };
+    return labels[action] ?? action;
+  }
+
+  getActionIcon(action: string): string {
+    const icons: Record<string, string> = {
+      create:           'pi-plus-circle',
+      status_change:    'pi-sync',
+      confirm_delivery: 'pi-truck',
+      update_order:     'pi-pencil',
+      update_facture:   'pi-file-edit',
+      delete_item:      'pi-minus-circle',
+      delete:           'pi-trash',
+    };
+    return 'pi ' + (icons[action] ?? 'pi-circle');
+  }
+
+  getActionColor(action: string): string {
+    const colors: Record<string, string> = {
+      create:           '#22c55e',
+      status_change:    '#6366f1',
+      confirm_delivery: '#22c55e',
+      update_order:     '#f97316',
+      update_facture:   '#f97316',
+      delete_item:      '#ef4444',
+      delete:           '#ef4444',
+    };
+    return colors[action] ?? 'var(--text-color-secondary)';
   }
 
   initEditableItems(items: PurchaseOrderItem[]): void {
@@ -121,6 +175,7 @@ export class AdminPurchaseOrderDetailComponent implements OnInit {
     ).subscribe({
       next: (updated) => {
         this.order.set(updated);
+        this.loadAuditLogs(updated.id);
         this.toast.showSuccess(this.translate.instant('admin.purchase_orders.detail.status_updated'));
       },
       error: () => {
@@ -157,6 +212,7 @@ export class AdminPurchaseOrderDetailComponent implements OnInit {
         this.order.set(updated);
         this.initEditableItems(updated.items);
         this.deliveryWarning.set(null);
+        this.loadAuditLogs(updated.id);
         this.toast.showSuccess(this.translate.instant('admin.purchase_orders.detail.delivery_confirmed'));
       },
       error: (err) => {
@@ -216,6 +272,7 @@ export class AdminPurchaseOrderDetailComponent implements OnInit {
         this.order.set(updated);
         this.initEditableItems(updated.items);
         this.deliveryWarning.set(null);
+        this.loadAuditLogs(updated.id);
         this.toast.showSuccess(this.translate.instant('admin.purchase_orders.detail.item_deleted'));
       },
       error: () => {
@@ -243,7 +300,10 @@ export class AdminPurchaseOrderDetailComponent implements OnInit {
     this.orderService.updateFactureItems(order.id, this.editableItems().map(item => ({
       item_id: item.id!,
       facture_quantity: item.facture_quantity,
-      facture_unit_price: item.facture_unit_price
+      facture_unit_price: item.facture_unit_price,
+      quantity_rejected: item.quantity_rejected,
+      made_date: item.made_date ? item.made_date.toISOString().split('T')[0] : null,
+      expiry_date: item.expiry_date ? item.expiry_date.toISOString().split('T')[0] : null,
     }))).pipe(
       takeUntilDestroyed(this.destroyRef),
       finalize(() => this.saving.set(false))
@@ -251,6 +311,7 @@ export class AdminPurchaseOrderDetailComponent implements OnInit {
       next: (updated) => {
         this.order.set(updated);
         this.initEditableItems(updated.items);
+        this.loadAuditLogs(updated.id);
         this.toast.showSuccess('Données de facturation enregistrées');
       },
       error: () => this.toast.showError('Erreur lors de la sauvegarde')
