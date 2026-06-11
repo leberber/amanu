@@ -103,6 +103,7 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
   // CMUP (weighted average cost) per product
   cmupMap = signal<Record<number, number>>({});
   priceTiersMap = signal<Record<number, PriceTier[]>>({});
+  lifecycleMap = signal<Record<number, { made_date: string; expiry_date: string }>>({});
 
   // Lots drawer
   lotsProduct = signal<Product | null>(null);
@@ -139,11 +140,12 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
       { field: 'brand', label: 'admin.products.table.brand', visible: !isMobile },
       { field: 'volume', label: 'admin.products.table.volume', visible: false },
       { field: 'weight', label: 'admin.products.table.weight', visible: false },
-      { field: 'tva', label: 'admin.products.table.tva', visible: !isMobile },
-      { field: 'price', label: 'admin.products.table.price', visible: true },
+      { field: 'tva', label: 'admin.products.table.tva', visible: false },
       { field: 'purchase_price', label: 'admin.products.table.purchase_price', visible: !isMobile },
-      { field: 'stock', label: 'admin.products.table.stock', visible: true },
+      { field: 'price', label: 'admin.products.table.price', visible: true },
       { field: 'profit', label: 'admin.products.table.profit', visible: !isMobile },
+      { field: 'stock', label: 'admin.products.table.stock', visible: true },
+      { field: 'lifecycle', label: 'admin.products.table.lifecycle', visible: !isMobile },
       { field: 'status', label: 'admin.products.table.status', visible: !isMobile },
       { field: 'actions', label: 'admin.products.table.actions', visible: !isMobile }
     ];
@@ -202,6 +204,7 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
     this.loadProducts();
     this.loadCmup();
     this.loadPriceTiers();
+    this.loadLifecycles();
     // On language change, reload to get translations
     onLanguageChange(this.translateService, this.destroyRef, () => this.loadProducts());
   }
@@ -595,6 +598,46 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
     this.purchaseOrderService.getCmupTiers()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({ next: (data) => this.priceTiersMap.set(data), error: () => {} });
+  }
+
+  private loadLifecycles(): void {
+    this.purchaseOrderService.getProductLifecycles()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({ next: (data) => this.lifecycleMap.set(data), error: () => {} });
+  }
+
+  getProductLifecycle(productId: number): { percentage: number; color: string; label: string } | null {
+    const lc = this.lifecycleMap()[productId];
+    if (!lc) return null;
+
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    const made   = new Date(lc.made_date);   made.setHours(0, 0, 0, 0);
+    const expiry = new Date(lc.expiry_date); expiry.setHours(0, 0, 0, 0);
+
+    const totalLife = expiry.getTime() - made.getTime();
+    if (totalLife <= 0) return null;
+
+    const elapsed  = today.getTime() - made.getTime();
+    const pct      = Math.min(100, Math.max(0, (elapsed / totalLife) * 100));
+    const diffDays = Math.ceil((expiry.getTime() - today.getTime()) / 86400000);
+
+    let label: string;
+    if (diffDays <= 0)       label = 'Expiré';
+    else if (diffDays < 30)  label = `${diffDays}j`;
+    else if (diffDays < 365) label = `${Math.floor(diffDays / 30)} mois`;
+    else {
+      const y = Math.floor(diffDays / 365);
+      const m = Math.floor((diffDays % 365) / 30);
+      label = m > 0 ? `${y}a ${m}m` : `${y} an${y > 1 ? 's' : ''}`;
+    }
+
+    let color: string;
+    if (diffDays <= 0)   color = '#ef4444';
+    else if (pct >= 75)  color = '#ef4444';
+    else if (pct >= 50)  color = '#f97316';
+    else                 color = '#22c55e';
+
+    return { percentage: Math.round(pct), color, label };
   }
 
   getCmup(productId: number): number | null {

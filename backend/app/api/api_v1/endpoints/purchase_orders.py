@@ -171,6 +171,27 @@ async def get_products_cmup_tiers(session: Session = Depends(get_session)):
     return result
 
 
+@router.get("/product-lifecycles")
+async def get_product_lifecycles(session: Session = Depends(get_session)):
+    """Get the latest lot with both made_date and expiry_date per product."""
+    from sqlalchemy import text
+    rows = session.exec(
+        text("""
+            SELECT DISTINCT ON (product_id) product_id, made_date, expiry_date
+            FROM product_purchase_lots
+            WHERE made_date IS NOT NULL AND expiry_date IS NOT NULL
+            ORDER BY product_id, created_at DESC
+        """)
+    ).all()
+    return {
+        row[0]: {
+            "made_date": row[1].isoformat() if row[1] else None,
+            "expiry_date": row[2].isoformat() if row[2] else None,
+        }
+        for row in rows
+    }
+
+
 @router.get("/product-lots/{product_id}")
 async def get_product_lots(product_id: int, session: Session = Depends(get_session)):
     """Get all purchase lots for a product, ordered newest first."""

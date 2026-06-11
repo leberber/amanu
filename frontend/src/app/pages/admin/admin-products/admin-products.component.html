@@ -198,17 +198,18 @@
                 @if (isColumnVisible('volume')) { <th style="width: 8%" class="text-center">{{ 'admin.products.table.volume' | translate }}</th> }
                 @if (isColumnVisible('weight')) { <th style="width: 8%" class="text-center">{{ 'admin.products.table.weight' | translate }}</th> }
                 @if (isColumnVisible('tva')) { <th style="width: 6%" class="text-center">{{ 'admin.products.table.tva' | translate }}</th> }
-                @if (isColumnVisible('price')) { <th style="width: 10%" class="text-center">{{ 'admin.products.table.price' | translate }}</th> }
                 @if (isColumnVisible('purchase_price')) { <th style="width: 12%" class="text-center">{{ 'admin.products.table.purchase_price' | translate }}</th> }
+                @if (isColumnVisible('price')) { <th style="width: 10%" class="text-center">{{ 'admin.products.table.price' | translate }}</th> }
                 @if (isColumnVisible('profit')) { <th style="width: 10%" class="text-center">{{ 'admin.products.table.profit' | translate }}</th> }
                 @if (isColumnVisible('stock')) { <th style="width: 14%" class="text-center">{{ 'admin.products.table.stock' | translate }}</th> }
+                @if (isColumnVisible('lifecycle')) { <th style="width: 12%" class="text-center">{{ 'admin.products.table.lifecycle' | translate }}</th> }
                 @if (isColumnVisible('status')) { <th style="width: 12%" class="text-center">{{ 'admin.products.table.status' | translate }}</th> }
                 @if (isColumnVisible('actions')) { <th style="width: 12%" class="text-center">{{ 'admin.products.table.actions' | translate }}</th> }
               </tr>
             </thead>
             <tbody>
               @for (product of displayedProducts(); track product.id; let i = $index) {
-                <tr class="table-row-animate clickable-row" [style.--row-delay]="((i < 10 ? i : 10) * 40) + 'ms'" (click)="editProduct(product)">
+                <tr class="table-row-animate clickable-row" [style.--row-delay]="((i < 10 ? i : 10) * 40) + 'ms'" (click)="openLots(product, $event)">
                   <!-- Product Image -->
                   @if (isColumnVisible('image')) {
                     <td>
@@ -288,6 +289,17 @@
                     </td>
                   }
 
+                  <!-- Purchase Price (CMUP) -->
+                  @if (isColumnVisible('purchase_price')) {
+                    <td class="text-center">
+                      @if (getCmup(product.id); as cmup) {
+                        <span class="font-semibold text-sm">{{ cmup | appCurrency }}</span>
+                      } @else {
+                        <span class="text-color-secondary">—</span>
+                      }
+                    </td>
+                  }
+
                   <!-- Price -->
                   @if (isColumnVisible('price')) {
                     <td class="text-center" (click)="$event.stopPropagation()">
@@ -313,17 +325,6 @@
                         </button>
                       </div>
                     }
-                    </td>
-                  }
-
-                  <!-- Purchase Price (CMUP) -->
-                  @if (isColumnVisible('purchase_price')) {
-                    <td class="text-center" (click)="openLots(product, $event)" style="cursor:pointer;">
-                      @if (getCmup(product.id); as cmup) {
-                        <span class="font-semibold text-sm">{{ cmup | appCurrency }}</span>
-                      } @else {
-                        <span class="text-color-secondary">—</span>
-                      }
                     </td>
                   }
 
@@ -398,6 +399,25 @@
                         </div>
                       </div>
                     }
+                    </td>
+                  }
+
+                  <!-- Lifecycle progress bar -->
+                  @if (isColumnVisible('lifecycle')) {
+                    <td class="text-center">
+                      @if (getProductLifecycle(product.id); as lc) {
+                        <div class="flex flex-column align-items-center gap-1 px-2">
+                          <div style="width:100%;height:8px;border-radius:4px;background:var(--border-color);overflow:hidden;position:relative;">
+                            <div style="height:100%;border-radius:4px;transition:width .3s ease;"
+                                 [style.width]="lc.percentage + '%'"
+                                 [style.background]="lc.color">
+                            </div>
+                          </div>
+                          <span class="text-xs font-semibold" [style.color]="lc.color">{{ lc.label }}</span>
+                        </div>
+                      } @else {
+                        <span class="text-color-secondary">—</span>
+                      }
                     </td>
                   }
 

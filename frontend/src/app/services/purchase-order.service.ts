@@ -205,6 +205,10 @@ export class PurchaseOrderService {
     return this.api.get<Record<number, PriceTier[]>>('/purchase-orders/cmup-tiers');
   }
 
+  getProductLifecycles(): Observable<Record<number, { made_date: string; expiry_date: string }>> {
+    return this.api.get('/purchase-orders/product-lifecycles');
+  }
+
   getProductLots(productId: number): Observable<ProductPurchaseLot[]> {
     return this.api.get<ProductPurchaseLot[]>(`/purchase-orders/product-lots/${productId}`);
   }
