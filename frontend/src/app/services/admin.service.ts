@@ -20,7 +20,11 @@ import {
   SystemErrorsResponse,
   PurchaseOrder,
   PurchaseOrderCreate,
-  PurchaseOrdersResponse
+  PurchaseOrdersResponse,
+  OrderPayment,
+  OrderPaymentsResponse,
+  OrderAuditLog,
+  OrderItemCreate
 } from '../models/admin.model';
 import {
   DriverProfileWithFlags,
@@ -105,6 +109,33 @@ export class AdminService {
 
   updateOrderStatus(orderId: number, status: string): Observable<Order> {
     return this.apiService.patch<Order>(`/orders/${orderId}`, { status });
+  }
+
+  // Order Payments
+  getOrderPayments(orderId: number): Observable<OrderPaymentsResponse> {
+    return this.apiService.get<OrderPaymentsResponse>(`/orders/${orderId}/payments`);
+  }
+
+  recordPayment(orderId: number, data: { amount: number; method: string; note?: string }): Observable<OrderPayment> {
+    return this.apiService.post<OrderPayment>(`/orders/${orderId}/payments`, data);
+  }
+
+  // Order Audit Log
+  getOrderAuditLog(orderId: number): Observable<OrderAuditLog[]> {
+    return this.apiService.get<OrderAuditLog[]>(`/orders/${orderId}/audit-log`);
+  }
+
+  // Order Item Editing
+  addOrderItem(orderId: number, item: OrderItemCreate): Observable<Order> {
+    return this.apiService.post<Order>(`/orders/${orderId}/items`, item);
+  }
+
+  removeOrderItem(orderId: number, itemId: number): Observable<Order> {
+    return this.apiService.delete<Order>(`/orders/${orderId}/items/${itemId}`);
+  }
+
+  updateOrderItemQty(orderId: number, itemId: number, quantity: number): Observable<Order> {
+    return this.apiService.patch<Order>(`/orders/${orderId}/items/${itemId}`, { quantity });
   }
 
   // Users management - UPDATED to use new response format

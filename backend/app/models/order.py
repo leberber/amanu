@@ -10,6 +10,7 @@ if TYPE_CHECKING:
     from app.models.promotion import Promotion
     from app.models.driver import DriverProfile
     from app.models.trip import Trip
+    from app.models.order_payments import OrderPayment, OrderAuditLog, PaymentStatus
 
 class OrderStatus(str, Enum):
     """Order status enumeration"""
@@ -103,6 +104,9 @@ class Order(OrderBase, table=True):
     is_full_load: bool = Field(default=False, description="True if order fills >=80% of a vehicle capacity")
     min_vehicle_capacity_kg: Optional[float] = Field(default=None, description="Minimum vehicle capacity needed in kg")
 
+    # Payment tracking
+    payment_status: str = Field(default="unpaid")  # unpaid | partial | paid
+
     # Timestamps
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: Optional[datetime] = Field(default=None)
@@ -113,6 +117,8 @@ class Order(OrderBase, table=True):
     promotion: Optional["Promotion"] = Relationship()
     driver: Optional["User"] = Relationship(sa_relationship_kwargs={"foreign_keys": "[Order.driver_id]"})
     trip: Optional["Trip"] = Relationship(sa_relationship_kwargs={"foreign_keys": "[Order.trip_id]"})
+    payments: List["OrderPayment"] = Relationship(back_populates="order", sa_relationship_kwargs={"cascade": "all, delete-orphan"})
+    audit_logs: List["OrderAuditLog"] = Relationship(back_populates="order", sa_relationship_kwargs={"cascade": "all, delete-orphan", "order_by": "OrderAuditLog.created_at"})
 
 class OrderCreateItem(SQLModel):
     """Model for item in order creation"""
@@ -181,6 +187,7 @@ class OrderRead(OrderBase):
     id: int
     created_at: datetime
     updated_at: Optional[datetime] = None
+    payment_status: str = "unpaid"
     subtotal: Optional[float] = None
     discount_amount: float = 0
     cross_sell_discount_amount: float = 0

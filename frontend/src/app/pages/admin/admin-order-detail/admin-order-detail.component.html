@@ -94,6 +94,27 @@
         </div>
       </div>
 
+      <!-- Payment Status -->
+      <div class="stat-card stat-card--compact animate-item" style="--item-delay: 125ms;">
+        <div class="stat-card__content">
+          <span class="stat-card__value">
+            <span class="stat-card__icon" [ngClass]="{
+              'stat-card__icon--success': order.payment_status === 'paid',
+              'stat-card__icon--warning': order.payment_status === 'partial',
+              'stat-card__icon--red': order.payment_status === 'unpaid' || !order.payment_status
+            }">
+              <i class="pi pi-credit-card"></i>
+            </span>
+            @switch (order.payment_status) {
+              @case ('paid') { Payé }
+              @case ('partial') { Partiel }
+              @default { Non payé }
+            }
+          </span>
+          <span class="stat-card__label">Paiement</span>
+        </div>
+      </div>
+
       <!-- Items Count -->
       <div class="stat-card stat-card--compact animate-item" style="--item-delay: 150ms;">
         <div class="stat-card__content">
@@ -339,11 +360,118 @@
             <span class="text-sm text-secondary">{{ (order.items?.length || 0) }} {{ ((order.items?.length || 0) === 1 ? 'common.item' : 'common.items') | translate }}</span>
           </div>
         </div>
+        <!-- Edit items toggle -->
+        @if (canEditItems()) {
+          <button
+            class="btn-icon"
+            (click)="toggleAddItem()"
+            pTooltip="Ajouter un article"
+            tooltipPosition="bottom">
+            <i class="pi pi-plus"></i>
+          </button>
+        }
       </div>
+
+      <!-- Add Item Form -->
+      @if (showAddItem() && canEditItems()) {
+        <div class="add-item-form">
+          <div class="add-item-form__search">
+            <p-autocomplete
+              [(ngModel)]="selectedProduct"
+              [suggestions]="productSearchResults()"
+              (completeMethod)="onProductSearch($event)"
+              optionLabel="name"
+              [minLength]="1"
+              placeholder="Rechercher un produit par nom…"
+              styleClass="w-full"
+              inputStyleClass="w-full"
+              appendTo="body"
+              [showEmptyMessage]="true"
+              emptyMessage="Aucun produit trouvé">
+              <ng-template #item let-product>
+                <div class="product-search-item">
+                  <div class="product-search-item__img">
+                    @if (product.image_url) {
+                      <img [src]="product.image_url" [alt]="product.name" loading="lazy" (error)="onImageError($event)">
+                    } @else {
+                      <i class="pi pi-box"></i>
+                    }
+                  </div>
+                  <div class="product-search-item__info">
+                    <span class="product-search-item__name">{{ product.name }}</span>
+                    <span class="product-search-item__meta">
+                      {{ product.price | appCurrency }}
+                      @if ((product.pieces_per_box || 1) > 1) { · {{ product.pieces_per_box }} / {{ product.packaging_type?.toLowerCase() || 'carton' }} }
+                      · Stock: {{ product.stock_quantity }}
+                    </span>
+                  </div>
+                  <span class="product-search-item__stock" [class.low]="product.stock_quantity < (product.pieces_per_box || 1) * 5">
+                    {{ getProductStockLabel(product) }}
+                  </span>
+                </div>
+              </ng-template>
+            </p-autocomplete>
+          </div>
+
+          @if (selectedProduct) {
+            <div class="add-item-form__selected">
+              <div class="selected-product-preview">
+                <div class="selected-product-preview__img">
+                  @if (selectedProduct.image_url) {
+                    <img [src]="selectedProduct.image_url" [alt]="selectedProduct.name" loading="lazy">
+                  } @else {
+                    <i class="pi pi-box"></i>
+                  }
+                </div>
+                <div class="selected-product-preview__info">
+                  <span class="font-semibold">{{ selectedProduct.name }}</span>
+                  <span class="text-sm text-secondary">{{ selectedProduct.price | appCurrency }}
+                    @if ((selectedProduct.pieces_per_box || 1) > 1) { · {{ selectedProduct.pieces_per_box }} pièces/{{ selectedProduct.packaging_type?.toLowerCase() || 'carton' }} }
+                  </span>
+                </div>
+              </div>
+              <div class="flex align-items-center gap-3 mt-3">
+                <div class="flex flex-column gap-1">
+                  <span class="text-xs text-secondary">
+                    @if ((selectedProduct.pieces_per_box || 1) > 1) { Nombre de {{ selectedProduct.packaging_type?.toLowerCase() || 'cartons' }} } @else { Quantité }
+                  </span>
+                  <p-inputNumber
+                    [ngModel]="addItemQty()"
+                    (ngModelChange)="addItemQty.set($event)"
+                    [min]="1"
+                    [showButtons]="true"
+                    [step]="1"
+                    styleClass="w-8rem"
+                    inputStyleClass="text-center">
+                  </p-inputNumber>
+                </div>
+                <p-button
+                  label="Ajouter à la commande"
+                  icon="pi pi-plus"
+                  severity="success"
+                  [loading]="savingEdits()"
+                  styleClass="mt-3"
+                  (onClick)="addItem()">
+                </p-button>
+              </div>
+            </div>
+          }
+
+          <div class="add-item-form__cancel">
+            <button class="qty-btn" (click)="toggleAddItem()">
+              <i class="pi pi-times"></i>
+              <span>Fermer</span>
+            </button>
+          </div>
+        </div>
+      }
 
       <div class="order-items-list">
         @for (item of order.items || []; track item.id; let i = $index) {
-          <div class="order-item-card item-animate" [style.animation-delay]="(i * 50) + 'ms'">
+          <div class="order-item-card item-animate"
+               [style.animation-delay]="(i * 50) + 'ms'"
+               [class.item-deleted]="isItemDeleted(item.id)"
+               [class.item-modified]="isItemModified(item.id)">
             <div class="order-item-card__icon">
               @if (item.image_url) {
                 <img [src]="item.image_url" [alt]="item.product_name" loading="lazy" (error)="onImageError($event)">
@@ -355,23 +483,93 @@
               <span class="order-item-card__name">{{ item.product_name }}</span>
               @if ((item.pieces_per_box || 1) > 1) {
                 <span class="order-item-card__qty">
-                  {{ getItemCartonCount(item) }} {{ getItemPackagingLabel(item) }} ({{ item.quantity }} {{ item.product_unit | appUnit }}) × {{ item.unit_price | appCurrency }}
+                  {{ getEditedCartonCount(item) }} {{ getItemPackagingLabel(item) }} ({{ getEffectiveQty(item) }} {{ item.product_unit | appUnit }}) × {{ item.unit_price | appCurrency }}
                 </span>
               } @else {
-                <span class="order-item-card__qty">{{ item.quantity }} {{ item.product_unit | appUnit }} × {{ item.unit_price | appCurrency }}</span>
+                <span class="order-item-card__qty">{{ getEffectiveQty(item) }} {{ item.product_unit | appUnit }} × {{ item.unit_price | appCurrency }}</span>
               }
             </div>
-            <span class="order-item-card__total">{{ item.unit_price * item.quantity | appCurrency }}</span>
+
+            <!-- Total -->
+            <span class="order-item-card__total">{{ item.unit_price * getEffectiveQty(item) | appCurrency }}</span>
+
+            <!-- Editable controls -->
+            @if (canEditItems()) {
+              <div class="item-edit-controls">
+                @if (!isItemDeleted(item.id)) {
+                  <button class="qty-btn" (click)="changeItemQty(item.id, getEffectiveQty(item), -(item.pieces_per_box || 1))" [disabled]="getEffectiveQty(item) <= (item.pieces_per_box || 1)">
+                    <i class="pi pi-minus"></i>
+                  </button>
+                  <span class="qty-value" [class.qty-modified]="isItemModified(item.id)">{{ getEditedCartonCount(item) || getEffectiveQty(item) }}</span>
+                  <button class="qty-btn" (click)="changeItemQty(item.id, getEffectiveQty(item), (item.pieces_per_box || 1))">
+                    <i class="pi pi-plus"></i>
+                  </button>
+                  <button class="qty-btn qty-btn--danger" (click)="removeItem(item.id)" pTooltip="Supprimer" tooltipPosition="left">
+                    <i class="pi pi-trash"></i>
+                  </button>
+                } @else {
+                  <span class="deleted-label">Supprimé</span>
+                  <button class="qty-btn" (click)="restoreItem(item.id)" pTooltip="Restaurer" tooltipPosition="left">
+                    <i class="pi pi-undo"></i>
+                  </button>
+                }
+              </div>
+            }
           </div>
         }
       </div>
 
+      <!-- Pending new items -->
+      @if (pendingNewItems().length > 0) {
+        <div class="pending-new-items">
+          @for (entry of pendingNewItems(); track entry.product.id; let i = $index) {
+            <div class="order-item-card item-new">
+              <div class="order-item-card__icon">
+                @if (entry.product.image_url) {
+                  <img [src]="entry.product.image_url" [alt]="entry.product.name" loading="lazy" (error)="onImageError($event)">
+                } @else {
+                  <i class="pi pi-box"></i>
+                }
+              </div>
+              <div class="order-item-card__info">
+                <span class="order-item-card__name">{{ entry.product.name }}</span>
+                <span class="order-item-card__qty">
+                  @if ((entry.product.pieces_per_box || 1) > 1) {
+                    {{ entry.qty }} {{ entry.product.packaging_type?.toLowerCase() || 'carton' }}(s) ({{ entry.qty * (entry.product.pieces_per_box || 1) }} unités) × {{ entry.product.price | appCurrency }}
+                  } @else {
+                    {{ entry.qty }} {{ entry.product.unit }} × {{ entry.product.price | appCurrency }}
+                  }
+                </span>
+              </div>
+              <span class="new-badge">Nouveau</span>
+              <span class="order-item-card__total">{{ entry.product.price * entry.qty * (entry.product.pieces_per_box || 1) | appCurrency }}</span>
+              <button class="qty-btn qty-btn--danger" (click)="removePendingNew(i)" pTooltip="Annuler" tooltipPosition="left">
+                <i class="pi pi-times"></i>
+              </button>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- Save / Cancel bar -->
+      @if (canEditItems() && hasUnsavedChanges()) {
+        <div class="edit-save-bar">
+          <span class="edit-save-bar__hint">Modifications non enregistrées</span>
+          <div class="flex gap-2">
+            <button class="save-edits-btn" style="background: var(--surface-border); color: var(--text-color);" (click)="cancelEdits()" [disabled]="savingEdits()">
+              <i class="pi pi-times"></i>
+              <span>Annuler</span>
+            </button>
+            <button class="save-edits-btn" (click)="saveEdits()" [disabled]="savingEdits()">
+              @if (savingEdits()) { <i class="pi pi-spin pi-spinner"></i> } @else { <i class="pi pi-check"></i> }
+              <span>Enregistrer</span>
+            </button>
+          </div>
+        </div>
+      }
+
       <!-- Total Footer -->
       <div class="order-total-footer">
-        <div class="order-total-footer__row">
-          <span class="order-total-footer__label">{{ 'admin.orders.subtotal' | translate }}</span>
-          <span class="order-total-footer__value">{{ order.subtotal || order.total_amount | appCurrency }}</span>
-        </div>
         @if (order.discount_amount && order.discount_amount > 0) {
           <div class="order-total-footer__row order-total-footer__row--discount">
             <span class="order-total-footer__label">
@@ -383,8 +581,177 @@
         }
         <div class="order-total-footer__row order-total-footer__row--total">
           <span class="order-total-footer__label">{{ 'admin.orders.total' | translate }}</span>
-          <span class="order-total-footer__value">{{ order.total_amount | appCurrency }}</span>
+          <span class="order-total-footer__value">
+            @if (hasUnsavedChanges()) {
+              <span class="total-original-struck">{{ order.total_amount | appCurrency }}</span>
+            }
+            <span [class.total-preview]="hasUnsavedChanges()">{{ previewTotal() | appCurrency }}</span>
+          </span>
         </div>
+      </div>
+    </div>
+
+    <!-- ─── Payment Panel ──────────────────────────────────────────────────── -->
+    <div class="widget animate-item" style="--item-delay: 500ms;">
+      <div class="widget__header">
+        <h3 class="widget__title">
+          <i class="pi pi-credit-card"></i>
+          Paiement
+        </h3>
+        <span class="payment-status-badge" [ngClass]="{
+          'payment-status-badge--paid': order.payment_status === 'paid',
+          'payment-status-badge--partial': order.payment_status === 'partial',
+          'payment-status-badge--unpaid': !order.payment_status || order.payment_status === 'unpaid'
+        }">
+          @switch (order.payment_status) {
+            @case ('paid') { <i class="pi pi-check-circle"></i> Payé }
+            @case ('partial') { <i class="pi pi-clock"></i> Partiel }
+            @default { <i class="pi pi-times-circle"></i> Non payé }
+          }
+        </span>
+      </div>
+      <div class="widget__body">
+
+        <!-- Summary -->
+        <div class="payment-summary">
+          <div class="payment-summary__row">
+            <span class="payment-summary__label">Total commande</span>
+            <span class="payment-summary__value">{{ order.total_amount | appCurrency }}</span>
+          </div>
+          <div class="payment-summary__row">
+            <span class="payment-summary__label">Total payé</span>
+            <span class="payment-summary__value payment-summary__value--paid">{{ totalPaid() | appCurrency }}</span>
+          </div>
+          @if (balance() > 0) {
+            <div class="payment-summary__row payment-summary__row--balance">
+              <span class="payment-summary__label">Reste à payer</span>
+              <span class="payment-summary__value payment-summary__value--balance">{{ balance() | appCurrency }}</span>
+            </div>
+          }
+        </div>
+
+        <!-- Payments List -->
+        @if (paymentLoading()) {
+          <div class="flex align-items-center gap-2 text-secondary text-sm py-2">
+            <i class="pi pi-spin pi-spinner"></i>
+            <span>Chargement…</span>
+          </div>
+        } @else if (payments().length > 0) {
+          <div class="payments-list">
+            @for (p of payments(); track p.id) {
+              <div class="payment-entry" [class.payment-entry--refund]="p.amount < 0">
+                <div class="payment-entry__icon">
+                  <i [class]="getPaymentMethodIcon(p.method)"></i>
+                </div>
+                <div class="payment-entry__info">
+                  <span class="payment-entry__method">{{ getPaymentMethodLabel(p.method) }}</span>
+                  @if (p.note) {
+                    <span class="payment-entry__note">{{ p.note }}</span>
+                  }
+                  <span class="payment-entry__meta">
+                    {{ p.recorded_at | appDate }}
+                    @if (p.recorder_name) { · {{ p.recorder_name }} }
+                  </span>
+                </div>
+                <span class="payment-entry__amount" [class.refund]="p.amount < 0">
+                  {{ p.amount > 0 ? '+' : '' }}{{ p.amount | appCurrency }}
+                </span>
+              </div>
+            }
+          </div>
+        }
+
+        <!-- Add Payment Form -->
+        <div class="add-payment-form">
+          <span class="add-payment-form__title">Enregistrer un paiement / remboursement</span>
+          <div class="flex flex-column gap-2">
+            <div class="flex gap-2">
+              <p-inputNumber
+                [ngModel]="newPaymentAmount()"
+                (ngModelChange)="newPaymentAmount.set($event)"
+                placeholder="Montant (négatif = remboursement)"
+                styleClass="flex-1"
+                inputStyleClass="w-full"
+                mode="decimal"
+                [minFractionDigits]="0"
+                [maxFractionDigits]="2">
+              </p-inputNumber>
+              <p-select
+                [options]="paymentMethodOptions"
+                [ngModel]="newPaymentMethod()"
+                (ngModelChange)="newPaymentMethod.set($event)"
+                styleClass="w-8rem"
+                appendTo="body">
+              </p-select>
+            </div>
+            <input
+              pInputText
+              type="text"
+              [ngModel]="newPaymentNote()"
+              (ngModelChange)="newPaymentNote.set($event)"
+              placeholder="Note (optionnel)"
+              class="w-full" />
+            <p-button
+              label="Enregistrer"
+              icon="pi pi-save"
+              severity="success"
+              [loading]="savingPayment()"
+              [disabled]="!newPaymentAmount()"
+              styleClass="align-self-end"
+              (onClick)="recordPayment()">
+            </p-button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ─── Audit Log Panel ────────────────────────────────────────────────── -->
+    <div class="widget animate-item" style="--item-delay: 550ms;">
+      <div class="widget__header">
+        <h3 class="widget__title">
+          <i class="pi pi-history"></i>
+          Historique
+        </h3>
+      </div>
+      <div class="widget__body">
+        @if (auditLoading()) {
+          <div class="flex align-items-center gap-2 text-secondary text-sm">
+            <i class="pi pi-spin pi-spinner"></i>
+            <span>Chargement…</span>
+          </div>
+        } @else if (auditLogs().length === 0) {
+          <div class="text-secondary text-sm">Aucun historique disponible.</div>
+        } @else {
+          <div class="audit-timeline">
+            @for (log of auditLogs(); track log.id) {
+              <div class="audit-entry">
+                <div class="audit-entry__dot" [style.background]="getAuditActionColor(log.action)">
+                  <i [class]="getAuditActionIcon(log.action)"></i>
+                </div>
+                <div class="audit-entry__content">
+                  <span class="audit-entry__action">{{ getAuditActionLabel(log.action) }}</span>
+                  @if (log.details) {
+                    <span class="audit-entry__details">
+                      @if (log.details['product_name']) { {{ log.details['product_name'] }} }
+                      @if (log.details['old_status'] && log.details['new_status']) {
+                        {{ log.details['old_status'] }} → {{ log.details['new_status'] }}
+                      }
+                      @if (log.details['amount']) { {{ $any(log.details['amount']) | appCurrency }} ({{ log.details['method'] }}) }
+                      @if (log.details['old_quantity'] && log.details['new_quantity']) {
+                        qté: {{ log.details['old_quantity'] }} → {{ log.details['new_quantity'] }}
+                      }
+                    </span>
+                  }
+                  <span class="audit-entry__meta">
+                    {{ log.created_at | appDate }}
+                    @if (log.actor_name) { · {{ log.actor_name }} }
+                  </span>
+                </div>
+              </div>
+            }
+          </div>
+        }
       </div>
     </div>
 

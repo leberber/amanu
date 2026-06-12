@@ -11,6 +11,10 @@ from app.models.order import (
     Order, OrderCreate, OrderUpdate, OrderRead, OrderItem, OrderItemRead,
     OrderStatus, OrderWithItems, PromotionInfo, UserInfo
 )
+from app.models.order_payments import (
+    OrderPayment, OrderPaymentCreate, OrderPaymentRead,
+    OrderAuditLog, OrderAuditLogRead, AuditAction, PaymentStatus, PaymentMethod
+)
 from app.models.product import Product
 from app.models.promotion import Promotion, PromotionUsage, PromotionScope
 from app.models.cross_sell_promotion import CrossSellPromotion, DiscountType as CrossSellDiscountType
@@ -21,6 +25,7 @@ from app.core.security import get_current_active_user, get_current_staff_user
 from app.models.user import User, UserRole
 from app.api.utils.common import format_price
 from app.core.notification_service import NotificationService
+from sqlmodel import SQLModel
 
 router = APIRouter()
 
@@ -724,3 +729,447 @@ def _update_driver_status_after_cancellation(driver_user_id: int, session: Sessi
             driver.updated_at = datetime.now(timezone.utc)
             session.add(driver)
             session.commit()
+
+
+# =============================================================================
+# HELPERS
+# =============================================================================
+
+EDITABLE_STATUSES = {OrderStatus.PENDING, OrderStatus.CONFIRMED}
+
+
+def _write_audit(session: Session, order_id: int, user_id: int, action: AuditAction, details: dict) -> None:
+    log = OrderAuditLog(order_id=order_id, user_id=user_id, action=action, details=details)
+    session.add(log)
+
+
+def _recalculate_payment_status(order: Order, session: Session) -> None:
+    """Recompute payment_status from sum of all payments."""
+    total_paid = session.exec(
+        select(func.coalesce(func.sum(OrderPayment.amount), 0.0))
+        .where(OrderPayment.order_id == order.id)
+    ).one()
+
+    if total_paid <= 0:
+        order.payment_status = PaymentStatus.UNPAID
+    elif total_paid >= order.total_amount:
+        order.payment_status = PaymentStatus.PAID
+    else:
+        order.payment_status = PaymentStatus.PARTIAL
+    session.add(order)
+
+
+def _recalculate_order_total(order: Order, session: Session) -> None:
+    """Recompute total_amount from current items."""
+    items = session.exec(select(OrderItem).where(OrderItem.order_id == order.id)).all()
+    new_total = sum(i.quantity * i.unit_price for i in items)
+    order.total_amount = round(new_total, 2)
+    order.subtotal = round(new_total, 2)
+    order.updated_at = datetime.now(timezone.utc)
+    session.add(order)
+    # Re-check payment status against the new total
+    _recalculate_payment_status(order, session)
+
+
+# =============================================================================
+# PAYMENT ENDPOINTS
+# =============================================================================
+
+class OrderPaymentReadWithTotal(SQLModel):
+    payments: List[OrderPaymentRead]
+    total_paid: float
+    payment_status: str
+
+
+@router.post("/{order_id}/payments", response_model=OrderPaymentRead)
+def record_payment(
+    order_id: int,
+    payment_in: OrderPaymentCreate,
+    current_user: User = Depends(get_current_staff_user),
+    session: Session = Depends(get_session),
+) -> Any:
+    order = session.get(Order, order_id)
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+
+    payment = OrderPayment(
+        order_id=order_id,
+        amount=payment_in.amount,
+        method=payment_in.method,
+        note=payment_in.note,
+        recorded_by=current_user.id,
+    )
+    session.add(payment)
+    session.flush()
+
+    _recalculate_payment_status(order, session)
+
+    action = AuditAction.REFUND_RECORDED if payment_in.amount < 0 else AuditAction.PAYMENT_RECORDED
+    _write_audit(session, order_id, current_user.id, action, {
+        "amount": payment_in.amount,
+        "method": payment_in.method,
+        "note": payment_in.note,
+        "payment_status": order.payment_status,
+    })
+
+    session.commit()
+    session.refresh(payment)
+
+    return OrderPaymentRead(
+        id=payment.id,
+        order_id=payment.order_id,
+        amount=payment.amount,
+        method=payment.method,
+        note=payment.note,
+        recorded_by=payment.recorded_by,
+        recorded_at=payment.recorded_at,
+        recorder_name=current_user.full_name,
+    )
+
+
+@router.get("/{order_id}/payments", response_model=OrderPaymentReadWithTotal)
+def get_payments(
+    order_id: int,
+    current_user: User = Depends(get_current_active_user),
+    session: Session = Depends(get_session),
+) -> Any:
+    order = session.get(Order, order_id)
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+
+    if current_user.role == UserRole.CUSTOMER and order.user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Not authorized")
+
+    payments = session.exec(
+        select(OrderPayment).where(OrderPayment.order_id == order_id)
+        .order_by(OrderPayment.recorded_at)
+    ).all()
+
+    # Batch load recorders
+    recorder_ids = list({p.recorded_by for p in payments})
+    recorders = {}
+    if recorder_ids:
+        users = session.exec(select(User).where(User.id.in_(recorder_ids))).all()
+        recorders = {u.id: u.full_name for u in users}
+
+    total_paid = sum(p.amount for p in payments)
+
+    return OrderPaymentReadWithTotal(
+        payments=[
+            OrderPaymentRead(
+                id=p.id,
+                order_id=p.order_id,
+                amount=p.amount,
+                method=p.method,
+                note=p.note,
+                recorded_by=p.recorded_by,
+                recorded_at=p.recorded_at,
+                recorder_name=recorders.get(p.recorded_by),
+            )
+            for p in payments
+        ],
+        total_paid=total_paid,
+        payment_status=order.payment_status,
+    )
+
+
+# =============================================================================
+# AUDIT LOG ENDPOINTS
+# =============================================================================
+
+@router.get("/{order_id}/audit-log", response_model=List[OrderAuditLogRead])
+def get_audit_log(
+    order_id: int,
+    current_user: User = Depends(get_current_active_user),
+    session: Session = Depends(get_session),
+) -> Any:
+    order = session.get(Order, order_id)
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+
+    if current_user.role == UserRole.CUSTOMER and order.user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Not authorized")
+
+    logs = session.exec(
+        select(OrderAuditLog).where(OrderAuditLog.order_id == order_id)
+        .order_by(OrderAuditLog.created_at.desc())
+    ).all()
+
+    actor_ids = list({l.user_id for l in logs if l.user_id})
+    actors = {}
+    if actor_ids:
+        users = session.exec(select(User).where(User.id.in_(actor_ids))).all()
+        # Customers see "Staff" instead of real name
+        if current_user.role == UserRole.CUSTOMER:
+            actors = {u.id: "Équipe" for u in users}
+        else:
+            actors = {u.id: u.full_name for u in users}
+
+    return [
+        OrderAuditLogRead(
+            id=l.id,
+            order_id=l.order_id,
+            user_id=l.user_id,
+            actor_name=actors.get(l.user_id) if l.user_id else None,
+            action=l.action,
+            details=l.details,
+            created_at=l.created_at,
+        )
+        for l in logs
+    ]
+
+
+# =============================================================================
+# ORDER ITEM EDITING ENDPOINTS
+# =============================================================================
+
+class OrderItemAdd(SQLModel):
+    product_id: int
+    quantity: float
+
+
+class OrderItemUpdate(SQLModel):
+    quantity: float
+
+
+@router.post("/{order_id}/items", response_model=OrderWithItems)
+def add_order_item(
+    order_id: int,
+    item_in: OrderItemAdd,
+    current_user: User = Depends(get_current_staff_user),
+    session: Session = Depends(get_session),
+) -> Any:
+    order = session.get(Order, order_id)
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+
+    if order.status not in EDITABLE_STATUSES:
+        raise HTTPException(status_code=400, detail="Order can only be edited when pending or confirmed")
+
+    product = session.get(Product, item_in.product_id)
+    if not product or not product.is_active:
+        raise HTTPException(status_code=404, detail="Product not found or inactive")
+
+    if product.stock_quantity < item_in.quantity:
+        raise HTTPException(status_code=400, detail=f"Insufficient stock. Available: {product.stock_quantity}")
+
+    # Check if item already exists — if so, increase quantity
+    existing = session.exec(
+        select(OrderItem).where(
+            OrderItem.order_id == order_id,
+            OrderItem.product_id == item_in.product_id
+        )
+    ).first()
+
+    if existing:
+        old_qty = existing.quantity
+        stock_delta = item_in.quantity
+        existing.quantity += item_in.quantity
+        session.add(existing)
+        _write_audit(session, order_id, current_user.id, AuditAction.ITEM_QUANTITY_CHANGED, {
+            "product_id": product.id,
+            "product_name": product.name,
+            "old_quantity": old_qty,
+            "new_quantity": existing.quantity,
+        })
+    else:
+        new_item = OrderItem(
+            order_id=order_id,
+            product_id=product.id,
+            quantity=item_in.quantity,
+            unit_price=product.price,
+            product_name=product.name,
+            product_unit=product.unit,
+            pieces_per_box=product.pieces_per_box,
+            packaging_type=product.packaging_type,
+        )
+        session.add(new_item)
+        stock_delta = item_in.quantity
+        _write_audit(session, order_id, current_user.id, AuditAction.ITEM_ADDED, {
+            "product_id": product.id,
+            "product_name": product.name,
+            "quantity": item_in.quantity,
+            "unit_price": product.price,
+        })
+
+    # Deduct stock
+    product.stock_quantity -= stock_delta
+    session.add(product)
+
+    session.flush()
+    _recalculate_order_total(order, session)
+
+    # Notify customer
+    try:
+        NotificationService.notify_order_modified(
+            session=session,
+            user_id=order.user_id,
+            order_id=order.id,
+        )
+    except Exception:
+        pass
+
+    session.commit()
+    return _build_order_with_items(order, session)
+
+
+@router.delete("/{order_id}/items/{item_id}", response_model=OrderWithItems)
+def remove_order_item(
+    order_id: int,
+    item_id: int,
+    current_user: User = Depends(get_current_staff_user),
+    session: Session = Depends(get_session),
+) -> Any:
+    order = session.get(Order, order_id)
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+
+    if order.status not in EDITABLE_STATUSES:
+        raise HTTPException(status_code=400, detail="Order can only be edited when pending or confirmed")
+
+    item = session.get(OrderItem, item_id)
+    if not item or item.order_id != order_id:
+        raise HTTPException(status_code=404, detail="Item not found")
+
+    # Must keep at least one item
+    item_count = session.exec(
+        select(func.count(OrderItem.id)).where(OrderItem.order_id == order_id)
+    ).one()
+    if item_count <= 1:
+        raise HTTPException(status_code=400, detail="Order must contain at least one item")
+
+    # Restore stock
+    product = session.get(Product, item.product_id)
+    if product:
+        product.stock_quantity += item.quantity
+        session.add(product)
+
+    _write_audit(session, order_id, current_user.id, AuditAction.ITEM_REMOVED, {
+        "product_id": item.product_id,
+        "product_name": item.product_name,
+        "quantity": item.quantity,
+        "unit_price": item.unit_price,
+    })
+
+    session.delete(item)
+    session.flush()
+    _recalculate_order_total(order, session)
+
+    try:
+        NotificationService.notify_order_modified(
+            session=session,
+            user_id=order.user_id,
+            order_id=order.id,
+        )
+    except Exception:
+        pass
+
+    session.commit()
+    return _build_order_with_items(order, session)
+
+
+@router.patch("/{order_id}/items/{item_id}", response_model=OrderWithItems)
+def update_order_item(
+    order_id: int,
+    item_id: int,
+    item_in: OrderItemUpdate,
+    current_user: User = Depends(get_current_staff_user),
+    session: Session = Depends(get_session),
+) -> Any:
+    order = session.get(Order, order_id)
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+
+    if order.status not in EDITABLE_STATUSES:
+        raise HTTPException(status_code=400, detail="Order can only be edited when pending or confirmed")
+
+    if item_in.quantity <= 0:
+        raise HTTPException(status_code=400, detail="Quantity must be greater than 0")
+
+    item = session.get(OrderItem, item_id)
+    if not item or item.order_id != order_id:
+        raise HTTPException(status_code=404, detail="Item not found")
+
+    old_qty = item.quantity
+    delta = item_in.quantity - old_qty  # positive = need more stock, negative = return stock
+
+    if delta > 0:
+        product = session.get(Product, item.product_id)
+        if product and product.stock_quantity < delta:
+            raise HTTPException(status_code=400, detail=f"Insufficient stock. Available: {product.stock_quantity}")
+        if product:
+            product.stock_quantity -= delta
+            session.add(product)
+    elif delta < 0:
+        product = session.get(Product, item.product_id)
+        if product:
+            product.stock_quantity += abs(delta)
+            session.add(product)
+
+    item.quantity = item_in.quantity
+    session.add(item)
+
+    _write_audit(session, order_id, current_user.id, AuditAction.ITEM_QUANTITY_CHANGED, {
+        "product_id": item.product_id,
+        "product_name": item.product_name,
+        "old_quantity": old_qty,
+        "new_quantity": item_in.quantity,
+    })
+
+    session.flush()
+    _recalculate_order_total(order, session)
+
+    try:
+        NotificationService.notify_order_modified(
+            session=session,
+            user_id=order.user_id,
+            order_id=order.id,
+        )
+    except Exception:
+        pass
+
+    session.commit()
+    return _build_order_with_items(order, session)
+
+
+def _build_order_with_items(order: Order, session: Session) -> OrderWithItems:
+    """Reload order with items for response."""
+    session.refresh(order)
+    items = session.exec(
+        select(OrderItem).where(OrderItem.order_id == order.id)
+        .options(selectinload(OrderItem.product))
+    ).all()
+
+    user_info = None
+    if order.user_id:
+        user = session.get(User, order.user_id)
+        if user:
+            user_info = UserInfo(
+                id=user.id,
+                full_name=user.full_name,
+                email=user.email,
+                store_name=user.store_name,
+                daira=user.daira,
+                commune=user.commune,
+            )
+
+    return OrderWithItems(
+        **order.model_dump(),
+        user=user_info,
+        items=[
+            OrderItemRead(
+                id=i.id,
+                order_id=i.order_id,
+                product_id=i.product_id,
+                quantity=i.quantity,
+                unit_price=i.unit_price,
+                product_name=i.product_name,
+                product_unit=i.product_unit,
+                pieces_per_box=i.pieces_per_box,
+                packaging_type=i.packaging_type,
+                image_url=i.product.image_url if i.product else None,
+                brand_name=i.product.brand.name if i.product and i.product.brand else None,
+            )
+            for i in items
+        ],
+    )

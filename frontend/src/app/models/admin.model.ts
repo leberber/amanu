@@ -91,8 +91,42 @@ export interface DashboardStats {
     driver_id?: number;
     driver?: DriverInfo;
     assigned_at?: string;
+    // Payment
+    payment_status?: string; // unpaid | partial | paid
   }
-  
+
+  export interface OrderPayment {
+    id: number;
+    order_id: number;
+    amount: number; // negative = refund
+    method: 'cash' | 'virement' | 'cheque';
+    note?: string;
+    recorded_by: number;
+    recorded_at: string;
+    recorder_name?: string;
+  }
+
+  export interface OrderPaymentsResponse {
+    payments: OrderPayment[];
+    total_paid: number;
+    payment_status: string;
+  }
+
+  export interface OrderAuditLog {
+    id: number;
+    order_id: number;
+    user_id?: number;
+    actor_name?: string;
+    action: string;
+    details?: Record<string, unknown>;
+    created_at: string;
+  }
+
+  export interface OrderItemCreate {
+    product_id: number;
+    quantity: number;
+  }
+
   export interface OrderItem {
     id: number;
     product_id: number;
