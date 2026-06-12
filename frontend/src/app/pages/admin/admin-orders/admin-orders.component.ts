@@ -210,6 +210,11 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
     this.filterItems();
   }
 
+  refreshOrders(): void {
+    this.loading = true;
+    this.loadAllOrders();
+  }
+
   /** Called by InfiniteScrollDirective when user scrolls near bottom */
   loadMoreOrders(): void {
     if (this.loadingMore() || !this.hasMore()) return;
