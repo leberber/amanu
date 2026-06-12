@@ -12,6 +12,7 @@ from app.core.security import (
     get_current_user,
     get_current_active_user,
     get_current_admin_user,
+    get_current_staff_user,
     get_password_hash,
 )
 from app.core.geo import lat_lng_to_h3
@@ -98,7 +99,7 @@ def get_user_groups_for_user(user_id: int, session: Session) -> List[UserGroupBa
 def read_users(
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=1000),
-    current_user: User = Depends(get_current_admin_user),
+    current_user: User = Depends(get_current_staff_user),
     session: Session = Depends(get_session),
 ) -> Any:
     """
@@ -163,8 +164,8 @@ def read_user_by_id(
             detail="User not found",
         )
 
-    # Only admin can view other users
-    if user.id != current_user.id and current_user.role != UserRole.ADMIN:
+    # Only admin/staff can view other users
+    if user.id != current_user.id and current_user.role not in [UserRole.ADMIN, UserRole.STAFF]:
         raise HTTPException(
             status_code=403,
             detail="Access denied",
@@ -180,7 +181,7 @@ def read_user_by_id(
 def update_user(
     user_id: int,
     user_in: UserUpdate,
-    current_user: User = Depends(get_current_admin_user),
+    current_user: User = Depends(get_current_staff_user),
     session: Session = Depends(get_session),
 ) -> Any:
     """
@@ -195,6 +196,10 @@ def update_user(
 
     # Update user fields
     update_data = user_in.model_dump(exclude_unset=True)
+
+    # Staff cannot change roles — only admins can
+    if current_user.role != UserRole.ADMIN:
+        update_data.pop("role", None)
 
     # Handle password update
     if "password" in update_data:
@@ -226,7 +231,7 @@ async def set_user_password(
     user_id: int,
     data: SetPasswordRequest,
     background_tasks: BackgroundTasks,
-    current_user: User = Depends(get_current_admin_user),
+    current_user: User = Depends(get_current_staff_user),
     session: Session = Depends(get_session),
 ) -> Any:
     """Set password for a user and notify them by email (admin only)."""
@@ -249,7 +254,7 @@ async def set_user_password(
 @router.delete("/{user_id}")
 def delete_user(
     user_id: int,
-    current_user: User = Depends(get_current_admin_user),
+    current_user: User = Depends(get_current_staff_user),
     session: Session = Depends(get_session),
 ) -> None:
     """
@@ -277,7 +282,7 @@ def delete_user(
 @router.get("/{user_id}/groups", response_model=List[UserGroupBasic])
 def get_user_groups(
     user_id: int,
-    current_user: User = Depends(get_current_admin_user),
+    current_user: User = Depends(get_current_staff_user),
     session: Session = Depends(get_session),
 ) -> Any:
     """
@@ -313,7 +318,7 @@ def get_user_groups(
 def update_user_groups(
     user_id: int,
     groups_in: UserGroupsUpdate,
-    current_user: User = Depends(get_current_admin_user),
+    current_user: User = Depends(get_current_staff_user),
     session: Session = Depends(get_session),
 ) -> Any:
     """

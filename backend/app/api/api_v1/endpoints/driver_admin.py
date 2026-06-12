@@ -212,7 +212,7 @@ def get_active_orders_count(session: Session, driver_user_id: int) -> int:
 
 @router.get("/config", response_model=DriverSystemConfigRead)
 def get_config(
-    current_user: User = Depends(get_current_admin_user),
+    current_user: User = Depends(get_current_staff_user),
     session: Session = Depends(get_session),
 ) -> Any:
     """
@@ -225,7 +225,7 @@ def get_config(
 @router.patch("/config", response_model=DriverSystemConfigRead)
 def update_config(
     config_update: DriverSystemConfigUpdate,
-    current_user: User = Depends(get_current_admin_user),
+    current_user: User = Depends(get_current_staff_user),
     session: Session = Depends(get_session),
 ) -> Any:
     """
@@ -717,7 +717,7 @@ def get_driver_profile(
 def update_driver_profile(
     driver_id: int,
     driver_update: DriverAdminUpdate,
-    current_user: User = Depends(get_current_admin_user),
+    current_user: User = Depends(get_current_staff_user),
     session: Session = Depends(get_session),
 ) -> Any:
     """
@@ -935,7 +935,7 @@ class SuspendDriverRequest(SQLModel):
 def suspend_driver(
     driver_id: int,
     suspend_request: SuspendDriverRequest,
-    current_user: User = Depends(get_current_admin_user),
+    current_user: User = Depends(get_current_staff_user),
     session: Session = Depends(get_session),
 ) -> Any:
     """
@@ -1000,7 +1000,7 @@ def suspend_driver(
 @router.post("/profiles/{driver_id}/unsuspend", response_model=DriverReadWithFlags)
 def unsuspend_driver(
     driver_id: int,
-    current_user: User = Depends(get_current_admin_user),
+    current_user: User = Depends(get_current_staff_user),
     session: Session = Depends(get_session),
 ) -> Any:
     """

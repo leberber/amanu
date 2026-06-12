@@ -596,7 +596,7 @@ class LogsResponse(BaseModel):
 def get_application_logs(
     lines: int = Query(default=100, ge=10, le=1000, description="Number of log lines to return"),
     level: Optional[str] = Query(default=None, description="Filter by log level (INFO, WARNING, ERROR)"),
-    current_user: User = Depends(get_current_admin_user),
+    current_user: User = Depends(get_current_staff_user),
 ) -> Any:
     """
     Get recent application logs (admin only).
@@ -619,7 +619,7 @@ def get_application_logs(
 
 @router.get("/system")
 def get_system_metrics(
-    current_user: User = Depends(get_current_admin_user),
+    current_user: User = Depends(get_current_staff_user),
 ) -> Any:
     """
     Get system performance metrics (admin only).
@@ -632,7 +632,7 @@ def get_system_metrics(
 
 @router.get("/system/health")
 def get_system_health(
-    current_user: User = Depends(get_current_admin_user),
+    current_user: User = Depends(get_current_staff_user),
 ) -> Any:
     """
     Get quick system health status (admin only).
@@ -676,7 +676,7 @@ def get_system_health(
 
 @router.get("/system/errors")
 def get_system_errors(
-    current_user: User = Depends(get_current_admin_user),
+    current_user: User = Depends(get_current_staff_user),
     limit: int = Query(50, le=100, description="Number of errors to return")
 ) -> Any:
     """
@@ -693,7 +693,7 @@ def get_system_errors(
 
 @router.delete("/system/errors")
 def clear_system_errors(
-    current_user: User = Depends(get_current_admin_user),
+    current_user: User = Depends(get_current_staff_user),
 ) -> Any:
     """
     Clear the error log (admin only).

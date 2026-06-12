@@ -207,7 +207,7 @@ def preview_order_batching(
 
 @router.post("/run", response_model=BatchingRunResponse)
 def run_order_batching(
-    current_user: User = Depends(get_current_admin_user),
+    current_user: User = Depends(get_current_staff_user),
     session: Session = Depends(get_session),
 ) -> Any:
     """
@@ -273,7 +273,7 @@ def run_smart_order_batching(
     corridor_filter: Optional[str] = None,
     max_capacity_percent: float = 90.0,
     batching_mode: str = "available",
-    current_user: User = Depends(get_current_admin_user),
+    current_user: User = Depends(get_current_staff_user),
     session: Session = Depends(get_session),
 ) -> Any:
     """
@@ -437,7 +437,7 @@ class CustomBatchingRequest(SQLModel):
 @router.post("/run-custom", response_model=BatchingRunResponse)
 def run_custom_batching(
     request: CustomBatchingRequest,
-    current_user: User = Depends(get_current_admin_user),
+    current_user: User = Depends(get_current_staff_user),
     session: Session = Depends(get_session),
 ) -> Any:
     """
@@ -742,7 +742,7 @@ def unassign_trip(
 @router.delete("/trips/{trip_id}")
 def cancel_trip(
     trip_id: int,
-    current_user: User = Depends(get_current_admin_user),
+    current_user: User = Depends(get_current_staff_user),
     session: Session = Depends(get_session),
 ) -> Any:
     """
@@ -894,7 +894,7 @@ class ResetTripsResponse(SQLModel):
 
 @router.post("/reset", response_model=ResetTripsResponse)
 def reset_all_trips(
-    current_user: User = Depends(get_current_admin_user),
+    current_user: User = Depends(get_current_staff_user),
     session: Session = Depends(get_session),
 ) -> Any:
     """

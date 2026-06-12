@@ -21,7 +21,7 @@ from app.models.notification_history import (
     NotificationStatus
 )
 from app.models.user_group import UserGroup, UserGroupLink
-from app.core.security import get_current_active_user, get_current_admin_user
+from app.core.security import get_current_active_user, get_current_admin_user, get_current_staff_user
 from app.core.push import PushService
 from app.core.config import settings
 
@@ -293,7 +293,7 @@ def unsubscribe(
 @router.get("/segments", response_model=List[SegmentInfo])
 def get_segments(
     session: Session = Depends(get_session),
-    current_user: User = Depends(get_current_admin_user),
+    current_user: User = Depends(get_current_staff_user),
 ):
     """Get available segments with subscriber counts."""
     now = datetime.now(timezone.utc)
@@ -353,7 +353,7 @@ def get_segments(
 @router.get("/cities", response_model=List[CityStat])
 def get_cities(
     session: Session = Depends(get_session),
-    current_user: User = Depends(get_current_admin_user),
+    current_user: User = Depends(get_current_staff_user),
 ):
     """Get cities (communes) with subscriber counts."""
     # Get users with subscriptions
@@ -379,7 +379,7 @@ def get_cities(
 @router.get("/wilayas")
 def get_wilayas(
     session: Session = Depends(get_session),
-    current_user: User = Depends(get_current_admin_user),
+    current_user: User = Depends(get_current_staff_user),
 ):
     """Get wilayas with user counts."""
     # Get users with subscriptions
@@ -406,7 +406,7 @@ def get_wilayas(
 def get_dairas(
     wilaya: str = Query(..., description="Wilaya name"),
     session: Session = Depends(get_session),
-    current_user: User = Depends(get_current_admin_user),
+    current_user: User = Depends(get_current_staff_user),
 ):
     """Get dairas for a wilaya with user counts."""
     # Get users with subscriptions
@@ -437,7 +437,7 @@ def get_dairas(
 def get_communes(
     daira: str = Query(..., description="Daira name"),
     session: Session = Depends(get_session),
-    current_user: User = Depends(get_current_admin_user),
+    current_user: User = Depends(get_current_staff_user),
 ):
     """Get communes for a daira with user counts."""
     # Get users with subscriptions
@@ -469,7 +469,7 @@ def preview_recipient_count(
     segment_type: SegmentType,
     segment_value: Optional[str] = None,
     session: Session = Depends(get_session),
-    current_user: User = Depends(get_current_admin_user),
+    current_user: User = Depends(get_current_staff_user),
 ):
     """Get the number of recipients for a segment."""
     if segment_type == SegmentType.ALL:
@@ -488,7 +488,7 @@ def preview_recipient_count(
 def send_notification(
     notification: NotificationRequest,
     session: Session = Depends(get_session),
-    current_user: User = Depends(get_current_admin_user),
+    current_user: User = Depends(get_current_staff_user),
 ):
     """Send push notification to all subscribers (legacy endpoint)."""
     subscriptions = get_all_subscriptions(session)
@@ -524,7 +524,7 @@ def send_notification(
 def send_targeted_notification(
     notification: TargetedNotificationRequest,
     session: Session = Depends(get_session),
-    current_user: User = Depends(get_current_admin_user),
+    current_user: User = Depends(get_current_staff_user),
 ):
     """Send targeted push notification with multi-language support."""
     # Get user IDs based on segment
@@ -655,7 +655,7 @@ def get_notification_history(
     skip: int = Query(0, ge=0),
     limit: int = Query(20, ge=1, le=100),
     session: Session = Depends(get_session),
-    current_user: User = Depends(get_current_admin_user),
+    current_user: User = Depends(get_current_staff_user),
 ):
     """Get notification history."""
     history = session.exec(
@@ -672,7 +672,7 @@ def get_notification_history(
 def get_notification_detail(
     history_id: int,
     session: Session = Depends(get_session),
-    current_user: User = Depends(get_current_admin_user),
+    current_user: User = Depends(get_current_staff_user),
 ):
     """Get notification detail."""
     history = session.get(NotificationHistory, history_id)
@@ -688,7 +688,7 @@ def get_notification_detail(
 @router.get("/promotions-list")
 def get_promotions_for_notifications(
     session: Session = Depends(get_session),
-    current_user: User = Depends(get_current_admin_user),
+    current_user: User = Depends(get_current_staff_user),
 ):
     """Get active promotions for notification builder."""
     now = datetime.now(timezone.utc)
@@ -716,7 +716,7 @@ def get_promotions_for_notifications(
 @router.get("/products-list")
 def get_products_for_notifications(
     session: Session = Depends(get_session),
-    current_user: User = Depends(get_current_admin_user),
+    current_user: User = Depends(get_current_staff_user),
 ):
     """Get products for notification builder."""
     products = session.exec(
@@ -736,7 +736,7 @@ def get_products_for_notifications(
 @router.get("/categories-list")
 def get_categories_for_notifications(
     session: Session = Depends(get_session),
-    current_user: User = Depends(get_current_admin_user),
+    current_user: User = Depends(get_current_staff_user),
 ):
     """Get categories for notification builder."""
     categories = session.exec(select(Category)).all()
@@ -753,7 +753,7 @@ def get_categories_for_notifications(
 @router.get("/brands-list")
 def get_brands_for_notifications(
     session: Session = Depends(get_session),
-    current_user: User = Depends(get_current_admin_user),
+    current_user: User = Depends(get_current_staff_user),
 ):
     """Get brands for notification builder."""
     brands = session.exec(select(Brand)).all()

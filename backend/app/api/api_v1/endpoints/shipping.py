@@ -19,7 +19,7 @@ from app.models.shipping import (
     ShippingCostResponse,
     DeliveryPricing,
 )
-from app.core.security import get_current_active_user, get_current_admin_user
+from app.core.security import get_current_active_user, get_current_admin_user, get_current_staff_user
 
 router = APIRouter()
 
@@ -260,7 +260,7 @@ def calculate_shipping(
 
 @router.get("/config", response_model=List[ShippingPriceConfigRead])
 def list_pricing_configs(
-    current_user: User = Depends(get_current_admin_user),
+    current_user: User = Depends(get_current_staff_user),
     session: Session = Depends(get_session),
 ) -> Any:
     """Get all shipping price configurations (admin only)."""
@@ -271,7 +271,7 @@ def list_pricing_configs(
 @router.get("/config/{warehouse_id}", response_model=ShippingPriceConfigRead)
 def get_pricing_config_by_warehouse(
     warehouse_id: str,
-    current_user: User = Depends(get_current_admin_user),
+    current_user: User = Depends(get_current_staff_user),
     session: Session = Depends(get_session),
 ) -> Any:
     """Get pricing config for a specific warehouse (admin only)."""
@@ -293,7 +293,7 @@ def get_pricing_config_by_warehouse(
 @router.post("/config", response_model=ShippingPriceConfigRead)
 def create_pricing_config(
     config_in: ShippingPriceConfigCreate,
-    current_user: User = Depends(get_current_admin_user),
+    current_user: User = Depends(get_current_staff_user),
     session: Session = Depends(get_session),
 ) -> Any:
     """Create a new pricing configuration (admin only)."""
@@ -321,7 +321,7 @@ def create_pricing_config(
 def update_pricing_config(
     warehouse_id: str,
     config_in: ShippingPriceConfigUpdate,
-    current_user: User = Depends(get_current_admin_user),
+    current_user: User = Depends(get_current_staff_user),
     session: Session = Depends(get_session),
 ) -> Any:
     """Update a pricing configuration (admin only)."""
@@ -352,7 +352,7 @@ def update_pricing_config(
 @router.delete("/config/{warehouse_id}")
 def delete_pricing_config(
     warehouse_id: str,
-    current_user: User = Depends(get_current_admin_user),
+    current_user: User = Depends(get_current_staff_user),
     session: Session = Depends(get_session),
 ) -> None:
     """Delete a pricing configuration (admin only)."""
@@ -381,7 +381,7 @@ def delete_pricing_config(
 @router.get("/zones/{warehouse_id}", response_model=dict)
 def get_delivery_zones_stats(
     warehouse_id: str,
-    current_user: User = Depends(get_current_admin_user),
+    current_user: User = Depends(get_current_staff_user),
     session: Session = Depends(get_session),
 ) -> Any:
     """Get delivery zone statistics for a warehouse (admin only)."""

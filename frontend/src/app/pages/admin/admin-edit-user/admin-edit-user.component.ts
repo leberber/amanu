@@ -12,6 +12,7 @@ import { PasswordModule } from 'primeng/password';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { onLanguageChange } from '../../../core/utils/language-change.util';
+import { AuthService } from '../../../services/auth.service';
 import { AdminService } from '../../../services/admin.service';
 import { UserManage } from '../../../models/admin.model';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
@@ -73,6 +74,7 @@ export class AdminEditUserComponent implements OnInit {
   selectedGroupIds = signal<number[]>([]);
 
   private fb = inject(FormBuilder);
+  private authService = inject(AuthService);
   private userGroupService = inject(UserGroupService);
   private toast = inject(ToastMessageService);
   private adminService = inject(AdminService);
@@ -109,14 +111,20 @@ export class AdminEditUserComponent implements OnInit {
       commune: [''],
       latitude: [null],
       longitude: [null],
-      role: [USER_ROLES.CUSTOMER, Validators.required],
+      role: [{ value: USER_ROLES.CUSTOMER, disabled: this.authService.isStaff() }, Validators.required],
       is_active: [true],
       password: ['', [Validators.minLength(VALIDATION.MIN_PASSWORD_LENGTH)]]
     });
   }
 
   private loadRoleOptions() {
-    this.roleOptions.set(this.statusService.getRoleOptions());
+    const options = this.statusService.getRoleOptions();
+    // Staff cannot assign the Admin role
+    if (this.authService.isStaff()) {
+      this.roleOptions.set(options.filter(o => o.value !== USER_ROLES.ADMIN));
+    } else {
+      this.roleOptions.set(options);
+    }
   }
 
 
