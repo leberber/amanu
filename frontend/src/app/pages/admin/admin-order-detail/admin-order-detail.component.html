@@ -7,753 +7,755 @@
   [backRoute]="ROUTES.ADMIN.ORDERS"
   [hideMobileIcon]="true">
 
-  <!-- Actions -->
+  <!-- Topbar actions -->
   @if (order(); as o) {
     <div pageActions class="flex align-items-center gap-2">
-      <button class="btn-icon" (click)="printOrder()" [disabled]="printing()" pTooltip="PDF" tooltipPosition="bottom">
-        <i [class]="printing() ? 'pi pi-spin pi-spinner' : 'pi pi-print'"></i>
-      </button>
       <span class="items-badge">
         {{ o.items?.length || 0 }} {{ ((o.items?.length || 0) === 1 ? 'common.item' : 'common.items') | translate }}
       </span>
+      <button class="btn-icon" (click)="printOrder()" [disabled]="printing()" pTooltip="Télécharger PDF" tooltipPosition="bottom">
+        <i [class]="printing() ? 'pi pi-spin pi-spinner' : 'pi pi-print'"></i>
+      </button>
     </div>
   }
 
-
+  <!-- ─── Skeleton ───────────────────────────────────────────────────── -->
   @if (loading()) {
-    <!-- Skeleton Loading -->
-    <div class="order-detail-skeleton">
-      <!-- Stats Skeleton -->
-      <div class="stats-grid stats-grid--compact mb-4">
-        @for (i of [1,2,3,4,5,6]; track i) {
-          <div class="stat-card stat-card--compact">
-            <div class="stat-card__content">
-              <span class="stat-card__value">
-                <span class="skeleton" style="width: 36px; height: 36px; border-radius: var(--radius-md);"></span>
-                <span class="skeleton skeleton-text" style="width: 80px; height: 20px;"></span>
-              </span>
-              <span class="skeleton skeleton-text" style="width: 60px; height: 12px; margin-top: 8px;"></span>
-            </div>
+    <div class="order-page-grid">
+      <div class="order-main">
+        <div class="panel">
+          <div class="panel__header">
+            <div class="skeleton" style="width:160px;height:18px;border-radius:4px;"></div>
           </div>
-        }
-      </div>
-
-      <!-- Items Skeleton -->
-      <div class="table-container">
-        <div class="table-header">
-          <div class="skeleton skeleton-text" style="width: 150px; height: 24px;"></div>
-        </div>
-        <div class="order-items-list">
-          @for (i of [1,2,3]; track i) {
-            <div class="order-item-card">
-              <div class="skeleton" style="width: 44px; height: 44px; border-radius: var(--radius-md);"></div>
-              <div class="order-item-card__info">
-                <div class="skeleton skeleton-text" style="width: 120px; height: 16px;"></div>
-                <div class="skeleton skeleton-text" style="width: 80px; height: 12px; margin-top: 4px;"></div>
+          <div class="panel__body p-0">
+            @for (i of [1,2,3]; track i) {
+              <div class="skeleton-item-row">
+                <div class="skeleton" style="width:44px;height:44px;border-radius:8px;flex-shrink:0;"></div>
+                <div style="flex:1;display:flex;flex-direction:column;gap:6px;">
+                  <div class="skeleton" style="width:140px;height:15px;border-radius:4px;"></div>
+                  <div class="skeleton" style="width:90px;height:12px;border-radius:4px;"></div>
+                </div>
+                <div class="skeleton" style="width:70px;height:15px;border-radius:4px;"></div>
               </div>
-              <div class="skeleton skeleton-text" style="width: 60px; height: 16px;"></div>
-            </div>
-          }
+            }
+          </div>
+        </div>
+      </div>
+      <div class="order-sidebar">
+        <div class="panel">
+          <div class="panel__header">
+            <div class="skeleton" style="width:120px;height:18px;border-radius:4px;"></div>
+          </div>
+          <div class="panel__body p-0">
+            @for (i of [1,2,3,4,5]; track i) {
+              <div class="skeleton-info-row">
+                <div class="skeleton" style="width:32px;height:32px;border-radius:50%;flex-shrink:0;"></div>
+                <div style="flex:1;display:flex;flex-direction:column;gap:4px;">
+                  <div class="skeleton" style="width:55px;height:10px;border-radius:4px;"></div>
+                  <div class="skeleton" style="width:120px;height:14px;border-radius:4px;"></div>
+                </div>
+              </div>
+            }
+          </div>
         </div>
       </div>
     </div>
   }
 
+  <!-- ─── Main Content ────────────────────────────────────────────────── -->
   @if (!loading() && order(); as order) {
-    <!-- Order Info Cards -->
-    <div class="stats-grid stats-grid--compact">
-      <!-- Order Status -->
-      <div class="stat-card stat-card--compact status-card animate-item" [class]="'status-card--' + order.status" style="--item-delay: 50ms;">
-        <div class="stat-card__content">
-          <span class="stat-card__value">
-            <span class="stat-card__icon" [ngClass]="{
-              'stat-card__icon--warning': order.status === 'pending',
-              'stat-card__icon--info': order.status === 'confirmed',
-              'stat-card__icon--purple': order.status === 'assigned',
-              'stat-card__icon--cyan': order.status === 'picked_up',
-              'stat-card__icon--primary': order.status === 'in_transit' || order.status === 'shipped',
-              'stat-card__icon--success': order.status === 'delivered',
-              'stat-card__icon--red': order.status === 'cancelled'
-            }">
-              <i [class]="getStatusIcon(order.status)"></i>
-            </span>
-            {{ 'admin.orders.status.' + order.status | translate }}
-          </span>
-          <span class="stat-card__label">{{ 'admin.orders.table.status' | translate }}</span>
-        </div>
-      </div>
+    <div class="order-page-grid" @pageAnimation>
 
-      <!-- Total Amount -->
-      <div class="stat-card stat-card--compact animate-item" style="--item-delay: 100ms;">
-        <div class="stat-card__content">
-          <span class="stat-card__value">
-            <span class="stat-card__icon stat-card__icon--success"><i class="pi pi-wallet"></i></span>
-            {{ order.total_amount | appCurrency }}
-          </span>
-          <span class="stat-card__label">{{ 'admin.orders.total' | translate }}</span>
-        </div>
-      </div>
+      <!-- ══════════ MAIN COLUMN ══════════ -->
+      <div class="order-main">
 
-      <!-- Payment Status -->
-      <div class="stat-card stat-card--compact animate-item" style="--item-delay: 125ms;">
-        <div class="stat-card__content">
-          <span class="stat-card__value">
-            <span class="stat-card__icon" [ngClass]="{
-              'stat-card__icon--success': order.payment_status === 'paid',
-              'stat-card__icon--warning': order.payment_status === 'partial',
-              'stat-card__icon--red': order.payment_status === 'unpaid' || !order.payment_status
-            }">
-              <i class="pi pi-credit-card"></i>
-            </span>
-            @switch (order.payment_status) {
-              @case ('paid') { Payé }
-              @case ('partial') { Partiel }
-              @default { Non payé }
-            }
-          </span>
-          <span class="stat-card__label">Paiement</span>
-        </div>
-      </div>
-
-      <!-- Items Count -->
-      <div class="stat-card stat-card--compact animate-item" style="--item-delay: 150ms;">
-        <div class="stat-card__content">
-          <span class="stat-card__value">
-            <span class="stat-card__icon stat-card__icon--purple"><i class="pi pi-box"></i></span>
-            {{ order.items?.length || 0 }}
-          </span>
-          <span class="stat-card__label">{{ (order.items?.length || 0) === 1 ? ('common.item' | translate) : ('common.items' | translate) }}</span>
-        </div>
-      </div>
-
-      <!-- Customer -->
-      <div class="stat-card stat-card--compact animate-item" style="--item-delay: 200ms;">
-        <div class="stat-card__content">
-          <span class="stat-card__value">
-            <span class="stat-card__icon stat-card__icon--primary"><i class="pi pi-user"></i></span>
-            {{ order.user?.full_name || ('admin.orders.user_number' | translate) + order.user_id }}
-          </span>
-          <span class="stat-card__label">{{ 'admin.orders.customer' | translate }}</span>
-        </div>
-      </div>
-
-      <!-- Phone -->
-      @if (order.contact_phone) {
-        <div class="stat-card stat-card--compact animate-item" style="--item-delay: 250ms;">
-          <div class="stat-card__content">
-            <span class="stat-card__value">
-              <span class="stat-card__icon stat-card__icon--orange"><i class="pi pi-phone"></i></span>
-              {{ order.contact_phone | appPhone }}
-            </span>
-            <span class="stat-card__label">{{ 'admin.orders.phone' | translate }}</span>
-          </div>
-        </div>
-      }
-
-      <!-- Pickup Date -->
-      @if (order.pickup_date) {
-        <div class="stat-card stat-card--compact animate-item" style="--item-delay: 275ms;">
-          <div class="stat-card__content">
-            <span class="stat-card__value">
-              <span class="stat-card__icon stat-card__icon--success"><i class="pi pi-calendar-clock"></i></span>
-              {{ order.pickup_date | appDate }}
-            </span>
-            <span class="stat-card__label">{{ 'admin.orders.pickup_date' | translate }}</span>
-          </div>
-        </div>
-      }
-
-      <!-- Shipping Address -->
-      <div class="stat-card stat-card--compact animate-item" style="--item-delay: 300ms;">
-        <div class="stat-card__content">
-          <span class="stat-card__value stat-card__value--address">
-            <span class="stat-card__icon stat-card__icon--info"><i class="pi pi-map-marker"></i></span>
-            {{ order.shipping_address }}
-          </span>
-          <span class="stat-card__label">{{ 'admin.orders.address' | translate }}</span>
-        </div>
-      </div>
-
-      <!-- Driver -->
-      <div class="stat-card stat-card--compact animate-item" style="--item-delay: 350ms;">
-        <div class="stat-card__content">
-          @if (order.driver) {
-            <span class="stat-card__value">
-              <span class="stat-card__icon stat-card__icon--teal"><i class="pi pi-car"></i></span>
-              <span class="driver-info">
-                <span class="driver-info__name">{{ order.driver.full_name }}</span>
-                @if (order.driver.vehicle_type) {
-                  <span class="vehicle-pill" [class]="order.driver.vehicle_type">
-                    {{ 'driver.vehicle.' + order.driver.vehicle_type | translate }}
-                  </span>
-                }
+        <!-- Status Change Widget -->
+        @if (canEditStatus(order.status)) {
+          <div class="panel">
+            <div class="panel__header">
+              <span class="panel__title">
+                <i class="pi pi-sync"></i>
+                {{ 'admin.orders.change_status' | translate }}
               </span>
-            </span>
-            @if (order.driver.phone) {
-              <span class="stat-card__sub-value">
-                <i class="pi pi-phone"></i>
-                {{ order.driver.phone | appPhone }}
-              </span>
-            }
-          } @else if (order.status === 'confirmed' || order.status === 'assigned') {
-            <span class="stat-card__value">
-              <span class="stat-card__icon stat-card__icon--warning"><i class="pi pi-clock"></i></span>
-              {{ 'admin.orders.waiting_for_driver' | translate }}
-            </span>
-          } @else {
-            <span class="stat-card__value">
-              <span class="stat-card__icon stat-card__icon--gray"><i class="pi pi-car"></i></span>
-              —
-            </span>
-          }
-          <span class="stat-card__label">{{ 'admin.orders.table.driver' | translate }}</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Status Change Actions -->
-    @if (canEditStatus(order.status)) {
-      <div class="widget animate-item" style="--item-delay: 400ms;">
-        <div class="widget__header">
-          <h3 class="widget__title">
-            <i class="pi pi-sync"></i>
-            {{ 'admin.orders.change_status' | translate }}
-          </h3>
-        </div>
-        <div class="widget__body p-0">
-          <!-- Mini Timeline -->
-          @if (isPickupOrder()) {
-            <!-- Pickup Timeline -->
-            <div class="status-timeline">
-              <div class="status-timeline__step" [class.completed]="getStatusIndex(order.status) >= 0" [class.current]="order.status === 'pending'">
-                <div class="status-timeline__dot"><i class="pi pi-clock"></i></div>
-                <span class="status-timeline__label">{{ 'admin.orders.status.pending' | translate }}</span>
-              </div>
-              <div class="status-timeline__line" [class.completed]="getStatusIndex(order.status) >= 1"></div>
-              <div class="status-timeline__step" [class.completed]="getStatusIndex(order.status) >= 1" [class.current]="order.status === 'confirmed'">
-                <div class="status-timeline__dot"><i class="pi pi-check-circle"></i></div>
-                <span class="status-timeline__label">{{ 'admin.orders.status.confirmed' | translate }}</span>
-              </div>
-              <div class="status-timeline__line" [class.completed]="getStatusIndex(order.status) >= 2"></div>
-              <div class="status-timeline__step" [class.completed]="getStatusIndex(order.status) >= 2" [class.current]="order.status === 'ready'">
-                <div class="status-timeline__dot"><i class="pi pi-inbox"></i></div>
-                <span class="status-timeline__label">{{ 'admin.orders.status.ready' | translate }}</span>
-              </div>
-              <div class="status-timeline__line" [class.completed]="getStatusIndex(order.status) >= 3"></div>
-              <div class="status-timeline__step" [class.completed]="getStatusIndex(order.status) >= 3" [class.current]="order.status === 'delivered'">
-                <div class="status-timeline__dot"><i class="pi pi-check"></i></div>
-                <span class="status-timeline__label">{{ 'admin.orders.status.picked_up_customer' | translate }}</span>
-              </div>
             </div>
-          } @else {
-            <!-- Delivery Timeline -->
-            <div class="status-timeline">
-              <div class="status-timeline__step" [class.completed]="getStatusIndex(order.status) >= 0" [class.current]="order.status === 'pending'">
-                <div class="status-timeline__dot"><i class="pi pi-clock"></i></div>
-                <span class="status-timeline__label">{{ 'admin.orders.status.pending' | translate }}</span>
-              </div>
-              <div class="status-timeline__line" [class.completed]="getStatusIndex(order.status) >= 1"></div>
-              <div class="status-timeline__step" [class.completed]="getStatusIndex(order.status) >= 1" [class.current]="order.status === 'confirmed'">
-                <div class="status-timeline__dot"><i class="pi pi-check-circle"></i></div>
-                <span class="status-timeline__label">{{ 'admin.orders.status.confirmed' | translate }}</span>
-              </div>
-              <div class="status-timeline__line" [class.completed]="getStatusIndex(order.status) >= 2"></div>
-              <div class="status-timeline__step" [class.completed]="getStatusIndex(order.status) >= 2" [class.current]="order.status === 'assigned' || order.status === 'picked_up'">
-                <div class="status-timeline__dot"><i class="pi pi-user"></i></div>
-                <span class="status-timeline__label">{{ 'admin.orders.status.assigned' | translate }}</span>
-              </div>
-              <div class="status-timeline__line" [class.completed]="getStatusIndex(order.status) >= 4"></div>
-              <div class="status-timeline__step" [class.completed]="getStatusIndex(order.status) >= 4" [class.current]="order.status === 'in_transit'">
-                <div class="status-timeline__dot"><i class="pi pi-truck"></i></div>
-                <span class="status-timeline__label">{{ 'admin.orders.status.in_transit' | translate }}</span>
-              </div>
-              <div class="status-timeline__line" [class.completed]="getStatusIndex(order.status) >= 5"></div>
-              <div class="status-timeline__step" [class.completed]="getStatusIndex(order.status) >= 5" [class.current]="order.status === 'delivered'">
-                <div class="status-timeline__dot"><i class="pi pi-check"></i></div>
-                <span class="status-timeline__label">{{ 'admin.orders.status.delivered' | translate }}</span>
-              </div>
-            </div>
-          }
+            <div class="panel__body p-0">
+              <div class="status-widget-row">
 
-          <!-- Status Options -->
-          <div class="status-options-section">
-            <span class="status-options-label">{{ 'admin.orders.select_next_status' | translate }}</span>
-            <div class="status-options-list">
-              @for (status of getNextStatuses(order.status); track status.value) {
-                <button
-                  class="status-option-card"
-                  [class]="status.value"
-                  [class.selected]="selectedNewStatus() === status.value"
-                  (click)="selectStatus(status.value)">
-                  <div class="status-option-card__icon">
-                    <i [class]="status.icon"></i>
-                  </div>
-                  <div class="status-option-card__content">
-                    <span class="status-option-card__title">{{ status.label }}</span>
-                    <span class="status-option-card__desc">{{ 'admin.orders.status_desc.' + status.value | translate }}</span>
-                  </div>
-                  @if (selectedNewStatus() === status.value) {
-                    <i class="pi pi-check status-option-card__check"></i>
+                <!-- Left: Timeline -->
+                <div class="status-widget-timeline-col">
+                  @if (isPickupOrder()) {
+                    <div class="status-timeline">
+                      <div class="status-timeline__step" [class.completed]="getStatusIndex(order.status) >= 0" [class.current]="order.status === 'pending'">
+                        <div class="status-timeline__dot"><i class="pi pi-clock"></i></div>
+                        <span class="status-timeline__label">{{ 'admin.orders.status.pending' | translate }}</span>
+                      </div>
+                      <div class="status-timeline__line" [class.completed]="getStatusIndex(order.status) >= 1"></div>
+                      <div class="status-timeline__step" [class.completed]="getStatusIndex(order.status) >= 1" [class.current]="order.status === 'confirmed'">
+                        <div class="status-timeline__dot"><i class="pi pi-check-circle"></i></div>
+                        <span class="status-timeline__label">{{ 'admin.orders.status.confirmed' | translate }}</span>
+                      </div>
+                      <div class="status-timeline__line" [class.completed]="getStatusIndex(order.status) >= 2"></div>
+                      <div class="status-timeline__step" [class.completed]="getStatusIndex(order.status) >= 2" [class.current]="order.status === 'ready'">
+                        <div class="status-timeline__dot"><i class="pi pi-inbox"></i></div>
+                        <span class="status-timeline__label">{{ 'admin.orders.status.ready' | translate }}</span>
+                      </div>
+                      <div class="status-timeline__line" [class.completed]="getStatusIndex(order.status) >= 3"></div>
+                      <div class="status-timeline__step" [class.completed]="getStatusIndex(order.status) >= 3" [class.current]="order.status === 'delivered'">
+                        <div class="status-timeline__dot"><i class="pi pi-check"></i></div>
+                        <span class="status-timeline__label">{{ 'admin.orders.status.picked_up_customer' | translate }}</span>
+                      </div>
+                    </div>
+                  } @else {
+                    <div class="status-timeline">
+                      <div class="status-timeline__step" [class.completed]="getStatusIndex(order.status) >= 0" [class.current]="order.status === 'pending'">
+                        <div class="status-timeline__dot"><i class="pi pi-clock"></i></div>
+                        <span class="status-timeline__label">{{ 'admin.orders.status.pending' | translate }}</span>
+                      </div>
+                      <div class="status-timeline__line" [class.completed]="getStatusIndex(order.status) >= 1"></div>
+                      <div class="status-timeline__step" [class.completed]="getStatusIndex(order.status) >= 1" [class.current]="order.status === 'confirmed'">
+                        <div class="status-timeline__dot"><i class="pi pi-check-circle"></i></div>
+                        <span class="status-timeline__label">{{ 'admin.orders.status.confirmed' | translate }}</span>
+                      </div>
+                      <div class="status-timeline__line" [class.completed]="getStatusIndex(order.status) >= 2"></div>
+                      <div class="status-timeline__step" [class.completed]="getStatusIndex(order.status) >= 2" [class.current]="order.status === 'assigned' || order.status === 'picked_up'">
+                        <div class="status-timeline__dot"><i class="pi pi-user"></i></div>
+                        <span class="status-timeline__label">{{ 'admin.orders.status.assigned' | translate }}</span>
+                      </div>
+                      <div class="status-timeline__line" [class.completed]="getStatusIndex(order.status) >= 4"></div>
+                      <div class="status-timeline__step" [class.completed]="getStatusIndex(order.status) >= 4" [class.current]="order.status === 'in_transit'">
+                        <div class="status-timeline__dot"><i class="pi pi-truck"></i></div>
+                        <span class="status-timeline__label">{{ 'admin.orders.status.in_transit' | translate }}</span>
+                      </div>
+                      <div class="status-timeline__line" [class.completed]="getStatusIndex(order.status) >= 5"></div>
+                      <div class="status-timeline__step" [class.completed]="getStatusIndex(order.status) >= 5" [class.current]="order.status === 'delivered'">
+                        <div class="status-timeline__dot"><i class="pi pi-check"></i></div>
+                        <span class="status-timeline__label">{{ 'admin.orders.status.delivered' | translate }}</span>
+                      </div>
+                    </div>
                   }
-                </button>
-              }
-            </div>
-          </div>
-
-          <!-- Driver Selection (when Assigned is selected) -->
-          @if (needsDriverSelection()) {
-            <div class="status-driver-section">
-              <span class="status-driver-label">{{ 'admin.orders.select_driver' | translate }}</span>
-              @if (loadingDrivers()) {
-                <div class="driver-loading">
-                  <i class="pi pi-spin pi-spinner"></i>
-                  <span>{{ 'common.loading' | translate }}</span>
                 </div>
-              } @else if (driverOptions().length === 0) {
-                <div class="driver-empty">
-                  <i class="pi pi-info-circle"></i>
-                  <span>{{ 'admin.orders.no_available_drivers' | translate }}</span>
+
+                <!-- Right: Compact chips + inline confirm -->
+                <div class="status-widget-options-col">
+                  <div class="status-chips-row">
+                    <div class="status-chips-list">
+                      @for (status of getNextStatuses(order.status); track status.value) {
+                        <button
+                          class="status-chip"
+                          [class]="status.value"
+                          [class.selected]="selectedNewStatus() === status.value"
+                          (click)="selectStatus(status.value)"
+                          [pTooltip]="'admin.orders.status_desc.' + status.value | translate"
+                          tooltipPosition="top">
+                          <i [class]="status.icon"></i>
+                          <span>{{ status.label }}</span>
+                        </button>
+                      }
+                    </div>
+                  </div>
+
+                  <div class="status-confirm-row">
+                    <span class="status-chips-label">Passer à</span>
+                    @if (selectedNewStatus() && !needsDriverSelection()) {
+                      <button
+                        class="status-confirm-inline"
+                        [disabled]="!canConfirmStatusChange() || assigning()"
+                        (click)="confirmStatusChange()">
+                        @if (assigning()) { <i class="pi pi-spin pi-spinner"></i> } @else { <i class="pi pi-arrow-right"></i> }
+                        Confirmer
+                      </button>
+                    }
+                  </div>
+
+                  @if (needsDriverSelection()) {
+                    <div class="status-driver-inline">
+                      @if (loadingDrivers()) {
+                        <div class="driver-loading"><i class="pi pi-spin pi-spinner"></i><span>{{ 'common.loading' | translate }}</span></div>
+                      } @else if (driverOptions().length === 0) {
+                        <div class="driver-empty"><i class="pi pi-info-circle"></i><span>{{ 'admin.orders.no_available_drivers' | translate }}</span></div>
+                      } @else {
+                        <p-select
+                          [options]="driverOptions()"
+                          [ngModel]="selectedStatusDriverId()"
+                          (ngModelChange)="onStatusDriverSelect($event)"
+                          [placeholder]="'admin.orders.select_driver' | translate"
+                          styleClass="flex-1"
+                          [filter]="driverOptions().length > 5"
+                          appendTo="body">
+                        </p-select>
+                        @if (selectedNewStatus()) {
+                          <button
+                            class="status-confirm-inline"
+                            [disabled]="!canConfirmStatusChange() || assigning()"
+                            (click)="confirmStatusChange()">
+                            @if (assigning()) { <i class="pi pi-spin pi-spinner"></i> } @else { <i class="pi pi-arrow-right"></i> }
+                            Confirmer
+                          </button>
+                        }
+                      }
+                    </div>
+                  }
                 </div>
-              } @else {
-                <p-select
-                  [options]="driverOptions()"
-                  [ngModel]="selectedStatusDriverId()"
-                  (ngModelChange)="onStatusDriverSelect($event)"
-                  [placeholder]="'admin.orders.select_driver' | translate"
-                  styleClass="w-full"
-                  [filter]="driverOptions().length > 5"
-                  appendTo="body">
-                </p-select>
-              }
-            </div>
-          }
 
-          <!-- Confirm Button -->
-          @if (selectedNewStatus()) {
-            <div class="status-confirm-section">
-              <button
-                class="status-confirm-btn"
-                [disabled]="!canConfirmStatusChange() || assigning()"
-                (click)="confirmStatusChange()">
-                @if (assigning()) {
-                  <i class="pi pi-spin pi-spinner"></i>
-                } @else {
-                  <i class="pi pi-check"></i>
-                }
-                <span>{{ 'admin.orders.confirm_change' | translate }}</span>
-              </button>
+              </div>
             </div>
-          }
-        </div>
-      </div>
-    }
-
-    <!-- Order Items -->
-    <div class="table-container animate-item" style="--item-delay: 450ms;">
-      <div class="table-header">
-        <div class="flex align-items-center gap-3">
-          <div class="card-header__icon card-header__icon--primary">
-            <i class="pi pi-list"></i>
           </div>
-          <div>
-            <h3 class="m-0 font-semibold">{{ 'admin.orders.order_items' | translate }}</h3>
-            <span class="text-sm text-secondary">{{ (order.items?.length || 0) }} {{ ((order.items?.length || 0) === 1 ? 'common.item' : 'common.items') | translate }}</span>
-          </div>
-        </div>
-        <!-- Edit items toggle -->
-        @if (canEditItems()) {
-          <button
-            class="btn-icon"
-            (click)="toggleAddItem()"
-            pTooltip="Ajouter un article"
-            tooltipPosition="bottom">
-            <i class="pi pi-plus"></i>
-          </button>
         }
-      </div>
 
-      <!-- Add Item Form -->
-      @if (showAddItem() && canEditItems()) {
-        <div class="add-item-form">
-          <div class="add-item-form__search">
-            <p-autocomplete
-              [(ngModel)]="selectedProduct"
-              [suggestions]="productSearchResults()"
-              (completeMethod)="onProductSearch($event)"
-              optionLabel="name"
-              [minLength]="1"
-              placeholder="Rechercher un produit par nom…"
-              styleClass="w-full"
-              inputStyleClass="w-full"
-              appendTo="body"
-              [showEmptyMessage]="true"
-              emptyMessage="Aucun produit trouvé">
-              <ng-template #item let-product>
-                <div class="product-search-item">
-                  <div class="product-search-item__img">
-                    @if (product.image_url) {
-                      <img [src]="product.image_url" [alt]="product.name" loading="lazy" (error)="onImageError($event)">
+        <!-- Order Items Panel -->
+        <div class="panel panel--items">
+          <div class="panel__header">
+            <span class="panel__title">
+              <i class="pi pi-list"></i>
+              {{ 'admin.orders.order_items' | translate }}
+              <span class="panel__count">{{ order.items?.length || 0 }}</span>
+            </span>
+            @if (canEditItems()) {
+              <button class="btn-icon" (click)="toggleAddItem()" pTooltip="Ajouter un article" tooltipPosition="left">
+                <i class="pi pi-plus"></i>
+              </button>
+            }
+          </div>
+
+          <!-- Add Item Form -->
+          @if (showAddItem() && canEditItems()) {
+            <div class="add-item-form">
+              <div class="add-item-form__search">
+                <p-autocomplete
+                  [(ngModel)]="selectedProduct"
+                  [suggestions]="productSearchResults()"
+                  (completeMethod)="onProductSearch($event)"
+                  optionLabel="name"
+                  [minLength]="1"
+                  placeholder="Rechercher un produit par nom…"
+                  styleClass="w-full"
+                  inputStyleClass="w-full"
+                  appendTo="body"
+                  [showEmptyMessage]="true"
+                  emptyMessage="Aucun produit trouvé">
+                  <ng-template #item let-product>
+                    <div class="product-search-item">
+                      <div class="product-search-item__img">
+                        @if (product.image_url) {
+                          <img [src]="product.image_url" [alt]="product.name" loading="lazy" (error)="onImageError($event)">
+                        } @else {
+                          <i class="pi pi-box"></i>
+                        }
+                      </div>
+                      <div class="product-search-item__info">
+                        <span class="product-search-item__name">{{ product.name }}</span>
+                        <span class="product-search-item__meta">
+                          {{ product.price | appCurrency }}
+                          @if ((product.pieces_per_box || 1) > 1) { · {{ product.pieces_per_box }} / {{ product.packaging_type?.toLowerCase() || 'carton' }} }
+                        </span>
+                      </div>
+                      <span class="product-search-item__stock" [class.low]="product.stock_quantity < (product.pieces_per_box || 1) * 5">
+                        {{ getProductStockLabel(product) }}
+                      </span>
+                    </div>
+                  </ng-template>
+                </p-autocomplete>
+              </div>
+
+              @if (selectedProduct) {
+                <div class="add-item-selected">
+                  <div class="add-item-selected__img">
+                    @if (selectedProduct.image_url) {
+                      <img [src]="selectedProduct.image_url" [alt]="selectedProduct.name" loading="lazy">
                     } @else {
                       <i class="pi pi-box"></i>
                     }
                   </div>
-                  <div class="product-search-item__info">
-                    <span class="product-search-item__name">{{ product.name }}</span>
-                    <span class="product-search-item__meta">
-                      {{ product.price | appCurrency }}
-                      @if ((product.pieces_per_box || 1) > 1) { · {{ product.pieces_per_box }} / {{ product.packaging_type?.toLowerCase() || 'carton' }} }
-                      · Stock: {{ product.stock_quantity }}
+                  <div class="add-item-selected__info">
+                    <span class="font-semibold">{{ selectedProduct.name }}</span>
+                    <span class="text-sm text-secondary">
+                      {{ selectedProduct.price | appCurrency }}
+                      @if ((selectedProduct.pieces_per_box || 1) > 1) { · {{ selectedProduct.pieces_per_box }} pièces/{{ selectedProduct.packaging_type?.toLowerCase() || 'carton' }} }
                     </span>
                   </div>
-                  <span class="product-search-item__stock" [class.low]="product.stock_quantity < (product.pieces_per_box || 1) * 5">
-                    {{ getProductStockLabel(product) }}
-                  </span>
+                  <div class="add-item-selected__qty">
+                    <span class="text-xs text-secondary">
+                      @if ((selectedProduct.pieces_per_box || 1) > 1) { {{ selectedProduct.packaging_type?.toLowerCase() || 'Cartons' }} } @else { Quantité }
+                    </span>
+                    <p-inputNumber
+                      [ngModel]="addItemQty()"
+                      (ngModelChange)="addItemQty.set($event)"
+                      [min]="1"
+                      [showButtons]="true"
+                      [step]="1"
+                      styleClass="w-8rem"
+                      inputStyleClass="text-center">
+                    </p-inputNumber>
+                  </div>
+                  <p-button
+                    label="Ajouter"
+                    icon="pi pi-plus"
+                    severity="success"
+                    (onClick)="addItem()">
+                  </p-button>
                 </div>
-              </ng-template>
-            </p-autocomplete>
-          </div>
+              }
 
-          @if (selectedProduct) {
-            <div class="add-item-form__selected">
-              <div class="selected-product-preview">
-                <div class="selected-product-preview__img">
-                  @if (selectedProduct.image_url) {
-                    <img [src]="selectedProduct.image_url" [alt]="selectedProduct.name" loading="lazy">
+              <button class="add-item-form__close" (click)="toggleAddItem()">
+                <i class="pi pi-times"></i> Fermer
+              </button>
+            </div>
+          }
+
+          <!-- Items list -->
+          <div class="items-list">
+
+            <!-- Existing items -->
+            @for (item of order.items || []; track item.id) {
+              <div class="item-row"
+                   [class.item-row--deleted]="isItemDeleted(item.id)"
+                   [class.item-row--modified]="isItemModified(item.id)">
+
+                <div class="item-row__img">
+                  @if (item.image_url) {
+                    <img [src]="item.image_url" [alt]="item.product_name" loading="lazy" (error)="onImageError($event)">
                   } @else {
                     <i class="pi pi-box"></i>
                   }
                 </div>
-                <div class="selected-product-preview__info">
-                  <span class="font-semibold">{{ selectedProduct.name }}</span>
-                  <span class="text-sm text-secondary">{{ selectedProduct.price | appCurrency }}
-                    @if ((selectedProduct.pieces_per_box || 1) > 1) { · {{ selectedProduct.pieces_per_box }} pièces/{{ selectedProduct.packaging_type?.toLowerCase() || 'carton' }} }
-                  </span>
+
+                <div class="item-row__info">
+                  <span class="item-row__name">{{ item.product_name }}</span>
+                  @if (item.brand_name) {
+                    <span class="item-row__brand">{{ item.brand_name }}</span>
+                  }
+                </div>
+
+                <div class="item-row__qty">
+                  @if (!isItemDeleted(item.id) && canEditItems()) {
+                    <button class="qty-btn" (click)="changeItemQty(item.id, getEffectiveQty(item), -(item.pieces_per_box || 1))" [disabled]="getEffectiveQty(item) <= (item.pieces_per_box || 1)">
+                      <i class="pi pi-minus"></i>
+                    </button>
+                  }
+                  <div class="item-row__qty-display" [class.modified]="isItemModified(item.id)">
+                    @if ((item.pieces_per_box || 1) > 1) {
+                      <span class="qty-main">{{ getEditedCartonCount(item) }} {{ getItemPackagingLabel(item) }}</span>
+                      <span class="qty-sub">{{ getEffectiveQty(item) }} {{ item.product_unit | appUnit }}</span>
+                    } @else {
+                      <span class="qty-main">{{ getEffectiveQty(item) }} {{ item.product_unit | appUnit }}</span>
+                    }
+                  </div>
+                  @if (!isItemDeleted(item.id) && canEditItems()) {
+                    <button class="qty-btn" (click)="changeItemQty(item.id, getEffectiveQty(item), (item.pieces_per_box || 1))">
+                      <i class="pi pi-plus"></i>
+                    </button>
+                  }
+                </div>
+
+                <div class="item-row__price">
+                  <span class="item-row__price-label">P.U.</span>
+                  <span>{{ item.unit_price | appCurrency }}</span>
+                </div>
+
+                <div class="item-row__total">
+                  @if (!isItemDeleted(item.id)) {
+                    {{ item.unit_price * getEffectiveQty(item) | appCurrency }}
+                  } @else {
+                    <span class="item-row__deleted-badge">Supprimé</span>
+                  }
+                </div>
+
+                @if (canEditItems()) {
+                  <div class="item-row__actions">
+                    @if (!isItemDeleted(item.id)) {
+                      <button class="qty-btn qty-btn--danger" (click)="removeItem(item.id)" pTooltip="Supprimer" tooltipPosition="left">
+                        <i class="pi pi-trash"></i>
+                      </button>
+                    } @else {
+                      <button class="qty-btn" (click)="restoreItem(item.id)" pTooltip="Restaurer" tooltipPosition="left">
+                        <i class="pi pi-undo"></i>
+                      </button>
+                    }
+                  </div>
+                }
+
+              </div>
+            }
+
+            <!-- Pending new items -->
+            @for (entry of pendingNewItems(); track entry.product.id; let i = $index) {
+              <div class="item-row item-row--new">
+                <div class="item-row__img">
+                  @if (entry.product.image_url) {
+                    <img [src]="entry.product.image_url" [alt]="entry.product.name" loading="lazy" (error)="onImageError($event)">
+                  } @else {
+                    <i class="pi pi-box"></i>
+                  }
+                </div>
+                <div class="item-row__info">
+                  <span class="item-row__name">{{ entry.product.name }}</span>
+                  <span class="item-row__new-badge">Nouveau</span>
+                </div>
+                <div class="item-row__qty">
+                  <div class="item-row__qty-display">
+                    @if ((entry.product.pieces_per_box || 1) > 1) {
+                      <span class="qty-main">{{ entry.qty }} {{ entry.product.packaging_type?.toLowerCase() || 'carton' }}(s)</span>
+                      <span class="qty-sub">{{ entry.qty * (entry.product.pieces_per_box || 1) }} unités</span>
+                    } @else {
+                      <span class="qty-main">{{ entry.qty }} {{ entry.product.unit }}</span>
+                    }
+                  </div>
+                </div>
+                <div class="item-row__price">
+                  <span class="item-row__price-label">P.U.</span>
+                  <span>{{ entry.product.price | appCurrency }}</span>
+                </div>
+                <div class="item-row__total">
+                  {{ entry.product.price * entry.qty * (entry.product.pieces_per_box || 1) | appCurrency }}
+                </div>
+                <div class="item-row__actions">
+                  <button class="qty-btn qty-btn--danger" (click)="removePendingNew(i)" pTooltip="Annuler" tooltipPosition="left">
+                    <i class="pi pi-times"></i>
+                  </button>
                 </div>
               </div>
-              <div class="flex align-items-center gap-3 mt-3">
-                <div class="flex flex-column gap-1">
-                  <span class="text-xs text-secondary">
-                    @if ((selectedProduct.pieces_per_box || 1) > 1) { Nombre de {{ selectedProduct.packaging_type?.toLowerCase() || 'cartons' }} } @else { Quantité }
-                  </span>
-                  <p-inputNumber
-                    [ngModel]="addItemQty()"
-                    (ngModelChange)="addItemQty.set($event)"
-                    [min]="1"
-                    [showButtons]="true"
-                    [step]="1"
-                    styleClass="w-8rem"
-                    inputStyleClass="text-center">
-                  </p-inputNumber>
+            }
+
+          </div>
+
+          <!-- Save / cancel bar -->
+          @if (canEditItems() && hasUnsavedChanges()) {
+            <div class="save-bar">
+              <span class="save-bar__hint">
+                <i class="pi pi-exclamation-circle"></i>
+                Modifications non enregistrées
+              </span>
+              <div class="flex gap-2">
+                <p-button label="Annuler" severity="secondary" size="small" [disabled]="savingEdits()" (onClick)="cancelEdits()" />
+                <p-button label="Enregistrer" icon="pi pi-check" size="small" severity="success" [loading]="savingEdits()" (onClick)="saveEdits()" />
+              </div>
+            </div>
+          }
+
+          <!-- Total footer -->
+          <div class="items-footer">
+            @if (order.discount_amount && order.discount_amount > 0) {
+              <div class="items-footer__row">
+                <span><i class="pi pi-tag mr-1"></i>{{ 'admin.orders.discount' | translate }}</span>
+                <span style="color:#dc2626;">-{{ order.discount_amount | appCurrency }}</span>
+              </div>
+            }
+            <div class="items-footer__total">
+              <span class="font-semibold">{{ 'admin.orders.total' | translate }}</span>
+              <span class="items-footer__amount">
+                @if (hasUnsavedChanges()) {
+                  <span class="items-footer__old">{{ order.total_amount | appCurrency }}</span>
+                }
+                <span [class.items-footer__new]="hasUnsavedChanges()">{{ previewTotal() | appCurrency }}</span>
+              </span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ══════════ RIGHT SIDEBAR ══════════ -->
+      <div class="order-sidebar">
+
+        <!-- Tab bar -->
+        <div class="sidebar-tabs">
+          <button class="sidebar-tab" [class.active]="activeTab() === 'info'" (click)="activeTab.set('info')">
+            <i class="pi pi-info-circle"></i>
+            Infos & Paiement
+          </button>
+          <button class="sidebar-tab" [class.active]="activeTab() === 'history'" (click)="activeTab.set('history')">
+            <i class="pi pi-history"></i>
+            Historique
+          </button>
+        </div>
+
+        @if (activeTab() === 'info') {
+
+        <!-- Order Info Card -->
+        <div class="panel">
+          <div class="panel__header">
+            <span class="panel__title">
+              <i class="pi pi-info-circle"></i>
+              Informations
+            </span>
+          </div>
+          <div class="panel__body p-0">
+
+            <!-- Status badges -->
+            <div class="info-badges">
+              <span class="info-status-badge" [ngClass]="{
+                'badge--warning': order.status === 'pending',
+                'badge--info': order.status === 'confirmed',
+                'badge--purple': order.status === 'assigned' || order.status === 'picked_up',
+                'badge--primary': order.status === 'in_transit' || order.status === 'shipped',
+                'badge--success': order.status === 'delivered',
+                'badge--danger': order.status === 'cancelled'
+              }">
+                <i [class]="getStatusIcon(order.status)"></i>
+                {{ 'admin.orders.status.' + order.status | translate }}
+              </span>
+              <span class="info-payment-badge" [ngClass]="{
+                'badge--success': order.payment_status === 'paid',
+                'badge--warning': order.payment_status === 'partial',
+                'badge--danger': !order.payment_status || order.payment_status === 'unpaid'
+              }">
+                @switch (order.payment_status) {
+                  @case ('paid') { <i class="pi pi-check-circle"></i> Payé }
+                  @case ('partial') { <i class="pi pi-clock"></i> Partiel }
+                  @default { <i class="pi pi-times-circle"></i> Non payé }
+                }
+              </span>
+            </div>
+
+            <!-- Info rows -->
+            <div class="info-rows">
+              <div class="info-row">
+                <div class="info-row__icon info-row__icon--primary"><i class="pi pi-user"></i></div>
+                <div class="info-row__content">
+                  <span class="info-row__label">Client</span>
+                  <span class="info-row__value">{{ order.user?.full_name || ('admin.orders.user_number' | translate) + order.user_id }}</span>
                 </div>
+              </div>
+
+              @if (order.contact_phone) {
+                <div class="info-row">
+                  <div class="info-row__icon info-row__icon--orange"><i class="pi pi-phone"></i></div>
+                  <div class="info-row__content">
+                    <span class="info-row__label">{{ 'admin.orders.phone' | translate }}</span>
+                    <span class="info-row__value">{{ order.contact_phone | appPhone }}</span>
+                  </div>
+                </div>
+              }
+
+              <div class="info-row">
+                <div class="info-row__icon info-row__icon--info"><i class="pi pi-map-marker"></i></div>
+                <div class="info-row__content">
+                  <span class="info-row__label">{{ 'admin.orders.address' | translate }}</span>
+                  <span class="info-row__value">{{ order.shipping_address }}</span>
+                </div>
+              </div>
+
+              @if (order.delivery_type) {
+                <div class="info-row">
+                  <div class="info-row__icon info-row__icon--purple"><i class="pi pi-truck"></i></div>
+                  <div class="info-row__content">
+                    <span class="info-row__label">Livraison</span>
+                    <span class="info-row__value" style="text-transform:capitalize;">{{ order.delivery_type }}</span>
+                  </div>
+                </div>
+              }
+
+              @if (order.pickup_date) {
+                <div class="info-row">
+                  <div class="info-row__icon info-row__icon--success"><i class="pi pi-calendar-clock"></i></div>
+                  <div class="info-row__content">
+                    <span class="info-row__label">{{ 'admin.orders.pickup_date' | translate }}</span>
+                    <span class="info-row__value">{{ order.pickup_date | appDate }}</span>
+                  </div>
+                </div>
+              }
+
+              <div class="info-row">
+                <div class="info-row__icon info-row__icon--teal"><i class="pi pi-car"></i></div>
+                <div class="info-row__content">
+                  <span class="info-row__label">{{ 'admin.orders.table.driver' | translate }}</span>
+                  @if (order.driver) {
+                    <span class="info-row__value">
+                      {{ order.driver.full_name }}
+                      @if (order.driver.vehicle_type) {
+                        <span class="vehicle-pill" [class]="order.driver.vehicle_type">{{ 'driver.vehicle.' + order.driver.vehicle_type | translate }}</span>
+                      }
+                    </span>
+                    @if (order.driver.phone) {
+                      <span class="info-row__sub">{{ order.driver.phone | appPhone }}</span>
+                    }
+                  } @else {
+                    <span class="info-row__value" style="color:var(--text-color-secondary);">—</span>
+                  }
+                </div>
+              </div>
+
+              <div class="info-row">
+                <div class="info-row__icon info-row__icon--gray"><i class="pi pi-calendar"></i></div>
+                <div class="info-row__content">
+                  <span class="info-row__label">Créée le</span>
+                  <span class="info-row__value">{{ order.created_at | appDate }}</span>
+                </div>
+              </div>
+
+              @if (order.delivery_notes) {
+                <div class="info-row">
+                  <div class="info-row__icon info-row__icon--gray"><i class="pi pi-comment"></i></div>
+                  <div class="info-row__content">
+                    <span class="info-row__label">Notes</span>
+                    <span class="info-row__value">{{ order.delivery_notes }}</span>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+
+        <!-- Payment Panel -->
+        <div class="panel">
+          <div class="panel__header">
+            <span class="panel__title">
+              <i class="pi pi-credit-card"></i>
+              Paiement
+            </span>
+            <span class="info-payment-badge" [ngClass]="{
+              'badge--success': order.payment_status === 'paid',
+              'badge--warning': order.payment_status === 'partial',
+              'badge--danger': !order.payment_status || order.payment_status === 'unpaid'
+            }">
+              @switch (order.payment_status) {
+                @case ('paid') { Payé }
+                @case ('partial') { Partiel }
+                @default { Non payé }
+              }
+            </span>
+          </div>
+          <div class="panel__body">
+
+            <!-- Payment progress -->
+            <div class="payment-progress">
+              <div class="payment-progress__bar">
+                <div class="payment-progress__fill"
+                     [style.width.%]="order.total_amount > 0 ? (totalPaid() >= order.total_amount ? 100 : totalPaid() / order.total_amount * 100) : 0">
+                </div>
+              </div>
+              <div class="payment-progress__labels">
+                <span class="text-sm font-semibold" style="color:#16a34a;">{{ totalPaid() | appCurrency }}</span>
+                <span class="text-sm text-secondary">/ {{ order.total_amount | appCurrency }}</span>
+              </div>
+              @if (balance() > 0) {
+                <div class="payment-progress__balance">
+                  <i class="pi pi-exclamation-triangle" style="color:#f97316;font-size:0.8rem;"></i>
+                  <span class="text-sm font-medium" style="color:#c2410c;">Reste: {{ balance() | appCurrency }}</span>
+                </div>
+              }
+            </div>
+
+            <!-- Payments list -->
+            @if (paymentLoading()) {
+              <div class="flex align-items-center gap-2 text-secondary text-sm py-2">
+                <i class="pi pi-spin pi-spinner"></i><span>Chargement…</span>
+              </div>
+            } @else if (payments().length > 0) {
+              <div class="payments-list">
+                @for (p of payments(); track p.id) {
+                  <div class="payment-entry" [class.payment-entry--refund]="p.amount < 0">
+                    <div class="payment-entry__icon">
+                      <i [class]="getPaymentMethodIcon(p.method)"></i>
+                    </div>
+                    <div class="payment-entry__info">
+                      <span class="payment-entry__method">{{ getPaymentMethodLabel(p.method) }}</span>
+                      @if (p.note) { <span class="payment-entry__note">{{ p.note }}</span> }
+                      <span class="payment-entry__meta">{{ p.recorded_at | appDate }}@if (p.recorder_name) { · {{ p.recorder_name }} }</span>
+                    </div>
+                    <span class="payment-entry__amount" [class.refund]="p.amount < 0">
+                      {{ p.amount > 0 ? '+' : '' }}{{ p.amount | appCurrency }}
+                    </span>
+                  </div>
+                }
+              </div>
+            }
+
+            <!-- Add payment form -->
+            <div class="add-payment-form">
+              <span class="add-payment-form__title">Enregistrer un paiement</span>
+              <div class="flex flex-column gap-2">
+                <div class="flex gap-2">
+                  <p-inputNumber
+                    [ngModel]="newPaymentAmount()"
+                    (ngModelChange)="newPaymentAmount.set($event)"
+                    placeholder="Montant (négatif = remboursement)"
+                    styleClass="flex-1"
+                    inputStyleClass="w-full"
+                    mode="decimal"
+                    [minFractionDigits]="0"
+                    [maxFractionDigits]="2">
+                  </p-inputNumber>
+                  <p-select
+                    [options]="paymentMethodOptions"
+                    [ngModel]="newPaymentMethod()"
+                    (ngModelChange)="newPaymentMethod.set($event)"
+                    styleClass="w-8rem"
+                    appendTo="body">
+                  </p-select>
+                </div>
+                <input pInputText type="text"
+                  [ngModel]="newPaymentNote()"
+                  (ngModelChange)="newPaymentNote.set($event)"
+                  placeholder="Note (optionnel)"
+                  class="w-full" />
                 <p-button
-                  label="Ajouter à la commande"
-                  icon="pi pi-plus"
+                  label="Enregistrer"
+                  icon="pi pi-save"
                   severity="success"
-                  [loading]="savingEdits()"
-                  styleClass="mt-3"
-                  (onClick)="addItem()">
+                  [loading]="savingPayment()"
+                  [disabled]="!newPaymentAmount()"
+                  styleClass="w-full"
+                  (onClick)="recordPayment()">
                 </p-button>
               </div>
             </div>
-          }
 
-          <div class="add-item-form__cancel">
-            <button class="qty-btn" (click)="toggleAddItem()">
-              <i class="pi pi-times"></i>
-              <span>Fermer</span>
-            </button>
           </div>
         </div>
-      }
 
-      <div class="order-items-list">
-        @for (item of order.items || []; track item.id; let i = $index) {
-          <div class="order-item-card item-animate"
-               [style.animation-delay]="(i * 50) + 'ms'"
-               [class.item-deleted]="isItemDeleted(item.id)"
-               [class.item-modified]="isItemModified(item.id)">
-            <div class="order-item-card__icon">
-              @if (item.image_url) {
-                <img [src]="item.image_url" [alt]="item.product_name" loading="lazy" (error)="onImageError($event)">
-              } @else {
-                <i class="pi pi-box"></i>
-              }
-            </div>
-            <div class="order-item-card__info">
-              <span class="order-item-card__name">{{ item.product_name }}</span>
-              @if ((item.pieces_per_box || 1) > 1) {
-                <span class="order-item-card__qty">
-                  {{ getEditedCartonCount(item) }} {{ getItemPackagingLabel(item) }} ({{ getEffectiveQty(item) }} {{ item.product_unit | appUnit }}) × {{ item.unit_price | appCurrency }}
-                </span>
-              } @else {
-                <span class="order-item-card__qty">{{ getEffectiveQty(item) }} {{ item.product_unit | appUnit }} × {{ item.unit_price | appCurrency }}</span>
-              }
-            </div>
+        } <!-- end info tab -->
 
-            <!-- Total -->
-            <span class="order-item-card__total">{{ item.unit_price * getEffectiveQty(item) | appCurrency }}</span>
+        @if (activeTab() === 'history') {
 
-            <!-- Editable controls -->
-            @if (canEditItems()) {
-              <div class="item-edit-controls">
-                @if (!isItemDeleted(item.id)) {
-                  <button class="qty-btn" (click)="changeItemQty(item.id, getEffectiveQty(item), -(item.pieces_per_box || 1))" [disabled]="getEffectiveQty(item) <= (item.pieces_per_box || 1)">
-                    <i class="pi pi-minus"></i>
-                  </button>
-                  <span class="qty-value" [class.qty-modified]="isItemModified(item.id)">{{ getEditedCartonCount(item) || getEffectiveQty(item) }}</span>
-                  <button class="qty-btn" (click)="changeItemQty(item.id, getEffectiveQty(item), (item.pieces_per_box || 1))">
-                    <i class="pi pi-plus"></i>
-                  </button>
-                  <button class="qty-btn qty-btn--danger" (click)="removeItem(item.id)" pTooltip="Supprimer" tooltipPosition="left">
-                    <i class="pi pi-trash"></i>
-                  </button>
-                } @else {
-                  <span class="deleted-label">Supprimé</span>
-                  <button class="qty-btn" (click)="restoreItem(item.id)" pTooltip="Restaurer" tooltipPosition="left">
-                    <i class="pi pi-undo"></i>
-                  </button>
-                }
-              </div>
-            }
-          </div>
-        }
-      </div>
-
-      <!-- Pending new items -->
-      @if (pendingNewItems().length > 0) {
-        <div class="pending-new-items">
-          @for (entry of pendingNewItems(); track entry.product.id; let i = $index) {
-            <div class="order-item-card item-new">
-              <div class="order-item-card__icon">
-                @if (entry.product.image_url) {
-                  <img [src]="entry.product.image_url" [alt]="entry.product.name" loading="lazy" (error)="onImageError($event)">
-                } @else {
-                  <i class="pi pi-box"></i>
-                }
-              </div>
-              <div class="order-item-card__info">
-                <span class="order-item-card__name">{{ entry.product.name }}</span>
-                <span class="order-item-card__qty">
-                  @if ((entry.product.pieces_per_box || 1) > 1) {
-                    {{ entry.qty }} {{ entry.product.packaging_type?.toLowerCase() || 'carton' }}(s) ({{ entry.qty * (entry.product.pieces_per_box || 1) }} unités) × {{ entry.product.price | appCurrency }}
-                  } @else {
-                    {{ entry.qty }} {{ entry.product.unit }} × {{ entry.product.price | appCurrency }}
-                  }
-                </span>
-              </div>
-              <span class="new-badge">Nouveau</span>
-              <span class="order-item-card__total">{{ entry.product.price * entry.qty * (entry.product.pieces_per_box || 1) | appCurrency }}</span>
-              <button class="qty-btn qty-btn--danger" (click)="removePendingNew(i)" pTooltip="Annuler" tooltipPosition="left">
-                <i class="pi pi-times"></i>
-              </button>
-            </div>
-          }
-        </div>
-      }
-
-      <!-- Save / Cancel bar -->
-      @if (canEditItems() && hasUnsavedChanges()) {
-        <div class="edit-save-bar">
-          <span class="edit-save-bar__hint">Modifications non enregistrées</span>
-          <div class="flex gap-2">
-            <button class="save-edits-btn" style="background: var(--surface-border); color: var(--text-color);" (click)="cancelEdits()" [disabled]="savingEdits()">
-              <i class="pi pi-times"></i>
-              <span>Annuler</span>
-            </button>
-            <button class="save-edits-btn" (click)="saveEdits()" [disabled]="savingEdits()">
-              @if (savingEdits()) { <i class="pi pi-spin pi-spinner"></i> } @else { <i class="pi pi-check"></i> }
-              <span>Enregistrer</span>
-            </button>
-          </div>
-        </div>
-      }
-
-      <!-- Total Footer -->
-      <div class="order-total-footer">
-        @if (order.discount_amount && order.discount_amount > 0) {
-          <div class="order-total-footer__row order-total-footer__row--discount">
-            <span class="order-total-footer__label">
-              <i class="pi pi-tag"></i>
-              {{ 'admin.orders.discount' | translate }}
+        <!-- Audit Log Panel -->
+        <div class="panel">
+          <div class="panel__header">
+            <span class="panel__title">
+              <i class="pi pi-history"></i>
+              Historique
             </span>
-            <span class="order-total-footer__value">-{{ order.discount_amount | appCurrency }}</span>
           </div>
-        }
-        <div class="order-total-footer__row order-total-footer__row--total">
-          <span class="order-total-footer__label">{{ 'admin.orders.total' | translate }}</span>
-          <span class="order-total-footer__value">
-            @if (hasUnsavedChanges()) {
-              <span class="total-original-struck">{{ order.total_amount | appCurrency }}</span>
-            }
-            <span [class.total-preview]="hasUnsavedChanges()">{{ previewTotal() | appCurrency }}</span>
-          </span>
-        </div>
-      </div>
-    </div>
-
-    <!-- ─── Payment Panel ──────────────────────────────────────────────────── -->
-    <div class="widget animate-item" style="--item-delay: 500ms;">
-      <div class="widget__header">
-        <h3 class="widget__title">
-          <i class="pi pi-credit-card"></i>
-          Paiement
-        </h3>
-        <span class="payment-status-badge" [ngClass]="{
-          'payment-status-badge--paid': order.payment_status === 'paid',
-          'payment-status-badge--partial': order.payment_status === 'partial',
-          'payment-status-badge--unpaid': !order.payment_status || order.payment_status === 'unpaid'
-        }">
-          @switch (order.payment_status) {
-            @case ('paid') { <i class="pi pi-check-circle"></i> Payé }
-            @case ('partial') { <i class="pi pi-clock"></i> Partiel }
-            @default { <i class="pi pi-times-circle"></i> Non payé }
-          }
-        </span>
-      </div>
-      <div class="widget__body">
-
-        <!-- Summary -->
-        <div class="payment-summary">
-          <div class="payment-summary__row">
-            <span class="payment-summary__label">Total commande</span>
-            <span class="payment-summary__value">{{ order.total_amount | appCurrency }}</span>
-          </div>
-          <div class="payment-summary__row">
-            <span class="payment-summary__label">Total payé</span>
-            <span class="payment-summary__value payment-summary__value--paid">{{ totalPaid() | appCurrency }}</span>
-          </div>
-          @if (balance() > 0) {
-            <div class="payment-summary__row payment-summary__row--balance">
-              <span class="payment-summary__label">Reste à payer</span>
-              <span class="payment-summary__value payment-summary__value--balance">{{ balance() | appCurrency }}</span>
-            </div>
-          }
-        </div>
-
-        <!-- Payments List -->
-        @if (paymentLoading()) {
-          <div class="flex align-items-center gap-2 text-secondary text-sm py-2">
-            <i class="pi pi-spin pi-spinner"></i>
-            <span>Chargement…</span>
-          </div>
-        } @else if (payments().length > 0) {
-          <div class="payments-list">
-            @for (p of payments(); track p.id) {
-              <div class="payment-entry" [class.payment-entry--refund]="p.amount < 0">
-                <div class="payment-entry__icon">
-                  <i [class]="getPaymentMethodIcon(p.method)"></i>
-                </div>
-                <div class="payment-entry__info">
-                  <span class="payment-entry__method">{{ getPaymentMethodLabel(p.method) }}</span>
-                  @if (p.note) {
-                    <span class="payment-entry__note">{{ p.note }}</span>
-                  }
-                  <span class="payment-entry__meta">
-                    {{ p.recorded_at | appDate }}
-                    @if (p.recorder_name) { · {{ p.recorder_name }} }
-                  </span>
-                </div>
-                <span class="payment-entry__amount" [class.refund]="p.amount < 0">
-                  {{ p.amount > 0 ? '+' : '' }}{{ p.amount | appCurrency }}
-                </span>
+          <div class="panel__body p-0">
+            @if (auditLoading()) {
+              <div class="flex align-items-center gap-2 text-secondary text-sm p-3">
+                <i class="pi pi-spin pi-spinner"></i><span>Chargement…</span>
+              </div>
+            } @else if (auditLogs().length === 0) {
+              <div class="text-secondary text-sm p-3">Aucun historique disponible.</div>
+            } @else {
+              <div class="audit-timeline">
+                @for (log of auditLogs(); track log.id) {
+                  <div class="audit-entry">
+                    <div class="audit-entry__dot" [style.background]="getAuditActionColor(log.action)">
+                      <i [class]="getAuditActionIcon(log.action)"></i>
+                    </div>
+                    <div class="audit-entry__content">
+                      <span class="audit-entry__action">{{ getAuditActionLabel(log.action) }}</span>
+                      @if (log.details) {
+                        <span class="audit-entry__details">
+                          @if (log.details['product_name']) { {{ log.details['product_name'] }} }
+                          @if (log.details['old_status'] && log.details['new_status']) { {{ log.details['old_status'] }} → {{ log.details['new_status'] }} }
+                          @if (log.details['amount']) { {{ $any(log.details['amount']) | appCurrency }} ({{ log.details['method'] }}) }
+                          @if (log.details['old_quantity'] && log.details['new_quantity']) { qté: {{ log.details['old_quantity'] }} → {{ log.details['new_quantity'] }} }
+                        </span>
+                      }
+                      <span class="audit-entry__meta">
+                        {{ log.created_at | appDate }}
+                        @if (log.actor_name) { · {{ log.actor_name }} }
+                      </span>
+                    </div>
+                  </div>
+                }
               </div>
             }
           </div>
-        }
-
-        <!-- Add Payment Form -->
-        <div class="add-payment-form">
-          <span class="add-payment-form__title">Enregistrer un paiement / remboursement</span>
-          <div class="flex flex-column gap-2">
-            <div class="flex gap-2">
-              <p-inputNumber
-                [ngModel]="newPaymentAmount()"
-                (ngModelChange)="newPaymentAmount.set($event)"
-                placeholder="Montant (négatif = remboursement)"
-                styleClass="flex-1"
-                inputStyleClass="w-full"
-                mode="decimal"
-                [minFractionDigits]="0"
-                [maxFractionDigits]="2">
-              </p-inputNumber>
-              <p-select
-                [options]="paymentMethodOptions"
-                [ngModel]="newPaymentMethod()"
-                (ngModelChange)="newPaymentMethod.set($event)"
-                styleClass="w-8rem"
-                appendTo="body">
-              </p-select>
-            </div>
-            <input
-              pInputText
-              type="text"
-              [ngModel]="newPaymentNote()"
-              (ngModelChange)="newPaymentNote.set($event)"
-              placeholder="Note (optionnel)"
-              class="w-full" />
-            <p-button
-              label="Enregistrer"
-              icon="pi pi-save"
-              severity="success"
-              [loading]="savingPayment()"
-              [disabled]="!newPaymentAmount()"
-              styleClass="align-self-end"
-              (onClick)="recordPayment()">
-            </p-button>
-          </div>
         </div>
 
+        } <!-- end history tab -->
+
       </div>
     </div>
+  }
 
-    <!-- ─── Audit Log Panel ────────────────────────────────────────────────── -->
-    <div class="widget animate-item" style="--item-delay: 550ms;">
-      <div class="widget__header">
-        <h3 class="widget__title">
-          <i class="pi pi-history"></i>
-          Historique
-        </h3>
-      </div>
-      <div class="widget__body">
-        @if (auditLoading()) {
-          <div class="flex align-items-center gap-2 text-secondary text-sm">
-            <i class="pi pi-spin pi-spinner"></i>
-            <span>Chargement…</span>
-          </div>
-        } @else if (auditLogs().length === 0) {
-          <div class="text-secondary text-sm">Aucun historique disponible.</div>
-        } @else {
-          <div class="audit-timeline">
-            @for (log of auditLogs(); track log.id) {
-              <div class="audit-entry">
-                <div class="audit-entry__dot" [style.background]="getAuditActionColor(log.action)">
-                  <i [class]="getAuditActionIcon(log.action)"></i>
-                </div>
-                <div class="audit-entry__content">
-                  <span class="audit-entry__action">{{ getAuditActionLabel(log.action) }}</span>
-                  @if (log.details) {
-                    <span class="audit-entry__details">
-                      @if (log.details['product_name']) { {{ log.details['product_name'] }} }
-                      @if (log.details['old_status'] && log.details['new_status']) {
-                        {{ log.details['old_status'] }} → {{ log.details['new_status'] }}
-                      }
-                      @if (log.details['amount']) { {{ $any(log.details['amount']) | appCurrency }} ({{ log.details['method'] }}) }
-                      @if (log.details['old_quantity'] && log.details['new_quantity']) {
-                        qté: {{ log.details['old_quantity'] }} → {{ log.details['new_quantity'] }}
-                      }
-                    </span>
-                  }
-                  <span class="audit-entry__meta">
-                    {{ log.created_at | appDate }}
-                    @if (log.actor_name) { · {{ log.actor_name }} }
-                  </span>
-                </div>
-              </div>
-            }
-          </div>
-        }
-      </div>
-    </div>
-
-    }
 </app-page-layout>

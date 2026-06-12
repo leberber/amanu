@@ -1,4 +1,5 @@
 import { Component, OnInit, inject, DestroyRef, signal, computed } from '@angular/core';
+import { trigger, transition, style, animate } from '@angular/animations';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -36,6 +37,14 @@ import { ORDER_STATUS } from '../../../core/constants/order.constants';
 @Component({
   selector: 'app-admin-order-detail',
   standalone: true,
+  animations: [
+    trigger('pageAnimation', [
+      transition(':enter', [
+        style({ opacity: 0, transform: 'translateY(12px)' }),
+        animate('200ms ease-out', style({ opacity: 1, transform: 'translateY(0)' }))
+      ])
+    ])
+  ],
   imports: [
     CommonModule,
     FormsModule,
@@ -104,6 +113,9 @@ export class AdminOrderDetailComponent implements OnInit {
   selectedProduct: Product | null = null;
   addItemQty = signal<number>(1);
   private productSearch$ = new Subject<string>();
+
+  // Sidebar tab
+  activeTab = signal<'info' | 'history'>('info');
 
   // Audit log state
   auditLogs = signal<OrderAuditLog[]>([]);
