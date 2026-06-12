@@ -198,8 +198,8 @@ export class AdminPurchaseOrderDetailComponent implements OnInit {
         quantity_rejected: item.quantity_rejected,
         facture_quantity: item.facture_quantity,
         facture_unit_price: item.facture_unit_price,
-        made_date: item.made_date ? item.made_date.toISOString().split('T')[0] : null,
-        expiry_date: item.expiry_date ? item.expiry_date.toISOString().split('T')[0] : null
+        made_date: item.made_date ? toLocalDate(item.made_date) : null,
+        expiry_date: item.expiry_date ? toLocalDate(item.expiry_date) : null
       }))
     };
 
@@ -314,8 +314,8 @@ export class AdminPurchaseOrderDetailComponent implements OnInit {
       facture_quantity: item.facture_quantity,
       facture_unit_price: item.facture_unit_price,
       quantity_rejected: item.quantity_rejected,
-      made_date: item.made_date ? item.made_date.toISOString().split('T')[0] : null,
-      expiry_date: item.expiry_date ? item.expiry_date.toISOString().split('T')[0] : null,
+      made_date: item.made_date ? toLocalDate(item.made_date) : null,
+      expiry_date: item.expiry_date ? toLocalDate(item.expiry_date) : null,
     }))).pipe(
       takeUntilDestroyed(this.destroyRef),
       finalize(() => this.saving.set(false))
@@ -348,6 +348,13 @@ export class AdminPurchaseOrderDetailComponent implements OnInit {
       }
     });
   }
+}
+
+function toLocalDate(date: Date): string {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
 }
 
 interface EditableItem extends Omit<PurchaseOrderItem, 'made_date' | 'expiry_date' | 'quantity_rejected'> {
