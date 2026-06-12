@@ -217,88 +217,93 @@
             }
           </div>
 
-          <!-- Add Item Form -->
+          <!-- Product Picker -->
           @if (showAddItem() && canEditItems()) {
-            <div class="add-item-form">
-              <div class="add-item-form__search">
-                <p-autocomplete
-                  [(ngModel)]="selectedProduct"
-                  [suggestions]="productSearchResults()"
-                  (completeMethod)="onProductSearch($event)"
-                  optionLabel="name"
-                  [minLength]="1"
-                  placeholder="Rechercher un produit par nom…"
-                  styleClass="w-full"
-                  inputStyleClass="w-full"
-                  appendTo="body"
-                  [showEmptyMessage]="true"
-                  emptyMessage="Aucun produit trouvé">
-                  <ng-template #item let-product>
-                    <div class="product-search-item">
-                      <div class="product-search-item__img">
+            <div class="product-picker">
+              <div class="product-picker__filters">
+                <app-table-search
+                  [query]="pickerSearch()"
+                  (queryChange)="pickerSearch.set($event)"
+                  (search)="triggerPickerFilter()"
+                  (clear)="triggerPickerFilter()">
+                </app-table-search>
+                <p-select
+                  [options]="pickerCategoryOptions()"
+                  [ngModel]="pickerCategoryId()"
+                  (ngModelChange)="onPickerCategoryChange($event)"
+                  optionLabel="label" optionValue="value"
+                  placeholder="Catégorie" [showClear]="true" [fluid]="true"
+                  [filter]="true" filterPlaceholder="Rechercher..."
+                  styleClass="filter-select--glass"
+                  panelStyleClass="filter-select-panel--glass"
+                  appendTo="body">
+                  <ng-template pTemplate="selectedItem" let-selected>
+                    @if (selected) {
+                      <div class="select-item"><i class="pi pi-th-large"></i><span>{{ selected.label }}</span></div>
+                    }
+                  </ng-template>
+                  <ng-template pTemplate="item" let-option>
+                    <div class="select-option"><span>{{ option.label }}</span></div>
+                  </ng-template>
+                </p-select>
+                <p-select
+                  [options]="pickerBrandOptions()"
+                  [ngModel]="pickerBrandId()"
+                  (ngModelChange)="onPickerBrandChange($event)"
+                  optionLabel="label" optionValue="value"
+                  placeholder="Marque" [showClear]="true" [fluid]="true"
+                  [filter]="true" filterPlaceholder="Rechercher..."
+                  styleClass="filter-select--glass"
+                  panelStyleClass="filter-select-panel--glass"
+                  appendTo="body">
+                  <ng-template pTemplate="selectedItem" let-selected>
+                    @if (selected) {
+                      <div class="select-item"><i class="pi pi-building"></i><span>{{ selected.label }}</span></div>
+                    }
+                  </ng-template>
+                  <ng-template pTemplate="item" let-option>
+                    <div class="select-option"><span>{{ option.label }}</span></div>
+                  </ng-template>
+                </p-select>
+                <button class="btn-icon" (click)="toggleAddItem()" pTooltip="Fermer" tooltipPosition="left">
+                  <i class="pi pi-times"></i>
+                </button>
+              </div>
+              <div class="product-picker__grid">
+                @if (pickerLoading()) {
+                  @for (i of [1,2,3,4,5,6,7,8]; track i) {
+                    <div class="picker-card picker-card--skeleton">
+                      <div class="skeleton" style="width:100%;height:52px;border-radius:8px;"></div>
+                      <div class="skeleton" style="width:80%;height:9px;border-radius:4px;margin-top:4px;"></div>
+                      <div class="skeleton" style="width:50%;height:9px;border-radius:4px;"></div>
+                    </div>
+                  }
+                } @else if (pickerProducts().length === 0) {
+                  <div class="picker-empty">
+                    <i class="pi pi-search"></i>
+                    <span>Aucun produit trouvé</span>
+                  </div>
+                } @else {
+                  @for (product of pickerProducts(); track product.id) {
+                    <div class="picker-card"
+                      [class.picker-card--selected]="pendingProductIds().has(product.id)"
+                      (click)="selectPickerProduct(product)">
+                      <div class="picker-card__img">
                         @if (product.image_url) {
                           <img [src]="product.image_url" [alt]="product.name" loading="lazy" (error)="onImageError($event)">
                         } @else {
                           <i class="pi pi-box"></i>
                         }
                       </div>
-                      <div class="product-search-item__info">
-                        <span class="product-search-item__name">{{ product.name }}</span>
-                        <span class="product-search-item__meta">
-                          {{ product.price | appCurrency }}
-                          @if ((product.pieces_per_box || 1) > 1) { · {{ product.pieces_per_box }} / {{ product.packaging_type?.toLowerCase() || 'carton' }} }
-                        </span>
-                      </div>
-                      <span class="product-search-item__stock" [class.low]="product.stock_quantity < (product.pieces_per_box || 1) * 5">
+                      <span class="picker-card__name">{{ product.name }}</span>
+                      <span class="picker-card__price">{{ product.price | appCurrency }}</span>
+                      <span class="picker-card__stock" [class.low]="product.stock_quantity < (product.pieces_per_box || 1) * 5">
                         {{ getProductStockLabel(product) }}
                       </span>
                     </div>
-                  </ng-template>
-                </p-autocomplete>
+                  }
+                }
               </div>
-
-              @if (selectedProduct) {
-                <div class="add-item-selected">
-                  <div class="add-item-selected__img">
-                    @if (selectedProduct.image_url) {
-                      <img [src]="selectedProduct.image_url" [alt]="selectedProduct.name" loading="lazy">
-                    } @else {
-                      <i class="pi pi-box"></i>
-                    }
-                  </div>
-                  <div class="add-item-selected__info">
-                    <span class="font-semibold">{{ selectedProduct.name }}</span>
-                    <span class="text-sm text-secondary">
-                      {{ selectedProduct.price | appCurrency }}
-                      @if ((selectedProduct.pieces_per_box || 1) > 1) { · {{ selectedProduct.pieces_per_box }} pièces/{{ selectedProduct.packaging_type?.toLowerCase() || 'carton' }} }
-                    </span>
-                  </div>
-                  <div class="add-item-selected__qty">
-                    <span class="text-xs text-secondary">
-                      @if ((selectedProduct.pieces_per_box || 1) > 1) { {{ selectedProduct.packaging_type?.toLowerCase() || 'Cartons' }} } @else { Quantité }
-                    </span>
-                    <p-inputNumber
-                      [ngModel]="addItemQty()"
-                      (ngModelChange)="addItemQty.set($event)"
-                      [min]="1"
-                      [showButtons]="true"
-                      [step]="1"
-                      styleClass="w-8rem"
-                      inputStyleClass="text-center">
-                    </p-inputNumber>
-                  </div>
-                  <p-button
-                    label="Ajouter"
-                    icon="pi pi-plus"
-                    severity="success"
-                    (onClick)="addItem()">
-                  </p-button>
-                </div>
-              }
-
-              <button class="add-item-form__close" (click)="toggleAddItem()">
-                <i class="pi pi-times"></i> Fermer
-              </button>
             </div>
           }
 
@@ -323,6 +328,9 @@
                   <span class="item-row__name">{{ item.product_name }}</span>
                   @if (item.brand_name) {
                     <span class="item-row__brand">{{ item.brand_name }}</span>
+                  }
+                  @if ((item.pieces_per_box || 1) > 1) {
+                    <span class="item-row__ppb">{{ item.pieces_per_box }} u/{{ item.packaging_type || 'carton' }}</span>
                   }
                 </div>
 
@@ -390,16 +398,20 @@
                 <div class="item-row__info">
                   <span class="item-row__name">{{ entry.product.name }}</span>
                   <span class="item-row__new-badge">Nouveau</span>
+                  @if ((entry.product.pieces_per_box || 1) > 1) {
+                    <span class="item-row__ppb">{{ entry.product.pieces_per_box }} u/{{ entry.product.packaging_type || 'carton' }}</span>
+                  }
                 </div>
                 <div class="item-row__qty">
+                  <button class="qty-btn qty-btn--danger" (click)="decrementNewItem(i)"><i class="pi pi-minus"></i></button>
                   <div class="item-row__qty-display">
+                    <input class="qty-input" type="number" [value]="entry.qty" min="1"
+                      (change)="setNewItemQty(i, +$any($event.target).value)">
                     @if ((entry.product.pieces_per_box || 1) > 1) {
-                      <span class="qty-main">{{ entry.qty }} {{ entry.product.packaging_type?.toLowerCase() || 'carton' }}(s)</span>
-                      <span class="qty-sub">{{ entry.qty * (entry.product.pieces_per_box || 1) }} unités</span>
-                    } @else {
-                      <span class="qty-main">{{ entry.qty }} {{ entry.product.unit }}</span>
+                      <span class="qty-sub">{{ entry.qty * (entry.product.pieces_per_box || 1) }} {{ entry.product.unit | appUnit }}</span>
                     }
                   </div>
+                  <button class="qty-btn" (click)="incrementNewItem(i)"><i class="pi pi-plus"></i></button>
                 </div>
                 <div class="item-row__price">
                   <span class="item-row__price-label">P.U.</span>
@@ -409,7 +421,7 @@
                   {{ entry.product.price * entry.qty * (entry.product.pieces_per_box || 1) | appCurrency }}
                 </div>
                 <div class="item-row__actions">
-                  <button class="qty-btn qty-btn--danger" (click)="removePendingNew(i)" pTooltip="Annuler" tooltipPosition="left">
+                  <button class="qty-btn qty-btn--danger" (click)="removePendingNew(i)" pTooltip="Supprimer" tooltipPosition="left">
                     <i class="pi pi-times"></i>
                   </button>
                 </div>
@@ -665,10 +677,22 @@
             <div class="add-payment-form">
               <span class="add-payment-form__title">Enregistrer un paiement</span>
               <div class="flex flex-column gap-2">
+                @if (balance() > 0) {
+                  <button class="pay-balance-chip" type="button" (click)="newPaymentAmount.set(balance())">
+                    <div class="pay-balance-chip__left">
+                      <span class="pay-balance-chip__label">Reste à payer</span>
+                      <span class="pay-balance-chip__amount">{{ balance() | appCurrency }}</span>
+                    </div>
+                    <span class="pay-balance-chip__cta">
+                      <i class="pi pi-check-circle"></i> Tout régler
+                    </span>
+                  </button>
+                }
                 <div class="flex gap-2">
                   <p-inputNumber
                     [ngModel]="newPaymentAmount()"
                     (ngModelChange)="newPaymentAmount.set($event)"
+                    (onFocus)="!newPaymentAmount() && balance() > 0 && newPaymentAmount.set(balance())"
                     placeholder="Montant (négatif = remboursement)"
                     styleClass="flex-1"
                     inputStyleClass="w-full"
@@ -684,11 +708,14 @@
                     appendTo="body">
                   </p-select>
                 </div>
-                <input pInputText type="text"
+                <textarea pInputTextarea
                   [ngModel]="newPaymentNote()"
                   (ngModelChange)="newPaymentNote.set($event)"
                   placeholder="Note (optionnel)"
-                  class="w-full" />
+                  rows="2"
+                  class="w-full payment-note-textarea"
+                  [autoResize]="false">
+                </textarea>
                 <p-button
                   label="Enregistrer"
                   icon="pi pi-save"
@@ -757,5 +784,238 @@
       </div>
     </div>
   }
+
+  <!-- ─── Create Mode ──────────────────────────────────────────────────── -->
+  @if (!loading() && isCreateMode()) {
+    <div class="create-mode-layout" @pageAnimation>
+
+      <!-- ══════ RIGHT: Product Picker (40%) ══════ -->
+      <div class="create-picker-col">
+        <div class="panel create-picker-panel">
+          <div class="panel__header">
+            <span class="panel__title"><i class="pi pi-box"></i> Produits</span>
+          </div>
+
+          <div class="create-picker__filters">
+            <app-table-search
+              [query]="pickerSearch()"
+              (queryChange)="pickerSearch.set($event)"
+              (search)="triggerPickerFilter()"
+              (clear)="triggerPickerFilter()">
+            </app-table-search>
+            <p-select
+              [options]="pickerCategoryOptions()"
+              [ngModel]="pickerCategoryId()"
+              (ngModelChange)="onPickerCategoryChange($event)"
+              optionLabel="label" optionValue="value"
+              placeholder="Catégorie" [showClear]="true" [fluid]="true"
+              [filter]="true" filterPlaceholder="Rechercher..."
+              styleClass="filter-select--glass"
+              panelStyleClass="filter-select-panel--glass"
+              appendTo="body">
+              <ng-template pTemplate="selectedItem" let-selected>
+                @if (selected) {
+                  <div class="select-item"><i class="pi pi-th-large"></i><span>{{ selected.label }}</span></div>
+                }
+              </ng-template>
+              <ng-template pTemplate="item" let-option>
+                <div class="select-option"><span>{{ option.label }}</span></div>
+              </ng-template>
+            </p-select>
+            <p-select
+              [options]="pickerBrandOptions()"
+              [ngModel]="pickerBrandId()"
+              (ngModelChange)="onPickerBrandChange($event)"
+              optionLabel="label" optionValue="value"
+              placeholder="Marque" [showClear]="true" [fluid]="true"
+              [filter]="true" filterPlaceholder="Rechercher..."
+              styleClass="filter-select--glass"
+              panelStyleClass="filter-select-panel--glass"
+              appendTo="body">
+              <ng-template pTemplate="selectedItem" let-selected>
+                @if (selected) {
+                  <div class="select-item"><i class="pi pi-building"></i><span>{{ selected.label }}</span></div>
+                }
+              </ng-template>
+              <ng-template pTemplate="item" let-option>
+                <div class="select-option"><span>{{ option.label }}</span></div>
+              </ng-template>
+            </p-select>
+          </div>
+
+          <div class="create-picker__grid">
+            @if (pickerLoading()) {
+              @for (i of [1,2,3,4,5,6,7,8,9,10,11,12]; track i) {
+                <div class="picker-card picker-card--skeleton">
+                  <div class="skeleton" style="width:100%;height:52px;border-radius:8px;"></div>
+                  <div class="skeleton" style="width:80%;height:9px;border-radius:4px;margin-top:4px;"></div>
+                  <div class="skeleton" style="width:50%;height:9px;border-radius:4px;"></div>
+                </div>
+              }
+            } @else if (pickerProducts().length === 0) {
+              <div class="picker-empty">
+                <i class="pi pi-search"></i>
+                <span>Aucun produit trouvé</span>
+              </div>
+            } @else {
+              @for (product of pickerProducts(); track product.id) {
+                <div class="picker-card"
+                  [class.picker-card--selected]="pendingProductIds().has(product.id)"
+                  (click)="selectPickerProduct(product)">
+                  <div class="picker-card__img">
+                    @if (product.image_url) {
+                      <img [src]="product.image_url" [alt]="product.name" loading="lazy" (error)="onImageError($event)">
+                    } @else {
+                      <i class="pi pi-box"></i>
+                    }
+                  </div>
+                  <span class="picker-card__name">{{ product.name }}</span>
+                  <span class="picker-card__price">{{ product.price | appCurrency }}</span>
+                  <span class="picker-card__stock" [class.low]="product.stock_quantity < (product.pieces_per_box || 1) * 5">
+                    {{ getProductStockLabel(product) }}
+                  </span>
+                </div>
+              }
+            }
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ══════ RIGHT: Order Building (60%) ══════ -->
+      <div class="create-order-col">
+
+        <!-- Customer Picker -->
+        <div class="panel">
+          <div class="panel__header">
+            <span class="panel__title"><i class="pi pi-user"></i> Client</span>
+          </div>
+          <div class="panel__body">
+            @if (!createCustomer()) {
+              <p-autocomplete
+                [(ngModel)]="selectedCustomer"
+                [suggestions]="customerSearchResults()"
+                (completeMethod)="onCustomerSearch($event)"
+                (onSelect)="onCustomerSelected($event)"
+                optionLabel="full_name"
+                placeholder="Rechercher un client par nom, email ou téléphone..."
+                styleClass="w-full autocomplete-glass"
+                inputStyleClass="w-full"
+                appendTo="body"
+                [showEmptyMessage]="true"
+                emptyMessage="Aucun client trouvé">
+                <ng-template #item let-user>
+                  <div class="customer-search-item">
+                    <div class="customer-search-item__avatar"><i class="pi pi-user"></i></div>
+                    <div class="customer-search-item__info">
+                      <span class="customer-search-item__name">{{ user.full_name || user.email }}</span>
+                      <span class="customer-search-item__meta">
+                        @if (user.phone) { {{ user.phone }} · }
+                        {{ user.address || 'Aucune adresse' }}
+                      </span>
+                    </div>
+                  </div>
+                </ng-template>
+              </p-autocomplete>
+            } @else {
+              <div class="create-customer-card">
+                <div class="create-customer-card__avatar"><i class="pi pi-user"></i></div>
+                <div class="create-customer-card__info">
+                  <span class="create-customer-card__name">{{ createCustomer()!.full_name || createCustomer()!.email }}</span>
+                  <span class="create-customer-card__meta">
+                    @if (createCustomer()!.phone) { <i class="pi pi-phone"></i> {{ createCustomer()!.phone }} }
+                    @if (createCustomer()!.address) { <i class="pi pi-map-marker"></i> {{ createCustomer()!.address }} }
+                    @if (!createCustomer()!.address) {
+                      <span style="color:#d97706;"><i class="pi pi-exclamation-triangle"></i> Aucune adresse enregistrée</span>
+                    }
+                  </span>
+                </div>
+                <button class="btn-icon" (click)="clearCustomer()" pTooltip="Changer de client" tooltipPosition="left">
+                  <i class="pi pi-times"></i>
+                </button>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Items -->
+        <div class="panel panel--items">
+          <div class="panel__header">
+            <span class="panel__title">
+              <i class="pi pi-list"></i>
+              Articles
+              <span class="panel__count">{{ pendingNewItems().length }}</span>
+            </span>
+          </div>
+          <div class="items-list">
+            @if (pendingNewItems().length === 0) {
+              <div class="create-empty-items">
+                <i class="pi pi-shopping-cart"></i>
+                <p>Aucun article ajouté</p>
+                <small>Cliquez sur un produit à droite pour l'ajouter</small>
+              </div>
+            }
+            @for (entry of pendingNewItems(); track entry.product.id; let i = $index) {
+              <div class="item-row">
+                <div class="item-row__img">
+                  @if (entry.product.image_url) {
+                    <img [src]="entry.product.image_url" [alt]="entry.product.name" loading="lazy" (error)="onImageError($event)">
+                  } @else {
+                    <i class="pi pi-box"></i>
+                  }
+                </div>
+                <div class="item-row__info">
+                  <span class="item-row__name">{{ entry.product.name }}</span>
+                  @if ((entry.product.pieces_per_box || 1) > 1) {
+                    <span class="item-row__ppb">{{ entry.product.pieces_per_box }} u/{{ entry.product.packaging_type || 'carton' }}</span>
+                  }
+                </div>
+                <div class="item-row__qty">
+                  <button class="qty-btn qty-btn--danger" (click)="decrementNewItem(i)"><i class="pi pi-minus"></i></button>
+                  <div class="item-row__qty-display">
+                    <input class="qty-input" type="number" [value]="entry.qty" min="1"
+                      (change)="setNewItemQty(i, +$any($event.target).value)">
+                    @if ((entry.product.pieces_per_box || 1) > 1) {
+                      <span class="qty-sub">{{ entry.qty * (entry.product.pieces_per_box || 1) }} {{ entry.product.unit | appUnit }}</span>
+                    }
+                  </div>
+                  <button class="qty-btn" (click)="incrementNewItem(i)"><i class="pi pi-plus"></i></button>
+                </div>
+                <div class="item-row__price">
+                  <span class="item-row__price-label">P.U.</span>
+                  <span>{{ entry.product.price | appCurrency }}</span>
+                </div>
+                <div class="item-row__total">
+                  {{ entry.product.price * entry.qty * (entry.product.pieces_per_box || 1) | appCurrency }}
+                </div>
+                <div class="item-row__actions">
+                  <button class="qty-btn qty-btn--danger" (click)="removePendingNew(i)" pTooltip="Supprimer" tooltipPosition="left">
+                    <i class="pi pi-times"></i>
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+          <div class="items-footer">
+            <div class="items-footer__total">
+              <span class="font-semibold">Total</span>
+              <span class="items-footer__new">{{ previewTotal() | appCurrency }}</span>
+            </div>
+            <p-button
+              label="Créer la commande"
+              icon="pi pi-check"
+              severity="success"
+              size="large"
+              [loading]="creatingOrder()"
+              [disabled]="!createCustomer() || pendingNewItems().length === 0"
+              (onClick)="submitCreateOrder()">
+            </p-button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  }
+
 
 </app-page-layout>

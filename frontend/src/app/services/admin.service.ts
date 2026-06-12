@@ -140,9 +140,19 @@ export class AdminService {
 
   // Users management - UPDATED to use new response format
   getAllUsers(page: number = 1, pageSize: number = PAGINATION.DEFAULT_PAGE_SIZE): Observable<UsersResponse> {
-    return this.apiService.get<UsersResponse>('/users', { 
+    return this.apiService.get<UsersResponse>('/users', {
       params: { skip: (page - 1) * pageSize, limit: pageSize }
     });
+  }
+
+  searchUsers(search: string, limit: number = 10): Observable<UsersResponse> {
+    return this.apiService.get<UsersResponse>('/users', {
+      params: { skip: 0, limit, search }
+    });
+  }
+
+  createOrderForUser(userId: number, items: { product_id: number; quantity: number }[]): Observable<{ order_id: number }> {
+    return this.apiService.post<{ order_id: number }>('/admin/create-order', { user_id: userId, items });
   }
 
   getUserById(userId: number): Observable<UserManage> {

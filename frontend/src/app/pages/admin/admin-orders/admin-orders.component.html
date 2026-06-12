@@ -16,6 +16,12 @@
           <p>{{ allOrders().length }} {{ 'admin.orders.orders' | translate }}</p>
         </div>
       </div>
+      <p-button
+        label="Nouvelle commande"
+        icon="pi pi-plus"
+        severity="success"
+        (onClick)="baseRouter.navigate([ROUTES.ADMIN.ORDER_NEW])">
+      </p-button>
     </div>
 
     <!-- Status Segmented Control -->

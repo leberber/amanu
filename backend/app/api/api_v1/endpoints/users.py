@@ -1,8 +1,9 @@
-from typing import Any, List
+from typing import Any, List, Optional
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Query, BackgroundTasks
 from sqlmodel import Session, select, func
+from sqlalchemy import or_
 from pydantic import BaseModel
 
 from app.database import get_session
@@ -99,17 +100,30 @@ def get_user_groups_for_user(user_id: int, session: Session) -> List[UserGroupBa
 def read_users(
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=1000),
+    search: Optional[str] = Query(None),
     current_user: User = Depends(get_current_staff_user),
     session: Session = Depends(get_session),
 ) -> Any:
     """
     Retrieve users (admin only).
     """
+    base_query = select(User)
+    count_query = select(func.count()).select_from(User)
+
+    if search:
+        search_filter = or_(
+            User.full_name.ilike(f"%{search}%"),
+            User.email.ilike(f"%{search}%"),
+            User.phone.ilike(f"%{search}%"),
+        )
+        base_query = base_query.where(search_filter)
+        count_query = count_query.where(search_filter)
+
     # Get total count
-    total = session.exec(select(func.count()).select_from(User)).first()
+    total = session.exec(count_query).first()
 
     # Get users with pagination
-    users = session.exec(select(User).offset(skip).limit(limit)).all()
+    users = session.exec(base_query.offset(skip).limit(limit)).all()
 
     if not users:
         return UsersResponse(users=[], total=total)

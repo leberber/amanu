@@ -67,6 +67,7 @@ export const ROUTES = {
     ADD_VOLUME_DISCOUNT: '/admin/volume-discounts/add',
     EDIT_VOLUME_DISCOUNT: '/admin/volume-discounts/edit/:id',
     ORDERS: '/admin/orders',
+    ORDER_NEW: '/admin/orders/new',
     ORDER_DETAIL: '/admin/orders/:id',
     USERS: '/admin/users',
     USERS_MAP: '/admin/users/map',

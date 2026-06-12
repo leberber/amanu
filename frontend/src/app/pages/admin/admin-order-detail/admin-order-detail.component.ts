@@ -10,20 +10,25 @@ import { SelectModule } from 'primeng/select';
 import { TooltipModule } from 'primeng/tooltip';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { InputTextModule } from 'primeng/inputtext';
+import { TextareaModule } from 'primeng/textarea';
 import { TagModule } from 'primeng/tag';
 import { ButtonModule } from 'primeng/button';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { finalize, concat, last, Subject, switchMap, debounceTime, distinctUntilChanged, of } from 'rxjs';
 
 import { PageLayoutComponent } from '../../../shared/components/page-layout/page-layout.component';
+import { TableSearchComponent } from '../../../shared/components/table-search/table-search.component';
 import { AdminService } from '../../../services/admin.service';
 import { ProductService } from '../../../services/product.service';
-import { Order, OrderItem, OrderPayment, OrderAuditLog } from '../../../models/admin.model';
-import { Product } from '../../../models/product.model';
+import { Order, OrderItem, OrderPayment, OrderAuditLog, UserManage } from '../../../models/admin.model';
+import { Product, AdminProductFilter } from '../../../models/product.model';
+import { Category } from '../../../models/category.model';
+import { Brand } from '../../../models/brand.model';
+import { BrandService } from '../../../core/services/brand.service';
 import { DriverProfileWithFlags } from '../../../models/driver.model';
 import { StatusSeverityService } from '../../../core/services/status-severity.service';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
-import { ROUTES } from '../../../core/constants/routes.constants';
+import { ROUTES, RouteHelpers } from '../../../core/constants/routes.constants';
 import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
 import { PhoneFormatPipe } from '../../../shared/pipes/phone-format.pipe';
 import { UnitPipe } from '../../../shared/pipes/unit.pipe';
@@ -53,11 +58,12 @@ import { ORDER_STATUS } from '../../../core/constants/order.constants';
     SelectModule,
     TooltipModule,
     InputNumberModule,
-    InputTextModule,
     TagModule,
     ButtonModule,
     AutoCompleteModule,
+    TextareaModule,
     PageLayoutComponent,
+    TableSearchComponent,
     CurrencyPipe,
     PhoneFormatPipe,
     UnitPipe,
@@ -79,6 +85,7 @@ export class AdminOrderDetailComponent implements OnInit {
   private readonly dateService = inject(DateService);
   private readonly orderPdf = inject(OrderPdfService);
   private readonly packagingTypeService = inject(PackagingTypeService);
+  private readonly brandService = inject(BrandService);
 
   // Route constant for back navigation
   readonly ROUTES = ROUTES;
@@ -107,15 +114,37 @@ export class AdminOrderDetailComponent implements OnInit {
   pendingNewItems = signal<{ product: Product; qty: number }[]>([]);
   savingEdits = signal(false);
   showAddItem = signal(false);
-  // Product autocomplete
-  productSearchResults = signal<Product[]>([]);
-  productSearchLoading = signal(false);
-  selectedProduct: Product | null = null;
-  addItemQty = signal<number>(1);
-  private productSearch$ = new Subject<string>();
+
+  pendingProductIds = computed(() => new Set(this.pendingNewItems().map(i => i.product.id)));
+
+  // Product picker (inline expandable)
+  pickerCategories = signal<Category[]>([]);
+  pickerBrands = signal<Brand[]>([]);
+  pickerProducts = signal<Product[]>([]);
+  pickerLoading = signal(false);
+  pickerSearch = signal('');
+  pickerCategoryId = signal<number | null>(null);
+  pickerBrandId = signal<number | null>(null);
+  private pickerFilterChange$ = new Subject<void>();
+
+  pickerCategoryOptions = computed(() =>
+    this.pickerCategories().map(c => ({ label: c.name, value: c.id }))
+  );
+  pickerBrandOptions = computed(() =>
+    this.pickerBrands().map(b => ({ label: b.name, value: b.id }))
+  );
 
   // Sidebar tab
   activeTab = signal<'info' | 'history'>('info');
+
+  // Create mode
+  isCreateMode = signal(false);
+  createCustomer = signal<UserManage | null>(null);
+  customerSearchResults = signal<UserManage[]>([]);
+  customerSearchLoading = signal(false);
+  creatingOrder = signal(false);
+  selectedCustomer: UserManage | null = null;
+  private customerSearch$ = new Subject<string>();
 
   // Audit log state
   auditLogs = signal<OrderAuditLog[]>([]);
@@ -130,11 +159,13 @@ export class AdminOrderDetailComponent implements OnInit {
 
   // Computed values
   pageTitle = computed(() => {
+    if (this.isCreateMode()) return 'Nouvelle commande';
     const order = this.order();
     return order ? `${this.translateService.instant('admin.orders.order_number')} #${order.id}` : '';
   });
 
   pageSubtitle = computed(() => {
+    if (this.isCreateMode()) return '';
     const order = this.order();
     return order ? this.dateService.formatDate(order.created_at) : '';
   });
@@ -164,8 +195,9 @@ export class AdminOrderDetailComponent implements OnInit {
   // Selected driver for status change flow
   selectedStatusDriverId = signal<number | null>(null);
 
-  // Item editing only allowed for pending/confirmed
+  // Item editing only allowed for pending/confirmed (always true in create mode)
   canEditItems = computed(() => {
+    if (this.isCreateMode()) return true;
     const s = this.order()?.status;
     return s === 'pending' || s === 'confirmed';
   });
@@ -186,10 +218,14 @@ export class AdminOrderDetailComponent implements OnInit {
   hasUnsavedChanges = computed(() => this.pendingEdits().size > 0 || this.pendingNewItems().length > 0);
 
   previewTotal = computed(() => {
+    const newItemsTotal = this.pendingNewItems().reduce(
+      (sum, { product, qty }) => sum + product.price * qty * (product.pieces_per_box || 1), 0
+    );
+    if (this.isCreateMode()) return newItemsTotal;
+
     const order = this.order();
     if (!order?.items) return order?.total_amount ?? 0;
     const edits = this.pendingEdits();
-    const newItems = this.pendingNewItems();
 
     const existingTotal = order.items.reduce((sum, item) => {
       const edit = edits.get(item.id);
@@ -198,37 +234,63 @@ export class AdminOrderDetailComponent implements OnInit {
       return sum + qty * item.unit_price;
     }, 0);
 
-    const newTotal = newItems.reduce((sum, { product, qty }) =>
-      sum + product.price * qty * (product.pieces_per_box || 1), 0);
-
-    return existingTotal + newTotal;
+    return existingTotal + newItemsTotal;
   });
 
   ngOnInit(): void {
+    const isCreate = !!this.route.snapshot.data['createMode'];
     const id = this.route.snapshot.paramMap.get('id');
-    if (id) {
+
+    if (isCreate) {
+      this.isCreateMode.set(true);
+      this.loading.set(false);
+    } else if (id) {
       this.loadOrder(+id);
       this.loadAvailableDrivers();
     } else {
       this.router.navigate([ROUTES.ADMIN.ORDERS]);
     }
 
-    this.productSearch$.pipe(
+    this.pickerFilterChange$.pipe(
+      debounceTime(250),
+      switchMap(() => {
+        this.pickerLoading.set(true);
+        const filters: AdminProductFilter = {
+          skip: 0, limit: 40, status_filter: 'active'
+        };
+        if (this.pickerSearch()) filters.search = this.pickerSearch();
+        if (this.pickerCategoryId()) filters.category_id = this.pickerCategoryId()!;
+        if (this.pickerBrandId()) filters.brand_id = this.pickerBrandId()!;
+        return this.productService.getProductsPaginated(filters);
+      }),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
+      next: (res) => { this.pickerProducts.set(res.items ?? []); this.pickerLoading.set(false); },
+      error: () => this.pickerLoading.set(false)
+    });
+
+    this.customerSearch$.pipe(
       debounceTime(300),
       distinctUntilChanged(),
       switchMap(query => {
-        if (!query.trim()) return of({ items: [] as Product[] });
-        this.productSearchLoading.set(true);
-        return this.productService.getProductsPaginated({ skip: 0, limit: 20, status_filter: 'active', search: query });
+        if (!query.trim()) return of({ users: [] as UserManage[], total: 0 });
+        this.customerSearchLoading.set(true);
+        return this.adminService.searchUsers(query, 10);
       }),
       takeUntilDestroyed(this.destroyRef)
     ).subscribe({
       next: (res) => {
-        this.productSearchResults.set(res.items ?? []);
-        this.productSearchLoading.set(false);
+        this.customerSearchResults.set(res.users ?? []);
+        this.customerSearchLoading.set(false);
       },
-      error: () => this.productSearchLoading.set(false)
+      error: () => this.customerSearchLoading.set(false)
     });
+
+    // Auto-load products when entering create mode
+    if (isCreate) {
+      this.loadPickerMeta();
+      this.pickerFilterChange$.next();
+    }
   }
 
   private loadOrder(id: number): void {
@@ -411,31 +473,83 @@ export class AdminOrderDetailComponent implements OnInit {
     return `${product.stock_quantity}`;
   }
 
-  onProductSearch(event: { query: string }): void {
-    this.productSearch$.next(event.query);
-  }
-
   toggleAddItem(): void {
     this.showAddItem.update(v => !v);
-    if (!this.showAddItem()) {
-      this.selectedProduct = null;
-      this.productSearchResults.set([]);
-      this.addItemQty.set(1);
+    if (this.showAddItem()) {
+      if (this.pickerCategories().length === 0) { this.loadPickerMeta(); }
+      this.pickerFilterChange$.next();
+    } else {
+      this.pickerSearch.set('');
+      this.pickerCategoryId.set(null);
+      this.pickerBrandId.set(null);
+      this.pickerProducts.set([]);
     }
   }
 
-  addItem(): void {
-    if (!this.selectedProduct) return;
-    const qty = this.addItemQty();
-    if (qty <= 0) return;
-
-    // Queue locally — don't commit until saveEdits()
-    this.pendingNewItems.update(items => [...items, { product: this.selectedProduct!, qty }]);
-    this.showAddItem.set(false);
-    this.selectedProduct = null;
-    this.productSearchResults.set([]);
-    this.addItemQty.set(1);
+  private loadPickerMeta(): void {
+    this.productService.getCategories(true)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(cats => this.pickerCategories.set(cats));
+    this.brandService.getBrands(true)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(brands => this.pickerBrands.set(brands));
   }
+
+  selectPickerProduct(product: Product): void {
+    const idx = this.pendingNewItems().findIndex(i => i.product.id === product.id);
+    if (idx >= 0) {
+      this.pendingNewItems.update(items =>
+        items.map((item, i) => i === idx ? { ...item, qty: item.qty + 1 } : item)
+      );
+    } else {
+      this.pendingNewItems.update(items => [...items, { product, qty: 1 }]);
+    }
+  }
+
+  incrementNewItem(index: number): void {
+    this.pendingNewItems.update(items =>
+      items.map((item, i) => i === index ? { ...item, qty: item.qty + 1 } : item)
+    );
+  }
+
+  decrementNewItem(index: number): void {
+    const item = this.pendingNewItems()[index];
+    if (!item) return;
+    if (item.qty <= 1) {
+      this.removePendingNew(index);
+    } else {
+      this.pendingNewItems.update(items =>
+        items.map((it, i) => i === index ? { ...it, qty: it.qty - 1 } : it)
+      );
+    }
+  }
+
+  setNewItemQty(index: number, qty: number): void {
+    if (isNaN(qty) || qty <= 0) { this.removePendingNew(index); return; }
+    this.pendingNewItems.update(items =>
+      items.map((item, i) => i === index ? { ...item, qty } : item)
+    );
+  }
+
+  onPickerSearchChange(value: string): void {
+    this.pickerSearch.set(value);
+    this.pickerFilterChange$.next();
+  }
+
+  triggerPickerFilter(): void {
+    this.pickerFilterChange$.next();
+  }
+
+  onPickerCategoryChange(id: number | null): void {
+    this.pickerCategoryId.set(id ?? null);
+    this.pickerFilterChange$.next();
+  }
+
+  onPickerBrandChange(id: number | null): void {
+    this.pickerBrandId.set(id ?? null);
+    this.pickerFilterChange$.next();
+  }
+
 
   removePendingNew(index: number): void {
     this.pendingNewItems.update(items => items.filter((_, i) => i !== index));
@@ -624,6 +738,44 @@ export class AdminOrderDetailComponent implements OnInit {
   getItemPackagingLabel(item: OrderItem): string {
     const count = this.getItemCartonCount(item);
     return this.packagingTypeService.getPackagingTypeForCount(item.packaging_type || 'carton', count);
+  }
+
+  // ─── Create Mode ──────────────────────────────────────────────────────────────
+
+  onCustomerSearch(event: { query: string }): void {
+    this.customerSearch$.next(event.query);
+  }
+
+  onCustomerSelected(event: { value: UserManage }): void {
+    this.createCustomer.set(event.value);
+  }
+
+  clearCustomer(): void {
+    this.selectedCustomer = null;
+    this.createCustomer.set(null);
+    this.customerSearchResults.set([]);
+  }
+
+  submitCreateOrder(): void {
+    const customer = this.createCustomer();
+    const items = this.pendingNewItems();
+    if (!customer || items.length === 0) return;
+
+    const orderItems = items.map(({ product, qty }) => ({
+      product_id: product.id,
+      quantity: qty * (product.pieces_per_box || 1)
+    }));
+
+    this.creatingOrder.set(true);
+    this.adminService.createOrderForUser(customer.id, orderItems)
+      .pipe(takeUntilDestroyed(this.destroyRef), finalize(() => this.creatingOrder.set(false)))
+      .subscribe({
+        next: (res) => {
+          this.toast.showSuccess('Commande créée avec succès');
+          this.router.navigate([RouteHelpers.adminOrderDetail(res.order_id)]);
+        },
+        error: (err) => this.toast.showError(err?.error?.detail ?? 'Erreur lors de la création')
+      });
   }
 
   // Driver loading

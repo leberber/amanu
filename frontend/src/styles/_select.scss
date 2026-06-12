@@ -353,8 +353,24 @@
   min-width: 240px !important;
 
   .p-select-header {
-    padding: var(--space-4);
+    padding: var(--space-4) var(--space-4) var(--space-3);
     border-bottom: var(--border-width) solid var(--border-color-light);
+    overflow: hidden;
+
+    .p-select-filter {
+      margin: var(--space-1) 0;
+      width: 100%;
+      box-sizing: border-box;
+
+      input {
+        padding: var(--space-3) var(--space-4);
+        border-radius: var(--radius-md);
+        font-size: var(--font-size-sm);
+        width: 100%;
+        box-sizing: border-box;
+        max-width: 100%;
+      }
+    }
   }
 
   .p-select-list {

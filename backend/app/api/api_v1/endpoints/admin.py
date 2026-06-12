@@ -11,7 +11,9 @@ from app.models.user import User, UserRole
 from app.models.product import Product
 from app.models.category import Category
 from app.models.brand import Brand
-from app.models.order import Order, OrderStatus, OrderItem
+from app.models.order import Order, OrderStatus, OrderItem, DeliveryType
+from app.models.order_payments import OrderAuditLog, AuditAction
+from app.api.utils.common import format_price
 from app.core.security import get_current_admin_user, get_current_staff_user
 from app.core.logging_config import read_logs, get_log_stats
 from app.core.system_metrics import get_metrics
@@ -701,3 +703,104 @@ def clear_system_errors(
     metrics = get_metrics()
     metrics.clear_errors()
     return {"message": "Error log cleared"}
+
+
+# ─── Admin: Create order on behalf of a customer ──────────────────────────────
+
+class AdminOrderCreateItem(BaseModel):
+    product_id: int
+    quantity: float
+
+class AdminOrderCreatePayload(BaseModel):
+    user_id: int
+    items: List[AdminOrderCreateItem]
+
+@router.post("/create-order")
+def admin_create_order(
+    data: AdminOrderCreatePayload,
+    current_user: User = Depends(get_current_staff_user),
+    session: Session = Depends(get_session),
+) -> Any:
+    """Create an order on behalf of a customer (staff/admin only)."""
+
+    target_user = session.get(User, data.user_id)
+    if not target_user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    if not data.items:
+        raise HTTPException(status_code=400, detail="Order must contain at least one item")
+
+    product_ids = [item.product_id for item in data.items]
+    products = session.exec(select(Product).where(Product.id.in_(product_ids))).all()
+    products_map = {p.id: p for p in products}
+
+    order_items = []
+    subtotal = 0.0
+    total_weight_kg = 0.0
+
+    for item in data.items:
+        product = products_map.get(item.product_id)
+        if not product:
+            raise HTTPException(status_code=404, detail=f"Product {item.product_id} not found")
+        if not product.is_active:
+            raise HTTPException(status_code=400, detail=f"Product '{product.name}' is not available")
+        if product.stock_quantity < item.quantity:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Not enough stock for '{product.name}'. Available: {product.stock_quantity}"
+            )
+
+        subtotal += product.price * item.quantity
+        if product.weight:
+            total_weight_kg += product.weight * item.quantity
+
+        order_items.append(OrderItem(
+            product_id=item.product_id,
+            quantity=item.quantity,
+            unit_price=product.price,
+            product_name=product.name,
+            product_unit=product.unit,
+            pieces_per_box=product.pieces_per_box,
+            packaging_type=product.packaging_type,
+            order_id=0,
+        ))
+
+        product.stock_quantity -= item.quantity
+        session.add(product)
+
+    subtotal = format_price(subtotal)
+
+    order = Order(
+        user_id=target_user.id,
+        status=OrderStatus.PENDING,
+        shipping_address=target_user.address or "",
+        contact_phone=target_user.phone or "",
+        subtotal=subtotal,
+        discount_amount=0,
+        cross_sell_discount_amount=0,
+        volume_discount_amount=0,
+        shipping_cost=0,
+        total_amount=subtotal,
+        total_weight_kg=total_weight_kg,
+        delivery_type=DeliveryType.STANDARD,
+    )
+
+    session.add(order)
+    session.commit()
+    session.refresh(order)
+
+    for item in order_items:
+        item.order_id = order.id
+        session.add(item)
+
+    audit = OrderAuditLog(
+        order_id=order.id,
+        user_id=current_user.id,
+        action=AuditAction.ORDER_CREATED,
+        details={"created_by_admin": True, "admin_name": current_user.full_name or current_user.email},
+    )
+    session.add(audit)
+
+    session.commit()
+
+    return {"order_id": order.id}

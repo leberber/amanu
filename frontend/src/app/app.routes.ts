@@ -154,6 +154,12 @@ export const routes: Routes = [
     canActivate: [adminGuard]
   },
   {
+    path: 'admin/orders/new',
+    loadComponent: () => import('./pages/admin/admin-order-detail/admin-order-detail.component').then(m => m.AdminOrderDetailComponent),
+    canActivate: [adminGuard],
+    data: { hideBottomNav: true, createMode: true }
+  },
+  {
     path: 'admin/orders/:id',
     loadComponent: () => import('./pages/admin/admin-order-detail/admin-order-detail.component').then(m => m.AdminOrderDetailComponent),
     canActivate: [adminGuard],

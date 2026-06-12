@@ -41,6 +41,8 @@ import { BaseAdminListComponent, ColumnOption } from '../../../shared/base/base-
   styleUrl: './admin-orders.component.scss'
 })
 export class AdminOrdersComponent extends BaseAdminListComponent implements OnInit {
+  readonly ROUTES = ROUTES;
+
   // Infinite scroll configuration
   private readonly BATCH_SIZE = 50;
 
