@@ -448,6 +448,13 @@ def read_order(
             detail="Not authorized to access this order",
         )
 
+    # Clear admin_modified_at when the customer views their order (but snapshot for response)
+    admin_modified_at_snapshot = order.admin_modified_at
+    if current_user.role == UserRole.CUSTOMER and order.admin_modified_at is not None:
+        order.admin_modified_at = None
+        session.add(order)
+        session.commit()
+
     # Build user info
     user_info = None
     if order.user:
@@ -473,6 +480,7 @@ def read_order(
         promotion_id=order.promotion_id,
         created_at=order.created_at,
         updated_at=order.updated_at,
+        admin_modified_at=admin_modified_at_snapshot,
         user=user_info,
         items=[
             OrderItemRead(
@@ -998,6 +1006,7 @@ def add_order_item(
 
     session.flush()
     _recalculate_order_total(order, session)
+    order.admin_modified_at = datetime.now(timezone.utc)
 
     # Notify customer
     try:
@@ -1054,6 +1063,7 @@ def remove_order_item(
     session.delete(item)
     session.flush()
     _recalculate_order_total(order, session)
+    order.admin_modified_at = datetime.now(timezone.utc)
 
     try:
         NotificationService.notify_order_modified(
@@ -1118,6 +1128,7 @@ def update_order_item(
 
     session.flush()
     _recalculate_order_total(order, session)
+    order.admin_modified_at = datetime.now(timezone.utc)
 
     try:
         NotificationService.notify_order_modified(

@@ -16,7 +16,7 @@ import { LightboxService } from '../../../core/services/lightbox.service';
 import { DateService } from '../../../core/services/date.service';
 import { OrderTimelineService, TimelineStatus } from '../../../core/services/order-timeline.service';
 import { OrderTranslationService } from '../../../core/services/order-translation.service';
-import { Order, OrderItem } from '../../../models/order.model';
+import { Order, OrderItem, AuditLogEntry, DiffDisplayItem } from '../../../models/order.model';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
 import { PageLayoutComponent } from '../../../shared/components/page-layout/page-layout.component';
 import { ImageLightboxComponent } from '../../../shared/components/image-lightbox/image-lightbox.component';
@@ -67,10 +67,60 @@ export class OrderDetailComponent implements OnInit {
   loading = signal(true);
   error = signal(false);
   orderStatuses = signal<TimelineStatus[]>([]);
+  auditLog = signal<AuditLogEntry[]>([]);
 
   // Computed
   totalAmount = computed(() => this.order()?.total_amount || 0);
   canCancelOrder = computed(() => this.order()?.status === ORDER_STATUS.PENDING);
+  adminModifiedAt = computed(() => {
+    const d = this.order()?.admin_modified_at;
+    return d ? this.dateService.formatDate(d) : null;
+  });
+
+  displayItems = computed((): DiffDisplayItem[] => {
+    const order = this.order();
+    if (!order?.items?.length) return [];
+
+    const modifiedAt = order.admin_modified_at;
+    if (!modifiedAt) return order.items.map(item => ({ kind: 'normal', item }));
+
+    const audit = this.auditLog();
+    if (!audit.length) return order.items.map(item => ({ kind: 'normal', item }));
+
+    const modTime = new Date(modifiedAt).getTime();
+    const batch = audit.filter(e => {
+      const t = new Date(e.created_at).getTime();
+      return t >= modTime - 30_000 && t <= modTime + 5_000;
+    });
+    if (!batch.length) return order.items.map(item => ({ kind: 'normal', item }));
+
+    const addedIds = new Set<number>();
+    const removedEntries = new Map<number, AuditLogEntry>();
+    const changedEntries = new Map<number, AuditLogEntry>();
+    for (const e of batch) {
+      const pid = e.details?.product_id;
+      if (pid == null) continue;
+      if (e.action === 'item_added') addedIds.add(pid);
+      else if (e.action === 'item_removed') removedEntries.set(pid, e);
+      else if (e.action === 'item_quantity_changed') changedEntries.set(pid, e);
+    }
+
+    const result: DiffDisplayItem[] = [];
+    for (const item of order.items) {
+      if (addedIds.has(item.product_id)) {
+        result.push({ kind: 'added', item });
+      } else if (changedEntries.has(item.product_id)) {
+        result.push({ kind: 'changed', item, old_quantity: changedEntries.get(item.product_id)!.details?.old_quantity });
+      } else {
+        result.push({ kind: 'normal', item });
+      }
+    }
+    for (const [, e] of removedEntries) {
+      const d = e.details!;
+      result.push({ kind: 'removed', item: { id: -1, product_id: d.product_id ?? 0, product_name: d.product_name ?? '', unit_price: d.unit_price ?? 0, quantity: d.quantity ?? 0, product_unit: '' } });
+    }
+    return result;
+  });
 
   private orderDate = computed(() =>
     this.order()?.created_at ? this.dateService.formatDateOnly(this.order()!.created_at) : ''
@@ -118,10 +168,6 @@ export class OrderDetailComponent implements OnInit {
       quantity: item.quantity,
       pieces_per_box: item.pieces_per_box
     }, true);
-  }
-
-  closeImage(): void {
-    this.lightbox.closeImage();
   }
 
   getCartonDisplay(item: OrderItem): string {
@@ -174,7 +220,16 @@ export class OrderDetailComponent implements OnInit {
       if (orderData) {
         this.orderStatuses.set(this.timelineService.generateTimeline(orderData));
         this.loadTranslatedNames();
+        if (orderData.admin_modified_at) {
+          this.loadAuditLog(orderData.id);
+        }
       }
+    });
+  }
+
+  private loadAuditLog(orderId: number): void {
+    this.orderService.getOrderAuditLog(orderId).subscribe(logs => {
+      this.auditLog.set(logs);
     });
   }
 

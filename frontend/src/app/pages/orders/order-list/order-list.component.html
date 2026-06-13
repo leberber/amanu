@@ -225,7 +225,12 @@
                 @for (order of paginatedOrders(); track order.id; let i = $index) {
                   <tr class="table-row-animate" [style.--row-delay]="(i * ANIMATION_DELAY) + 'ms'" (click)="viewOrderDetails(order.id)">
                     <td><span class="table-id">#{{ order.id }}</span></td>
-                    <td><span class="date-display">{{ order.created_at | appDate }}</span></td>
+                    <td>
+                      <span class="date-display">{{ order.created_at | appDate }}</span>
+                      @if (order.admin_modified_at) {
+                        <div class="order-modified-label">Modifié le {{ order.admin_modified_at | appDate }}</div>
+                      }
+                    </td>
                     <td><p-tag [severity]="statusSeverity.getOrderStatusSeverity(order.status)" [value]="order.status | appStatus"></p-tag></td>
                     <td><span class="amount-display amount-display--primary">{{ order.total_amount | appCurrency }}</span></td>
                     <td>
@@ -276,7 +281,12 @@
                     <p-tag [severity]="statusSeverity.getOrderStatusSeverity(order.status)" [value]="order.status | appStatus"></p-tag>
                   </div>
                   <div class="order-item__footer">
-                    <span class="order-item__date">{{ order.created_at | appDate }}</span>
+                    <div class="flex flex-column gap-1">
+                      <span class="order-item__date">{{ order.created_at | appDate }}</span>
+                      @if (order.admin_modified_at) {
+                        <span class="order-modified-label">Modifié le {{ order.admin_modified_at | appDate }}</span>
+                      }
+                    </div>
                     <span class="order-item__amount">{{ order.total_amount | appCurrency }}</span>
                   </div>
                 </div>

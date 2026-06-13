@@ -286,6 +286,33 @@ class NotificationService:
             session.commit()
 
     @classmethod
+    def notify_order_modified(
+        cls,
+        session: Session,
+        user_id: int,
+        order_id: int,
+    ) -> UserNotification:
+        """Notify customer that an admin has modified their order."""
+        return cls.notify_user(
+            session=session,
+            user_id=user_id,
+            notification_type=NotificationType.ORDER_MODIFIED,
+            title=f"Order #{order_id} modified",
+            message=f"Your order #{order_id} has been updated by our team.",
+            title_translations={
+                "fr": f"Commande #{order_id} modifiée",
+                "ar": f"تم تعديل الطلب #{order_id}",
+            },
+            message_translations={
+                "fr": f"Votre commande #{order_id} a été modifiée par notre équipe.",
+                "ar": f"تم تعديل طلبك #{order_id} من قِبَل فريقنا.",
+            },
+            reference_id=order_id,
+            reference_type="order",
+            url=f"/orders/{order_id}",
+        )
+
+    @classmethod
     def notify_promotion(
         cls,
         session: Session,

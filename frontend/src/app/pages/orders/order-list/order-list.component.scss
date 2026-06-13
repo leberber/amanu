@@ -15,6 +15,13 @@
 // - _components.scss (action-link)
 // =============================================================================
 
+.order-modified-label {
+  font-size: 0.68rem;
+  color: #d97706;
+  font-weight: 500;
+  margin-top: 2px;
+}
+
 :host { display: block; }
 
 // Table height override for this page

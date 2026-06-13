@@ -1,5 +1,22 @@
 import { ORDER_STATUS } from '../core/constants/order.constants';
 
+export interface AuditLogEntry {
+  id: number;
+  order_id: number;
+  user_id?: number;
+  actor_name?: string;
+  action: string;
+  details?: {
+    product_id?: number;
+    product_name?: string;
+    quantity?: number;
+    old_quantity?: number;
+    new_quantity?: number;
+    unit_price?: number;
+  };
+  created_at: string;
+}
+
 // Derive OrderStatus type from ORDER_STATUS constant
 export type OrderStatus = typeof ORDER_STATUS[keyof typeof ORDER_STATUS];
 
@@ -16,6 +33,14 @@ export interface OrderItem {
   product_unit: string;
   pieces_per_box?: number;
   packaging_type?: string;
+}
+
+export type DiffKind = 'normal' | 'added' | 'removed' | 'changed';
+
+export interface DiffDisplayItem {
+  kind: DiffKind;
+  item: OrderItem;
+  old_quantity?: number;
 }
 
 export interface OrderCreateItem {
@@ -74,6 +99,7 @@ export interface Order {
   promotion_info?: PromotionInfo;
   created_at: string;
   updated_at?: string;
+  admin_modified_at?: string;
   items?: OrderItem[];
   total_weight?: number;  // Total weight in kg
   total_volume?: number;  // Total volume in liters

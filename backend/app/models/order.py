@@ -110,6 +110,7 @@ class Order(OrderBase, table=True):
     # Timestamps
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: Optional[datetime] = Field(default=None)
+    admin_modified_at: Optional[datetime] = Field(default=None, description="Set when admin edits items; cleared when customer views order")
 
     # Relationships
     user: "User" = Relationship(back_populates="orders", sa_relationship_kwargs={"foreign_keys": "[Order.user_id]"})
@@ -187,6 +188,7 @@ class OrderRead(OrderBase):
     id: int
     created_at: datetime
     updated_at: Optional[datetime] = None
+    admin_modified_at: Optional[datetime] = None
     payment_status: str = "unpaid"
     subtotal: Optional[float] = None
     discount_amount: float = 0

@@ -19,7 +19,6 @@
     </div>
   }
 
-
   <!-- Loading state -->
   @if (loading()) {
     <div class="page-content">
@@ -82,6 +81,12 @@
   <!-- Order details -->
   @else if (order()) {
     <div class="page-content">
+      @if (adminModifiedAt()) {
+        <div class="admin-modified-banner">
+          <i class="pi pi-info-circle"></i>
+          <span>Cette commande a été modifiée par notre équipe le <strong>{{ adminModifiedAt() }}</strong></span>
+        </div>
+      }
       <div class="page-grid">
         <!-- Order Items -->
         <div class="table-container">
@@ -96,20 +101,44 @@
           </div>
 
           <div class="order-items-list">
-            @for (item of order()?.items; track item.id; let i = $index) {
-              <div class="order-item-card item-animate" [style.animation-delay]="(i * 50) + 'ms'" [class.clickable]="item.product_image_url" (click)="openImage(item)">
+            @for (diffItem of displayItems(); track diffItem.item.product_id; let i = $index) {
+              <div class="order-item-card item-animate"
+                   [class.order-item-card--added]="diffItem.kind === 'added'"
+                   [class.order-item-card--removed]="diffItem.kind === 'removed'"
+                   [class.order-item-card--changed]="diffItem.kind === 'changed'"
+                   [style.animation-delay]="(i * 50) + 'ms'"
+                   [class.clickable]="diffItem.item.product_image_url && diffItem.kind !== 'removed'"
+                   (click)="diffItem.kind !== 'removed' && openImage(diffItem.item)">
                 <div class="order-item-card__icon">
-                  @if (item.product_image_url) {
-                    <img [src]="item.product_image_url" [alt]="item.product_name" loading="lazy" appImageFallback>
+                  @if (diffItem.item.product_image_url) {
+                    <img [src]="diffItem.item.product_image_url" [alt]="diffItem.item.product_name" loading="lazy" appImageFallback>
                   } @else {
                     <i class="pi pi-box"></i>
                   }
                 </div>
                 <div class="order-item-card__info">
-                  <span class="order-item-card__name">{{ item.product_name }}</span>
-                  <span class="order-item-card__qty">{{ getCartonDisplay(item) }} × {{ item.unit_price | appCurrency }}</span>
+                  <span class="order-item-card__name">{{ diffItem.item.product_name }}</span>
+                  @if (diffItem.kind === 'changed') {
+                    <span class="order-item-card__qty">
+                      <span class="qty-old">{{ diffItem.old_quantity }}</span>
+                      → {{ diffItem.item.quantity }} × {{ diffItem.item.unit_price | appCurrency }}
+                    </span>
+                  } @else if (diffItem.kind !== 'removed') {
+                    <span class="order-item-card__qty">{{ getCartonDisplay(diffItem.item) }} × {{ diffItem.item.unit_price | appCurrency }}</span>
+                  } @else {
+                    <span class="order-item-card__qty">{{ diffItem.item.quantity }} × {{ diffItem.item.unit_price | appCurrency }}</span>
+                  }
                 </div>
-                <span class="order-item-card__total">{{ item.unit_price * item.quantity | appCurrency }}</span>
+                @if (diffItem.kind !== 'normal') {
+                  <span class="diff-tag diff-tag--{{ diffItem.kind }}">
+                    @if (diffItem.kind === 'added') { Ajouté }
+                    @else if (diffItem.kind === 'removed') { Retiré }
+                    @else { Modifié }
+                  </span>
+                }
+                <span class="order-item-card__total" [class.order-item-card__total--removed]="diffItem.kind === 'removed'">
+                  {{ diffItem.item.unit_price * diffItem.item.quantity | appCurrency }}
+                </span>
               </div>
             }
           </div>
@@ -142,9 +171,7 @@
                       <div class="timeline-content__date">{{ status.date | appDate }}</div>
                     </div>
                   </ng-template>
-                  <ng-template pTemplate="opposite" let-status>
-                    <!-- Empty -->
-                  </ng-template>
+                  <ng-template pTemplate="opposite"></ng-template>
                   <ng-template pTemplate="marker" let-status>
                     <span class="timeline-marker" [style.background]="status.color">
                       <i [class]="status.icon"></i>
@@ -196,7 +223,7 @@
       [piecesPerBox]="lightbox.piecesPerBox()"
       [unit]="lightbox.unit()"
       [cartonsCount]="lightbox.cartonsCount()"
-      (close)="closeImage()" />
+      (close)="lightbox.closeImage()" />
   }
 
 </app-page-layout>
