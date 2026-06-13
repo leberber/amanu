@@ -10,7 +10,6 @@ import { CurrencyService } from '../../../core/services/currency.service';
   `,
   styles: [`
     .currency-decimal {
-      font-size: 0.78em;
       opacity: 0.45;
     }
   `]

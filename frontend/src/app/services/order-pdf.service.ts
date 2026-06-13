@@ -123,6 +123,10 @@ export class OrderPdfService {
     const uniqueBrands = [...new Set(allItems.map(i => i.brand_name).filter(Boolean))] as string[];
     const brandColorMap = new Map(uniqueBrands.map((b, i) => [b, BRAND_COLOR_PALETTE[i % BRAND_COLOR_PALETTE.length]]));
 
+    const grossTotal = allItems.reduce((sum, item) => sum + item.unit_price * item.quantity, 0);
+    const remise = Math.round((grossTotal - order.total_amount) * 100) / 100;
+    const hasRemise = remise > 0.01;
+
     const deliveryTypeLabel = order.delivery_type?.toLowerCase() === 'pickup'
       ? 'Retrait en dépôt'
       : order.delivery_type?.toLowerCase() === 'priority'
@@ -334,6 +338,10 @@ export class OrderPdfService {
     <div class="summary">
       <div class="summary-title">RÉCAPITULATIF</div>
       ${discountLine}
+      ${hasRemise ? `
+        <div class="summary-row"><span>Prix catalogue</span><strong>${this.money(grossTotal)} DA</strong></div>
+        <div class="summary-row" style="color:#16a34a;"><span>Remise</span><strong style="color:#16a34a;">- ${this.money(remise)} DA</strong></div>
+      ` : ''}
       <div class="total"><span>TOTAL</span><span>${this.money(order.total_amount)} DA</span></div>
     </div>
   </div>

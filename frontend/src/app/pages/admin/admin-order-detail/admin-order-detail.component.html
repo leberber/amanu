@@ -473,10 +473,14 @@
 
           <!-- Total footer -->
           <div class="items-footer">
-            @if (order.discount_amount && order.discount_amount > 0) {
+            @if (previewDiscount() > 0) {
               <div class="items-footer__row">
-                <span><i class="pi pi-tag mr-1"></i>{{ 'admin.orders.discount' | translate }}</span>
-                <span style="color:#dc2626;">-<app-currency [value]="order.discount_amount" /></span>
+                <span style="opacity:0.5;">Prix catalogue</span>
+                <span style="text-decoration:line-through;opacity:0.5;"><app-currency [value]="previewGrossTotal()" /></span>
+              </div>
+              <div class="items-footer__row" style="color:#16a34a !important;">
+                <span>Remise</span>
+                <span>-<app-currency [value]="previewDiscount()" /></span>
               </div>
             }
             <div class="items-footer__total">
@@ -485,7 +489,7 @@
                 @if (hasUnsavedChanges()) {
                   <span class="items-footer__old"><app-currency [value]="order.total_amount" /></span>
                 }
-                <span [class.items-footer__new]="hasUnsavedChanges()"><app-currency [value]="previewTotal()" /></span>
+                <span style="font-size:1.125rem;font-weight:700;color:var(--text-color);"><app-currency [value]="previewTotal()" /></span>
               </span>
             </div>
           </div>
@@ -1041,9 +1045,19 @@
             }
           </div>
           <div class="items-footer">
+            @if (previewDiscount() > 0) {
+              <div class="items-footer__row">
+                <span style="opacity:0.5;">Prix catalogue</span>
+                <span style="text-decoration:line-through;opacity:0.5;"><app-currency [value]="previewGrossTotal()" /></span>
+              </div>
+              <div class="items-footer__row" style="color:#16a34a !important;">
+                <span>Remise</span>
+                <span>-<app-currency [value]="previewDiscount()" /></span>
+              </div>
+            }
             <div class="items-footer__total">
-              <span class="font-semibold">Total</span>
-              <span class="items-footer__new"><app-currency [value]="previewTotal()" /></span>
+              <span>Total</span>
+              <span style="font-size:1.125rem;font-weight:700;color:var(--text-color);"><app-currency [value]="previewTotal()" /></span>
             </div>
             <p-button
               label="Créer la commande"

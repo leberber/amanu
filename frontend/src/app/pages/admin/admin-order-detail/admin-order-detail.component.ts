@@ -217,6 +217,25 @@ export class AdminOrderDetailComponent implements OnInit {
 
   hasUnsavedChanges = computed(() => this.pendingEdits().size > 0 || this.pendingNewItems().length > 0);
 
+  previewGrossTotal = computed(() => {
+    const newGross = this.pendingNewItems().reduce(
+      (sum, { product, qty }) => sum + product.price * qty * (product.pieces_per_box || 1), 0
+    );
+    if (this.isCreateMode()) return newGross;
+    const order = this.order();
+    if (!order?.items) return newGross;
+    const edits = this.pendingEdits();
+    const existingGross = order.items.reduce((sum, item) => {
+      const edit = edits.get(item.id);
+      if (edit?.deleted) return sum;
+      const qty = edit?.quantity ?? item.quantity;
+      return sum + qty * item.unit_price;
+    }, 0);
+    return existingGross + newGross;
+  });
+
+  previewDiscount = computed(() => Math.max(0, Math.round((this.previewGrossTotal() - this.previewTotal()) * 100) / 100));
+
   previewTotal = computed(() => {
     const newItemsTotal = this.pendingNewItems().reduce(
       (sum, { product, qty, customPrice }) => sum + (customPrice ?? product.price) * qty * (product.pieces_per_box || 1), 0
