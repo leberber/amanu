@@ -16,7 +16,8 @@ export class OrderPdfService {
   private dateService = inject(DateService);
 
   private money(value: number): string {
-    return Math.round(value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+    const [int, dec] = (Math.round(value * 100) / 100).toFixed(2).split('.');
+    return int.replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + '.' + dec;
   }
 
   private getColisageLabel(packagingType: string, quantity: number): string {
@@ -73,6 +74,8 @@ export class OrderPdfService {
         : `${item.quantity} ${item.product_unit}`;
       const effectivePrice = item.custom_unit_price ?? item.unit_price;
       const total = effectivePrice * item.quantity;
+      const originalTotal = item.unit_price * item.quantity;
+      const hasItemDiscount = item.custom_unit_price != null && item.custom_unit_price < item.unit_price;
 
       const brandHtml = (() => {
         const clr = item.brand_name ? brandColorMap.get(item.brand_name) : null;
@@ -82,7 +85,7 @@ export class OrderPdfService {
       })();
 
       const priceHtml = item.custom_unit_price != null
-        ? `<span style="text-decoration:line-through;color:#94a3b8;font-size:11px;">${this.money(item.unit_price)} DA</span><br><span style="color:#16a34a;font-weight:600;">${this.money(item.custom_unit_price)} DA</span>`
+        ? `<span style="text-decoration:line-through;color:#f87171;font-size:11px;">${this.money(item.unit_price)} DA</span><br><span style="color:#16a34a;font-weight:600;">${this.money(item.custom_unit_price)} DA</span>`
         : `${this.money(item.unit_price)} DA`;
 
       return `
@@ -93,7 +96,10 @@ export class OrderPdfService {
           <td>${colisage}</td>
           <td>${item.quantity} ${item.product_unit}</td>
           <td>${priceHtml}</td>
-          <td><strong>${this.money(total)} DA</strong></td>
+          <td>${hasItemDiscount
+            ? `<span style="text-decoration:line-through;color:#f87171;font-size:11px;">${this.money(originalTotal)} DA</span><br><strong style="color:#16a34a;">${this.money(total)} DA</strong>`
+            : `<strong>${this.money(total)} DA</strong>`
+          }</td>
         </tr>`;
     }).join('');
   }
