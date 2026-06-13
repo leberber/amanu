@@ -2,11 +2,10 @@ import { Injectable, inject } from '@angular/core';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
-import qrcode from 'qrcode-generator';
-import { Order } from '../models/admin.model';
+import { Order, OrderItem } from '../models/admin.model';
 import { ToastMessageService } from '../core/services/toast-message.service';
 import { DateService } from '../core/services/date.service';
-import { ORDER_STATUS_CONFIG, BRAND_COLOR_PALETTE } from '../core/constants/order.constants';
+import { BRAND_COLOR_PALETTE } from '../core/constants/order.constants';
 import { COMPANY_INFO } from '../core/constants/app.constants';
 
 @Injectable({
@@ -18,26 +17,6 @@ export class OrderPdfService {
 
   private money(value: number): string {
     return Math.round(value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
-  }
-
-  private getStatusLabel(status: string): string {
-    const labels: Record<string, string> = {
-      'pending':   'En attente',
-      'confirmed': 'Confirmée',
-      'assigned':  'Assignée',
-      'picked_up': 'Récupérée',
-      'in_transit':'En transit',
-      'delivered': 'Livrée',
-      'cancelled': 'Annulée',
-      'ready':     'Prête'
-    };
-    return labels[status] || status;
-  }
-
-  private getStatusColor(status: string): { bg: string; text: string } {
-    const cfg = ORDER_STATUS_CONFIG[status as keyof typeof ORDER_STATUS_CONFIG];
-    if (cfg) return { bg: cfg.bgColor, text: cfg.color };
-    return { bg: '#f3f4f6', text: '#374151' };
   }
 
   private getColisageLabel(packagingType: string, quantity: number): string {
@@ -80,25 +59,57 @@ export class OrderPdfService {
     }
   }
 
-  private generateQrDataUrl(): string {
-    const qr = qrcode(0, 'M');
-    qr.addData(COMPANY_INFO.PLAY_STORE_URL);
-    qr.make();
-    return qr.createDataURL(4, 0);
+  private buildItemRows(items: OrderItem[], imgUrls: (string | null)[], brandColorMap: Map<string, { bg: string; text: string }>): string {
+    return items.map((item, i) => {
+      const imgSrc = imgUrls[i];
+      const imgHtml = imgSrc
+        ? `<img src="${imgSrc}" style="width:32px;height:32px;object-fit:contain;border-radius:6px;display:block;margin:auto;" />`
+        : '<div style="width:32px;height:32px;background:#f1f5f9;border-radius:6px;margin:auto;display:flex;align-items:center;justify-content:center;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m3 9 4-4 4 4 4-4 4 4"/><path d="M3 15h18"/></svg></div>';
+
+      const ppb     = item.pieces_per_box || 1;
+      const cartons = ppb > 1 ? Math.floor(item.quantity / ppb) : 0;
+      const colisage = ppb > 1
+        ? `${cartons} ${this.getColisageLabel(item.packaging_type || 'carton', cartons)}`
+        : `${item.quantity} ${item.product_unit}`;
+      const total = item.unit_price * item.quantity;
+
+      const brandHtml = (() => {
+        const clr = item.brand_name ? brandColorMap.get(item.brand_name) : null;
+        return clr
+          ? `<span style="display:inline-block;padding:2px 8px;border-radius:12px;background:${clr.bg};color:${clr.text};font-size:11px;font-weight:600;">${item.brand_name}</span>`
+          : '—';
+      })();
+
+      return `
+        <tr>
+          <td style="text-align:center;padding:6px 4px;">${imgHtml}</td>
+          <td style="text-align:left;">${item.product_name}</td>
+          <td style="text-align:left;">${brandHtml}</td>
+          <td>${colisage}</td>
+          <td>${item.quantity} ${item.product_unit}</td>
+          <td>${this.money(item.unit_price)} DA</td>
+          <td><strong>${this.money(total)} DA</strong></td>
+        </tr>`;
+    }).join('');
   }
 
   private buildHtml(
     order: Order,
     imageDataUrls: (string | null)[],
     logoDataUrl: string | null,
-    qrDataUrl: string
+    pageItems?: OrderItem[],
+    pageImgUrls?: (string | null)[],
+    fixedPage1 = false,
+    pageNum = 1,
+    totalPages = 1
   ): string {
-    const date       = this.dateService.formatDate(order.created_at);
+    const date         = this.dateService.formatDate(order.created_at);
     const customerName = order.user?.full_name || `Client #${order.user_id}`;
-    const items = order.items ?? [];
+    const allItems     = order.items ?? [];
+    const items        = pageItems   ?? allItems;
+    const imgUrls      = pageImgUrls ?? imageDataUrls;
 
-    // Build brand → color map (each unique brand gets a distinct color from constants)
-    const uniqueBrands = [...new Set(items.map(i => i.brand_name).filter(Boolean))] as string[];
+    const uniqueBrands = [...new Set(allItems.map(i => i.brand_name).filter(Boolean))] as string[];
     const brandColorMap = new Map(uniqueBrands.map((b, i) => [b, BRAND_COLOR_PALETTE[i % BRAND_COLOR_PALETTE.length]]));
 
     const deliveryTypeLabel = order.delivery_type?.toLowerCase() === 'pickup'
@@ -107,39 +118,32 @@ export class OrderPdfService {
         ? 'Prioritaire'
         : 'Standard';
 
-    const itemRows = items.map((item, i) => {
-      const imgSrc = imageDataUrls[i];
-      const imgHtml = imgSrc
-        ? `<img src="${imgSrc}" style="width:32px;height:32px;object-fit:contain;border-radius:6px;display:block;margin:auto;" />`
-        : '<div style="width:32px;height:32px;background:#f1f5f9;border-radius:6px;margin:auto;display:flex;align-items:center;justify-content:center;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m3 9 4-4 4 4 4-4 4 4"/><path d="M3 15h18"/></svg></div>';
-
-      const ppb    = item.pieces_per_box || 1;
-      const cartons = ppb > 1 ? Math.floor(item.quantity / ppb) : 0;
-      const colisage = ppb > 1
-        ? `${cartons} ${this.getColisageLabel(item.packaging_type || 'carton', cartons)}`
-        : `${item.quantity} ${item.product_unit}`;
-      const total = item.unit_price * item.quantity;
-
-      return `
-        <tr>
-          <td style="text-align:center;padding:6px 4px;">${imgHtml}</td>
-          <td style="text-align:left;">${item.product_name}</td>
-          <td style="text-align:left;">${(() => { const clr = item.brand_name ? brandColorMap.get(item.brand_name) : null; return clr ? `<span style="display:inline-block;padding:2px 8px;border-radius:12px;background:${clr.bg};color:${clr.text};font-size:11px;font-weight:600;">${item.brand_name}</span>` : '—'; })()}</td>
-          <td>${colisage}</td>
-          <td>${item.quantity} ${item.product_unit}</td>
-          <td>${this.money(item.unit_price)} DA</td>
-          <td><strong>${this.money(total)} DA</strong></td>
-        </tr>`;
-    }).join('');
+    const driverLine = order.driver
+      ? `<br><span style="font-size:10px;color:#64748b;">Livreur : ${order.driver.full_name}</span>`
+      : '';
 
     const discountLine = (order.discount_amount && order.discount_amount > 0)
       ? `<div class="summary-row"><span>Sous-total</span><strong>${this.money(order.subtotal ?? order.total_amount + order.discount_amount)} DA</strong></div>
          <div class="summary-row red"><span>Remise</span><strong>- ${this.money(order.discount_amount)} DA</strong></div>`
       : '';
 
-    const driverLine = order.driver
-      ? `<br><span style="font-size:10px;color:#64748b;">Livreur : ${order.driver.full_name}</span>`
+    const itemRows = this.buildItemRows(items, imgUrls, brandColorMap);
+
+    const invoiceStyle = fixedPage1
+      ? 'style="height:297mm;display:flex;flex-direction:column;overflow:hidden;padding-bottom:20px;"'
       : '';
+
+    const spacer = fixedPage1
+      ? `<div style="flex:1;min-height:0;display:flex;align-items:flex-end;justify-content:flex-end;padding:0 28px 6px;">
+           <span style="font-size:10px;color:#64748b;font-style:italic;letter-spacing:.3px;">Suite page suivante &rarr;</span>
+         </div>`
+      : '';
+
+    const pageNumHtml = `
+      <div class="inv-meta-block">
+        <span class="inv-meta-label">Page</span>
+        <span class="inv-meta-value">${pageNum}/${totalPages}</span>
+      </div>`;
 
     return `<!DOCTYPE html>
 <html lang="fr">
@@ -150,19 +154,6 @@ export class OrderPdfService {
   body { font-family: Arial, sans-serif; color: #071b4d; background: white; }
   .invoice { width: 210mm; background: white; }
 
-  /* COMPANY HEADER */
-  .co-header {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 10px 36px; background: #041f58; color: white;
-  }
-  .co-info { display: flex; flex-direction: column; gap: 2px; }
-  .co-name { font-size: 14px; font-weight: 900; letter-spacing: 2px; }
-  .co-detail { font-size: 8.5px; color: #a8bcd8; }
-  .co-qr { display: flex; flex-direction: column; align-items: center; gap: 3px; }
-  .co-qr img { width: 52px; height: 52px; border-radius: 4px; background: white; padding: 2px; display: block; }
-  .co-qr-label { font-size: 7px; color: #a8bcd8; text-align: center; }
-
-  /* HEADER */
   .inv-top-row {
     padding: 22px 36px 18px;
     display: flex; align-items: center; justify-content: space-between; gap: 32px;
@@ -177,7 +168,14 @@ export class OrderPdfService {
   .inv-meta-label { font-size: 7.5px; color: #aab4c8; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; }
   .inv-meta-value { font-size: 13px; font-weight: 800; color: #041f58; }
 
-  /* CARDS */
+  .inv-bot-row {
+    padding: 8px 36px; background: #f4f7ff;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .inv-co-name { font-size: 11px; font-weight: 700; color: #041f58; }
+  .inv-co-sep  { width: 3px; height: 3px; border-radius: 50%; background: #b0bdd8; }
+  .inv-co-sub  { font-size: 8.5px; color: #8a99b8; }
+
   .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 22px 24px 16px; }
   .info-card {
     position: relative; min-height: 130px;
@@ -214,7 +212,6 @@ export class OrderPdfService {
   }
   .dot { width: 3px; height: 3px; border-radius: 50%; background: #2d74d6; margin: auto; }
 
-  /* TABLE */
   .cards-table-gap { height: 16px; }
   table { width: calc(100% - 48px); margin: 0 24px; border-collapse: separate; border-spacing: 0; border-radius: 10px; font-size: 12px; box-shadow: 0 6px 18px rgba(6,59,136,0.08); overflow: hidden; }
   th { background: #063b88; color: white; padding: 9px 7px; text-align: center; }
@@ -222,7 +219,6 @@ export class OrderPdfService {
   td:nth-child(2) { text-align: left; }
   tr:last-child td { border-bottom: none; }
 
-  /* SUMMARY */
   .bottom { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 24px 0; }
   .notes-box { border: 1px solid #dbe5f0; border-radius: 12px; padding: 14px; font-size: 11px; color: #475569; }
   .notes-box h5 { font-size: 11px; font-weight: 700; color: #063b88; margin-bottom: 6px; }
@@ -234,20 +230,7 @@ export class OrderPdfService {
 </style>
 </head>
 <body>
-<div class="invoice">
-
-  <div class="co-header">
-    <div class="co-info">
-      <div class="co-name">${COMPANY_INFO.NAME}</div>
-      <div class="co-detail">${COMPANY_INFO.ADDRESS}, ${COMPANY_INFO.CITY}</div>
-      <div class="co-detail">${COMPANY_INFO.PHONE_1} &nbsp;·&nbsp; ${COMPANY_INFO.PHONE_2}</div>
-      <div class="co-detail">${COMPANY_INFO.WEBSITE} &nbsp;·&nbsp; ${COMPANY_INFO.EMAIL}</div>
-    </div>
-    <div class="co-qr">
-      <img src="${qrDataUrl}" alt="QR" />
-      <div class="co-qr-label">Télécharger l'app</div>
-    </div>
-  </div>
+<div class="invoice" ${invoiceStyle}>
 
   <div class="inv-top-row">
     <div class="inv-doctype">
@@ -262,9 +245,18 @@ export class OrderPdfService {
         <span class="inv-meta-label">Date</span>
         <span class="inv-meta-value">${date}</span>
       </div>
+      ${pageNumHtml}
     </div>
   </div>
-
+  <div class="inv-bot-row">
+    <span class="inv-co-name">${COMPANY_INFO.NAME}</span>
+    <div class="inv-co-sep"></div>
+    <span class="inv-co-sub">${COMPANY_INFO.PHONE_1}</span>
+    <div class="inv-co-sep"></div>
+    <span class="inv-co-sub">${COMPANY_INFO.EMAIL}</span>
+    <div class="inv-co-sep"></div>
+    <span class="inv-co-sub">${COMPANY_INFO.ADDRESS}, ${COMPANY_INFO.CITY}</span>
+  </div>
 
   <div class="cards">
     <div class="info-card">
@@ -317,8 +309,10 @@ export class OrderPdfService {
     <tbody>${itemRows}</tbody>
   </table>
   <div style="width:calc(100% - 48px);margin:6px 24px 0;text-align:right;font-size:11px;color:#64748b;">
-    ${items.length} article${items.length > 1 ? 's' : ''}
+    ${allItems.length} article${allItems.length > 1 ? 's' : ''}
   </div>
+
+  ${spacer}
 
   <div class="bottom">
     <div class="notes-box">
@@ -333,6 +327,48 @@ export class OrderPdfService {
     </div>
   </div>
 
+</div>
+</body>
+</html>`;
+  }
+
+  private buildContinuationHtml(
+    pageImgUrls: (string | null)[],
+    pageItems: OrderItem[],
+    brandColorMap: Map<string, { bg: string; text: string }>
+  ): string {
+    const itemRows = this.buildItemRows(pageItems, pageImgUrls, brandColorMap);
+    return `<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Arial, sans-serif; color: #071b4d; background: white; }
+  .invoice { width: 210mm; background: white; padding: 24px 0; }
+  table { width: calc(100% - 48px); margin: 0 24px; border-collapse: separate; border-spacing: 0; border-radius: 10px; font-size: 12px; box-shadow: 0 6px 18px rgba(6,59,136,0.08); overflow: hidden; }
+  th { background: #063b88; color: white; padding: 9px 7px; text-align: center; }
+  td { padding: 7px; border-bottom: 1px solid #e4ecf5; text-align: center; }
+  td:nth-child(2) { text-align: left; }
+  tr:last-child td { border-bottom: none; }
+</style>
+</head>
+<body>
+<div class="invoice">
+  <table>
+    <thead>
+      <tr>
+        <th style="width:42px;"></th>
+        <th style="text-align:left;">Produit</th>
+        <th style="text-align:left;">Marque</th>
+        <th>Colisage</th>
+        <th>Qté</th>
+        <th>Prix Unitaire</th>
+        <th>Total</th>
+      </tr>
+    </thead>
+    <tbody>${itemRows}</tbody>
+  </table>
 </div>
 </body>
 </html>`;
@@ -357,13 +393,16 @@ export class OrderPdfService {
     }
 
     try {
-      // Sort items by brand name (no-brand items go to the end)
+      // Sort items by brand name
       const sortedItems = [...order.items].sort((a, b) => {
         if (!a.brand_name && b.brand_name) return 1;
         if (a.brand_name && !b.brand_name) return -1;
         return (a.brand_name || '').localeCompare(b.brand_name || '');
       });
       const sortedOrder = { ...order, items: sortedItems };
+
+      const uniqueBrands = [...new Set(sortedItems.map(i => i.brand_name).filter(Boolean))] as string[];
+      const brandColorMap = new Map(uniqueBrands.map((b, i) => [b, BRAND_COLOR_PALETTE[i % BRAND_COLOR_PALETTE.length]]));
 
       const [imageDataUrls, logoDataUrl] = await Promise.all([
         Promise.all(sortedItems.map(item =>
@@ -372,22 +411,109 @@ export class OrderPdfService {
         this.loadImageAsDataUrl('/logo.png'),
       ]);
 
-      const W = 794;
-      const f = this.makeIframe(W);
-      f.contentDocument!.open();
-      f.contentDocument!.write(this.buildHtml(sortedOrder, imageDataUrls, logoDataUrl, this.generateQrDataUrl()));
-      f.contentDocument!.close();
+      const W      = 794;
+      const A4_PX  = Math.round(W * 297 / 210); // ≈ 1123 px
+
+      // ── Step 1: Render full doc to measure section heights ──────────────────
+      const mf = this.makeIframe(W);
+      mf.contentDocument!.open();
+      mf.contentDocument!.write(this.buildHtml(sortedOrder, imageDataUrls, logoDataUrl));
+      mf.contentDocument!.close();
       await new Promise(r => setTimeout(r, 300));
 
-      const el = f.contentDocument!.querySelector('.invoice') as HTMLElement;
-      f.style.height = el.scrollHeight + 'px';
-      const canvas = await this.canvasFromIframe(f, W);
-      document.body.removeChild(f);
+      const md  = mf.contentDocument!;
+      const inv = md.querySelector('.invoice') as HTMLElement;
+      mf.style.height = inv.scrollHeight + 'px';
 
-      const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-      const hMm = canvas.height * 210 / canvas.width;
-      pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, 210, hMm);
+      const invTop    = inv.getBoundingClientRect().top;
+      const tbodyEl   = md.querySelector('tbody') as HTMLElement;
+      const bottomEl  = md.querySelector('.bottom') as HTMLElement;
 
+      const tbodyTopPx  = tbodyEl.getBoundingClientRect().top - invTop;
+      const summaryPx   = bottomEl.getBoundingClientRect().height + 18; // 18px margin-top
+
+      const availForRows = A4_PX - tbodyTopPx - summaryPx - 20 - 16;
+
+      const trs = md.querySelectorAll('tbody tr');
+      let cutoff = trs.length;
+      let rowSum = 0;
+      for (let i = 0; i < trs.length; i++) {
+        const rh = (trs[i] as HTMLElement).getBoundingClientRect().height;
+        if (rowSum + rh > availForRows) { cutoff = i; break; }
+        rowSum += rh;
+      }
+      document.body.removeChild(mf);
+
+      // ── Step 2: Calculate pages ─────────────────────────────────────────────
+      const hasOverflow = cutoff < sortedItems.length;
+      const p1Items = sortedItems.slice(0, cutoff);
+      const p1Imgs  = imageDataUrls.slice(0, cutoff);
+
+      const avgRowH      = cutoff > 0 ? rowSum / cutoff : 42;
+      const contAvail    = A4_PX - 80;
+      const contPerPage  = Math.max(1, Math.floor(contAvail / avgRowH));
+      const contCount    = sortedItems.length - cutoff;
+      const totalPages   = 1 + (hasOverflow ? Math.ceil(contCount / contPerPage) : 0);
+
+      // ── Step 3: Render page 1 ───────────────────────────────────────────────
+      const p1f = this.makeIframe(W, hasOverflow ? A4_PX : 1);
+      p1f.contentDocument!.open();
+      p1f.contentDocument!.write(
+        this.buildHtml(sortedOrder, p1Imgs, logoDataUrl, p1Items, p1Imgs, hasOverflow, 1, totalPages)
+      );
+      p1f.contentDocument!.close();
+      await new Promise(r => setTimeout(r, 300));
+
+      if (!hasOverflow) {
+        const el = p1f.contentDocument!.querySelector('.invoice') as HTMLElement;
+        p1f.style.height = el.scrollHeight + 'px';
+      }
+      const p1c = await this.canvasFromIframe(p1f, W);
+      document.body.removeChild(p1f);
+
+      // ── Step 4: Build PDF ───────────────────────────────────────────────────
+      const pdf    = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+      const p1Hmm  = hasOverflow ? 297 : (p1c.height * 210 / p1c.width);
+      pdf.addImage(p1c.toDataURL('image/png'), 'PNG', 0, 0, 210, p1Hmm);
+
+      // ── Step 5: Continuation pages ──────────────────────────────────────────
+      if (hasOverflow) {
+        const exItems = sortedItems.slice(cutoff);
+        const exImgs  = imageDataUrls.slice(cutoff);
+
+        const exf = this.makeIframe(W);
+        exf.contentDocument!.open();
+        exf.contentDocument!.write(this.buildContinuationHtml(exImgs, exItems, brandColorMap));
+        exf.contentDocument!.close();
+        await new Promise(r => setTimeout(r, 300));
+
+        const exEl = exf.contentDocument!.querySelector('.invoice') as HTMLElement;
+        exf.style.height = exEl.scrollHeight + 'px';
+        const exc = await this.canvasFromIframe(exf, W);
+        document.body.removeChild(exf);
+
+        const pageHpx = Math.round(exc.width * 297 / 210);
+        let off = 0;
+        let contPageIdx = 2;
+        while (off < exc.height) {
+          const sh  = Math.min(pageHpx, exc.height - off);
+          const sc  = document.createElement('canvas');
+          sc.width  = exc.width;
+          sc.height = sh;
+          const sctx = sc.getContext('2d')!;
+          sctx.drawImage(exc, 0, -off);
+          sctx.font      = 'bold 22px Arial';
+          sctx.fillStyle = '#8a99b8';
+          sctx.textAlign = 'right';
+          sctx.fillText(`Page ${contPageIdx} / ${totalPages}`, sc.width - 48, sc.height - 28);
+          pdf.addPage();
+          pdf.addImage(sc.toDataURL('image/png'), 'PNG', 0, 0, 210, sh * 210 / exc.width);
+          off += pageHpx;
+          contPageIdx++;
+        }
+      }
+
+      // ── Step 6: Output ──────────────────────────────────────────────────────
       const blob = pdf.output('blob');
       const url  = URL.createObjectURL(blob);
       const pif  = document.createElement('iframe');
