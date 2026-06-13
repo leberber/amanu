@@ -45,6 +45,7 @@ class OrderItem(OrderItemBase, table=True):
     product_unit: str
     pieces_per_box: Optional[int] = Field(default=None)
     packaging_type: Optional[str] = Field(default=None)
+    custom_unit_price: Optional[float] = Field(default=None)
 
     # Relationships
     order: "Order" = Relationship(back_populates="items")
@@ -242,6 +243,7 @@ class OrderItemRead(SQLModel):
     product_id: int
     quantity: float
     unit_price: float
+    custom_unit_price: Optional[float] = None
     product_name: str
     product_unit: str
     pieces_per_box: Optional[int] = None

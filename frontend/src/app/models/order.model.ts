@@ -29,6 +29,7 @@ export interface OrderItem {
   product_name: string;
   product_image_url?: string;
   unit_price: number;
+  custom_unit_price?: number;
   quantity: number;
   product_unit: string;
   pieces_per_box?: number;

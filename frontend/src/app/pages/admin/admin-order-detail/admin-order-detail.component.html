@@ -357,12 +357,22 @@
 
                 <div class="item-row__price">
                   <span class="item-row__price-label">P.U.</span>
-                  <span>{{ item.unit_price | appCurrency }}</span>
+                  @if (item.custom_unit_price) {
+                    <span class="item-row__price-original">{{ item.unit_price | appCurrency }}</span>
+                    <span class="item-row__price-custom">{{ item.custom_unit_price | appCurrency }}</span>
+                  } @else {
+                    <span>{{ item.unit_price | appCurrency }}</span>
+                  }
                 </div>
 
                 <div class="item-row__total">
                   @if (!isItemDeleted(item.id)) {
-                    {{ item.unit_price * getEffectiveQty(item) | appCurrency }}
+                    @if (item.custom_unit_price) {
+                      <span class="item-row__total-original">{{ item.unit_price * getEffectiveQty(item) | appCurrency }}</span>
+                      <span class="item-row__total-discounted">{{ item.custom_unit_price * getEffectiveQty(item) | appCurrency }}</span>
+                    } @else {
+                      {{ item.unit_price * getEffectiveQty(item) | appCurrency }}
+                    }
                   } @else {
                     <span class="item-row__deleted-badge">Supprimé</span>
                   }
@@ -415,10 +425,21 @@
                 </div>
                 <div class="item-row__price">
                   <span class="item-row__price-label">P.U.</span>
-                  <span>{{ entry.product.price | appCurrency }}</span>
+                  @if (entry.customPrice) {
+                    <span class="item-row__price-original">{{ entry.product.price | appCurrency }}</span>
+                    <span class="item-row__price-custom">{{ entry.customPrice | appCurrency }}</span>
+                  } @else {
+                    <span>{{ entry.product.price | appCurrency }}</span>
+                  }
+                  <input
+                    class="price-override-input"
+                    type="number"
+                    [placeholder]="entry.product.price"
+                    min="0"
+                    (input)="setNewItemCustomPrice(i, $any($event.target).value)">
                 </div>
                 <div class="item-row__total">
-                  {{ entry.product.price * entry.qty * (entry.product.pieces_per_box || 1) | appCurrency }}
+                  {{ (entry.customPrice ?? entry.product.price) * entry.qty * (entry.product.pieces_per_box || 1) | appCurrency }}
                 </div>
                 <div class="item-row__actions">
                   <button class="qty-btn qty-btn--danger" (click)="removePendingNew(i)" pTooltip="Supprimer" tooltipPosition="left">
@@ -983,10 +1004,21 @@
                 </div>
                 <div class="item-row__price">
                   <span class="item-row__price-label">P.U.</span>
-                  <span>{{ entry.product.price | appCurrency }}</span>
+                  @if (entry.customPrice) {
+                    <span class="item-row__price-original">{{ entry.product.price | appCurrency }}</span>
+                    <span class="item-row__price-custom">{{ entry.customPrice | appCurrency }}</span>
+                  } @else {
+                    <span>{{ entry.product.price | appCurrency }}</span>
+                  }
+                  <input
+                    class="price-override-input"
+                    type="number"
+                    [placeholder]="entry.product.price"
+                    min="0"
+                    (input)="setNewItemCustomPrice(i, $any($event.target).value)">
                 </div>
                 <div class="item-row__total">
-                  {{ entry.product.price * entry.qty * (entry.product.pieces_per_box || 1) | appCurrency }}
+                  {{ (entry.customPrice ?? entry.product.price) * entry.qty * (entry.product.pieces_per_box || 1) | appCurrency }}
                 </div>
                 <div class="item-row__actions">
                   <button class="qty-btn qty-btn--danger" (click)="removePendingNew(i)" pTooltip="Supprimer" tooltipPosition="left">

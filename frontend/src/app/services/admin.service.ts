@@ -151,7 +151,7 @@ export class AdminService {
     });
   }
 
-  createOrderForUser(userId: number, items: { product_id: number; quantity: number }[]): Observable<{ order_id: number }> {
+  createOrderForUser(userId: number, items: { product_id: number; quantity: number; custom_unit_price?: number | null }[]): Observable<{ order_id: number }> {
     return this.apiService.post<{ order_id: number }>('/admin/create-order', { user_id: userId, items });
   }
 

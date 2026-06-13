@@ -560,6 +560,7 @@ def read_order(
                 product_id=item.product_id,
                 quantity=item.quantity,
                 unit_price=item.unit_price,
+                custom_unit_price=item.custom_unit_price,
                 product_name=item.product_name,
                 product_unit=item.product_unit,
                 pieces_per_box=item.pieces_per_box,

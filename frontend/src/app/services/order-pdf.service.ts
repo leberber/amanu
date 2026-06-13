@@ -71,7 +71,8 @@ export class OrderPdfService {
       const colisage = ppb > 1
         ? `${cartons} ${this.getColisageLabel(item.packaging_type || 'carton', cartons)}`
         : `${item.quantity} ${item.product_unit}`;
-      const total = item.unit_price * item.quantity;
+      const effectivePrice = item.custom_unit_price ?? item.unit_price;
+      const total = effectivePrice * item.quantity;
 
       const brandHtml = (() => {
         const clr = item.brand_name ? brandColorMap.get(item.brand_name) : null;
@@ -80,6 +81,10 @@ export class OrderPdfService {
           : '—';
       })();
 
+      const priceHtml = item.custom_unit_price != null
+        ? `<span style="text-decoration:line-through;color:#94a3b8;font-size:11px;">${this.money(item.unit_price)} DA</span><br><span style="color:#16a34a;font-weight:600;">${this.money(item.custom_unit_price)} DA</span>`
+        : `${this.money(item.unit_price)} DA`;
+
       return `
         <tr>
           <td style="text-align:center;padding:6px 4px;">${imgHtml}</td>
@@ -87,7 +92,7 @@ export class OrderPdfService {
           <td style="text-align:left;">${brandHtml}</td>
           <td>${colisage}</td>
           <td>${item.quantity} ${item.product_unit}</td>
-          <td>${this.money(item.unit_price)} DA</td>
+          <td>${priceHtml}</td>
           <td><strong>${this.money(total)} DA</strong></td>
         </tr>`;
     }).join('');

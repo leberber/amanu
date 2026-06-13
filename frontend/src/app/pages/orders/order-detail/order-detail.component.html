@@ -121,10 +121,18 @@
                   @if (diffItem.kind === 'changed') {
                     <span class="order-item-card__qty">
                       <span class="qty-old">{{ diffItem.old_quantity }}</span>
-                      → {{ diffItem.item.quantity }} × {{ diffItem.item.unit_price | appCurrency }}
+                      → {{ diffItem.item.quantity }} × {{ (diffItem.item.custom_unit_price ?? diffItem.item.unit_price) | appCurrency }}
                     </span>
                   } @else if (diffItem.kind !== 'removed') {
-                    <span class="order-item-card__qty">{{ getCartonDisplay(diffItem.item) }} × {{ diffItem.item.unit_price | appCurrency }}</span>
+                    <span class="order-item-card__qty">
+                      {{ getCartonDisplay(diffItem.item) }} ×
+                      @if (diffItem.item.custom_unit_price) {
+                        <span class="order-item-card__qty--original">{{ diffItem.item.unit_price | appCurrency }}</span>
+                        <span class="order-item-card__qty--discounted">{{ diffItem.item.custom_unit_price | appCurrency }}</span>
+                      } @else {
+                        {{ diffItem.item.unit_price | appCurrency }}
+                      }
+                    </span>
                   } @else {
                     <span class="order-item-card__qty">{{ diffItem.item.quantity }} × {{ diffItem.item.unit_price | appCurrency }}</span>
                   }
@@ -136,9 +144,20 @@
                     @else { Modifié }
                   </span>
                 }
-                <span class="order-item-card__total" [class.order-item-card__total--removed]="diffItem.kind === 'removed'">
-                  {{ diffItem.item.unit_price * diffItem.item.quantity | appCurrency }}
-                </span>
+                <div class="order-item-card__total-wrapper">
+                  @if (diffItem.item.custom_unit_price && diffItem.kind !== 'removed') {
+                    <span class="order-item-card__total order-item-card__total--original">
+                      {{ diffItem.item.unit_price * diffItem.item.quantity | appCurrency }}
+                    </span>
+                    <span class="order-item-card__total order-item-card__total--discounted">
+                      {{ diffItem.item.custom_unit_price * diffItem.item.quantity | appCurrency }}
+                    </span>
+                  } @else {
+                    <span class="order-item-card__total" [class.order-item-card__total--removed]="diffItem.kind === 'removed'">
+                      {{ (diffItem.item.custom_unit_price ?? diffItem.item.unit_price) * diffItem.item.quantity | appCurrency }}
+                    </span>
+                  }
+                </div>
               </div>
             }
           </div>

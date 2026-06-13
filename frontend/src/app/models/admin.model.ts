@@ -133,6 +133,7 @@ export interface DashboardStats {
     product_id: number;
     product_name: string;
     unit_price: number;
+    custom_unit_price?: number;
     quantity: number;
     product_unit: string;
     image_url?: string;

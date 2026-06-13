@@ -710,6 +710,7 @@ def clear_system_errors(
 class AdminOrderCreateItem(BaseModel):
     product_id: int
     quantity: float
+    custom_unit_price: Optional[float] = None
 
 class AdminOrderCreatePayload(BaseModel):
     user_id: int
@@ -750,7 +751,8 @@ def admin_create_order(
                 detail=f"Not enough stock for '{product.name}'. Available: {product.stock_quantity}"
             )
 
-        subtotal += product.price * item.quantity
+        effective_price = item.custom_unit_price if item.custom_unit_price is not None else product.price
+        subtotal += effective_price * item.quantity
         if product.weight:
             total_weight_kg += product.weight * item.quantity
 
@@ -758,6 +760,7 @@ def admin_create_order(
             product_id=item.product_id,
             quantity=item.quantity,
             unit_price=product.price,
+            custom_unit_price=item.custom_unit_price,
             product_name=product.name,
             product_unit=product.unit,
             pieces_per_box=product.pieces_per_box,

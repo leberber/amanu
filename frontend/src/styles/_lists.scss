@@ -951,6 +951,26 @@
   &__qty {
     font-size: var(--font-size-sm);
     color: var(--text-color-secondary);
+
+    &--original {
+      text-decoration: line-through;
+      color: #dc2626;
+      opacity: 0.7;
+      margin-right: 2px;
+    }
+
+    &--discounted {
+      color: #16a34a;
+      font-weight: var(--font-weight-semibold);
+    }
+
+  }
+
+  &__total-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
   }
 
   &__total {
@@ -958,6 +978,18 @@
     font-weight: var(--font-weight-bold);
     color: var(--text-color);
     white-space: nowrap;
+
+    &--original {
+      font-size: var(--font-size-sm);
+      font-weight: var(--font-weight-normal);
+      text-decoration: line-through;
+      color: #dc2626;
+      opacity: 0.7;
+    }
+
+    &--discounted {
+      color: #16a34a;
+    }
   }
 
   @media (max-width: 767px) {

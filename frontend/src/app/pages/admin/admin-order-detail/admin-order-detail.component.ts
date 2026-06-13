@@ -111,7 +111,7 @@ export class AdminOrderDetailComponent implements OnInit {
 
   // Item editing state — local edits, not committed until saveEdits()
   pendingEdits = signal<Map<number, { quantity: number; originalQty: number; deleted: boolean }>>(new Map());
-  pendingNewItems = signal<{ product: Product; qty: number }[]>([]);
+  pendingNewItems = signal<{ product: Product; qty: number; customPrice?: number | null }[]>([]);
   savingEdits = signal(false);
   showAddItem = signal(false);
 
@@ -219,7 +219,7 @@ export class AdminOrderDetailComponent implements OnInit {
 
   previewTotal = computed(() => {
     const newItemsTotal = this.pendingNewItems().reduce(
-      (sum, { product, qty }) => sum + product.price * qty * (product.pieces_per_box || 1), 0
+      (sum, { product, qty, customPrice }) => sum + (customPrice ?? product.price) * qty * (product.pieces_per_box || 1), 0
     );
     if (this.isCreateMode()) return newItemsTotal;
 
@@ -231,7 +231,7 @@ export class AdminOrderDetailComponent implements OnInit {
       const edit = edits.get(item.id);
       if (edit?.deleted) return sum;
       const qty = edit?.quantity ?? item.quantity;
-      return sum + qty * item.unit_price;
+      return sum + qty * (item.custom_unit_price ?? item.unit_price);
     }, 0);
 
     return existingTotal + newItemsTotal;
@@ -531,6 +531,14 @@ export class AdminOrderDetailComponent implements OnInit {
     );
   }
 
+  setNewItemCustomPrice(index: number, price: string): void {
+    const parsed = parseFloat(price);
+    const customPrice = isNaN(parsed) || parsed <= 0 ? null : parsed;
+    this.pendingNewItems.update(items =>
+      items.map((item, i) => i === index ? { ...item, customPrice } : item)
+    );
+  }
+
   onPickerSearchChange(value: string): void {
     this.pickerSearch.set(value);
     this.pickerFilterChange$.next();
@@ -761,9 +769,10 @@ export class AdminOrderDetailComponent implements OnInit {
     const items = this.pendingNewItems();
     if (!customer || items.length === 0) return;
 
-    const orderItems = items.map(({ product, qty }) => ({
+    const orderItems = items.map(({ product, qty, customPrice }) => ({
       product_id: product.id,
-      quantity: qty * (product.pieces_per_box || 1)
+      quantity: qty * (product.pieces_per_box || 1),
+      custom_unit_price: customPrice ?? null
     }));
 
     this.creatingOrder.set(true);
