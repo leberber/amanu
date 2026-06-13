@@ -138,6 +138,10 @@ export class AdminService {
     return this.apiService.patch<Order>(`/orders/${orderId}/items/${itemId}`, { quantity });
   }
 
+  updateOrderItemPrice(orderId: number, itemId: number, customUnitPrice: number | null): Observable<Order> {
+    return this.apiService.patch<Order>(`/orders/${orderId}/items/${itemId}`, { custom_unit_price: customUnitPrice });
+  }
+
   // Users management - UPDATED to use new response format
   getAllUsers(page: number = 1, pageSize: number = PAGINATION.DEFAULT_PAGE_SIZE): Observable<UsersResponse> {
     return this.apiService.get<UsersResponse>('/users', {

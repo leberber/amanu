@@ -478,6 +478,30 @@
   font-weight: 600;
   color: var(--text-color);
   line-height: 1.2;
+
+  &--editable {
+    cursor: pointer;
+    border-bottom: 1px dashed var(--text-color-secondary);
+    &:hover { color: var(--primary-color); border-color: var(--primary-color); }
+  }
+}
+
+.qty-inline-input {
+  width: 64px;
+  height: 26px;
+  border: 1px dashed var(--primary-color);
+  border-radius: 5px;
+  background: var(--surface-card);
+  text-align: center;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-color);
+  padding: 0 4px;
+
+  &:focus { outline: none; border-style: solid; }
+  &::-webkit-inner-spin-button,
+  &::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+  &[type=number] { -moz-appearance: textfield; }
 }
 
 .qty-sub {
@@ -543,6 +567,12 @@
   &::-webkit-inner-spin-button,
   &::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
   &[type=number] { -moz-appearance: textfield; }
+}
+
+.item-row__price-clickable {
+  cursor: pointer;
+  border-bottom: 1px dashed var(--text-color-secondary);
+  &:hover { color: var(--primary-color); border-color: var(--primary-color); }
 }
 
 .price-override-input {

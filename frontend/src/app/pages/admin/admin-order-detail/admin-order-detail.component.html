@@ -341,11 +341,19 @@
                     </button>
                   }
                   <div class="item-row__qty-display" [class.modified]="isItemModified(item.id)">
-                    @if ((item.pieces_per_box || 1) > 1) {
-                      <span class="qty-main">{{ getEditedCartonCount(item) }} {{ getItemPackagingLabel(item) }}</span>
-                      <span class="qty-sub">{{ getEffectiveQty(item) }} {{ item.product_unit | appUnit }}</span>
+                    @if (editingQtyItemId() === item.id && canEditItems() && !isItemDeleted(item.id)) {
+                      <input class="qty-inline-input" type="number" min="1"
+                        [value]="getEditedCartonCount(item)"
+                        (blur)="commitExistingQty(item, $any($event.target).value); editingQtyItemId.set(null)"
+                        (keydown.enter)="$any($event.target).blur()"
+                        (keydown.escape)="editingQtyItemId.set(null)">
                     } @else {
-                      <span class="qty-main">{{ getEffectiveQty(item) }} {{ item.product_unit | appUnit }}</span>
+                      @if ((item.pieces_per_box || 1) > 1) {
+                        <span class="qty-main" [class.qty-main--editable]="canEditItems() && !isItemDeleted(item.id)" (click)="startEditingExistingQty($event, item.id)">{{ getEditedCartonCount(item) }} {{ getItemPackagingLabel(item) }}</span>
+                        <span class="qty-sub">{{ getEffectiveQty(item) }} {{ item.product_unit | appUnit }}</span>
+                      } @else {
+                        <span class="qty-main" [class.qty-main--editable]="canEditItems() && !isItemDeleted(item.id)" (click)="startEditingExistingQty($event, item.id)">{{ getEffectiveQty(item) }} {{ item.product_unit | appUnit }}</span>
+                      }
                     }
                   </div>
                   @if (!isItemDeleted(item.id) && canEditItems()) {
@@ -357,19 +365,28 @@
 
                 <div class="item-row__price">
                   <span class="item-row__price-label">P.U.</span>
-                  @if (item.custom_unit_price) {
-                    <span class="item-row__price-original"><app-currency [value]="item.unit_price" /></span>
-                    <span class="item-row__price-custom"><app-currency [value]="item.custom_unit_price" /></span>
+                  @if (editingPriceItemId() === item.id && canEditItems()) {
+                    <input class="price-override-input" type="number" min="0" step="0.01"
+                      [value]="getEffectiveItemPrice(item)"
+                      [placeholder]="item.unit_price"
+                      (blur)="setExistingItemPrice(item.id, $any($event.target).value); editingPriceItemId.set(null)"
+                      (keydown.enter)="$any($event.target).blur()"
+                      (keydown.escape)="editingPriceItemId.set(null)">
                   } @else {
-                    <span><app-currency [value]="item.unit_price" /></span>
+                    @if (getEffectiveItemPrice(item) !== item.unit_price) {
+                      <span class="item-row__price-original" [class.item-row__price-clickable]="canEditItems()" (click)="startEditingPrice($event, item.id)"><app-currency [value]="item.unit_price" /></span>
+                      <span class="item-row__price-custom" [class.item-row__price-clickable]="canEditItems()" (click)="startEditingPrice($event, item.id)"><app-currency [value]="getEffectiveItemPrice(item)" /></span>
+                    } @else {
+                      <span [class.item-row__price-clickable]="canEditItems()" (click)="startEditingPrice($event, item.id)"><app-currency [value]="item.unit_price" /></span>
+                    }
                   }
                 </div>
 
                 <div class="item-row__total">
                   @if (!isItemDeleted(item.id)) {
-                    @if (item.custom_unit_price) {
+                    @if (getEffectiveItemPrice(item) !== item.unit_price) {
                       <span class="item-row__total-original"><app-currency [value]="item.unit_price * getEffectiveQty(item)" /></span>
-                      <span class="item-row__total-discounted"><app-currency [value]="item.custom_unit_price * getEffectiveQty(item)" /></span>
+                      <span class="item-row__total-discounted"><app-currency [value]="getEffectiveItemPrice(item) * getEffectiveQty(item)" /></span>
                     } @else {
                       <app-currency [value]="item.unit_price * getEffectiveQty(item)" />
                     }
@@ -415,11 +432,19 @@
                 <div class="item-row__qty">
                   <button class="qty-btn qty-btn--danger" (click)="decrementNewItem(i)"><i class="pi pi-minus"></i></button>
                   <div class="item-row__qty-display">
-                    @if ((entry.product.pieces_per_box || 1) > 1) {
-                      <span class="qty-main">{{ entry.qty }} {{ getNewItemPackagingLabel(entry.product, entry.qty) }}</span>
-                      <span class="qty-sub">{{ entry.qty * (entry.product.pieces_per_box || 1) }} {{ entry.product.unit | appUnit }}</span>
+                    @if (editingQtyNewIndex() === i) {
+                      <input class="qty-inline-input" type="number" min="1"
+                        [value]="entry.qty"
+                        (blur)="commitNewQty(i, $any($event.target).value); editingQtyNewIndex.set(null)"
+                        (keydown.enter)="$any($event.target).blur()"
+                        (keydown.escape)="editingQtyNewIndex.set(null)">
                     } @else {
-                      <span class="qty-main">{{ entry.qty }} {{ entry.product.unit | appUnit }}</span>
+                      @if ((entry.product.pieces_per_box || 1) > 1) {
+                        <span class="qty-main qty-main--editable" (click)="startEditingNewQty($event, i)">{{ entry.qty }} {{ getNewItemPackagingLabel(entry.product, entry.qty) }}</span>
+                        <span class="qty-sub">{{ entry.qty * (entry.product.pieces_per_box || 1) }} {{ entry.product.unit | appUnit }}</span>
+                      } @else {
+                        <span class="qty-main qty-main--editable" (click)="startEditingNewQty($event, i)">{{ entry.qty }} {{ entry.product.unit | appUnit }}</span>
+                      }
                     }
                   </div>
                   <button class="qty-btn" (click)="incrementNewItem(i)"><i class="pi pi-plus"></i></button>
@@ -1004,11 +1029,19 @@
                 <div class="item-row__qty">
                   <button class="qty-btn qty-btn--danger" (click)="decrementNewItem(i)"><i class="pi pi-minus"></i></button>
                   <div class="item-row__qty-display">
-                    @if ((entry.product.pieces_per_box || 1) > 1) {
-                      <span class="qty-main">{{ entry.qty }} {{ getNewItemPackagingLabel(entry.product, entry.qty) }}</span>
-                      <span class="qty-sub">{{ entry.qty * (entry.product.pieces_per_box || 1) }} {{ entry.product.unit | appUnit }}</span>
+                    @if (editingQtyNewIndex() === i) {
+                      <input class="qty-inline-input" type="number" min="1"
+                        [value]="entry.qty"
+                        (blur)="commitNewQty(i, $any($event.target).value); editingQtyNewIndex.set(null)"
+                        (keydown.enter)="$any($event.target).blur()"
+                        (keydown.escape)="editingQtyNewIndex.set(null)">
                     } @else {
-                      <span class="qty-main">{{ entry.qty }} {{ entry.product.unit | appUnit }}</span>
+                      @if ((entry.product.pieces_per_box || 1) > 1) {
+                        <span class="qty-main qty-main--editable" (click)="startEditingNewQty($event, i)">{{ entry.qty }} {{ getNewItemPackagingLabel(entry.product, entry.qty) }}</span>
+                        <span class="qty-sub">{{ entry.qty * (entry.product.pieces_per_box || 1) }} {{ entry.product.unit | appUnit }}</span>
+                      } @else {
+                        <span class="qty-main qty-main--editable" (click)="startEditingNewQty($event, i)">{{ entry.qty }} {{ entry.product.unit | appUnit }}</span>
+                      }
                     }
                   </div>
                   <button class="qty-btn" (click)="incrementNewItem(i)"><i class="pi pi-plus"></i></button>

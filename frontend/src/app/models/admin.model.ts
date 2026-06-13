@@ -126,6 +126,7 @@ export interface DashboardStats {
   export interface OrderItemCreate {
     product_id: number;
     quantity: number;
+    custom_unit_price?: number;
   }
 
   export interface OrderItem {

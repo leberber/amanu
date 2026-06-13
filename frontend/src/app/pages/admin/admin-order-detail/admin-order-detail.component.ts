@@ -112,8 +112,13 @@ export class AdminOrderDetailComponent implements OnInit {
   // Item editing state — local edits, not committed until saveEdits()
   pendingEdits = signal<Map<number, { quantity: number; originalQty: number; deleted: boolean }>>(new Map());
   pendingNewItems = signal<{ product: Product; qty: number; customPrice?: number | null }[]>([]);
+  pendingPrices = signal<Map<number, number | null>>(new Map());
   savingEdits = signal(false);
   showAddItem = signal(false);
+
+  editingQtyItemId = signal<number | null>(null);
+  editingQtyNewIndex = signal<number | null>(null);
+  editingPriceItemId = signal<number | null>(null);
 
   pendingProductIds = computed(() => new Set(this.pendingNewItems().map(i => i.product.id)));
 
@@ -215,7 +220,7 @@ export class AdminOrderDetailComponent implements OnInit {
     return 'danger';
   });
 
-  hasUnsavedChanges = computed(() => this.pendingEdits().size > 0 || this.pendingNewItems().length > 0);
+  hasUnsavedChanges = computed(() => this.pendingEdits().size > 0 || this.pendingNewItems().length > 0 || this.pendingPrices().size > 0);
 
   previewGrossTotal = computed(() => {
     const newGross = this.pendingNewItems().reduce(
@@ -245,12 +250,14 @@ export class AdminOrderDetailComponent implements OnInit {
     const order = this.order();
     if (!order?.items) return order?.total_amount ?? 0;
     const edits = this.pendingEdits();
+    const prices = this.pendingPrices();
 
     const existingTotal = order.items.reduce((sum, item) => {
       const edit = edits.get(item.id);
       if (edit?.deleted) return sum;
       const qty = edit?.quantity ?? item.quantity;
-      return sum + qty * (item.custom_unit_price ?? item.unit_price);
+      const price = prices.get(item.id) ?? item.custom_unit_price ?? item.unit_price;
+      return sum + qty * price;
     }, 0);
 
     return existingTotal + newItemsTotal;
@@ -393,6 +400,77 @@ export class AdminOrderDetailComponent implements OnInit {
     return this.pendingEdits().get(item.id)?.quantity ?? item.quantity;
   }
 
+  getEffectiveItemPrice(item: OrderItem): number {
+    return this.pendingPrices().get(item.id) ?? item.custom_unit_price ?? item.unit_price;
+  }
+
+  startEditingExistingQty(event: Event, itemId: number): void {
+    if (!this.canEditItems()) return;
+    this.editingPriceItemId.set(null);
+    this.editingQtyNewIndex.set(null);
+    this.editingQtyItemId.set(itemId);
+    setTimeout(() => {
+      const container = (event.target as HTMLElement).closest('.item-row__qty');
+      (container?.querySelector('.qty-inline-input') as HTMLInputElement)?.select();
+    });
+  }
+
+  commitExistingQty(item: OrderItem, cartonsStr: string): void {
+    const cartons = parseInt(cartonsStr, 10);
+    if (!isNaN(cartons) && cartons >= 1) {
+      const newQty = cartons * (item.pieces_per_box || 1);
+      this.pendingEdits.update(map => {
+        const next = new Map(map);
+        const existing = next.get(item.id);
+        next.set(item.id, { quantity: newQty, originalQty: existing?.originalQty ?? item.quantity, deleted: false });
+        return next;
+      });
+    }
+  }
+
+  startEditingNewQty(event: Event, index: number): void {
+    this.editingQtyItemId.set(null);
+    this.editingPriceItemId.set(null);
+    this.editingQtyNewIndex.set(index);
+    setTimeout(() => {
+      const container = (event.target as HTMLElement).closest('.item-row__qty');
+      (container?.querySelector('.qty-inline-input') as HTMLInputElement)?.select();
+    });
+  }
+
+  commitNewQty(index: number, qtyStr: string): void {
+    const qty = parseInt(qtyStr, 10);
+    if (!isNaN(qty) && qty >= 1) {
+      this.pendingNewItems.update(items =>
+        items.map((item, i) => i === index ? { ...item, qty } : item)
+      );
+    }
+  }
+
+  startEditingPrice(event: Event, itemId: number): void {
+    if (!this.canEditItems()) return;
+    this.editingQtyItemId.set(null);
+    this.editingQtyNewIndex.set(null);
+    this.editingPriceItemId.set(itemId);
+    setTimeout(() => {
+      const container = (event.target as HTMLElement).closest('.item-row__price');
+      const input = container?.querySelector('.price-override-input') as HTMLInputElement;
+      input?.focus();
+      input?.select();
+    });
+  }
+
+  setExistingItemPrice(itemId: number, priceStr: string): void {
+    const parsed = parseFloat(priceStr);
+    const price = isNaN(parsed) || parsed <= 0 ? null : parsed;
+    this.pendingPrices.update(map => {
+      const next = new Map(map);
+      if (price === null) next.delete(itemId);
+      else next.set(itemId, price);
+      return next;
+    });
+  }
+
   getEditedCartonCount(item: OrderItem): number {
     return Math.floor(this.getEffectiveQty(item) / (item.pieces_per_box || 1));
   }
@@ -439,6 +517,7 @@ export class AdminOrderDetailComponent implements OnInit {
   cancelEdits(): void {
     this.pendingEdits.set(new Map());
     this.pendingNewItems.set([]);
+    this.pendingPrices.set(new Map());
   }
 
   saveEdits(): void {
@@ -447,6 +526,7 @@ export class AdminOrderDetailComponent implements OnInit {
 
     const edits = this.pendingEdits();
     const newItems = this.pendingNewItems();
+    const prices = this.pendingPrices();
 
     const editOps = [...edits.entries()]
       .filter(([, e]) => e.deleted || e.quantity !== e.originalQty)
@@ -456,14 +536,19 @@ export class AdminOrderDetailComponent implements OnInit {
           : this.adminService.updateOrderItemQty(order.id, itemId, e.quantity)
       );
 
-    const addOps = newItems.map(({ product, qty }) =>
+    const priceOps = [...prices.entries()].map(([itemId, price]) =>
+      this.adminService.updateOrderItemPrice(order.id, itemId, price)
+    );
+
+    const addOps = newItems.map(({ product, qty, customPrice }) =>
       this.adminService.addOrderItem(order.id, {
         product_id: product.id,
-        quantity: qty * (product.pieces_per_box || 1)
+        quantity: qty * (product.pieces_per_box || 1),
+        ...(customPrice ? { custom_unit_price: customPrice } : {})
       })
     );
 
-    const ops = [...editOps, ...addOps];
+    const ops = [...editOps, ...priceOps, ...addOps];
     if (ops.length === 0) { this.pendingEdits.set(new Map()); this.pendingNewItems.set([]); return; }
 
     this.savingEdits.set(true);
@@ -476,6 +561,7 @@ export class AdminOrderDetailComponent implements OnInit {
         this.order.set(updated);
         this.pendingEdits.set(new Map());
         this.pendingNewItems.set([]);
+        this.pendingPrices.set(new Map());
         this.loadAuditLog(order.id);
         this.toast.showSuccess('Modifications enregistrées');
       },
