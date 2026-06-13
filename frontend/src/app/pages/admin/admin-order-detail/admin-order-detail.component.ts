@@ -748,6 +748,10 @@ export class AdminOrderDetailComponent implements OnInit {
     return this.packagingTypeService.getPackagingTypeForCount(item.packaging_type || 'carton', count);
   }
 
+  getNewItemPackagingLabel(product: Product, qty: number): string {
+    return this.packagingTypeService.getPackagingTypeForCount(product.packaging_type || 'carton', qty);
+  }
+
   // ─── Create Mode ──────────────────────────────────────────────────────────────
 
   onCustomerSearch(event: { query: string }): void {
