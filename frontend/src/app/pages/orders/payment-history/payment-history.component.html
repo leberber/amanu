@@ -62,12 +62,12 @@
           <div class="payment-summary-card__stats">
             <div class="payment-summary-card__stat">
               <span class="payment-summary-card__label">{{ 'orders.payments.total_paid' | translate }}</span>
-              <span class="payment-summary-card__amount">{{ totalPaid() | appCurrency }}</span>
+              <span class="payment-summary-card__amount"><app-currency [value]="totalPaid()" /></span>
             </div>
             @if (totalOutstanding() > 0) {
               <div class="payment-summary-card__stat payment-summary-card__stat--divider">
                 <span class="payment-summary-card__label">{{ 'orders.payments.outstanding_balance' | translate }}</span>
-                <span class="payment-summary-card__amount payment-summary-card__amount--outstanding">{{ totalOutstanding() | appCurrency }}</span>
+                <span class="payment-summary-card__amount payment-summary-card__amount--outstanding"><app-currency [value]="totalOutstanding()" /></span>
               </div>
             }
           </div>
@@ -103,13 +103,13 @@
                   <span class="payment-history-item__order">{{ 'orders.payments.order_ref' | translate }}{{ order.order_id }}</span>
                 </div>
                 <div class="payment-history-item__right">
-                  <span class="payment-history-item__amount payment-history-item__amount--{{ order.payment_status }}">{{ order.total_amount | appCurrency }}</span>
+                  <span class="payment-history-item__amount payment-history-item__amount--{{ order.payment_status }}"><app-currency [value]="order.total_amount" /></span>
                   <span class="payment-status-pill payment-status-pill--{{ order.payment_status }}">
                     {{ 'orders.payments.status_' + order.payment_status | translate }}
                   </span>
                   @if (getRemaining(order) > 0) {
                     <span class="payment-history-item__balance">
-                      {{ getRemaining(order) | appCurrency }} {{ 'orders.payments.remaining' | translate }}
+                      <app-currency [value]="getRemaining(order)" /> {{ 'orders.payments.remaining' | translate }}
                     </span>
                   }
                 </div>

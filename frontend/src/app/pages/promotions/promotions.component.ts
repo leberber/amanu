@@ -20,13 +20,13 @@ import { SCOPE_LABELS, SCOPE_SEVERITIES, ScopeType } from '../../core/constants/
 import { PageLayoutComponent } from '../../shared/components/page-layout/page-layout.component';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { ImageLightboxComponent } from '../../shared/components/image-lightbox/image-lightbox.component';
-import { CurrencyPipe } from '../../shared/pipes/currency.pipe';
+import { CurrencyDisplayComponent } from '../../shared/components/currency-display/currency-display.component';
 
 @Component({
   selector: 'app-promotions',
   standalone: true,
   imports: [
-    CurrencyPipe,
+    CurrencyDisplayComponent,
     DatePipe,
     TranslateModule,
     TagModule,

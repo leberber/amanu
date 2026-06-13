@@ -171,7 +171,7 @@
             appImageFallback>
           <div class="quantity-overlay__product-info">
             <h4>{{ product.name }}</h4>
-            <span class="quantity-overlay__price">{{ getEffectivePrice(product) | appCurrency }} / {{ product.unit | appUnit }}</span>
+            <span class="quantity-overlay__price"><app-currency [value]="getEffectivePrice(product)" /> / {{ product.unit | appUnit }}</span>
           </div>
         </div>
         <button class="quantity-overlay__close" (click)="closeQuantitySelector()">
@@ -190,7 +190,7 @@
               <span class="quantity-option__count">{{ option.boxes }}</span>
               <span class="quantity-option__label">{{ getPackagingTypeForCount(product, option.boxes) }}</span>
             </div>
-            <span class="quantity-option__price">{{ option.price | appCurrency }}</span>
+            <span class="quantity-option__price"><app-currency [value]="option.price" /></span>
             <span class="quantity-option__pieces">{{ option.pieces }} {{ getPiecesLabel(option.pieces) | translate }}</span>
             @if (selectedBoxOptions[product.id]?.boxes === option.boxes) {
               <i class="pi pi-check quantity-option__check"></i>
@@ -207,7 +207,7 @@
           (click)="confirmQuantitySelection()">
           <span>{{ 'common.confirm' | translate }}</span>
           @if (selectedBoxOptions[product.id]; as option) {
-            <span class="quantity-overlay__confirm-price">{{ option.price | appCurrency }}</span>
+            <span class="quantity-overlay__confirm-price"><app-currency [value]="option.price" /></span>
           }
         </button>
       </div>

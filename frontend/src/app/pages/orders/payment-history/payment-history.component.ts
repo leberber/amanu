@@ -11,7 +11,7 @@ import { OrderFinancialSummary } from '../../../models/order.model';
 import { PageLayoutComponent } from '../../../shared/components/page-layout/page-layout.component';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { ErrorStateComponent } from '../../../shared/components/error-state/error-state.component';
-import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
+import { CurrencyDisplayComponent } from '../../../shared/components/currency-display/currency-display.component';
 import { DateFormatPipe } from '../../../shared/pipes/date-format.pipe';
 
 type TimeFilter = 'all' | '7days' | '30days' | '90days';
@@ -25,7 +25,7 @@ type TimeFilter = 'all' | '7days' | '30days' | '90days';
     PageLayoutComponent,
     EmptyStateComponent,
     ErrorStateComponent,
-    CurrencyPipe,
+    CurrencyDisplayComponent,
     DateFormatPipe
   ],
   templateUrl: './payment-history.component.html',

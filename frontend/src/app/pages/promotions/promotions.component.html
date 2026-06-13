@@ -207,13 +207,13 @@
                         @if (promo.min_order_amount > 0) {
                           <span class="condition">
                             <i class="pi pi-shopping-cart"></i>
-                            {{ 'promotions_page.min_order' | translate }}: {{ promo.min_order_amount | appCurrency }}
+                            {{ 'promotions_page.min_order' | translate }}: <app-currency [value]="promo.min_order_amount" />
                           </span>
                         }
                         @if (promo.max_discount) {
                           <span class="condition">
                             <i class="pi pi-wallet"></i>
-                            Max: {{ promo.max_discount | appCurrency }}
+                            Max: <app-currency [value]="promo.max_discount" />
                           </span>
                         }
                       </div>

@@ -64,9 +64,9 @@
               </div>
               <div class="delivery-type-row__price-stack">
                 @if (standardPrice()?.original_cost && standardPrice()!.original_cost > standardPrice()!.cost) {
-                  <span class="delivery-type-row__price--original">{{ standardPrice()?.original_cost | appCurrency }}</span>
+                  <span class="delivery-type-row__price--original"><app-currency [value]="standardPrice()?.original_cost" /></span>
                 }
-                <span class="delivery-type-row__price--discounted">{{ standardPrice()?.cost | appCurrency }}</span>
+                <span class="delivery-type-row__price--discounted"><app-currency [value]="standardPrice()?.cost" /></span>
               </div>
             </div>
 
@@ -86,9 +86,9 @@
               </div>
               <div class="delivery-type-row__price-stack">
                 @if (priorityPrice()?.original_cost && priorityPrice()!.original_cost > priorityPrice()!.cost) {
-                  <span class="delivery-type-row__price--original">{{ priorityPrice()?.original_cost | appCurrency }}</span>
+                  <span class="delivery-type-row__price--original"><app-currency [value]="priorityPrice()?.original_cost" /></span>
                 }
-                <span class="delivery-type-row__price--discounted">{{ priorityPrice()?.cost | appCurrency }}</span>
+                <span class="delivery-type-row__price--discounted"><app-currency [value]="priorityPrice()?.cost" /></span>
               </div>
             </div>
           </div>
@@ -180,30 +180,30 @@
                 <div class="shipping-breakdown__items">
                   <div class="shipping-breakdown__item">
                     <span>{{ 'order_summary.base_cost' | translate }}</span>
-                    <span>{{ shippingResponse()!.breakdown.base_cost | appCurrency }}</span>
+                    <span><app-currency [value]="shippingResponse()!.breakdown.base_cost" /></span>
                   </div>
                   @if (shippingResponse()!.breakdown.distance_cost > 0) {
                     <div class="shipping-breakdown__item">
                       <span>{{ 'order_summary.distance_cost' | translate }}</span>
-                      <span>{{ shippingResponse()!.breakdown.distance_cost | appCurrency }}</span>
+                      <span><app-currency [value]="shippingResponse()!.breakdown.distance_cost" /></span>
                     </div>
                   }
                   @if (shippingResponse()!.breakdown.weight_cost > 0) {
                     <div class="shipping-breakdown__item">
                       <span>{{ 'order_summary.weight_cost' | translate }}</span>
-                      <span>{{ shippingResponse()!.breakdown.weight_cost | appCurrency }}</span>
+                      <span><app-currency [value]="shippingResponse()!.breakdown.weight_cost" /></span>
                     </div>
                   }
                   @if (shippingResponse()!.breakdown.volume_cost > 0) {
                     <div class="shipping-breakdown__item">
                       <span>{{ 'order_summary.volume_cost' | translate }}</span>
-                      <span>{{ shippingResponse()!.breakdown.volume_cost | appCurrency }}</span>
+                      <span><app-currency [value]="shippingResponse()!.breakdown.volume_cost" /></span>
                     </div>
                   }
                   @if (shippingResponse()!.breakdown.time_cost && shippingResponse()!.breakdown.time_cost > 0) {
                     <div class="shipping-breakdown__item">
                       <span>{{ 'order_summary.time_cost' | translate }}</span>
-                      <span>{{ shippingResponse()!.breakdown.time_cost | appCurrency }}</span>
+                      <span><app-currency [value]="shippingResponse()!.breakdown.time_cost" /></span>
                     </div>
                   }
 
@@ -211,14 +211,14 @@
                   @if (shippingResponse()!.discount_applied) {
                     <div class="shipping-breakdown__item shipping-breakdown__item--discount">
                       <span>{{ 'order_summary.shipping_discount_label' | translate: { percent: shippingResponse()!.discount_percent } }}</span>
-                      <span>-{{ shippingResponse()!.breakdown.discount_amount | appCurrency }}</span>
+                      <span>-<app-currency [value]="shippingResponse()!.breakdown.discount_amount" /></span>
                     </div>
                   }
 
                   <!-- Total -->
                   <div class="shipping-breakdown__item shipping-breakdown__item--total">
                     <span>{{ 'common.total' | translate }}</span>
-                    <span>{{ shippingResponse()!.shipping_cost | appCurrency }}</span>
+                    <span><app-currency [value]="shippingResponse()!.shipping_cost" /></span>
                   </div>
                 </div>
               </div>
@@ -272,7 +272,7 @@
           <!-- Subtotal -->
           <div class="breakdown-row">
             <span class="breakdown-row__label">{{ 'promotions.subtotal' | translate }}</span>
-            <span class="breakdown-row__value">{{ cartSubtotal() | appCurrency }}</span>
+            <span class="breakdown-row__value"><app-currency [value]="cartSubtotal()" /></span>
           </div>
 
           <!-- Delivery Cost -->
@@ -290,7 +290,7 @@
               } @else if (deliveryCost() === 0) {
                 {{ 'cart.free' | translate }}
               } @else {
-                {{ deliveryCost() | appCurrency }}
+                <app-currency [value]="deliveryCost()" />
               }
             </span>
           </div>
@@ -300,7 +300,7 @@
             <div class="breakdown-row">
               <span class="breakdown-row__label">{{ 'order_summary.shipping_savings' | translate }}</span>
               <span class="breakdown-row__value breakdown-row__value--discount">
-                -{{ (shippingResponse()!.original_cost - shippingResponse()!.shipping_cost) | appCurrency }}
+                -<app-currency [value]="shippingResponse()!.original_cost - shippingResponse()!.shipping_cost" />
               </span>
             </div>
           }
@@ -309,7 +309,7 @@
           @if (crossSellSavings() > 0) {
             <div class="breakdown-row">
               <span class="breakdown-row__label">{{ 'promotions.bundle_savings' | translate }}</span>
-              <span class="breakdown-row__value breakdown-row__value--discount">-{{ crossSellSavings() | appCurrency }}</span>
+              <span class="breakdown-row__value breakdown-row__value--discount">-<app-currency [value]="crossSellSavings()" /></span>
             </div>
           }
 
@@ -317,7 +317,7 @@
           @if (appliedPromotion()) {
             <div class="breakdown-row">
               <span class="breakdown-row__label">{{ 'promotions.discount' | translate }}</span>
-              <span class="breakdown-row__value breakdown-row__value--discount">-{{ discountAmount() | appCurrency }}</span>
+              <span class="breakdown-row__value breakdown-row__value--discount">-<app-currency [value]="discountAmount()" /></span>
             </div>
           }
 
@@ -330,7 +330,7 @@
       <div class="card-body">
         <div class="total-display">
           <span class="total-display__label">{{ 'common.total' | translate }}</span>
-          <span class="total-display__amount">{{ finalTotal() | appCurrency }}</span>
+          <span class="total-display__amount"><app-currency [value]="finalTotal()" /></span>
         </div>
         <div class="total-meta">
           <span>{{ cartItemCount() }} {{ (cartItemCount() === 1 ? 'common.item' : 'common.items') | translate }}</span>

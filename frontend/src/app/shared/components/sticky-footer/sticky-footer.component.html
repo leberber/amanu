@@ -3,11 +3,11 @@
     <div class="sticky-footer__total">
       <div class="sticky-footer__main-row">
         <span class="sticky-footer__label">{{ label() | translate }}</span>
-        <span class="sticky-footer__amount">{{ amount() | appCurrency }}</span>
+        <span class="sticky-footer__amount"><app-currency [value]="amount()" /></span>
       </div>
       @if (hasDiscount()) {
         <div class="sticky-footer__savings-row">
-          <span class="sticky-footer__savings">{{ 'cart.you_save' | translate }} {{ savings() | appCurrency }}</span>
+          <span class="sticky-footer__savings">{{ 'cart.you_save' | translate }} <app-currency [value]="savings()" /></span>
           <i class="pi pi-check"></i>
         </div>
       }

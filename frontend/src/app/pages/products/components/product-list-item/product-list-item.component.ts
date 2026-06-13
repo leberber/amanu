@@ -9,7 +9,7 @@ import { CurrencyService } from '../../../../core/services/currency.service';
 import { PackagingTypeService } from '../../../../core/services/packaging-type.service';
 import { FlyToCartService } from '../../../../core/services/fly-to-cart.service';
 import { CartService } from '../../../../services/cart.service';
-import { CurrencyPipe } from '../../../../shared/pipes/currency.pipe';
+import { CurrencyDisplayComponent } from '../../../../shared/components/currency-display/currency-display.component';
 import { UnitPipe } from '../../../../shared/pipes/unit.pipe';
 import {
   isOutOfStock as checkOutOfStock,
@@ -42,7 +42,7 @@ export interface QuantitySelectorEvent {
     RouterLink,
     TranslateModule,
     ButtonModule,
-    CurrencyPipe,
+    CurrencyDisplayComponent,
     UnitPipe,
     ImageFallbackDirective
   ],

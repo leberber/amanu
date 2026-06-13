@@ -83,11 +83,11 @@
           <div class="total-breakdown">
             <div class="total-row">
               <span>{{ 'checkout.subtotal' | translate }}</span>
-              <span>{{ finalTotal() | appCurrency }}</span>
+              <span><app-currency [value]="finalTotal()" /></span>
             </div>
             <div class="total-row">
               <span>{{ 'checkout.shipping' | translate }}</span>
-              <span>{{ selectedShippingCost() | appCurrency }}</span>
+              <span><app-currency [value]="selectedShippingCost()" /></span>
             </div>
             @if (appliedPromotion()) {
               <div class="total-row total-row--discount">
@@ -95,13 +95,13 @@
                   <i class="pi pi-tag"></i>
                   {{ appliedPromotion()?.code }}
                 </span>
-                <span>-{{ discountAmount() | appCurrency }}</span>
+                <span>-<app-currency [value]="discountAmount()" /></span>
               </div>
             }
           </div>
           <div class="total-display">
             <span class="total-display__label">{{ 'common.total' | translate }}</span>
-            <span class="total-display__amount">{{ totalWithShipping() | appCurrency }}</span>
+            <span class="total-display__amount"><app-currency [value]="totalWithShipping()" /></span>
           </div>
           <div class="total-meta">
             <span>{{ cartItemCount() }} {{ (cartItemCount() === 1 ? 'common.item' : 'common.items') | translate }}</span>
@@ -135,7 +135,7 @@
                 <span class="item-row__name">{{ item.product_name }}</span>
                 <span class="item-row__qty">{{ formatCartonCount(item) }}</span>
               </div>
-              <span class="item-row__price">{{ item.product_price * item.quantity | appCurrency }}</span>
+              <span class="item-row__price"><app-currency [value]="item.product_price * item.quantity" /></span>
             </div>
           }
         </div>

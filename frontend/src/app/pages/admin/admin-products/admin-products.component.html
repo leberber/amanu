@@ -297,7 +297,7 @@
                   @if (isColumnVisible('purchase_price')) {
                     <td class="text-center">
                       @if (getCmup(product.id); as cmup) {
-                        <span class="font-semibold text-sm">{{ cmup | appCurrency }}</span>
+                        <span class="font-semibold text-sm"><app-currency [value]="cmup" /></span>
                       } @else {
                         <span class="text-color-secondary">—</span>
                       }
@@ -309,7 +309,7 @@
                     <td class="text-center" (click)="$event.stopPropagation()">
                     @if (!isEditingPrice(product.id)) {
                       <div class="editable-cell" (click)="startEditPrice(product)">
-                        <div class="editable-cell__value">{{ product.price | appCurrency }}</div>
+                        <div class="editable-cell__value"><app-currency [value]="product.price" /></div>
                         <div class="editable-cell__label">{{ getUnitLabel(product) }}</div>
                         <i class="pi pi-pencil editable-cell__icon"></i>
                       </div>
@@ -338,7 +338,7 @@
                       @if (getProfit(product) !== null) {
                         <div class="flex flex-column align-items-center gap-1">
                           <span [class]="getProfit(product)! >= 0 ? 'text-green-500 font-semibold' : 'text-red-500 font-semibold'">
-                            {{ getProfit(product)! | appCurrency }}
+                            <app-currency [value]="getProfit(product)!" />
                           </span>
                           <span class="text-xs text-color-secondary">{{ getProfitMargin(product)! | number:'1.0-1' }}%</span>
                         </div>
@@ -587,7 +587,7 @@
           </div>
           <div class="flex align-items-center gap-5">
             <div class="flex align-items-baseline gap-2">
-              <span class="font-bold text-primary" style="font-size:2.2rem;line-height:1;">{{ lots()[0].cmup | appCurrency }}</span>
+              <span class="font-bold text-primary" style="font-size:2.2rem;line-height:1;"><app-currency [value]="lots()[0].cmup" /></span>
               <span class="text-base text-color-secondary font-normal">/unité</span>
             </div>
             <div style="width:1px;height:40px;background:var(--border-color-light);"></div>
@@ -647,17 +647,17 @@
                 <div class="flex-1 p-3 flex flex-column gap-1" style="border-right:1px solid var(--border-color-light);">
                   <span class="text-xs font-semibold uppercase text-color-secondary" style="letter-spacing:.04em;">Prix d'achat</span>
                   <div class="flex align-items-baseline gap-1">
-                    <span class="font-bold">{{ lot.unit_price | appCurrency }}</span>
+                    <span class="font-bold"><app-currency [value]="lot.unit_price" /></span>
                     <span class="text-xs text-color-secondary">/unité</span>
                   </div>
-                  <span class="text-xs text-color-secondary">{{ lot.unit_price_per_carton | appCurrency }}/ctn</span>
+                  <span class="text-xs text-color-secondary"><app-currency [value]="lot.unit_price_per_carton" />/ctn</span>
                 </div>
 
                 <!-- CMUP -->
                 <div class="flex-1 p-3 flex flex-column gap-1" style="border-right:1px solid var(--border-color-light);">
                   <span class="text-xs font-semibold uppercase text-color-secondary" style="letter-spacing:.04em;">CMUP</span>
                   <div class="flex align-items-center gap-1">
-                    <span class="font-bold text-primary">{{ lot.cmup | appCurrency }}</span>
+                    <span class="font-bold text-primary"><app-currency [value]="lot.cmup" /></span>
                     @switch (getLotCmupTrend(i)) {
                       @case ('up')   { <i class="pi pi-arrow-up text-xs" style="color:#ef4444;"></i> }
                       @case ('down') { <i class="pi pi-arrow-down text-xs" style="color:#22c55e;"></i> }

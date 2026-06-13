@@ -121,20 +121,20 @@
                   @if (diffItem.kind === 'changed') {
                     <span class="order-item-card__qty">
                       <span class="qty-old">{{ diffItem.old_quantity }}</span>
-                      → {{ diffItem.item.quantity }} × {{ (diffItem.item.custom_unit_price ?? diffItem.item.unit_price) | appCurrency }}
+                      → {{ diffItem.item.quantity }} × <app-currency [value]="diffItem.item.custom_unit_price ?? diffItem.item.unit_price" />
                     </span>
                   } @else if (diffItem.kind !== 'removed') {
                     <span class="order-item-card__qty">
                       {{ getCartonDisplay(diffItem.item) }} ×
                       @if (diffItem.item.custom_unit_price) {
-                        <span class="order-item-card__qty--original">{{ diffItem.item.unit_price | appCurrency }}</span>
-                        <span class="order-item-card__qty--discounted">{{ diffItem.item.custom_unit_price | appCurrency }}</span>
+                        <span class="order-item-card__qty--original"><app-currency [value]="diffItem.item.unit_price" /></span>
+                        <span class="order-item-card__qty--discounted"><app-currency [value]="diffItem.item.custom_unit_price" /></span>
                       } @else {
-                        {{ diffItem.item.unit_price | appCurrency }}
+                        <app-currency [value]="diffItem.item.unit_price" />
                       }
                     </span>
                   } @else {
-                    <span class="order-item-card__qty">{{ diffItem.item.quantity }} × {{ diffItem.item.unit_price | appCurrency }}</span>
+                    <span class="order-item-card__qty">{{ diffItem.item.quantity }} × <app-currency [value]="diffItem.item.unit_price" /></span>
                   }
                 </div>
                 @if (diffItem.kind !== 'normal') {
@@ -147,14 +147,14 @@
                 <div class="order-item-card__total-wrapper">
                   @if (diffItem.item.custom_unit_price && diffItem.kind !== 'removed') {
                     <span class="order-item-card__total order-item-card__total--original">
-                      {{ diffItem.item.unit_price * diffItem.item.quantity | appCurrency }}
+                      <app-currency [value]="diffItem.item.unit_price * diffItem.item.quantity" />
                     </span>
                     <span class="order-item-card__total order-item-card__total--discounted">
-                      {{ diffItem.item.custom_unit_price * diffItem.item.quantity | appCurrency }}
+                      <app-currency [value]="diffItem.item.custom_unit_price * diffItem.item.quantity" />
                     </span>
                   } @else {
                     <span class="order-item-card__total" [class.order-item-card__total--removed]="diffItem.kind === 'removed'">
-                      {{ (diffItem.item.custom_unit_price ?? diffItem.item.unit_price) * diffItem.item.quantity | appCurrency }}
+                      <app-currency [value]="(diffItem.item.custom_unit_price ?? diffItem.item.unit_price) * diffItem.item.quantity" />
                     </span>
                   }
                 </div>
@@ -166,7 +166,7 @@
           <div class="order-total-footer order-total-footer--stacked">
             <div class="order-total-footer__row order-total-footer__row--total">
               <span class="order-total-footer__label">{{ 'common.total' | translate }}</span>
-              <span class="order-total-footer__value">{{ totalAmount() | appCurrency }}</span>
+              <span class="order-total-footer__value"><app-currency [value]="totalAmount()" /></span>
             </div>
             @if (totalPaid() > 0) {
               <div class="order-total-footer__row order-total-footer__row--sub">
@@ -176,12 +176,12 @@
                     <span class="order-total-footer__date">{{ lastPaymentDate()! | appDate }}</span>
                   }
                 </div>
-                <span class="order-total-footer__value order-total-footer__value--paid">{{ totalPaid() | appCurrency }}</span>
+                <span class="order-total-footer__value order-total-footer__value--paid"><app-currency [value]="totalPaid()" /></span>
               </div>
               @if (balance() > 0) {
                 <div class="order-total-footer__row order-total-footer__row--sub">
                   <span class="order-total-footer__label">{{ 'orders.payments.balance' | translate }}</span>
-                  <span class="order-total-footer__value order-total-footer__value--balance">{{ balance() | appCurrency }}</span>
+                  <span class="order-total-footer__value order-total-footer__value--balance"><app-currency [value]="balance()" /></span>
                 </div>
               }
             }
@@ -238,7 +238,7 @@
                         </span>
                       </div>
                       <span class="payment-row__amount" [class.payment-row__amount--refund]="payment.amount < 0">
-                        {{ payment.amount | appCurrency }}
+                        <app-currency [value]="payment.amount" />
                       </span>
                     </div>
                   }

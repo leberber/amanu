@@ -23,7 +23,7 @@ import { PageLayoutComponent } from '../../shared/components/page-layout/page-la
 import { ImageLightboxComponent } from '../../shared/components/image-lightbox/image-lightbox.component';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { StickyFooterComponent } from '../../shared/components/sticky-footer/sticky-footer.component';
-import { CurrencyPipe } from '../../shared/pipes/currency.pipe';
+import { CurrencyDisplayComponent } from '../../shared/components/currency-display/currency-display.component';
 import { PhoneFormatPipe } from '../../shared/pipes/phone-format.pipe';
 import { ImageFallbackDirective } from '../../shared/directives/image-fallback.directive';
 import { getCartonDisplay } from '../../shared/utils/quantity.utils';
@@ -40,7 +40,7 @@ import { getCartonDisplay } from '../../shared/utils/quantity.utils';
     ImageLightboxComponent,
     EmptyStateComponent,
     StickyFooterComponent,
-    CurrencyPipe,
+    CurrencyDisplayComponent,
     PhoneFormatPipe,
     ImageFallbackDirective
   ],

@@ -21,7 +21,7 @@ import { ToastMessageService } from '../../../core/services/toast-message.servic
 import { PageLayoutComponent } from '../../../shared/components/page-layout/page-layout.component';
 import { ImageLightboxComponent } from '../../../shared/components/image-lightbox/image-lightbox.component';
 import { ErrorStateComponent } from '../../../shared/components/error-state/error-state.component';
-import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
+import { CurrencyDisplayComponent } from '../../../shared/components/currency-display/currency-display.component';
 import { DateFormatPipe } from '../../../shared/pipes/date-format.pipe';
 import { ImageFallbackDirective } from '../../../shared/directives/image-fallback.directive';
 import { getOrderCartonDisplay } from '../../../shared/utils/quantity.utils';
@@ -36,7 +36,7 @@ import { getOrderCartonDisplay } from '../../../shared/utils/quantity.utils';
     PageLayoutComponent,
     ImageLightboxComponent,
     ErrorStateComponent,
-    CurrencyPipe,
+    CurrencyDisplayComponent,
     DateFormatPipe,
     ImageFallbackDirective
   ],

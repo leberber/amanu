@@ -159,7 +159,7 @@
                     <!-- Total -->
                     @if (isColumnVisible('total')) {
                       <td class="text-right">
-                        <span class="font-semibold">{{ order.total_amount | appCurrency }}</span>
+                        <span class="font-semibold"><app-currency [value]="order.total_amount" /></span>
                       </td>
                     }
 

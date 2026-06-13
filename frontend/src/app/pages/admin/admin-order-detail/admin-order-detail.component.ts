@@ -29,7 +29,7 @@ import { DriverProfileWithFlags } from '../../../models/driver.model';
 import { StatusSeverityService } from '../../../core/services/status-severity.service';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
 import { ROUTES, RouteHelpers } from '../../../core/constants/routes.constants';
-import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
+import { CurrencyDisplayComponent } from '../../../shared/components/currency-display/currency-display.component';
 import { PhoneFormatPipe } from '../../../shared/pipes/phone-format.pipe';
 import { UnitPipe } from '../../../shared/pipes/unit.pipe';
 import { DateFormatPipe } from '../../../shared/pipes/date-format.pipe';
@@ -64,7 +64,7 @@ import { ORDER_STATUS } from '../../../core/constants/order.constants';
     TextareaModule,
     PageLayoutComponent,
     TableSearchComponent,
-    CurrencyPipe,
+    CurrencyDisplayComponent,
     PhoneFormatPipe,
     UnitPipe,
     DateFormatPipe

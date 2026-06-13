@@ -22,7 +22,7 @@ import { LineChartComponent, LineChartDataPoint } from '../../../shared/componen
 import { ChartModule } from 'primeng/chart';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
 import { CurrencyService } from '../../../core/services/currency.service';
-import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
+import { CurrencyDisplayComponent } from '../../../shared/components/currency-display/currency-display.component';
 import { DateFormatPipe } from '../../../shared/pipes/date-format.pipe';
 import { ROUTES, RouteHelpers } from '../../../core/constants/routes.constants';
 import { SupplierService } from '../../../core/services/supplier.service';
@@ -51,7 +51,7 @@ import {
     BackButtonComponent,
     LineChartComponent,
     ChartModule,
-    CurrencyPipe,
+    CurrencyDisplayComponent,
     DateFormatPipe
   ],
   templateUrl: './admin-supplier-detail.component.html',

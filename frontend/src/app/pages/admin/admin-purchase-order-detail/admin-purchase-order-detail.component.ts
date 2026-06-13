@@ -17,7 +17,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { PageLayoutComponent } from '../../../shared/components/page-layout/page-layout.component';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
 import { ConfirmationDialogService } from '../../../core/services/confirmation-dialog.service';
-import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
+import { CurrencyDisplayComponent } from '../../../shared/components/currency-display/currency-display.component';
 import { DateFormatPipe } from '../../../shared/pipes/date-format.pipe';
 import { ROUTES } from '../../../core/constants/routes.constants';
 import {
@@ -42,7 +42,7 @@ import {
     ConfirmDialogModule,
     TranslateModule,
     PageLayoutComponent,
-    CurrencyPipe,
+    CurrencyDisplayComponent,
     DateFormatPipe
   ],
   providers: [ConfirmationService],

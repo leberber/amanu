@@ -139,7 +139,7 @@
               <div class="stat-card__icon stat-card__icon--warning">
                 <i class="pi pi-hourglass"></i>
               </div>
-              {{ totalOutstanding() | appCurrency }}
+              <app-currency [value]="totalOutstanding()" />
             </span>
             <span class="stat-card__label">{{ 'orders.stats.outstanding_balance' | translate }}</span>
           </div>
@@ -150,7 +150,7 @@
               <div class="stat-card__icon stat-card__icon--success">
                 <i class="pi pi-wallet"></i>
               </div>
-              {{ totalSpend() | appCurrency }}
+              <app-currency [value]="totalSpend()" />
             </span>
             <span class="stat-card__label">{{ 'orders.stats.total_spend' | translate }}</span>
           </div>
@@ -229,7 +229,7 @@
                       }
                     </td>
                     <td><p-tag [severity]="statusSeverity.getOrderStatusSeverity(order.status)" [value]="order.status | appStatus"></p-tag></td>
-                    <td><span class="amount-display amount-display--primary">{{ order.total_amount | appCurrency }}</span></td>
+                    <td><span class="amount-display amount-display--primary"><app-currency [value]="order.total_amount" /></span></td>
                     <td>
                       <div class="table-cell-actions" style="justify-content: center;">
                         <button class="action-btn action-btn--with-text view" (click)="viewOrderDetails(order.id); $event.stopPropagation()">
@@ -288,7 +288,7 @@
                         <span class="order-modified-label">Modifié le {{ order.admin_modified_at | appDate }}</span>
                       }
                     </div>
-                    <span class="order-item__amount">{{ order.total_amount | appCurrency }}</span>
+                    <span class="order-item__amount"><app-currency [value]="order.total_amount" /></span>
                   </div>
                 </div>
                 <div class="order-item__arrow">
@@ -313,7 +313,7 @@
             <div class="stat-card__content">
               <span class="stat-card__value">
                 <span class="stat-card__icon stat-card__icon--warning"><i class="pi pi-hourglass"></i></span>
-                {{ totalOutstanding() | appCurrency }}
+                <app-currency [value]="totalOutstanding()" />
               </span>
               <span class="stat-card__label">{{ 'orders.stats.outstanding_balance' | translate }}</span>
             </div>
@@ -323,7 +323,7 @@
             <div class="stat-card__content">
               <span class="stat-card__value">
                 <span class="stat-card__icon stat-card__icon--success"><i class="pi pi-wallet"></i></span>
-                {{ totalSpend() | appCurrency }}
+                <app-currency [value]="totalSpend()" />
               </span>
               <span class="stat-card__label">{{ 'orders.stats.total_spend' | translate }}</span>
             </div>

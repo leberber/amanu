@@ -28,8 +28,8 @@ export class CurrencyService {
       symbolAr: 'د.ج',
       symbolPosition: 'after',
       thousandSeparator: ' ',
-      decimalSeparator: ',',
-      decimalPlaces: 0,
+      decimalSeparator: '.',
+      decimalPlaces: 2,
       format: '{value} {symbol}'
     },
     USD: {
@@ -188,7 +188,7 @@ export class CurrencyService {
     if (options.decimals > 0 && decimalPart) {
       return `${formattedInteger}${options.decimalSeparator}${decimalPart}`;
     }
-    
+
     return formattedInteger;
   }
 
@@ -245,5 +245,32 @@ export class CurrencyService {
    */
   addCurrency(config: CurrencyConfig): void {
     this.currencies[config.code] = config;
+  }
+
+  /**
+   * Format currency value split into integer, decimal, separator, and symbol parts.
+   * Used by CurrencyDisplayComponent for styled rendering.
+   */
+  formatCurrencyParts(value: number, currencyCode?: string): {
+    integer: string;
+    decimal: string;
+    separator: string;
+    symbol: string;
+  } {
+    if (value === null || value === undefined || isNaN(value)) {
+      return { integer: '', decimal: '', separator: '', symbol: '' };
+    }
+
+    const code = currencyCode || this.currentCurrencyCode();
+    const currency = this.currencies[code] || this.currentCurrency();
+    const currentLang = this.translateService.currentLang || 'en';
+    const symbol = (currentLang === 'ar' && currency.symbolAr) ? currency.symbolAr : currency.symbol;
+
+    const rounded = Math.round(value * Math.pow(10, currency.decimalPlaces)) / Math.pow(10, currency.decimalPlaces);
+    const [intRaw, decRaw = ''] = rounded.toFixed(currency.decimalPlaces).split('.');
+    const integer = intRaw.replace(/\B(?=(\d{3})+(?!\d))/g, currency.thousandSeparator);
+    const decimal = decRaw.padEnd(currency.decimalPlaces, '0');
+
+    return { integer, decimal, separator: currency.decimalSeparator, symbol };
   }
 }

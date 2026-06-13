@@ -11,7 +11,7 @@ import { PackagingTypeService } from '../../../../core/services/packaging-type.s
 import { FlyToCartService } from '../../../../core/services/fly-to-cart.service';
 import { CartService } from '../../../../services/cart.service';
 import { VolumeDiscountService } from '../../../../services/volume-discount.service';
-import { CurrencyPipe } from '../../../../shared/pipes/currency.pipe';
+import { CurrencyDisplayComponent } from '../../../../shared/components/currency-display/currency-display.component';
 import { UnitPipe } from '../../../../shared/pipes/unit.pipe';
 import { ImageFallbackDirective } from '../../../../shared/directives/image-fallback.directive';
 import {
@@ -48,7 +48,7 @@ export type { BoxOption };
     TranslateModule,
     ButtonModule,
     TagModule,
-    CurrencyPipe,
+    CurrencyDisplayComponent,
     UnitPipe,
     ImageFallbackDirective
   ],

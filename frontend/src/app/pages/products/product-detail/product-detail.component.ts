@@ -12,7 +12,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { PageLayoutComponent } from '../../../shared/components/page-layout/page-layout.component';
 import { ErrorStateComponent } from '../../../shared/components/error-state/error-state.component';
 import { ImageLightboxComponent } from '../../../shared/components/image-lightbox/image-lightbox.component';
-import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
+import { CurrencyDisplayComponent } from '../../../shared/components/currency-display/currency-display.component';
 import { ProductService } from '../../../services/product.service';
 import { CartService } from '../../../services/cart.service';
 import { CurrencyService } from '../../../core/services/currency.service';
@@ -43,7 +43,7 @@ import { VolumeDiscountService } from '../../../services/volume-discount.service
     PageLayoutComponent,
     ErrorStateComponent,
     ImageLightboxComponent,
-    CurrencyPipe,
+    CurrencyDisplayComponent,
     ImageFallbackDirective
   ],
   templateUrl: './product-detail.component.html',

@@ -30,6 +30,7 @@ import { TranslateModule } from '@ngx-translate/core';
 
 // Shared pipes
 import { CurrencyPipe } from '../pipes/currency.pipe';
+import { CurrencyDisplayComponent } from '../components/currency-display/currency-display.component';
 import { UnitPipe } from '../pipes/unit.pipe';
 import { DateFormatPipe } from '../pipes/date-format.pipe';
 import { PhoneFormatPipe } from '../pipes/phone-format.pipe';
@@ -72,6 +73,7 @@ export const ADMIN_LIST_IMPORTS = [
   InputIconModule,
   TableSearchComponent,
   CurrencyPipe,
+  CurrencyDisplayComponent,
   UnitPipe,
   DateFormatPipe,
   PhoneFormatPipe,

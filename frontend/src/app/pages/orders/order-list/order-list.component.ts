@@ -20,7 +20,7 @@ import { StatusSeverityService } from '../../../core/services/status-severity.se
 import { PageLayoutComponent } from '../../../shared/components/page-layout/page-layout.component';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { ErrorStateComponent } from '../../../shared/components/error-state/error-state.component';
-import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
+import { CurrencyDisplayComponent } from '../../../shared/components/currency-display/currency-display.component';
 import { DateFormatPipe } from '../../../shared/pipes/date-format.pipe';
 import { StatusPipe } from '../../../shared/pipes/status.pipe';
 
@@ -38,7 +38,7 @@ import { StatusPipe } from '../../../shared/pipes/status.pipe';
     PageLayoutComponent,
     EmptyStateComponent,
     ErrorStateComponent,
-    CurrencyPipe,
+    CurrencyDisplayComponent,
     DateFormatPipe,
     StatusPipe
   ],

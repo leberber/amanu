@@ -177,14 +177,14 @@
             <span class="text-sm text-secondary font-medium">{{ 'common.price' | translate }}</span>
             <div class="price-main mt-2">
               @if (hasPromotion()) {
-                <div class="price-current price-current--promo">{{ discountedPrice() | appCurrency }}</div>
-                <div class="price-original">{{ product()?.price | appCurrency }}</div>
+                <div class="price-current price-current--promo"><app-currency [value]="discountedPrice()" /></div>
+                <div class="price-original"><app-currency [value]="product()?.price" /></div>
                 <div class="price-savings">
                   <i class="pi pi-tag"></i>
-                  {{ 'products.promotion.you_save' | translate }} {{ savingsAmount() | appCurrency }}
+                  {{ 'products.promotion.you_save' | translate }} <app-currency [value]="savingsAmount()" />
                 </div>
               } @else {
-                <div class="price-current">{{ product()?.price | appCurrency }}</div>
+                <div class="price-current"><app-currency [value]="product()?.price" /></div>
               }
             </div>
             <div class="price-unit mt-2">{{ 'common.per' | translate }} {{ unitDisplay() }}</div>
@@ -197,7 +197,7 @@
                 @if (product()?.promotion?.discount_type === 'percentage') {
                   -{{ product()?.promotion?.discount_value }}%
                 } @else {
-                  -{{ product()!.promotion!.discount_value * (product()!.pieces_per_box || 1) | appCurrency }}
+                  -<app-currency [value]="product()!.promotion!.discount_value * (product()!.pieces_per_box || 1)" />
                 }
                 <span class="promotion-info-card__per-carton">/ {{ getPackagingTypeForCount(1) }}</span>
               </div>
@@ -245,7 +245,7 @@
                     <strong>{{ volumeDiscountMinCartons() }}</strong>
                     {{ getPackagingTypeForCount(volumeDiscountMinCartons()) }},
                     {{ 'products.volume_promo.save' | translate }}
-                    <strong>{{ volumeDiscount()?.discount_value | appCurrency }}</strong>
+                    <strong><app-currency [value]="volumeDiscount()?.discount_value" /></strong>
                   </span>
                 }
               </div>
@@ -315,7 +315,7 @@
                   } @else if (qualifiesForVolumeDiscount()) {
                     <span class="quantity-display__value">{{ selectedCartons() }}</span>
                     <span class="quantity-display__label">{{ getPackagingTypeForCount(selectedCartons()) }}</span>
-                    <span class="quantity-display__discount">-{{ volumeDiscountSavings() | appCurrency }}</span>
+                    <span class="quantity-display__discount">-<app-currency [value]="volumeDiscountSavings()" /></span>
                   } @else {
                     <span class="quantity-display__value">{{ selectedCartons() }}</span>
                     <span class="quantity-display__label">{{ getPackagingTypeForCount(selectedCartons()) }}</span>
@@ -334,24 +334,24 @@
               <div class="quantity-total-section">
                 @if (qualifiesForFreeUnits()) {
                   <div class="quantity-total-prices">
-                    <span class="quantity-total-original">{{ originalPriceWithFree() | appCurrency }}</span>
-                    <span class="quantity-total-price quantity-total-price--promo">{{ selectedQuantity() * (product()?.price || 0) | appCurrency }}</span>
+                    <span class="quantity-total-original"><app-currency [value]="originalPriceWithFree()" /></span>
+                    <span class="quantity-total-price quantity-total-price--promo"><app-currency [value]="selectedQuantity() * (product()?.price || 0)" /></span>
                   </div>
                   <span class="quantity-pieces-info">{{ totalCartonsWithFree() }} {{ getPackagingTypeForCount(totalCartonsWithFree()) }} ({{ freeCartonsEarned() }} {{ 'cart.free' | translate }})</span>
                 } @else if (qualifiesForVolumeDiscount()) {
                   <div class="quantity-total-prices">
-                    <span class="quantity-total-original">{{ selectedQuantity() * (product()?.price || 0) | appCurrency }}</span>
-                    <span class="quantity-total-price quantity-total-price--promo">{{ priceAfterVolumeDiscount() | appCurrency }}</span>
+                    <span class="quantity-total-original"><app-currency [value]="selectedQuantity() * (product()?.price || 0)" /></span>
+                    <span class="quantity-total-price quantity-total-price--promo"><app-currency [value]="priceAfterVolumeDiscount()" /></span>
                   </div>
-                  <span class="quantity-pieces-info">{{ selectedQuantity() }} {{ unitDisplay() }} (-{{ volumeDiscountSavings() | appCurrency }})</span>
+                  <span class="quantity-pieces-info">{{ selectedQuantity() }} {{ unitDisplay() }} (-<app-currency [value]="volumeDiscountSavings()" />)</span>
                 } @else if (hasPromotion()) {
                   <div class="quantity-total-prices">
-                    <span class="quantity-total-original">{{ selectedQuantity() * (product()?.price || 0) | appCurrency }}</span>
-                    <span class="quantity-total-price quantity-total-price--promo">{{ selectedQuantity() * discountedPrice() | appCurrency }}</span>
+                    <span class="quantity-total-original"><app-currency [value]="selectedQuantity() * (product()?.price || 0)" /></span>
+                    <span class="quantity-total-price quantity-total-price--promo"><app-currency [value]="selectedQuantity() * discountedPrice()" /></span>
                   </div>
                   <span class="quantity-pieces-info">{{ selectedQuantity() }} {{ unitDisplay() }}</span>
                 } @else {
-                  <span class="quantity-total-price">{{ selectedQuantity() * (product()?.price || 0) | appCurrency }}</span>
+                  <span class="quantity-total-price"><app-currency [value]="selectedQuantity() * (product()?.price || 0)" /></span>
                   <span class="quantity-pieces-info">{{ selectedQuantity() }} {{ unitDisplay() }}</span>
                 }
               </div>

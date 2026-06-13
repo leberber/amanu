@@ -15,7 +15,7 @@ import { ShippingService } from '../../services/shipping.service';
 import { ToastMessageService } from '../../core/services/toast-message.service';
 import { PageLayoutComponent } from '../../shared/components/page-layout/page-layout.component';
 import { StickyFooterComponent } from '../../shared/components/sticky-footer/sticky-footer.component';
-import { CurrencyPipe } from '../../shared/pipes/currency.pipe';
+import { CurrencyDisplayComponent } from '../../shared/components/currency-display/currency-display.component';
 import { ShippingCostResponse } from '../../models/shipping.model';
 import { DeliveryType } from '../../models/order.model';
 
@@ -33,7 +33,7 @@ export type DeliveryMethod = 'delivery' | 'pickup';
     DatePipe,
     PageLayoutComponent,
     StickyFooterComponent,
-    CurrencyPipe
+    CurrencyDisplayComponent
   ],
   templateUrl: './order-summary.component.html',
   styleUrl: './order-summary.component.scss',

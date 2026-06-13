@@ -31,7 +31,7 @@ import { DEFAULTS } from '../../../core/constants/app.constants';
 import { ANIMATION, UI } from '../../../core/constants/ui.constants';
 import { HorizontalFilterComponent } from '../../../shared/components/horizontal-filter/horizontal-filter.component';
 import { SearchInputComponent } from '../../../shared/components/search-input/search-input.component';
-import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
+import { CurrencyDisplayComponent } from '../../../shared/components/currency-display/currency-display.component';
 import { UnitPipe } from '../../../shared/pipes/unit.pipe';
 import { ImageFallbackDirective } from '../../../shared/directives/image-fallback.directive';
 
@@ -46,7 +46,7 @@ import { ImageFallbackDirective } from '../../../shared/directives/image-fallbac
     ProductListItemComponent,
     HorizontalFilterComponent,
     SearchInputComponent,
-    CurrencyPipe,
+    CurrencyDisplayComponent,
     UnitPipe,
     ImageFallbackDirective
   ],

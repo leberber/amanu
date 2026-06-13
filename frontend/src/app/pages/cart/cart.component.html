@@ -117,7 +117,7 @@
                                 } @else if (vd.discountType === 'percentage') {
                                   <i class="pi pi-percentage"></i> -{{ vd.discount.discount_value }}%
                                 } @else {
-                                  <i class="pi pi-tag"></i> -{{ vd.savedAmount | appCurrency }}
+                                  <i class="pi pi-tag"></i> -<app-currency [value]="vd.savedAmount" />
                                 }
                               </span>
                             }
@@ -126,7 +126,7 @@
                       </div>
                     </td>
                     <td class="text-center">
-                      <span class="text-secondary">{{ item.product_price | appCurrency }}/{{ item.product_unit | appUnit }}</span>
+                      <span class="text-secondary"><app-currency [value]="item.product_price" />/{{ item.product_unit | appUnit }}</span>
                     </td>
                     <td>
                       <div class="flex justify-content-center">
@@ -158,11 +158,11 @@
                     <td class="text-right">
                       @if (hasDiscount(item)) {
                         <div class="price-with-discount">
-                          <span class="price-original">{{ getOriginalPriceWithFree(item) | appCurrency }}</span>
-                          <span class="price-discounted">{{ getDiscountedTotal(item) | appCurrency }}</span>
+                          <span class="price-original"><app-currency [value]="getOriginalPriceWithFree(item)" /></span>
+                          <span class="price-discounted"><app-currency [value]="getDiscountedTotal(item)" /></span>
                         </div>
                       } @else {
-                        <span class="text-bold">{{ item.product_price * item.quantity | appCurrency }}</span>
+                        <span class="text-bold"><app-currency [value]="item.product_price * item.quantity" /></span>
                       }
                     </td>
                     <td class="text-center">
@@ -200,7 +200,7 @@
                         } @else if (vd.discountType === 'percentage') {
                           -{{ vd.discount.discount_value }}%
                         } @else {
-                          -{{ vd.savedAmount | appCurrency }}
+                          -<app-currency [value]="vd.savedAmount" />
                         }
                       </span>
                     }
@@ -210,7 +210,7 @@
                   </button>
                 </div>
                 <div class="cart-item-mobile__row2">
-                  <span class="pill primary" style="visibility: hidden;">{{ item.product_price | appCurrency }}</span>
+                  <span class="pill primary" style="visibility: hidden;"><app-currency [value]="item.product_price" /></span>
                   <div class="cart-item-mobile__controls">
                     <div class="cart-quantity-controls">
                       <button
@@ -237,11 +237,11 @@
                     </div>
                     @if (hasDiscount(item)) {
                       <div class="price-with-discount">
-                        <span class="price-original">{{ getOriginalPriceWithFree(item) | appCurrency }}</span>
-                        <span class="price-discounted">{{ getDiscountedTotal(item) | appCurrency }}</span>
+                        <span class="price-original"><app-currency [value]="getOriginalPriceWithFree(item)" /></span>
+                        <span class="price-discounted"><app-currency [value]="getDiscountedTotal(item)" /></span>
                       </div>
                     } @else {
-                      <span class="cart-item-mobile__total">{{ item.product_price * item.quantity | appCurrency }}</span>
+                      <span class="cart-item-mobile__total"><app-currency [value]="item.product_price * item.quantity" /></span>
                     }
                   </div>
                 </div>

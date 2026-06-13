@@ -1,11 +1,11 @@
 import { Component, input, output, computed } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { CurrencyPipe } from '../../pipes/currency.pipe';
+import { CurrencyDisplayComponent } from '../currency-display/currency-display.component';
 
 @Component({
   selector: 'app-sticky-footer',
   standalone: true,
-  imports: [TranslateModule, CurrencyPipe],
+  imports: [TranslateModule, CurrencyDisplayComponent],
   templateUrl: './sticky-footer.component.html',
   styleUrl: './sticky-footer.component.scss'
 })

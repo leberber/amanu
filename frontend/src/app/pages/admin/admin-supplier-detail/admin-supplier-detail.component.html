@@ -108,7 +108,7 @@
                         @for (payment of payments(); track payment.id) {
                           <tr>
                             <td>{{ payment.payment_date | appDate }}</td>
-                            <td><span class="pill success">{{ payment.amount | appCurrency }}</span></td>
+                            <td><span class="pill success"><app-currency [value]="payment.amount" /></span></td>
                             <td><span class="pill secondary">{{ getPaymentMethodLabel(payment.payment_method) }}</span></td>
                             <td class="text-secondary text-sm">{{ payment.notes || '—' }}</td>
                             <td class="text-center">
@@ -341,7 +341,7 @@
                           <tr class="clickable-row" (click)="goToPurchaseOrder(order.id)">
                             <td class="font-semibold">{{ order.reference }}</td>
                             <td><p-tag [value]="('admin.purchase_orders.status_labels.' + order.status) | translate" [severity]="getStatusSeverity(order.status)" /></td>
-                            <td><span class="font-semibold">{{ order.total_amount | appCurrency }}</span></td>
+                            <td><span class="font-semibold"><app-currency [value]="order.total_amount" /></span></td>
                             <td><span class="pill secondary">{{ order.item_count }} {{ 'common.items' | translate }}</span></td>
                             <td class="text-secondary text-sm">{{ order.created_at | appDate }}</td>
                             <td class="text-center" (click)="$event.stopPropagation()">
@@ -382,7 +382,7 @@
               <div class="flex justify-content-between align-items-center">
                 <div>
                   <div class="text-secondary text-xs mb-1">{{ 'admin.suppliers.stats.total_ordered' | translate }}</div>
-                  <div class="font-bold text-lg">{{ s.total_ordered | appCurrency }}</div>
+                  <div class="font-bold text-lg"><app-currency [value]="s.total_ordered" /></div>
                 </div>
                 <i class="pi pi-shopping-cart text-xl text-secondary"></i>
               </div>
@@ -393,7 +393,7 @@
               <div class="flex justify-content-between align-items-center">
                 <div>
                   <div class="text-secondary text-xs mb-1">{{ 'admin.suppliers.stats.total_paid' | translate }}</div>
-                  <div class="font-bold text-lg" style="color:#16a34a">{{ s.total_paid | appCurrency }}</div>
+                  <div class="font-bold text-lg" style="color:#16a34a"><app-currency [value]="s.total_paid" /></div>
                 </div>
                 <i class="pi pi-check-circle text-xl" style="color:#16a34a"></i>
               </div>
@@ -414,7 +414,7 @@
               <div class="flex justify-content-between align-items-center">
                 <div>
                   <div class="text-xs mb-1" [style.color]="getBalanceLabelColor(s)">{{ 'admin.suppliers.stats.balance_owed' | translate }}</div>
-                  <div class="font-bold text-lg" [style.color]="getBalanceTextColor(s)">{{ s.balance_owed | appCurrency }}</div>
+                  <div class="font-bold text-lg" [style.color]="getBalanceTextColor(s)"><app-currency [value]="s.balance_owed" /></div>
                 </div>
                 <i class="pi pi-wallet text-xl" [style.color]="getBalanceTextColor(s)"></i>
               </div>

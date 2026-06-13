@@ -20,7 +20,7 @@
 
     <div class="product-list-item__meta">
       <div class="product-list-item__price">
-        <span class="price-current">{{ product().price | appCurrency }}</span>
+        <span class="price-current"><app-currency [value]="product().price" /></span>
         <span class="price-unit">/ {{ product().unit | appUnit }}</span>
       </div>
 
@@ -76,7 +76,7 @@
               <span class="quantity-selector-hint">
                 {{ product().pieces_per_box }} {{ product().unit | appUnit }} / {{ getPackagingTypeForCount(1) }}
                 @if (selectedBoxOption(); as option) {
-                  <span class="quantity-selector-hint__total">&nbsp;&nbsp;{{ option.price | appCurrency }}</span>
+                  <span class="quantity-selector-hint__total">&nbsp;&nbsp;<app-currency [value]="option.price" /></span>
                 }
               </span>
             }

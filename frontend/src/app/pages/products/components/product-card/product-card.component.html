@@ -35,10 +35,10 @@
     <!-- Price -->
     <div class="product-card__price">
       @if (hasPromotion()) {
-        <span class="price-current price-current--promo">{{ effectivePrice() | appCurrency }}</span>
-        <span class="price-original">{{ product().price | appCurrency }}</span>
+        <span class="price-current price-current--promo"><app-currency [value]="effectivePrice()" /></span>
+        <span class="price-original"><app-currency [value]="product().price" /></span>
       } @else {
-        <span class="price-current">{{ effectivePrice() | appCurrency }}</span>
+        <span class="price-current"><app-currency [value]="effectivePrice()" /></span>
       }
       <span class="price-unit">/ {{ product().unit }}</span>
     </div>
@@ -81,7 +81,7 @@
           <span class="product-card__pieces-hint">
             {{ product().pieces_per_box }} {{ product().unit | appUnit }} / {{ getPackagingTypeForCount(1) }}
             @if (selectedBoxOption(); as option) {
-              <span class="product-card__pieces-hint__total">&nbsp;&nbsp;{{ option.price | appCurrency }}</span>
+              <span class="product-card__pieces-hint__total">&nbsp;&nbsp;<app-currency [value]="option.price" /></span>
             }
           </span>
         }

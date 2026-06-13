@@ -94,13 +94,13 @@
                         <span class="font-semibold">{{ item.quantity_ordered }}</span>
                       }
                     <td class="text-right">
-                      <span class="text-secondary">{{ (item.unit_price / item.units_per_carton) | appCurrency }}</span>
+                      <span class="text-secondary"><app-currency [value]="item.unit_price / item.units_per_carton" /></span>
                     </td>
                     <td class="text-right">
-                      <span class="text-secondary">{{ item.unit_price | appCurrency }}</span>
+                      <span class="text-secondary"><app-currency [value]="item.unit_price" /></span>
                     </td>
                     <td class="text-right">
-                      <span class="font-bold">{{ item.total_price | appCurrency }}</span>
+                      <span class="font-bold"><app-currency [value]="item.total_price" /></span>
                     </td>
                     @if (order()!.status === 'sent' || order()!.status === 'delivered') {
                       <td class="text-center">
@@ -171,7 +171,7 @@
                       </td>
                       <td class="text-right">
                         @if (item.facture_unit_price) {
-                          <span class="font-semibold">{{ item.facture_unit_price | appCurrency }}</span>
+                          <span class="font-semibold"><app-currency [value]="item.facture_unit_price" /></span>
                         } @else {
                           <span class="text-secondary text-sm">—</span>
                         }
@@ -187,7 +187,7 @@
           <div class="table-footer">
             <div class="table-footer__total">
               <span class="table-footer__label">{{ 'admin.purchase_orders.total' | translate }}</span>
-              <span class="table-footer__value">{{ order()!.total_amount | appCurrency }}</span>
+              <span class="table-footer__value"><app-currency [value]="order()!.total_amount" /></span>
             </div>
           </div>
         </div>
@@ -414,9 +414,9 @@
                                 }
                                 @if (item['facture_unit_price']) {
                                   <span class="text-xs">
-                                    P. fact. <span class="text-color-secondary">{{ item['facture_unit_price']['old'] | appCurrency }}</span>
+                                    P. fact. <span class="text-color-secondary"><app-currency [value]="item['facture_unit_price']['old']" /></span>
                                     <i class="pi pi-arrow-right mx-1 text-xs text-color-secondary"></i>
-                                    <span class="font-semibold">{{ item['facture_unit_price']['new'] | appCurrency }}</span>
+                                    <span class="font-semibold"><app-currency [value]="item['facture_unit_price']['new']" /></span>
                                   </span>
                                 }
                               </div>

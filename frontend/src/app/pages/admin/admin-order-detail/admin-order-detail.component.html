@@ -296,7 +296,7 @@
                         }
                       </div>
                       <span class="picker-card__name">{{ product.name }}</span>
-                      <span class="picker-card__price">{{ product.price | appCurrency }}</span>
+                      <span class="picker-card__price"><app-currency [value]="product.price" /></span>
                       <span class="picker-card__stock" [class.low]="product.stock_quantity < (product.pieces_per_box || 1) * 5">
                         {{ getProductStockLabel(product) }}
                       </span>
@@ -358,20 +358,20 @@
                 <div class="item-row__price">
                   <span class="item-row__price-label">P.U.</span>
                   @if (item.custom_unit_price) {
-                    <span class="item-row__price-original">{{ item.unit_price | appCurrency }}</span>
-                    <span class="item-row__price-custom">{{ item.custom_unit_price | appCurrency }}</span>
+                    <span class="item-row__price-original"><app-currency [value]="item.unit_price" /></span>
+                    <span class="item-row__price-custom"><app-currency [value]="item.custom_unit_price" /></span>
                   } @else {
-                    <span>{{ item.unit_price | appCurrency }}</span>
+                    <span><app-currency [value]="item.unit_price" /></span>
                   }
                 </div>
 
                 <div class="item-row__total">
                   @if (!isItemDeleted(item.id)) {
                     @if (item.custom_unit_price) {
-                      <span class="item-row__total-original">{{ item.unit_price * getEffectiveQty(item) | appCurrency }}</span>
-                      <span class="item-row__total-discounted">{{ item.custom_unit_price * getEffectiveQty(item) | appCurrency }}</span>
+                      <span class="item-row__total-original"><app-currency [value]="item.unit_price * getEffectiveQty(item)" /></span>
+                      <span class="item-row__total-discounted"><app-currency [value]="item.custom_unit_price * getEffectiveQty(item)" /></span>
                     } @else {
-                      {{ item.unit_price * getEffectiveQty(item) | appCurrency }}
+                      <app-currency [value]="item.unit_price * getEffectiveQty(item)" />
                     }
                   } @else {
                     <span class="item-row__deleted-badge">Supprimé</span>
@@ -427,10 +427,10 @@
                 <div class="item-row__price">
                   <span class="item-row__price-label">P.U.</span>
                   @if (entry.customPrice) {
-                    <span class="item-row__price-original">{{ entry.product.price | appCurrency }}</span>
-                    <span class="item-row__price-custom">{{ entry.customPrice | appCurrency }}</span>
+                    <span class="item-row__price-original"><app-currency [value]="entry.product.price" /></span>
+                    <span class="item-row__price-custom"><app-currency [value]="entry.customPrice" /></span>
                   } @else {
-                    <span>{{ entry.product.price | appCurrency }}</span>
+                    <span><app-currency [value]="entry.product.price" /></span>
                   }
                   <input
                     class="price-override-input"
@@ -441,10 +441,10 @@
                 </div>
                 <div class="item-row__total">
                   @if (entry.customPrice) {
-                    <span class="item-row__total-original">{{ entry.product.price * entry.qty * (entry.product.pieces_per_box || 1) | appCurrency }}</span>
-                    <span class="item-row__total-discounted">{{ entry.customPrice * entry.qty * (entry.product.pieces_per_box || 1) | appCurrency }}</span>
+                    <span class="item-row__total-original"><app-currency [value]="entry.product.price * entry.qty * (entry.product.pieces_per_box || 1)" /></span>
+                    <span class="item-row__total-discounted"><app-currency [value]="entry.customPrice * entry.qty * (entry.product.pieces_per_box || 1)" /></span>
                   } @else {
-                    {{ entry.product.price * entry.qty * (entry.product.pieces_per_box || 1) | appCurrency }}
+                    <app-currency [value]="entry.product.price * entry.qty * (entry.product.pieces_per_box || 1)" />
                   }
                 </div>
                 <div class="item-row__actions">
@@ -476,16 +476,16 @@
             @if (order.discount_amount && order.discount_amount > 0) {
               <div class="items-footer__row">
                 <span><i class="pi pi-tag mr-1"></i>{{ 'admin.orders.discount' | translate }}</span>
-                <span style="color:#dc2626;">-{{ order.discount_amount | appCurrency }}</span>
+                <span style="color:#dc2626;">-<app-currency [value]="order.discount_amount" /></span>
               </div>
             }
             <div class="items-footer__total">
               <span class="font-semibold">{{ 'admin.orders.total' | translate }}</span>
               <span class="items-footer__amount">
                 @if (hasUnsavedChanges()) {
-                  <span class="items-footer__old">{{ order.total_amount | appCurrency }}</span>
+                  <span class="items-footer__old"><app-currency [value]="order.total_amount" /></span>
                 }
-                <span [class.items-footer__new]="hasUnsavedChanges()">{{ previewTotal() | appCurrency }}</span>
+                <span [class.items-footer__new]="hasUnsavedChanges()"><app-currency [value]="previewTotal()" /></span>
               </span>
             </div>
           </div>
@@ -664,13 +664,13 @@
                 </div>
               </div>
               <div class="payment-progress__labels">
-                <span class="text-sm font-semibold" style="color:#16a34a;">{{ totalPaid() | appCurrency }}</span>
-                <span class="text-sm text-secondary">/ {{ order.total_amount | appCurrency }}</span>
+                <span class="text-sm font-semibold" style="color:#16a34a;"><app-currency [value]="totalPaid()" /></span>
+                <span class="text-sm text-secondary">/ <app-currency [value]="order.total_amount" /></span>
               </div>
               @if (balance() > 0) {
                 <div class="payment-progress__balance">
                   <i class="pi pi-exclamation-triangle" style="color:#f97316;font-size:0.8rem;"></i>
-                  <span class="text-sm font-medium" style="color:#c2410c;">Reste: {{ balance() | appCurrency }}</span>
+                  <span class="text-sm font-medium" style="color:#c2410c;">Reste: <app-currency [value]="balance()" /></span>
                 </div>
               }
             </div>
@@ -693,7 +693,7 @@
                       <span class="payment-entry__meta">{{ p.recorded_at | appDate }}@if (p.recorder_name) { · {{ p.recorder_name }} }</span>
                     </div>
                     <span class="payment-entry__amount" [class.refund]="p.amount < 0">
-                      {{ p.amount > 0 ? '+' : '' }}{{ p.amount | appCurrency }}
+                      {{ p.amount > 0 ? '+' : '' }}<app-currency [value]="p.amount" />
                     </span>
                   </div>
                 }
@@ -708,7 +708,7 @@
                   <button class="pay-balance-chip" type="button" (click)="newPaymentAmount.set(balance())">
                     <div class="pay-balance-chip__left">
                       <span class="pay-balance-chip__label">Reste à payer</span>
-                      <span class="pay-balance-chip__amount">{{ balance() | appCurrency }}</span>
+                      <span class="pay-balance-chip__amount"><app-currency [value]="balance()" /></span>
                     </div>
                     <span class="pay-balance-chip__cta">
                       <i class="pi pi-check-circle"></i> Tout régler
@@ -790,7 +790,7 @@
                         <span class="audit-entry__details">
                           @if (log.details['product_name']) { {{ log.details['product_name'] }} }
                           @if (log.details['old_status'] && log.details['new_status']) { {{ log.details['old_status'] }} → {{ log.details['new_status'] }} }
-                          @if (log.details['amount']) { {{ $any(log.details['amount']) | appCurrency }} ({{ log.details['method'] }}) }
+                          @if (log.details['amount']) { <app-currency [value]="$any(log.details['amount'])" /> ({{ log.details['method'] }}) }
                           @if (log.details['old_quantity'] && log.details['new_quantity']) { qté: {{ log.details['old_quantity'] }} → {{ log.details['new_quantity'] }} }
                         </span>
                       }
@@ -897,7 +897,7 @@
                     }
                   </div>
                   <span class="picker-card__name">{{ product.name }}</span>
-                  <span class="picker-card__price">{{ product.price | appCurrency }}</span>
+                  <span class="picker-card__price"><app-currency [value]="product.price" /></span>
                   <span class="picker-card__stock" [class.low]="product.stock_quantity < (product.pieces_per_box || 1) * 5">
                     {{ getProductStockLabel(product) }}
                   </span>
@@ -1012,10 +1012,10 @@
                 <div class="item-row__price">
                   <span class="item-row__price-label">P.U.</span>
                   @if (entry.customPrice) {
-                    <span class="item-row__price-original">{{ entry.product.price | appCurrency }}</span>
-                    <span class="item-row__price-custom">{{ entry.customPrice | appCurrency }}</span>
+                    <span class="item-row__price-original"><app-currency [value]="entry.product.price" /></span>
+                    <span class="item-row__price-custom"><app-currency [value]="entry.customPrice" /></span>
                   } @else {
-                    <span>{{ entry.product.price | appCurrency }}</span>
+                    <span><app-currency [value]="entry.product.price" /></span>
                   }
                   <input
                     class="price-override-input"
@@ -1026,10 +1026,10 @@
                 </div>
                 <div class="item-row__total">
                   @if (entry.customPrice) {
-                    <span class="item-row__total-original">{{ entry.product.price * entry.qty * (entry.product.pieces_per_box || 1) | appCurrency }}</span>
-                    <span class="item-row__total-discounted">{{ entry.customPrice * entry.qty * (entry.product.pieces_per_box || 1) | appCurrency }}</span>
+                    <span class="item-row__total-original"><app-currency [value]="entry.product.price * entry.qty * (entry.product.pieces_per_box || 1)" /></span>
+                    <span class="item-row__total-discounted"><app-currency [value]="entry.customPrice * entry.qty * (entry.product.pieces_per_box || 1)" /></span>
                   } @else {
-                    {{ entry.product.price * entry.qty * (entry.product.pieces_per_box || 1) | appCurrency }}
+                    <app-currency [value]="entry.product.price * entry.qty * (entry.product.pieces_per_box || 1)" />
                   }
                 </div>
                 <div class="item-row__actions">
@@ -1043,7 +1043,7 @@
           <div class="items-footer">
             <div class="items-footer__total">
               <span class="font-semibold">Total</span>
-              <span class="items-footer__new">{{ previewTotal() | appCurrency }}</span>
+              <span class="items-footer__new"><app-currency [value]="previewTotal()" /></span>
             </div>
             <p-button
               label="Créer la commande"

@@ -21,7 +21,7 @@ import { ImageLightboxComponent } from '../../shared/components/image-lightbox/i
 import { StickyFooterComponent } from '../../shared/components/sticky-footer/sticky-footer.component';
 import { ToastMessageService } from '../../core/services/toast-message.service';
 import { PackagingTypeService } from '../../core/services/packaging-type.service';
-import { CurrencyPipe } from '../../shared/pipes/currency.pipe';
+import { CurrencyDisplayComponent } from '../../shared/components/currency-display/currency-display.component';
 import { UnitPipe } from '../../shared/pipes/unit.pipe';
 import { getCartonCount as calcCartonCount } from '../../shared/utils/quantity.utils';
 import { ImageFallbackDirective } from '../../shared/directives/image-fallback.directive';
@@ -41,7 +41,7 @@ import { isOutOfStock as checkOutOfStock } from '../../shared/utils/stock.utils'
     EmptyStateComponent,
     ImageLightboxComponent,
     StickyFooterComponent,
-    CurrencyPipe,
+    CurrencyDisplayComponent,
     UnitPipe,
     ImageFallbackDirective
   ],

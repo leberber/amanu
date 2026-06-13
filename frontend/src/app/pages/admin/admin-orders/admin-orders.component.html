@@ -149,9 +149,9 @@
                     </button>
                   </td>
                   <td class="text-right">
-                    <div class="font-semibold">{{ order.total_amount | appCurrency }}</div>
+                    <div class="font-semibold"><app-currency [value]="order.total_amount" /></div>
                     @if (order.payment_status === 'partial') {
-                      <div class="order-balance-remaining">{{ (order.total_amount - (order.total_paid ?? 0)) | appCurrency }}</div>
+                      <div class="order-balance-remaining"><app-currency [value]="order.total_amount - (order.total_paid ?? 0)" /></div>
                     }
                   </td>
                   <td class="text-center" (click)="$event.stopPropagation()">
@@ -332,7 +332,7 @@
             <i class="pi pi-exclamation-triangle"></i>
             <div>
               <div>{{ 'admin.orders.delivery_payment_warning' | translate }}</div>
-              <strong>{{ deliveryPaymentWarning() | appCurrency }}</strong>
+              <strong><app-currency [value]="deliveryPaymentWarning()" /></strong>
             </div>
           </div>
           <div class="inline-payment-form">
@@ -423,17 +423,17 @@
         <div class="payment-popup__info">
           <div class="payment-popup__info-row">
             <span>{{ 'admin.orders.order_total' | translate }}</span>
-            <span class="font-semibold">{{ order.total_amount | appCurrency }}</span>
+            <span class="font-semibold"><app-currency [value]="order.total_amount" /></span>
           </div>
           @if (paymentTotalPaid() > 0) {
             <div class="payment-popup__info-row">
               <span>{{ 'admin.orders.already_paid' | translate }}</span>
-              <span class="payment-popup__paid">{{ paymentTotalPaid() | appCurrency }}</span>
+              <span class="payment-popup__paid"><app-currency [value]="paymentTotalPaid()" /></span>
             </div>
           }
           <div class="payment-popup__info-row payment-popup__info-row--remaining">
             <span>{{ 'admin.orders.remaining_amount' | translate }}</span>
-            <span class="payment-popup__remaining">{{ paymentRemaining() | appCurrency }}</span>
+            <span class="payment-popup__remaining"><app-currency [value]="paymentRemaining()" /></span>
           </div>
         </div>
 
