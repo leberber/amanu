@@ -738,7 +738,10 @@
       "refund": "Remboursement",
       "payment_history_link": "Historique des paiements",
       "outstanding_balance": "Solde impayé",
-      "remaining": "restant"
+      "remaining": "restant",
+      "status_unpaid": "Non payé",
+      "status_partial": "Partiel",
+      "status_paid": "Payé"
     },
     "errors": {
       "failed_to_load": "Échec du chargement de vos commandes",

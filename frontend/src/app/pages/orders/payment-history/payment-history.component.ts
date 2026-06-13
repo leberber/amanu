@@ -7,7 +7,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { ROUTES, RouteHelpers } from '../../../core/constants/routes.constants';
 import { TIME_FILTER_OPTIONS, TIME_FILTER_DAYS } from '../../../core/constants/ui.constants';
 import { OrderService } from '../../../services/order.service';
-import { UserPaymentItem } from '../../../models/order.model';
+import { OrderFinancialSummary } from '../../../models/order.model';
 import { PageLayoutComponent } from '../../../shared/components/page-layout/page-layout.component';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { ErrorStateComponent } from '../../../shared/components/error-state/error-state.component';
@@ -40,51 +40,33 @@ export class PaymentHistoryComponent implements OnInit {
   readonly SKELETON_ROWS = [1, 2, 3, 4, 5];
   readonly TIME_FILTERS = TIME_FILTER_OPTIONS;
 
-  payments = signal<UserPaymentItem[]>([]);
+  orders = signal<OrderFinancialSummary[]>([]);
   loading = signal(true);
   error = signal(false);
   timeFilter = signal<TimeFilter>('all');
 
-  filteredPayments = computed(() => {
+  filteredOrders = computed(() => {
     const filter = this.timeFilter();
-    const payments = this.payments();
-    if (filter === 'all') return payments;
-    const now = new Date();
-    const cutoff = new Date(now.getTime() - TIME_FILTER_DAYS[filter] * 24 * 60 * 60 * 1000);
-    return payments.filter(p => new Date(p.recorded_at) >= cutoff);
-  });
-
-  // Per-order balance map (based on ALL payments, not filtered)
-  orderBalanceMap = computed(() => {
-    const map = new Map<number, { total: number; paid: number }>();
-    for (const p of this.payments()) {
-      if (!map.has(p.order_id)) {
-        map.set(p.order_id, { total: p.order_total_amount, paid: 0 });
-      }
-      map.get(p.order_id)!.paid += p.amount;
-    }
-    return map;
+    const orders = this.orders();
+    if (filter === 'all') return orders;
+    const cutoff = new Date(Date.now() - TIME_FILTER_DAYS[filter] * 24 * 60 * 60 * 1000);
+    return orders.filter(o => new Date(o.created_at) >= cutoff);
   });
 
   totalPaid = computed(() =>
-    this.filteredPayments().filter(p => p.amount > 0).reduce((sum, p) => sum + p.amount, 0)
+    this.filteredOrders().reduce((sum, o) => sum + o.total_paid, 0)
   );
 
-  totalOutstanding = computed(() => {
-    let outstanding = 0;
-    for (const [, { total, paid }] of this.orderBalanceMap()) {
-      const balance = total - paid;
-      if (balance > 0) outstanding += balance;
-    }
-    return outstanding;
-  });
+  totalOutstanding = computed(() =>
+    this.filteredOrders().reduce((sum, o) => sum + Math.max(0, o.total_amount - o.total_paid), 0)
+  );
 
   ngOnInit(): void {
-    this.orderService.getUserPayments()
+    this.orderService.getFinancialSummary()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (payments) => {
-          this.payments.set(payments);
+        next: (orders) => {
+          this.orders.set(orders);
           this.loading.set(false);
         },
         error: () => {
@@ -98,13 +80,13 @@ export class PaymentHistoryComponent implements OnInit {
     this.timeFilter.set(filter);
   }
 
-  getOrderBalance(orderId: number): number {
-    const entry = this.orderBalanceMap().get(orderId);
-    if (!entry) return 0;
-    return entry.total - entry.paid;
+  getRemaining(order: OrderFinancialSummary): number {
+    return Math.max(0, order.total_amount - order.total_paid);
   }
 
-  getMethodLabel(method: string): string {
-    return method === 'cash' ? 'orders.payments.method_cash' : 'orders.payments.method_virement';
+  getPaymentStatusSeverity(status: string): string {
+    if (status === 'paid') return 'success';
+    if (status === 'partial') return 'warn';
+    return 'danger';
   }
 }

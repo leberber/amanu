@@ -66,6 +66,16 @@ class UserPaymentRead(SQLModel):
     model_config = {"from_attributes": True}
 
 
+class OrderFinancialSummary(SQLModel):
+    """Per-order financial summary for the customer-facing payment history."""
+    order_id: int
+    created_at: datetime
+    total_amount: float
+    total_paid: float
+    payment_status: str
+    model_config = {"from_attributes": True}
+
+
 class OrderPaymentCreate(SQLModel):
     amount: float
     method: PaymentMethod

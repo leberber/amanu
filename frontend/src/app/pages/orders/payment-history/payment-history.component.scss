@@ -130,14 +130,16 @@
   &__amount {
     font-size: var(--font-size-base);
     font-weight: var(--font-weight-bold);
-    color: #16a34a;
+    color: var(--text-color);
 
-    &--refund { color: #dc2626; }
+    &--paid    { color: #16a34a; }
+    &--partial { color: #d97706; }
+    &--unpaid  { color: #dc2626; }
   }
 
   &__balance {
     font-size: 0.65rem;
-    color: #d97706;
+    color: #2563eb;
     font-weight: var(--font-weight-medium);
   }
 
@@ -146,6 +148,19 @@
     color: var(--text-color-secondary);
     flex-shrink: 0;
   }
+}
+
+.payment-status-pill {
+  font-size: 0.62rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+
+  &--unpaid  { background: rgba(220, 38, 38, 0.1);  color: #dc2626; }
+  &--partial { background: rgba(245, 158, 11, 0.12); color: #d97706; }
+  &--paid    { background: rgba(34, 197, 94, 0.12);  color: #16a34a; }
 }
 
 .payment-method-pill {

@@ -14,7 +14,7 @@ from app.models.order import (
 from app.models.order_payments import (
     OrderPayment, OrderPaymentCreate, OrderPaymentRead,
     OrderAuditLog, OrderAuditLogRead, AuditAction, PaymentStatus, PaymentMethod,
-    UserPaymentRead
+    UserPaymentRead, OrderFinancialSummary
 )
 from app.models.product import Product
 from app.models.promotion import Promotion, PromotionUsage, PromotionScope
@@ -450,6 +450,30 @@ def get_user_payments(
             order_total_amount=order_total_map.get(p.order_id, 0.0),
         )
         for p in payments
+    ]
+
+
+@router.get("/financial-summary", response_model=List[OrderFinancialSummary])
+def get_financial_summary(
+    current_user: User = Depends(get_current_active_user),
+    session: Session = Depends(get_session),
+) -> Any:
+    """Get all orders with their financial state for the current user."""
+    orders = session.exec(
+        select(Order)
+        .where(Order.user_id == current_user.id)
+        .order_by(Order.created_at.desc())
+    ).all()
+
+    return [
+        OrderFinancialSummary(
+            order_id=o.id,
+            created_at=o.created_at,
+            total_amount=o.total_amount,
+            total_paid=o.total_paid or 0.0,
+            payment_status=o.payment_status or "unpaid",
+        )
+        for o in orders
     ]
 
 

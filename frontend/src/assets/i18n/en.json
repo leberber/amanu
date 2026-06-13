@@ -741,7 +741,10 @@
       "refund": "Refund",
       "payment_history_link": "Payment history",
       "outstanding_balance": "Outstanding balance",
-      "remaining": "remaining"
+      "remaining": "remaining",
+      "status_unpaid": "Unpaid",
+      "status_partial": "Partial",
+      "status_paid": "Paid"
     },
     "errors": {
       "failed_to_load": "Failed to load your orders",

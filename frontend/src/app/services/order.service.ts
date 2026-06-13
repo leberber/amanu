@@ -3,7 +3,7 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { ApiService } from './api.service';
 import { CartItem } from './cart.service';
-import { OrderCreate, OrderCreateItem, Order, OrderItem, AuditLogEntry, UserPaymentItem } from '../models/order.model';
+import { OrderCreate, OrderCreateItem, Order, OrderItem, AuditLogEntry, UserPaymentItem, OrderFinancialSummary } from '../models/order.model';
 import { ORDER_STATUS } from '../core/constants/order.constants';
 
 @Injectable({
@@ -44,6 +44,10 @@ export class OrderService {
 
   getUserPayments(): Observable<UserPaymentItem[]> {
     return this.apiService.get<UserPaymentItem[]>('/orders/payments');
+  }
+
+  getFinancialSummary(): Observable<OrderFinancialSummary[]> {
+    return this.apiService.get<OrderFinancialSummary[]>('/orders/financial-summary');
   }
 
   cancelOrder(orderId: number): Observable<Order> {

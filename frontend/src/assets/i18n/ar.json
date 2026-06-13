@@ -743,7 +743,10 @@
       "refund": "استرداد",
       "payment_history_link": "سجل المدفوعات",
       "outstanding_balance": "الرصيد المستحق",
-      "remaining": "متبقي"
+      "remaining": "متبقي",
+      "status_unpaid": "غير مدفوع",
+      "status_partial": "جزئي",
+      "status_paid": "مدفوع"
     },
     "errors": {
       "failed_to_load": "فشل في تحميل طلباتك",

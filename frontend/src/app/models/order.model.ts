@@ -53,6 +53,14 @@ export interface UserPaymentItem {
   order_total_amount: number;
 }
 
+export interface OrderFinancialSummary {
+  order_id: number;
+  created_at: string;
+  total_amount: number;
+  total_paid: number;
+  payment_status: 'unpaid' | 'partial' | 'paid';
+}
+
 export type DiffKind = 'normal' | 'added' | 'removed' | 'changed';
 
 export interface DiffDisplayItem {
