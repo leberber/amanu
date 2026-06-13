@@ -2,7 +2,6 @@ import { Component, OnInit, inject, DestroyRef, signal, computed, viewChild } fr
 import { Popover } from 'primeng/popover';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { PopoverModule } from 'primeng/popover';
-import { DialogModule } from 'primeng/dialog';
 import { SelectModule } from 'primeng/select';
 import { TranslateService } from '@ngx-translate/core';
 
@@ -30,7 +29,6 @@ import { BaseAdminListComponent, ColumnOption } from '../../../shared/base/base-
   imports: [
     ...ADMIN_LIST_IMPORTS,
     PopoverModule,
-    DialogModule,
     SelectModule,
     TableSkeletonComponent,
     TableLoadingRowsComponent,
@@ -65,7 +63,6 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
   editingOrder = signal<Order | null>(null);
   selectedNewStatus = signal<string | null>(null);
   pulseConfirm = signal(false);
-  showStatusDialog = signal(false);
 
   // Driver assignment signals
   availableDrivers = signal<DriverProfileWithFlags[]>([]);
@@ -118,6 +115,35 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
 
   // ViewChild for driver assignment popover
   driverPopover = viewChild<Popover>('driverPopover');
+
+  // ViewChild for quick payment popover
+  paymentPopover = viewChild<Popover>('paymentPopover');
+
+  // Payment popover state
+  paymentOrder = signal<Order | null>(null);
+  paymentAmount = signal<number>(0);
+  paymentMethod = signal<'cash' | 'virement'>('cash');
+  savingPayment = signal(false);
+  loadingPaymentInfo = signal(false);
+  paymentTotalPaid = signal(0);
+
+  paymentRemaining = computed(() => {
+    const order = this.paymentOrder();
+    if (!order) return 0;
+    return Math.max(0, order.total_amount - this.paymentTotalPaid());
+  });
+
+  // Outstanding balance on the order being moved to "delivered"
+  deliveryPaymentWarning = computed(() => {
+    const order = this.editingOrder();
+    if (!order || this.selectedNewStatus() !== 'delivered') return 0;
+    return Math.max(0, order.total_amount - (order.total_paid ?? 0));
+  });
+
+  // Inline payment form inside the status popover
+  inlinePaymentAmount = signal(0);
+  inlinePaymentMethod = signal<'cash' | 'virement'>('cash');
+  savingInlinePayment = signal(false);
 
   // Driver assignment from driver column
   assigningOrderId = signal<number | null>(null);
@@ -313,24 +339,11 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
     this.statusPopover()?.toggle(event);
   }
 
-  startEditStatus(order: Order): void {
-    if (this.canEditStatus(order.status)) {
-      this.editingOrder.set(order);
-      this.editingStatusOrderId.set(order.id);
-      this.selectedNewStatus.set(null);
-      this.selectedDriverId.set(null);
-    }
-  }
-
   cancelEditStatus(): void {
     this.editingStatusOrderId.set(null);
     this.editingOrder.set(null);
     this.selectedNewStatus.set(null);
     this.selectedDriverId.set(null);
-  }
-
-  isEditingStatus(orderId: number): boolean {
-    return this.editingStatusOrderId() === orderId;
   }
 
   isStatusSelected(status: string): boolean {
@@ -342,6 +355,13 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
     this.selectedDriverId.set(null);
     this.pulseConfirm.set(false);
     setTimeout(() => this.pulseConfirm.set(true), 10);
+    // Pre-fill inline payment when switching to delivered
+    if (newStatus === 'delivered') {
+      const order = this.editingOrder();
+      const outstanding = order ? Math.max(0, order.total_amount - (order.total_paid ?? 0)) : 0;
+      this.inlinePaymentAmount.set(outstanding);
+      this.inlinePaymentMethod.set('cash');
+    }
   }
 
   onDriverSelect(driverId: number): void {
@@ -492,5 +512,97 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
     this.driverPopover()?.hide();
     this.assigningOrderId.set(null);
     this.selectedDriverId.set(null);
+  }
+
+  confirmStatusWithPayment(): void {
+    const order = this.editingOrder();
+    const orderId = this.editingStatusOrderId();
+    if (!order || !orderId) return;
+
+    this.savingInlinePayment.set(true);
+
+    this.adminService.recordPayment(orderId, {
+      amount: this.inlinePaymentAmount(),
+      method: this.inlinePaymentMethod(),
+    }).subscribe({
+      next: () => {
+        const newTotalPaid = (order.total_paid ?? 0) + this.inlinePaymentAmount();
+        const newPaymentStatus = newTotalPaid >= order.total_amount ? 'paid' : 'partial';
+        this.allOrders.update(orders => {
+          const idx = orders.findIndex(o => o.id === orderId);
+          if (idx === -1) return orders;
+          const updated = [...orders];
+          updated[idx] = { ...updated[idx], payment_status: newPaymentStatus, total_paid: newTotalPaid };
+          return updated;
+        });
+        this.savingInlinePayment.set(false);
+        // Now change the status
+        this.cancelEditStatus();
+        this.statusPopover()?.hide();
+        this.updateOrderStatus(orderId, 'delivered');
+      },
+      error: (error) => {
+        this.savingInlinePayment.set(false);
+        this.baseToast.showApiError(error, 'admin.orders.payment_error');
+      }
+    });
+  }
+
+  openPaymentPopover(event: Event, order: Order): void {
+    event.stopPropagation();
+    this.paymentOrder.set(order);
+    this.paymentAmount.set(0);
+    this.paymentMethod.set('cash');
+    this.paymentTotalPaid.set(0);
+    this.loadingPaymentInfo.set(true);
+    this.paymentPopover()?.toggle(event);
+
+    this.adminService.getOrderPayments(order.id).subscribe({
+      next: (response) => {
+        this.paymentTotalPaid.set(response.total_paid);
+        this.paymentAmount.set(Math.max(0, order.total_amount - response.total_paid));
+        this.loadingPaymentInfo.set(false);
+      },
+      error: () => {
+        this.loadingPaymentInfo.set(false);
+      }
+    });
+  }
+
+  payAll(): void {
+    this.paymentAmount.set(this.paymentRemaining());
+  }
+
+  confirmPayment(): void {
+    const order = this.paymentOrder();
+    if (!order || this.paymentAmount() <= 0) return;
+
+    this.savingPayment.set(true);
+    this.adminService.recordPayment(order.id, {
+      amount: this.paymentAmount(),
+      method: this.paymentMethod(),
+    }).subscribe({
+      next: () => {
+        const newTotalPaid = this.paymentTotalPaid() + this.paymentAmount();
+        const newStatus = newTotalPaid >= order.total_amount ? 'paid'
+          : newTotalPaid > 0 ? 'partial' : 'unpaid';
+
+        this.allOrders.update(orders => {
+          const idx = orders.findIndex(o => o.id === order.id);
+          if (idx === -1) return orders;
+          const updated = [...orders];
+          updated[idx] = { ...updated[idx], payment_status: newStatus, total_paid: newTotalPaid };
+          return updated;
+        });
+        this.filterItems();
+        this.savingPayment.set(false);
+        this.paymentPopover()?.hide();
+        this.baseToast.showSuccess('admin.orders.payment_recorded');
+      },
+      error: (error) => {
+        this.savingPayment.set(false);
+        this.baseToast.showApiError(error, 'admin.orders.payment_error');
+      }
+    });
   }
 }

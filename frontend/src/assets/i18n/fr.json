@@ -736,7 +736,9 @@
       "paid_in_full": "Soldée",
       "partial": "Partiel",
       "refund": "Remboursement",
-      "payment_history_link": "Historique des paiements"
+      "payment_history_link": "Historique des paiements",
+      "outstanding_balance": "Solde impayé",
+      "remaining": "restant"
     },
     "errors": {
       "failed_to_load": "Échec du chargement de vos commandes",
@@ -1286,12 +1288,31 @@
         "status": "Statut",
         "driver": "Livreur",
         "total": "Total",
+        "payment": "Paiement",
         "actions": "Actions",
         "product": "Produit",
         "unit_price": "Prix Unitaire",
         "quantity": "Quantité",
         "unit": "Unité"
       },
+      "payment_status": {
+        "unpaid": "Non payé",
+        "partial": "Partiel",
+        "paid": "Payé"
+      },
+      "record_payment": "Enregistrer un paiement",
+      "order_total": "Total commande",
+      "already_paid": "Déjà payé",
+      "remaining_amount": "Restant",
+      "payment_amount": "Montant",
+      "pay_all": "Tout payer",
+      "payment_method_label": "Méthode",
+      "payment_recorded": "Paiement enregistré avec succès",
+      "payment_error": "Erreur lors de l'enregistrement",
+      "delivery_payment_warning": "Solde impayé sur cette commande :",
+      "confirm_with_payment": "Confirmer + payer",
+      "confirm_no_payment": "Confirmer sans paiement",
+      "new_order": "Nouvelle commande",
       "pickup_date": "Date de retrait",
       "waiting_for_driver": "En attente d'un livreur",
       "update_status": "Mettre à jour le statut",

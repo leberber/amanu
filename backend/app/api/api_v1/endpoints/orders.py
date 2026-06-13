@@ -424,16 +424,18 @@ def get_user_payments(
     session: Session = Depends(get_session),
 ) -> Any:
     """Get all payments for the current user across all their orders."""
-    order_ids = session.exec(
-        select(Order.id).where(Order.user_id == current_user.id)
+    orders = session.exec(
+        select(Order).where(Order.user_id == current_user.id)
     ).all()
 
-    if not order_ids:
+    if not orders:
         return []
+
+    order_total_map = {o.id: o.total_amount for o in orders}
 
     payments = session.exec(
         select(OrderPayment)
-        .where(OrderPayment.order_id.in_(order_ids))
+        .where(OrderPayment.order_id.in_(list(order_total_map.keys())))
         .order_by(OrderPayment.recorded_at.desc())
     ).all()
 
@@ -445,6 +447,7 @@ def get_user_payments(
             method=p.method,
             note=p.note,
             recorded_at=p.recorded_at,
+            order_total_amount=order_total_map.get(p.order_id, 0.0),
         )
         for p in payments
     ]
@@ -802,6 +805,7 @@ def _recalculate_payment_status(order: Order, session: Session) -> None:
         .where(OrderPayment.order_id == order.id)
     ).one()
 
+    order.total_paid = float(total_paid)
     if total_paid <= 0:
         order.payment_status = PaymentStatus.UNPAID
     elif total_paid >= order.total_amount:

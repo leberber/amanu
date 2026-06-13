@@ -93,6 +93,7 @@ export interface DashboardStats {
     assigned_at?: string;
     // Payment
     payment_status?: string; // unpaid | partial | paid
+    total_paid?: number;
   }
 
   export interface OrderPayment {

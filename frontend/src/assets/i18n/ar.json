@@ -741,7 +741,9 @@
       "paid_in_full": "مسدد بالكامل",
       "partial": "جزئي",
       "refund": "استرداد",
-      "payment_history_link": "سجل المدفوعات"
+      "payment_history_link": "سجل المدفوعات",
+      "outstanding_balance": "الرصيد المستحق",
+      "remaining": "متبقي"
     },
     "errors": {
       "failed_to_load": "فشل في تحميل طلباتك",
@@ -1290,12 +1292,31 @@
         "status": "الحالة",
         "driver": "السائق",
         "total": "المجموع",
+        "payment": "الدفع",
         "actions": "الإجراءات",
         "product": "المنتج",
         "unit_price": "سعر الوحدة",
         "quantity": "الكمية",
         "unit": "الوحدة"
       },
+      "payment_status": {
+        "unpaid": "غير مدفوع",
+        "partial": "جزئي",
+        "paid": "مدفوع"
+      },
+      "record_payment": "تسجيل دفعة",
+      "order_total": "إجمالي الطلب",
+      "already_paid": "تم دفعه",
+      "remaining_amount": "المتبقي",
+      "payment_amount": "المبلغ",
+      "pay_all": "دفع الكل",
+      "payment_method_label": "الطريقة",
+      "payment_recorded": "تم تسجيل الدفعة بنجاح",
+      "payment_error": "فشل تسجيل الدفعة",
+      "delivery_payment_warning": "رصيد مستحق على هذا الطلب:",
+      "confirm_with_payment": "تأكيد + دفع",
+      "confirm_no_payment": "تأكيد بدون دفع",
+      "new_order": "طلب جديد",
       "pickup_date": "تاريخ الاستلام",
       "waiting_for_driver": "في انتظار السائق",
       "update_status": "تحديث الحالة",

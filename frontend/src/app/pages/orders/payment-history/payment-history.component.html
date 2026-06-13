@@ -59,34 +59,67 @@
           <div class="payment-summary-card__icon">
             <i class="pi pi-wallet"></i>
           </div>
-          <div class="payment-summary-card__info">
-            <span class="payment-summary-card__label">{{ 'orders.payments.total_paid' | translate }}</span>
-            <span class="payment-summary-card__amount">{{ totalPaid() | appCurrency }}</span>
+          <div class="payment-summary-card__stats">
+            <div class="payment-summary-card__stat">
+              <span class="payment-summary-card__label">{{ 'orders.payments.total_paid' | translate }}</span>
+              <span class="payment-summary-card__amount">{{ totalPaid() | appCurrency }}</span>
+            </div>
+            @if (totalOutstanding() > 0) {
+              <div class="payment-summary-card__stat payment-summary-card__stat--divider">
+                <span class="payment-summary-card__label">{{ 'orders.payments.outstanding_balance' | translate }}</span>
+                <span class="payment-summary-card__amount payment-summary-card__amount--outstanding">{{ totalOutstanding() | appCurrency }}</span>
+              </div>
+            }
           </div>
         </div>
 
-        <!-- Payment list -->
-        <div class="payment-history-list">
-          @for (payment of payments(); track payment.id; let i = $index) {
-            <a class="payment-history-item item-animate"
-               [style.animation-delay]="(i * 40) + 'ms'"
-               [routerLink]="RouteHelpers.orderDetail(payment.order_id)">
-              <div class="payment-history-item__left">
-                <span class="payment-history-item__date">{{ payment.recorded_at | appDate }}</span>
-                <span class="payment-history-item__order">{{ 'orders.payments.order_ref' | translate }}{{ payment.order_id }}</span>
-              </div>
-              <div class="payment-history-item__right">
-                <span class="payment-history-item__amount" [class.payment-history-item__amount--refund]="payment.amount < 0">
-                  {{ payment.amount | appCurrency }}
-                </span>
-                <span class="payment-method-pill payment-method-pill--{{ payment.method }}">
-                  {{ getMethodLabel(payment.method) | translate }}
-                </span>
-              </div>
-              <i class="pi pi-chevron-right payment-history-item__arrow"></i>
-            </a>
+        <!-- Time filter -->
+        <div class="segment-control segment-control--glass segment-control--sliding">
+          <span class="segment-control__slider"></span>
+          @for (filter of TIME_FILTERS; track filter.value) {
+            <button
+              class="segment-control__item"
+              [class.active]="timeFilter() === filter.value"
+              (click)="setTimeFilter(filter.value)">
+              <span>{{ filter.label | translate }}</span>
+            </button>
           }
         </div>
+
+        <!-- Payment list -->
+        @if (filteredPayments().length === 0) {
+          <div class="payment-history-empty">
+            <i class="pi pi-calendar-times"></i>
+            <span>{{ 'orders.filters.no_orders_in_period' | translate }}</span>
+          </div>
+        } @else {
+          <div class="payment-history-list">
+            @for (payment of filteredPayments(); track payment.id; let i = $index) {
+              <a class="payment-history-item item-animate"
+                 [style.animation-delay]="(i * 40) + 'ms'"
+                 [routerLink]="RouteHelpers.orderDetail(payment.order_id)">
+                <div class="payment-history-item__left">
+                  <span class="payment-history-item__date">{{ payment.recorded_at | appDate }}</span>
+                  <span class="payment-history-item__order">{{ 'orders.payments.order_ref' | translate }}{{ payment.order_id }}</span>
+                </div>
+                <div class="payment-history-item__right">
+                  <span class="payment-history-item__amount" [class.payment-history-item__amount--refund]="payment.amount < 0">
+                    {{ payment.amount | appCurrency }}
+                  </span>
+                  <span class="payment-method-pill payment-method-pill--{{ payment.method }}">
+                    {{ getMethodLabel(payment.method) | translate }}
+                  </span>
+                  @if (getOrderBalance(payment.order_id) > 0) {
+                    <span class="payment-history-item__balance">
+                      {{ getOrderBalance(payment.order_id) | appCurrency }} {{ 'orders.payments.remaining' | translate }}
+                    </span>
+                  }
+                </div>
+                <i class="pi pi-chevron-right payment-history-item__arrow"></i>
+              </a>
+            }
+          </div>
+        }
       </div>
     </div>
   }

@@ -106,6 +106,7 @@ class Order(OrderBase, table=True):
 
     # Payment tracking
     payment_status: str = Field(default="unpaid")  # unpaid | partial | paid
+    total_paid: float = Field(default=0.0)
 
     # Timestamps
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
@@ -190,6 +191,7 @@ class OrderRead(OrderBase):
     updated_at: Optional[datetime] = None
     admin_modified_at: Optional[datetime] = None
     payment_status: str = "unpaid"
+    total_paid: float = 0.0
     subtotal: Optional[float] = None
     discount_amount: float = 0
     cross_sell_discount_amount: float = 0

@@ -9,6 +9,8 @@
   gap: var(--space-4);
 }
 
+// ── Summary card ──────────────────────────────────────────────────────────────
+
 .payment-summary-card {
   display: flex;
   align-items: center;
@@ -34,23 +36,46 @@
     }
   }
 
-  &__info {
+  &__stats {
+    display: flex;
+    flex: 1;
+    gap: var(--space-4);
+    min-width: 0;
+  }
+
+  &__stat {
     display: flex;
     flex-direction: column;
     gap: 2px;
+
+    &--divider {
+      padding-left: var(--space-4);
+      border-left: 1px solid var(--border-color-light);
+    }
   }
 
   &__label {
     font-size: var(--font-size-sm);
     color: var(--text-color-secondary);
+    white-space: nowrap;
   }
 
   &__amount {
-    font-size: 1.4rem;
+    font-size: 1.25rem;
     font-weight: var(--font-weight-bold);
     color: #16a34a;
+
+    &--outstanding { color: #d97706; }
   }
 }
+
+// ── Segment control full-width ─────────────────────────────────────────────────
+
+.segment-control {
+  width: 100%;
+}
+
+// ── Payment list ──────────────────────────────────────────────────────────────
 
 .payment-history-list {
   display: flex;
@@ -110,6 +135,12 @@
     &--refund { color: #dc2626; }
   }
 
+  &__balance {
+    font-size: 0.65rem;
+    color: #d97706;
+    font-weight: var(--font-weight-medium);
+  }
+
   &__arrow {
     font-size: 0.65rem;
     color: var(--text-color-secondary);
@@ -129,7 +160,25 @@
   &--virement { background: rgba(59, 130, 246, 0.12); color: #2563eb; }
 }
 
-// Skeleton
+// ── Empty period state ────────────────────────────────────────────────────────
+
+.payment-history-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-6) var(--space-4);
+  background: var(--surface-card);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color-light);
+  color: var(--text-color-secondary);
+  font-size: var(--font-size-sm);
+
+  i { font-size: 1.5rem; opacity: 0.4; }
+}
+
+// ── Skeleton ──────────────────────────────────────────────────────────────────
+
 .skeleton-summary {
   height: 80px;
   border-radius: var(--radius-lg);

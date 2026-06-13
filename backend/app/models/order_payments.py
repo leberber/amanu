@@ -62,6 +62,7 @@ class UserPaymentRead(SQLModel):
     method: PaymentMethod
     note: Optional[str] = None
     recorded_at: datetime
+    order_total_amount: float = 0.0
     model_config = {"from_attributes": True}
 
 

@@ -108,6 +108,13 @@ html, body {
   .p-button-icon { font-size: 0.875rem; }
 }
 
+// Hide popover arrows for table-cell-triggered popovers (status + payment)
+.status-update-popover,
+.payment-record-popover {
+  &::before, &::after { display: none !important; }
+  .p-popover-arrow { display: none !important; }
+}
+
 // ---------------------------------------------------------------------------
 // Page-specific overrides
 // ---------------------------------------------------------------------------

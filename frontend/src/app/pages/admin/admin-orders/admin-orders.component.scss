@@ -251,16 +251,38 @@
     margin-bottom: var(--space-2);
   }
 
+  &__close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: var(--radius-sm);
+    background: rgba(220, 38, 38, 0.08);
+    color: #dc2626;
+    cursor: pointer;
+    transition: background var(--transition-fast);
+    flex-shrink: 0;
+
+    i { font-size: 0.875rem; }
+
+    &:hover {
+      background: rgba(220, 38, 38, 0.18);
+    }
+  }
+
   &__actions {
     display: flex;
-    gap: var(--space-3);
+    flex-direction: column;
+    gap: var(--space-2);
     padding: var(--space-3) var(--space-4);
     border-top: 1px solid var(--border-color-light);
     background: var(--surface-ground);
   }
 
   &__btn {
-    flex: 1;
+    width: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -272,15 +294,6 @@
     font-weight: var(--font-weight-semibold);
     cursor: pointer;
     transition: all var(--transition-fast);
-
-    &--cancel {
-      background: var(--surface-hover);
-      color: var(--text-color-secondary);
-
-      &:hover {
-        background: var(--surface-border);
-      }
-    }
 
     &--confirm {
       background: var(--primary-color);
@@ -409,4 +422,245 @@
       }
     }
   }
+}
+
+// ── Delivery payment warning ──────────────────────────────────────────────────
+
+.delivery-payment-warning {
+  background: rgba(245, 158, 11, 0.08);
+  border-top: 1px solid rgba(245, 158, 11, 0.25);
+  border-bottom: 1px solid rgba(245, 158, 11, 0.25);
+  font-size: var(--font-size-sm);
+  color: #92400e;
+
+  &__top {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-2) var(--space-4);
+
+    i { color: #f59e0b; font-size: 1rem; flex-shrink: 0; }
+    div { flex: 1; }
+    strong { font-size: var(--font-size-base); display: block; margin-top: 1px; }
+  }
+}
+
+.inline-payment-form {
+  padding: var(--space-2) var(--space-4) var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  border-top: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.inline-pay-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-2);
+  border: 1px solid #f59e0b;
+  border-radius: var(--radius-sm);
+  background: rgba(245, 158, 11, 0.12);
+  color: #92400e;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background var(--transition-fast);
+
+  &:hover { background: rgba(245, 158, 11, 0.22); }
+}
+
+.status-popup__btn--skip {
+  background: var(--surface-hover);
+  color: var(--text-color-secondary);
+  border: 1px solid var(--border-color-light);
+  &:hover:not(:disabled) { background: var(--surface-border); }
+}
+
+// ── Remaining balance in total column ─────────────────────────────────────────
+
+.order-balance-remaining {
+  font-size: 0.7rem;
+  color: #dc2626;
+  font-weight: var(--font-weight-medium);
+  margin-top: 1px;
+}
+
+// ── Payment tag button ────────────────────────────────────────────────────────
+
+.payment-tag-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: transform var(--transition-fast);
+
+  &:hover { transform: scale(1.05); }
+  &:active { transform: scale(0.97); }
+}
+
+// ── Quick Payment Popup ───────────────────────────────────────────────────────
+
+.payment-popup {
+  width: 300px;
+  max-width: 90vw;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-4);
+    border-bottom: 1px solid var(--border-color-light);
+    background: var(--surface-ground);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-color);
+
+    i { color: var(--primary-color); }
+  }
+
+  &__loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: var(--space-5);
+    color: var(--text-color-secondary);
+  }
+
+  &__info {
+    padding: var(--space-3) var(--space-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    background: var(--surface-ground);
+    border-bottom: 1px solid var(--border-color-light);
+  }
+
+  &__info-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: var(--font-size-sm);
+    color: var(--text-color-secondary);
+
+    &--remaining {
+      color: var(--text-color);
+      font-weight: var(--font-weight-semibold);
+      margin-top: 2px;
+    }
+  }
+
+  &__paid { color: #16a34a; }
+  &__remaining { color: var(--primary-color); }
+
+  &__form {
+    padding: var(--space-3) var(--space-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  &__field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+
+    label {
+      font-size: var(--font-size-xs);
+      font-weight: var(--font-weight-medium);
+      color: var(--text-color-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+  }
+
+  &__amount-row {
+    display: flex;
+    gap: var(--space-2);
+    align-items: center;
+
+    input { flex: 1; min-width: 0; }
+  }
+
+  &__methods {
+    display: flex;
+    gap: var(--space-2);
+  }
+
+  &__actions {
+    display: flex;
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-4);
+    border-top: 1px solid var(--border-color-light);
+  }
+
+  &__btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-1);
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    border: none;
+    cursor: pointer;
+    transition: background var(--transition-fast);
+
+    &--cancel {
+      background: var(--surface-hover);
+      color: var(--text-color-secondary);
+      &:hover { background: var(--surface-border); }
+    }
+
+    &--confirm {
+      background: var(--color-success, #22c55e);
+      color: white;
+      &:hover:not(:disabled) { background: var(--color-success-dark, #16a34a); }
+      &:disabled { opacity: 0.5; cursor: not-allowed; }
+    }
+  }
+}
+
+.pay-all-btn {
+  padding: var(--space-1) var(--space-2);
+  border: 1px solid var(--primary-color);
+  border-radius: var(--radius-sm);
+  background: rgba(var(--primary-rgb), 0.08);
+  color: var(--primary-color);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background var(--transition-fast);
+
+  &:hover { background: rgba(var(--primary-rgb), 0.15); }
+}
+
+.method-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border-color-light);
+  border-radius: var(--radius-md);
+  background: var(--surface-card);
+  color: var(--text-color-secondary);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+
+  &.active {
+    border-color: var(--primary-color);
+    background: rgba(var(--primary-rgb), 0.08);
+    color: var(--primary-color);
+  }
+
+  &:hover:not(.active) { background: var(--surface-hover); }
 }

@@ -17,7 +17,7 @@
         </div>
       </div>
       <p-button
-        label="Nouvelle commande"
+        [label]="'admin.orders.new_order' | translate"
         icon="pi pi-plus"
         severity="success"
         (onClick)="baseRouter.navigate([ROUTES.ADMIN.ORDER_NEW])">
@@ -66,6 +66,7 @@
             <div class="skeleton skeleton-text" style="width:160px"></div>
             <div class="skeleton skeleton-text" style="width:90px"></div>
             <div class="skeleton skeleton-badge" style="width:80px"></div>
+            <div class="skeleton skeleton-badge" style="width:70px"></div>
             <div class="skeleton skeleton-text" style="width:80px; margin-left:auto"></div>
           </div>
         }
@@ -113,6 +114,7 @@
                 <th>{{ 'admin.orders.table.customer' | translate }}</th>
                 <th>{{ 'admin.orders.table.date' | translate }}</th>
                 <th>{{ 'admin.orders.table.status' | translate }}</th>
+                <th>{{ 'admin.orders.table.payment' | translate }}</th>
                 <th class="text-right">{{ 'admin.orders.table.total' | translate }}</th>
                 <th class="text-center">{{ 'admin.orders.table.actions' | translate }}</th>
               </tr>
@@ -128,14 +130,30 @@
                     }
                   </td>
                   <td class="text-500 text-sm">{{ order.created_at | appDate }}</td>
-                  <td>
-                    <p-tag
-                      [value]="'admin.orders.status.' + order.status | translate"
-                      [severity]="getStatusSeverity(order.status)"
-                      [rounded]="true"
-                      styleClass="text-xs" />
+                  <td (click)="$event.stopPropagation()">
+                    <button class="payment-tag-btn" (click)="openStatusPopover($event, order)" [disabled]="!canEditStatus(order.status)">
+                      <p-tag
+                        [value]="'admin.orders.status.' + order.status | translate"
+                        [severity]="getStatusSeverity(order.status)"
+                        [rounded]="true"
+                        styleClass="text-xs" />
+                    </button>
                   </td>
-                  <td class="text-right font-semibold">{{ order.total_amount | appCurrency }}</td>
+                  <td (click)="$event.stopPropagation()">
+                    <button class="payment-tag-btn" (click)="openPaymentPopover($event, order)">
+                      <p-tag
+                        [value]="'admin.orders.payment_status.' + (order.payment_status || 'unpaid') | translate"
+                        [severity]="order.payment_status === 'paid' ? 'success' : order.payment_status === 'partial' ? 'warn' : 'danger'"
+                        [rounded]="true"
+                        styleClass="text-xs" />
+                    </button>
+                  </td>
+                  <td class="text-right">
+                    <div class="font-semibold">{{ order.total_amount | appCurrency }}</div>
+                    @if (order.payment_status === 'partial') {
+                      <div class="order-balance-remaining">{{ (order.total_amount - (order.total_paid ?? 0)) | appCurrency }}</div>
+                    }
+                  </td>
                   <td class="text-center" (click)="$event.stopPropagation()">
                     <div class="table-cell-actions justify-content-center">
                       <button class="action-btn view" (click)="openOrderDetails(order)" [pTooltip]="'admin.orders.view_details' | translate" tooltipPosition="top">
@@ -196,6 +214,9 @@
       <div class="status-popup__header">
         <span class="status-popup__title">{{ 'admin.orders.update_status' | translate }}</span>
         <span class="status-popup__order-id">#{{ order.id }}</span>
+        <button class="status-popup__close" (click)="cancelEditStatus(); statusPopover.hide()">
+          <i class="pi pi-times"></i>
+        </button>
       </div>
 
       <!-- Mini Timeline -->
@@ -304,23 +325,174 @@
         </div>
       }
 
+      <!-- Payment warning + inline form when marking as delivered -->
+      @if (deliveryPaymentWarning() > 0) {
+        <div class="delivery-payment-warning">
+          <div class="delivery-payment-warning__top">
+            <i class="pi pi-exclamation-triangle"></i>
+            <div>
+              <div>{{ 'admin.orders.delivery_payment_warning' | translate }}</div>
+              <strong>{{ deliveryPaymentWarning() | appCurrency }}</strong>
+            </div>
+          </div>
+          <div class="inline-payment-form">
+            <div class="payment-popup__amount-row">
+              <input
+                pInputText
+                type="number"
+                [ngModel]="inlinePaymentAmount()"
+                (ngModelChange)="inlinePaymentAmount.set(+$event)"
+                min="0"
+                class="w-full"
+                placeholder="0"
+              />
+              <button class="pay-all-btn" (click)="inlinePaymentAmount.set(deliveryPaymentWarning())" type="button">
+                {{ 'admin.orders.pay_all' | translate }}
+              </button>
+            </div>
+            <div class="payment-popup__methods">
+              <button class="method-btn" [class.active]="inlinePaymentMethod() === 'cash'" (click)="inlinePaymentMethod.set('cash')" type="button">
+                <i class="pi pi-money-bill"></i>
+                {{ 'orders.payments.method_cash' | translate }}
+              </button>
+              <button class="method-btn" [class.active]="inlinePaymentMethod() === 'virement'" (click)="inlinePaymentMethod.set('virement')" type="button">
+                <i class="pi pi-building-columns"></i>
+                {{ 'orders.payments.method_virement' | translate }}
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+
       <!-- Actions -->
       @if (selectedNewStatus()) {
         <div class="status-popup__actions">
-          <button class="status-popup__btn status-popup__btn--cancel" (click)="cancelEditStatus(); statusPopover.hide()">
+          @if (deliveryPaymentWarning() > 0) {
+            <button
+              class="status-popup__btn status-popup__btn--skip"
+              [disabled]="assigning()"
+              (click)="confirmStatusChange()">
+              <i class="pi pi-check"></i>
+              {{ 'admin.orders.confirm_no_payment' | translate }}
+            </button>
+            <button
+              class="status-popup__btn status-popup__btn--confirm"
+              [disabled]="inlinePaymentAmount() <= 0 || savingInlinePayment() || assigning()"
+              (click)="confirmStatusWithPayment()">
+              @if (savingInlinePayment()) {
+                <i class="pi pi-spin pi-spinner"></i>
+              } @else {
+                <i class="pi pi-wallet"></i>
+              }
+              {{ 'admin.orders.confirm_with_payment' | translate }}
+            </button>
+          } @else {
+            <button
+              class="status-popup__btn status-popup__btn--confirm"
+              [class.disabled]="!canConfirmStatusChange()"
+              [disabled]="!canConfirmStatusChange() || assigning()"
+              (click)="confirmStatusChange()">
+              @if (assigning()) {
+                <i class="pi pi-spin pi-spinner"></i>
+              } @else {
+                <i class="pi pi-check"></i>
+              }
+              {{ 'admin.orders.confirm_change' | translate }}
+            </button>
+          }
+        </div>
+      }
+    </div>
+  }
+</p-popover>
+
+<!-- Quick Payment Popover -->
+<p-popover #paymentPopover styleClass="payment-record-popover" appendTo="body">
+  @if (paymentOrder(); as order) {
+    <div class="payment-popup">
+      <div class="payment-popup__header">
+        <i class="pi pi-wallet"></i>
+        <span>{{ 'admin.orders.record_payment' | translate }} — #{{ order.id }}</span>
+      </div>
+
+      @if (loadingPaymentInfo()) {
+        <div class="payment-popup__loading">
+          <i class="pi pi-spin pi-spinner"></i>
+        </div>
+      } @else {
+        <div class="payment-popup__info">
+          <div class="payment-popup__info-row">
+            <span>{{ 'admin.orders.order_total' | translate }}</span>
+            <span class="font-semibold">{{ order.total_amount | appCurrency }}</span>
+          </div>
+          @if (paymentTotalPaid() > 0) {
+            <div class="payment-popup__info-row">
+              <span>{{ 'admin.orders.already_paid' | translate }}</span>
+              <span class="payment-popup__paid">{{ paymentTotalPaid() | appCurrency }}</span>
+            </div>
+          }
+          <div class="payment-popup__info-row payment-popup__info-row--remaining">
+            <span>{{ 'admin.orders.remaining_amount' | translate }}</span>
+            <span class="payment-popup__remaining">{{ paymentRemaining() | appCurrency }}</span>
+          </div>
+        </div>
+
+        <div class="payment-popup__form">
+          <div class="payment-popup__field">
+            <label>{{ 'admin.orders.payment_amount' | translate }}</label>
+            <div class="payment-popup__amount-row">
+              <input
+                pInputText
+                type="number"
+                [ngModel]="paymentAmount()"
+                (ngModelChange)="paymentAmount.set(+$event)"
+                min="0"
+                class="w-full"
+                placeholder="0"
+              />
+              <button class="pay-all-btn" (click)="payAll()" type="button">
+                {{ 'admin.orders.pay_all' | translate }}
+              </button>
+            </div>
+          </div>
+
+          <div class="payment-popup__field">
+            <label>{{ 'admin.orders.payment_method_label' | translate }}</label>
+            <div class="payment-popup__methods">
+              <button
+                class="method-btn"
+                [class.active]="paymentMethod() === 'cash'"
+                (click)="paymentMethod.set('cash')"
+                type="button">
+                <i class="pi pi-money-bill"></i>
+                {{ 'orders.payments.method_cash' | translate }}
+              </button>
+              <button
+                class="method-btn"
+                [class.active]="paymentMethod() === 'virement'"
+                (click)="paymentMethod.set('virement')"
+                type="button">
+                <i class="pi pi-building-columns"></i>
+                {{ 'orders.payments.method_virement' | translate }}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="payment-popup__actions">
+          <button class="payment-popup__btn payment-popup__btn--cancel" (click)="paymentPopover?.hide()">
             {{ 'common.cancel' | translate }}
           </button>
           <button
-            class="status-popup__btn status-popup__btn--confirm"
-            [class.disabled]="!canConfirmStatusChange()"
-            [disabled]="!canConfirmStatusChange() || assigning()"
-            (click)="confirmStatusChange()">
-            @if (assigning()) {
+            class="payment-popup__btn payment-popup__btn--confirm"
+            [disabled]="paymentAmount() <= 0 || savingPayment()"
+            (click)="confirmPayment()">
+            @if (savingPayment()) {
               <i class="pi pi-spin pi-spinner"></i>
             } @else {
               <i class="pi pi-check"></i>
             }
-            {{ 'admin.orders.confirm_change' | translate }}
+            {{ 'common.save' | translate }}
           </button>
         </div>
       }

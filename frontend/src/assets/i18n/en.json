@@ -739,7 +739,9 @@
       "paid_in_full": "Paid in full",
       "partial": "Partial",
       "refund": "Refund",
-      "payment_history_link": "Payment history"
+      "payment_history_link": "Payment history",
+      "outstanding_balance": "Outstanding balance",
+      "remaining": "remaining"
     },
     "errors": {
       "failed_to_load": "Failed to load your orders",
@@ -1287,12 +1289,31 @@
         "status": "Status",
         "driver": "Driver",
         "total": "Total",
+        "payment": "Payment",
         "actions": "Actions",
         "product": "Product",
         "unit_price": "Unit Price",
         "quantity": "Quantity",
         "unit": "Unit"
       },
+      "payment_status": {
+        "unpaid": "Unpaid",
+        "partial": "Partial",
+        "paid": "Paid"
+      },
+      "record_payment": "Record payment",
+      "order_total": "Order total",
+      "already_paid": "Already paid",
+      "remaining_amount": "Remaining",
+      "payment_amount": "Amount",
+      "pay_all": "Pay all",
+      "payment_method_label": "Method",
+      "payment_recorded": "Payment recorded successfully",
+      "payment_error": "Failed to record payment",
+      "delivery_payment_warning": "Outstanding balance on this order:",
+      "confirm_with_payment": "Confirm + pay",
+      "confirm_no_payment": "Confirm without payment",
+      "new_order": "New Order",
       "pickup_date": "Pickup Date",
       "waiting_for_driver": "Waiting for driver",
       "update_status": "Update Status",

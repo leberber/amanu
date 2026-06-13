@@ -50,6 +50,7 @@ export interface UserPaymentItem {
   method: string;
   note?: string;
   recorded_at: string;
+  order_total_amount: number;
 }
 
 export type DiffKind = 'normal' | 'added' | 'removed' | 'changed';
