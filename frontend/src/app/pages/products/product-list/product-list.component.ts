@@ -362,7 +362,11 @@ export class ProductListComponent implements OnInit {
   private loadProducts(): Observable<Product[]> {
     const currentFilters = { ...this.filters() };
 
-    if (this.filterMode() === 'brands') {
+    if (currentFilters.search) {
+      // Search across all categories/brands — ignore active filter
+      delete currentFilters.category_id;
+      delete currentFilters.brand_id;
+    } else if (this.filterMode() === 'brands') {
       if (this.activeBrandId()) {
         currentFilters.brand_id = this.activeBrandId()!;
       }
