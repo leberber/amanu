@@ -67,12 +67,7 @@ export class OrderListComponent implements OnInit {
   // Time filter
   timeFilter = signal<'all' | '7days' | '30days' | '90days'>('all');
 
-  // Computed values
-  totalSpend = computed(() =>
-    this.orders().reduce((sum, order) => sum + order.total_amount, 0)
-  );
-
-  // Filtered orders based on time filter (for mobile)
+  // Filtered orders based on time filter
   filteredOrders = computed(() => {
     const filter = this.timeFilter();
     const orders = this.orders();
@@ -85,6 +80,11 @@ export class OrderListComponent implements OnInit {
 
     return orders.filter(order => new Date(order.created_at) >= cutoffDate);
   });
+
+  // Computed values (reactive to time filter)
+  totalSpend = computed(() =>
+    this.filteredOrders().reduce((sum, order) => sum + order.total_amount, 0)
+  );
 
   // Paginated orders for table (respects time filter)
   paginatedOrders = computed(() => {

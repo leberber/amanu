@@ -116,6 +116,21 @@
   <!-- Orders Content -->
   @else {
     <div class="page-content">
+      <!-- Mobile Sticky Segment Control -->
+      <div class="sticky-filter sticky-filter--bleed sticky-filter--overlap md:hidden">
+        <div class="segment-control segment-control--glass segment-control--sliding">
+          <span class="segment-control__slider"></span>
+          @for (filter of TIME_FILTERS; track filter.value) {
+            <button
+              class="segment-control__item"
+              [class.active]="timeFilter() === filter.value"
+              (click)="setTimeFilter(filter.value)">
+              <span>{{ filter.label | translate }}</span>
+            </button>
+          }
+        </div>
+      </div>
+
       <!-- Mobile Stats -->
       <div class="stats-grid stats-grid--compact md:hidden">
         <div class="stat-card stat-card--compact">
@@ -124,7 +139,7 @@
               <div class="stat-card__icon stat-card__icon--primary">
                 <i class="pi pi-shopping-bag"></i>
               </div>
-              {{ orders().length }}
+              {{ filteredOrders().length }}
             </span>
             <span class="stat-card__label">{{ 'orders.stats.total_orders' | translate }}</span>
           </div>
@@ -139,21 +154,6 @@
             </span>
             <span class="stat-card__label">{{ 'orders.stats.total_spend' | translate }}</span>
           </div>
-        </div>
-      </div>
-
-      <!-- Mobile Sticky Segment Control -->
-      <div class="sticky-filter sticky-filter--bleed sticky-filter--overlap md:hidden">
-        <div class="segment-control segment-control--glass segment-control--sliding">
-          <span class="segment-control__slider"></span>
-          @for (filter of TIME_FILTERS; track filter.value) {
-            <button
-              class="segment-control__item"
-              [class.active]="timeFilter() === filter.value"
-              (click)="setTimeFilter(filter.value)">
-              <span>{{ filter.label | translate }}</span>
-            </button>
-          }
         </div>
       </div>
 
@@ -313,7 +313,7 @@
             <div class="stat-card__content">
               <span class="stat-card__value">
                 <span class="stat-card__icon stat-card__icon--primary"><i class="pi pi-shopping-bag"></i></span>
-                {{ orders().length }}
+                {{ filteredOrders().length }}
               </span>
               <span class="stat-card__label">{{ 'orders.stats.total_orders' | translate }}</span>
             </div>
