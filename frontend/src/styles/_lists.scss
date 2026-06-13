@@ -440,8 +440,16 @@
   padding: var(--space-4) var(--space-2);
   gap: var(--space-4);
   cursor: pointer;
-  transition: background var(--transition-fast);
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  background: none;
+  border: none;
   border-bottom: var(--border-width) solid var(--border-color-light);
+  font: inherit;
+  width: 100%;
+  text-align: left;
+  color: inherit;
+  transition: background var(--transition-fast);
 
   &:last-child {
     border-bottom: none;
@@ -464,6 +472,21 @@
     i {
       font-size: var(--font-size-lg);
       color: var(--primary-color);
+    }
+
+    &--paid {
+      background: rgba(22, 163, 74, 0.1);
+      i { color: #16a34a; }
+    }
+
+    &--partial {
+      background: rgba(217, 119, 6, 0.1);
+      i { color: #d97706; }
+    }
+
+    &--unpaid {
+      background: rgba(220, 38, 38, 0.1);
+      i { color: #dc2626; }
     }
   }
 

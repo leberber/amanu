@@ -29,6 +29,9 @@ const baseStyles = [
       width: '100%',
       height: '100%'
     })
+  ], { optional: true }),
+  query(':leave', [
+    style({ pointerEvents: 'none' })
   ], { optional: true })
 ];
 
