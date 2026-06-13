@@ -257,9 +257,20 @@ class PromotionInfo(SQLModel):
     discount_value: float
 
 
+class OrderPaymentCustomerReadInline(SQLModel):
+    """Inline payment model to avoid circular imports with order_payments.py"""
+    id: int
+    amount: float
+    method: str
+    note: Optional[str] = None
+    recorded_at: datetime
+    model_config = {"from_attributes": True}
+
+
 class OrderWithItems(OrderRead):
     """Extended order model that includes items"""
     items: List[OrderItemRead] = []
+    payments: List[OrderPaymentCustomerReadInline] = []
     promotion_info: Optional[PromotionInfo] = None
     total_weight: Optional[float] = None  # Total weight in kg
     total_volume: Optional[float] = None  # Total volume in liters

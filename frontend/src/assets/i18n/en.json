@@ -724,6 +724,23 @@
         "order_cancelled": "Order Cancelled"
       }
     },
+    "payments": {
+      "title": "Payments",
+      "history_title": "Payment History",
+      "history_subtitle": "All your payments",
+      "total_paid": "Total paid",
+      "balance": "Balance due",
+      "method_cash": "Cash",
+      "method_virement": "Bank transfer",
+      "no_payments": "No payments recorded",
+      "empty_title": "No payments",
+      "empty_subtitle": "You don't have any payments recorded yet.",
+      "order_ref": "Order #",
+      "paid_in_full": "Paid in full",
+      "partial": "Partial",
+      "refund": "Refund",
+      "payment_history_link": "Payment history"
+    },
     "errors": {
       "failed_to_load": "Failed to load your orders",
       "load_error_message": "Please check your connection and try again.",

@@ -25,6 +25,7 @@ export const ROUTES = {
   // User routes
   ACCOUNT: '/account',
   ORDERS: '/orders',
+  ORDER_PAYMENTS: '/orders/payments',
   ORDER_DETAIL: '/orders/:id',
   PROMOTIONS: '/promotions',
   SETTINGS: '/settings',

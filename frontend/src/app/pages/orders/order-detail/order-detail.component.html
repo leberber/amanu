@@ -144,11 +144,28 @@
           </div>
 
           <!-- Total Footer -->
-          <div class="order-total-footer">
+          <div class="order-total-footer order-total-footer--stacked">
             <div class="order-total-footer__row order-total-footer__row--total">
               <span class="order-total-footer__label">{{ 'common.total' | translate }}</span>
               <span class="order-total-footer__value">{{ totalAmount() | appCurrency }}</span>
             </div>
+            @if (totalPaid() > 0) {
+              <div class="order-total-footer__row order-total-footer__row--sub">
+                <div class="order-total-footer__label-group">
+                  <span class="order-total-footer__label">{{ 'orders.payments.total_paid' | translate }}</span>
+                  @if (lastPaymentDate()) {
+                    <span class="order-total-footer__date">{{ lastPaymentDate()! | appDate }}</span>
+                  }
+                </div>
+                <span class="order-total-footer__value order-total-footer__value--paid">{{ totalPaid() | appCurrency }}</span>
+              </div>
+              @if (balance() > 0) {
+                <div class="order-total-footer__row order-total-footer__row--sub">
+                  <span class="order-total-footer__label">{{ 'orders.payments.balance' | translate }}</span>
+                  <span class="order-total-footer__value order-total-footer__value--balance">{{ balance() | appCurrency }}</span>
+                </div>
+              }
+            }
           </div>
         </div>
 
@@ -181,6 +198,35 @@
               </div>
             </div>
           </div>
+
+          <!-- Payments -->
+          @if ((order()?.payments?.length ?? 0) > 0) {
+            <div class="card card--no-hover">
+              <div class="card-header">
+                <div class="card-header__icon card-header__icon--success">
+                  <i class="pi pi-wallet"></i>
+                </div>
+                <h2 class="card-header__title">{{ 'orders.payments.title' | translate }}</h2>
+              </div>
+              <div class="card-body card-body--compact">
+                <div class="payment-list">
+                  @for (payment of order()!.payments!; track payment.id) {
+                    <div class="payment-row">
+                      <div class="payment-row__left">
+                        <span class="payment-row__date">{{ payment.recorded_at | appDate }}</span>
+                        <span class="payment-row__method">
+                          {{ (payment.method === 'cash' ? 'orders.payments.method_cash' : 'orders.payments.method_virement') | translate }}
+                        </span>
+                      </div>
+                      <span class="payment-row__amount" [class.payment-row__amount--refund]="payment.amount < 0">
+                        {{ payment.amount | appCurrency }}
+                      </span>
+                    </div>
+                  }
+                </div>
+              </div>
+            </div>
+          }
 
           <!-- Actions -->
           <div class="card card--no-hover">

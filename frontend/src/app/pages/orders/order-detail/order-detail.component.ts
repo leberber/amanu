@@ -72,6 +72,15 @@ export class OrderDetailComponent implements OnInit {
   // Computed
   totalAmount = computed(() => this.order()?.total_amount || 0);
   canCancelOrder = computed(() => this.order()?.status === ORDER_STATUS.PENDING);
+  totalPaid = computed(() =>
+    (this.order()?.payments ?? []).reduce((sum, p) => sum + p.amount, 0)
+  );
+  balance = computed(() => this.totalAmount() - this.totalPaid());
+  lastPaymentDate = computed(() => {
+    const payments = this.order()?.payments;
+    if (!payments?.length) return null;
+    return payments[payments.length - 1].recorded_at;
+  });
   adminModifiedAt = computed(() => {
     const d = this.order()?.admin_modified_at;
     return d ? this.dateService.formatDate(d) : null;

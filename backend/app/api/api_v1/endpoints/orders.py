@@ -9,11 +9,12 @@ from sqlmodel import func
 from app.database import get_session
 from app.models.order import (
     Order, OrderCreate, OrderUpdate, OrderRead, OrderItem, OrderItemRead,
-    OrderStatus, OrderWithItems, PromotionInfo, UserInfo
+    OrderStatus, OrderWithItems, PromotionInfo, UserInfo, OrderPaymentCustomerReadInline
 )
 from app.models.order_payments import (
     OrderPayment, OrderPaymentCreate, OrderPaymentRead,
-    OrderAuditLog, OrderAuditLogRead, AuditAction, PaymentStatus, PaymentMethod
+    OrderAuditLog, OrderAuditLogRead, AuditAction, PaymentStatus, PaymentMethod,
+    UserPaymentRead
 )
 from app.models.product import Product
 from app.models.promotion import Promotion, PromotionUsage, PromotionScope
@@ -417,6 +418,38 @@ def read_user_orders(
 
     return orders
 
+@router.get("/payments", response_model=List[UserPaymentRead])
+def get_user_payments(
+    current_user: User = Depends(get_current_active_user),
+    session: Session = Depends(get_session),
+) -> Any:
+    """Get all payments for the current user across all their orders."""
+    order_ids = session.exec(
+        select(Order.id).where(Order.user_id == current_user.id)
+    ).all()
+
+    if not order_ids:
+        return []
+
+    payments = session.exec(
+        select(OrderPayment)
+        .where(OrderPayment.order_id.in_(order_ids))
+        .order_by(OrderPayment.recorded_at.desc())
+    ).all()
+
+    return [
+        UserPaymentRead(
+            id=p.id,
+            order_id=p.order_id,
+            amount=p.amount,
+            method=p.method,
+            note=p.note,
+            recorded_at=p.recorded_at,
+        )
+        for p in payments
+    ]
+
+
 @router.get("/{order_id}", response_model=OrderWithItems)
 def read_order(
     order_id: int,
@@ -431,7 +464,8 @@ def read_order(
         .where(Order.id == order_id)
         .options(
             joinedload(Order.items).joinedload(OrderItem.product),
-            joinedload(Order.user)
+            joinedload(Order.user),
+            joinedload(Order.payments)
         )
     ).first()
 
@@ -481,6 +515,16 @@ def read_order(
         created_at=order.created_at,
         updated_at=order.updated_at,
         admin_modified_at=admin_modified_at_snapshot,
+        payments=[
+            OrderPaymentCustomerReadInline(
+                id=p.id,
+                amount=p.amount,
+                method=p.method.value if hasattr(p.method, 'value') else p.method,
+                note=p.note,
+                recorded_at=p.recorded_at,
+            )
+            for p in sorted(order.payments, key=lambda p: p.recorded_at)
+        ],
         user=user_info,
         items=[
             OrderItemRead(

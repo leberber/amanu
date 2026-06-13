@@ -1,0 +1,94 @@
+<app-page-layout
+  title="orders.payments.history_title"
+  [subtitle]="'orders.payments.history_subtitle' | translate"
+  [hideMobileIcon]="true"
+  [showBackButton]="true"
+  [backRoute]="ROUTES.ORDERS">
+
+  <!-- Loading -->
+  @if (loading()) {
+    <div class="page-content">
+      <div class="payment-history-container">
+        <div class="skeleton skeleton-summary"></div>
+        <div class="payment-history-list">
+          @for (i of SKELETON_ROWS; track i) {
+            <div class="payment-history-item skeleton-item">
+              <div class="skeleton-item__left">
+                <div class="skeleton skeleton-text" style="width: 80px;"></div>
+                <div class="skeleton skeleton-text" style="width: 60px; margin-top: 4px;"></div>
+              </div>
+              <div class="skeleton-item__right">
+                <div class="skeleton skeleton-text" style="width: 50px;"></div>
+                <div class="skeleton skeleton-pill" style="margin-top: 4px;"></div>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Error -->
+  @else if (error()) {
+    <app-error-state
+      title="orders.errors.failed_to_load"
+      message="orders.errors.load_error_message"
+      [showRetry]="false">
+    </app-error-state>
+  }
+
+  <!-- Empty -->
+  @else if (payments().length === 0) {
+    <app-empty-state
+      icon="pi-wallet"
+      title="orders.payments.empty_title"
+      [description]="'orders.payments.empty_subtitle'"
+      [actionLabel]="'orders.actions.browse_products'"
+      [actionLink]="ROUTES.PRODUCTS"
+      actionIcon="pi pi-shopping-bag">
+    </app-empty-state>
+  }
+
+  <!-- Content -->
+  @else {
+    <div class="page-content">
+      <div class="payment-history-container">
+
+        <!-- Summary card -->
+        <div class="payment-summary-card">
+          <div class="payment-summary-card__icon">
+            <i class="pi pi-wallet"></i>
+          </div>
+          <div class="payment-summary-card__info">
+            <span class="payment-summary-card__label">{{ 'orders.payments.total_paid' | translate }}</span>
+            <span class="payment-summary-card__amount">{{ totalPaid() | appCurrency }}</span>
+          </div>
+        </div>
+
+        <!-- Payment list -->
+        <div class="payment-history-list">
+          @for (payment of payments(); track payment.id; let i = $index) {
+            <a class="payment-history-item item-animate"
+               [style.animation-delay]="(i * 40) + 'ms'"
+               [routerLink]="RouteHelpers.orderDetail(payment.order_id)">
+              <div class="payment-history-item__left">
+                <span class="payment-history-item__date">{{ payment.recorded_at | appDate }}</span>
+                <span class="payment-history-item__order">{{ 'orders.payments.order_ref' | translate }}{{ payment.order_id }}</span>
+              </div>
+              <div class="payment-history-item__right">
+                <span class="payment-history-item__amount" [class.payment-history-item__amount--refund]="payment.amount < 0">
+                  {{ payment.amount | appCurrency }}
+                </span>
+                <span class="payment-method-pill payment-method-pill--{{ payment.method }}">
+                  {{ getMethodLabel(payment.method) | translate }}
+                </span>
+              </div>
+              <i class="pi pi-chevron-right payment-history-item__arrow"></i>
+            </a>
+          }
+        </div>
+      </div>
+    </div>
+  }
+
+</app-page-layout>

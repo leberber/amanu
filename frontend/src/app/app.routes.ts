@@ -248,10 +248,16 @@ export const routes: Routes = [
     canActivate: [authGuard],
     data: { hideBottomNav: true }
   },
-  { 
-    path: 'orders', 
+  {
+    path: 'orders',
     loadComponent: () => import('./pages/orders/order-list/order-list.component').then(m => m.OrderListComponent),
     canActivate: [authGuard]
+  },
+  {
+    path: 'orders/payments',
+    loadComponent: () => import('./pages/orders/payment-history/payment-history.component').then(m => m.PaymentHistoryComponent),
+    canActivate: [authGuard],
+    data: { hideBottomNav: true }
   },
   {
     path: 'orders/:id',

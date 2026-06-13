@@ -35,6 +35,23 @@ export interface OrderItem {
   packaging_type?: string;
 }
 
+export interface OrderPaymentItem {
+  id: number;
+  amount: number;
+  method: string;
+  note?: string;
+  recorded_at: string;
+}
+
+export interface UserPaymentItem {
+  id: number;
+  order_id: number;
+  amount: number;
+  method: string;
+  note?: string;
+  recorded_at: string;
+}
+
 export type DiffKind = 'normal' | 'added' | 'removed' | 'changed';
 
 export interface DiffDisplayItem {
@@ -100,6 +117,8 @@ export interface Order {
   created_at: string;
   updated_at?: string;
   admin_modified_at?: string;
+  payment_status?: string;
+  payments?: OrderPaymentItem[];
   items?: OrderItem[];
   total_weight?: number;  // Total weight in kg
   total_volume?: number;  // Total volume in liters

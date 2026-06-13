@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { tap, map } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 import { ApiService } from './api.service';
 import { CartItem } from './cart.service';
-import { OrderCreate, OrderCreateItem, Order, OrderItem, AuditLogEntry } from '../models/order.model';
+import { OrderCreate, OrderCreateItem, Order, OrderItem, AuditLogEntry, UserPaymentItem } from '../models/order.model';
 import { ORDER_STATUS } from '../core/constants/order.constants';
 
 @Injectable({
@@ -40,6 +40,10 @@ export class OrderService {
 
   getOrderAuditLog(orderId: number): Observable<AuditLogEntry[]> {
     return this.apiService.get<AuditLogEntry[]>(`/orders/${orderId}/audit-log`);
+  }
+
+  getUserPayments(): Observable<UserPaymentItem[]> {
+    return this.apiService.get<UserPaymentItem[]>('/orders/payments');
   }
 
   cancelOrder(orderId: number): Observable<Order> {

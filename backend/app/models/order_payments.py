@@ -54,6 +54,17 @@ class OrderPayment(SQLModel, table=True):
     )
 
 
+class UserPaymentRead(SQLModel):
+    """All payments for a user across all orders."""
+    id: int
+    order_id: int
+    amount: float
+    method: PaymentMethod
+    note: Optional[str] = None
+    recorded_at: datetime
+    model_config = {"from_attributes": True}
+
+
 class OrderPaymentCreate(SQLModel):
     amount: float
     method: PaymentMethod

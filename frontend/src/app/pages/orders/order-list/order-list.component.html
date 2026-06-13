@@ -6,15 +6,12 @@
   [showBackButton]="true"
   [backRoute]="ROUTES.PRODUCTS">
 
-  <!-- Order count badge (mobile only) -->
-  @if (orders().length > 0 && !loading()) {
-    <div pageActions class="md:hidden">
-      <div class="topbar-badge topbar-badge--success">
-        <i class="pi pi-shopping-bag"></i>
-        <span>{{ orders().length }}</span>
-      </div>
-    </div>
-  }
+  <!-- Payment history link (mobile only) -->
+  <div pageActions class="md:hidden">
+    <a [routerLink]="ROUTES.ORDER_PAYMENTS" class="topbar-badge topbar-badge--primary">
+      <i class="pi pi-wallet"></i>
+    </a>
+  </div>
 
 
   <!-- Loading State -->
@@ -340,6 +337,10 @@
               <a class="action-link" [routerLink]="ROUTES.PRODUCTS">
                 <i class="pi pi-shopping-cart"></i>
                 <span>{{ 'orders.actions.browse_products' | translate }}</span>
+              </a>
+              <a class="action-link" [routerLink]="ROUTES.ORDER_PAYMENTS">
+                <i class="pi pi-wallet"></i>
+                <span>{{ 'orders.payments.payment_history_link' | translate }}</span>
               </a>
             </div>
           </div>

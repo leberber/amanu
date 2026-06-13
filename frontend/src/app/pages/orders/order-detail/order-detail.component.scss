@@ -44,6 +44,89 @@
   opacity: 0.45;
 }
 
+// Payment rows in sidebar
+.payment-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.payment-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: var(--space-2) 0;
+  border-bottom: 1px solid var(--border-color-light);
+
+  &:last-child { border-bottom: none; }
+
+  &__left {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  &__date {
+    font-size: var(--font-size-sm);
+    color: var(--text-color);
+    font-weight: var(--font-weight-medium);
+  }
+
+  &__method {
+    font-size: 0.7rem;
+    color: var(--text-color-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  &__amount {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-bold);
+    color: #16a34a;
+    white-space: nowrap;
+
+    &--refund { color: #dc2626; }
+  }
+}
+
+// Stacked total footer
+.order-total-footer--stacked {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
+
+  .order-total-footer__row--sub {
+    border-top: 1px solid rgba(var(--primary-rgb), 0.1);
+    padding-top: var(--space-2);
+    margin-top: var(--space-2);
+  }
+
+  .order-total-footer__row--sub .order-total-footer__value {
+    font-size: var(--font-size-xl);
+  }
+}
+
+.order-total-footer__label-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.order-total-footer__date {
+  font-size: 0.68rem;
+  color: var(--text-color-secondary);
+  font-weight: var(--font-weight-normal);
+}
+
+.order-total-footer__value--paid {
+  color: #16a34a;
+}
+
+.order-total-footer__value--balance {
+  color: #d97706;
+}
+
 .admin-modified-banner {
   display: flex;
   align-items: center;

@@ -726,6 +726,23 @@
         "order_cancelled": "تم إلغاء الطلب"
       }
     },
+    "payments": {
+      "title": "المدفوعات",
+      "history_title": "سجل المدفوعات",
+      "history_subtitle": "جميع مدفوعاتك",
+      "total_paid": "إجمالي المدفوع",
+      "balance": "الرصيد المتبقي",
+      "method_cash": "نقداً",
+      "method_virement": "تحويل بنكي",
+      "no_payments": "لا توجد مدفوعات مسجلة",
+      "empty_title": "لا توجد مدفوعات",
+      "empty_subtitle": "لم يتم تسجيل أي مدفوعات بعد.",
+      "order_ref": "طلب #",
+      "paid_in_full": "مسدد بالكامل",
+      "partial": "جزئي",
+      "refund": "استرداد",
+      "payment_history_link": "سجل المدفوعات"
+    },
     "errors": {
       "failed_to_load": "فشل في تحميل طلباتك",
       "load_error_message": "يرجى التحقق من اتصالك والمحاولة مرة أخرى.",

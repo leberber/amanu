@@ -721,6 +721,23 @@
         "order_cancelled": "Commande Annulée"
       }
     },
+    "payments": {
+      "title": "Paiements",
+      "history_title": "Historique des Paiements",
+      "history_subtitle": "Tous vos paiements",
+      "total_paid": "Total payé",
+      "balance": "Reste à payer",
+      "method_cash": "Espèces",
+      "method_virement": "Virement",
+      "no_payments": "Aucun paiement enregistré",
+      "empty_title": "Aucun paiement",
+      "empty_subtitle": "Vous n'avez pas encore de paiements enregistrés.",
+      "order_ref": "Commande #",
+      "paid_in_full": "Soldée",
+      "partial": "Partiel",
+      "refund": "Remboursement",
+      "payment_history_link": "Historique des paiements"
+    },
     "errors": {
       "failed_to_load": "Échec du chargement de vos commandes",
       "load_error_message": "Veuillez vérifier votre connexion et réessayer.",
