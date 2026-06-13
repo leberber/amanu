@@ -86,6 +86,10 @@ export class OrderListComponent implements OnInit {
     this.filteredOrders().reduce((sum, order) => sum + order.total_amount, 0)
   );
 
+  totalOutstanding = computed(() =>
+    this.filteredOrders().reduce((sum, order) => sum + Math.max(0, order.total_amount - (order.total_paid ?? 0)), 0)
+  );
+
   // Paginated orders for table (respects time filter)
   paginatedOrders = computed(() => {
     const filtered = this.filteredOrders();
@@ -107,7 +111,7 @@ export class OrderListComponent implements OnInit {
 
   // Services
   private orderService = inject(OrderService);
-  private router = inject(Router);
+  readonly router = inject(Router);
   private toast = inject(ToastMessageService);
   readonly statusSeverity = inject(StatusSeverityService); // Public for template access
   private translateService = inject(TranslateService);

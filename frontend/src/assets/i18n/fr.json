@@ -638,7 +638,8 @@
     "stats": {
       "title": "Statistiques",
       "total_orders": "Total Commandes",
-      "total_spend": "Total Dépensé"
+      "total_spend": "Total Dépensé",
+      "outstanding_balance": "Solde Impayé"
     },
     "actions": {
       "title": "Actions Rapides",

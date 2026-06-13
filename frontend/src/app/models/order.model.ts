@@ -128,6 +128,7 @@ export interface Order {
   updated_at?: string;
   admin_modified_at?: string;
   payment_status?: string;
+  total_paid?: number;
   payments?: OrderPaymentItem[];
   items?: OrderItem[];
   total_weight?: number;  // Total weight in kg

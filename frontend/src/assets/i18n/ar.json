@@ -643,7 +643,8 @@
     "stats": {
       "title": "الإحصائيات",
       "total_orders": "إجمالي الطلبات",
-      "total_spend": "إجمالي المصروفات"
+      "total_spend": "إجمالي المصروفات",
+      "outstanding_balance": "الرصيد المستحق"
     },
     "actions": {
       "title": "إجراءات سريعة",

@@ -641,7 +641,8 @@
     "stats": {
       "title": "Statistics",
       "total_orders": "Total Orders",
-      "total_spend": "Total Spend"
+      "total_spend": "Total Spend",
+      "outstanding_balance": "Outstanding Balance"
     },
     "actions": {
       "title": "Quick Actions",
