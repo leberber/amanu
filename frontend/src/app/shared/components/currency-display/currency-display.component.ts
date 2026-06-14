@@ -4,7 +4,7 @@ import { CurrencyService } from '../../../core/services/currency.service';
 @Component({
   selector: 'app-currency',
   standalone: true,
-  host: { style: 'display: contents' },
+  host: { style: 'display: inline' },
   template: `
     <span>{{ parts().integer }}</span><span class="currency-decimal">{{ parts().separator }}{{ parts().decimal }}</span><span> {{ parts().symbol }}</span>
   `,

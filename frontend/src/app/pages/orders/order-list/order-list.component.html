@@ -135,24 +135,20 @@
       <div class="stats-grid stats-grid--compact md:hidden">
         <div class="stat-card stat-card--compact">
           <div class="stat-card__content">
-            <span class="stat-card__value">
-              <div class="stat-card__icon stat-card__icon--warning">
-                <i class="pi pi-hourglass"></i>
-              </div>
-              <app-currency [value]="totalOutstanding()" />
-            </span>
-            <span class="stat-card__label">{{ 'orders.stats.outstanding_balance' | translate }}</span>
+            <div class="stat-card__top">
+              <span class="stat-card__icon stat-card__icon--warning"><i class="pi pi-hourglass"></i></span>
+              <span class="stat-card__label">{{ 'orders.stats.outstanding_balance' | translate }}</span>
+            </div>
+            <span class="stat-card__value"><app-currency [value]="totalOutstanding()" /></span>
           </div>
         </div>
         <div class="stat-card stat-card--compact">
           <div class="stat-card__content">
-            <span class="stat-card__value">
-              <div class="stat-card__icon stat-card__icon--success">
-                <i class="pi pi-wallet"></i>
-              </div>
-              <app-currency [value]="totalSpend()" />
-            </span>
-            <span class="stat-card__label">{{ 'orders.stats.total_spend' | translate }}</span>
+            <div class="stat-card__top">
+              <span class="stat-card__icon stat-card__icon--success"><i class="pi pi-wallet"></i></span>
+              <span class="stat-card__label">{{ 'orders.stats.total_spend' | translate }}</span>
+            </div>
+            <span class="stat-card__value"><app-currency [value]="totalSpend()" /></span>
           </div>
         </div>
       </div>
@@ -311,21 +307,21 @@
         <div class="page-sidebar hidden md:flex">
           <div class="stat-card stat-card--compact">
             <div class="stat-card__content">
-              <span class="stat-card__value">
+              <div class="stat-card__top">
                 <span class="stat-card__icon stat-card__icon--warning"><i class="pi pi-hourglass"></i></span>
-                <app-currency [value]="totalOutstanding()" />
-              </span>
-              <span class="stat-card__label">{{ 'orders.stats.outstanding_balance' | translate }}</span>
+                <span class="stat-card__label">{{ 'orders.stats.outstanding_balance' | translate }}</span>
+              </div>
+              <span class="stat-card__value"><app-currency [value]="totalOutstanding()" /></span>
             </div>
           </div>
 
           <div class="stat-card stat-card--compact">
             <div class="stat-card__content">
-              <span class="stat-card__value">
+              <div class="stat-card__top">
                 <span class="stat-card__icon stat-card__icon--success"><i class="pi pi-wallet"></i></span>
-                <app-currency [value]="totalSpend()" />
-              </span>
-              <span class="stat-card__label">{{ 'orders.stats.total_spend' | translate }}</span>
+                <span class="stat-card__label">{{ 'orders.stats.total_spend' | translate }}</span>
+              </div>
+              <span class="stat-card__value"><app-currency [value]="totalSpend()" /></span>
             </div>
           </div>
 

@@ -432,14 +432,15 @@
     font-weight: 700;
     color: var(--text-color);
     flex-shrink: 0;
-    min-width: 90px;
+    min-width: 130px;
     text-align: right;
+    white-space: nowrap;
     display: flex;
     flex-direction: column;
     align-items: flex-end;
     gap: 2px;
 
-    @media (max-width: 480px) { min-width: 70px; font-size: 0.8rem; }
+    @media (max-width: 480px) { min-width: 90px; font-size: 0.8rem; }
   }
 
   &__total-original {

@@ -15,6 +15,40 @@
 // - _components.scss (action-link)
 // =============================================================================
 
+// Stat cards: icon+label on top row, number on its own line (prevents wrapping)
+.stat-card--compact {
+  .stat-card__content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    width: 100%;
+  }
+
+  .stat-card__top {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .stat-card__icon {
+    width: 24px !important;
+    height: 24px !important;
+    flex-shrink: 0;
+    i { font-size: 0.75rem !important; }
+  }
+
+  .stat-card__label {
+    font-size: 0.72rem;
+  }
+
+  .stat-card__value {
+    font-size: 1.125rem;
+    font-weight: 700;
+    white-space: nowrap;
+    color: var(--text-color);
+  }
+}
+
 .order-modified-label {
   font-size: 0.68rem;
   color: #d97706;
