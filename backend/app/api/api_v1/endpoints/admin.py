@@ -715,6 +715,7 @@ class AdminOrderCreateItem(BaseModel):
 class AdminOrderCreatePayload(BaseModel):
     user_id: int
     items: List[AdminOrderCreateItem]
+    delivery_type: str = "pickup"  # "pickup" or "delivery"
 
 @router.post("/create-order")
 def admin_create_order(
@@ -775,7 +776,7 @@ def admin_create_order(
 
     order = Order(
         user_id=target_user.id,
-        status=OrderStatus.PENDING,
+        status=OrderStatus.READY if data.delivery_type == "pickup" else OrderStatus.CONFIRMED,
         shipping_address=target_user.address or "",
         contact_phone=target_user.phone or "",
         subtotal=subtotal,
@@ -785,7 +786,7 @@ def admin_create_order(
         shipping_cost=0,
         total_amount=subtotal,
         total_weight_kg=total_weight_kg,
-        delivery_type=DeliveryType.STANDARD,
+        delivery_type=DeliveryType.PICKUP if data.delivery_type == "pickup" else DeliveryType.STANDARD,
     )
 
     session.add(order)

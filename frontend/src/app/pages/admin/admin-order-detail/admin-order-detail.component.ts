@@ -145,6 +145,7 @@ export class AdminOrderDetailComponent implements OnInit {
   // Create mode
   isCreateMode = signal(false);
   createCustomer = signal<UserManage | null>(null);
+  createDeliveryType = signal<'pickup' | 'delivery'>('pickup');
   customerSearchResults = signal<UserManage[]>([]);
   customerSearchLoading = signal(false);
   creatingOrder = signal(false);
@@ -885,7 +886,7 @@ export class AdminOrderDetailComponent implements OnInit {
     }));
 
     this.creatingOrder.set(true);
-    this.adminService.createOrderForUser(customer.id, orderItems)
+    this.adminService.createOrderForUser(customer.id, orderItems, this.createDeliveryType())
       .pipe(takeUntilDestroyed(this.destroyRef), finalize(() => this.creatingOrder.set(false)))
       .subscribe({
         next: (res) => {

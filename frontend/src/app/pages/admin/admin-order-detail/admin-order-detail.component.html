@@ -945,6 +945,14 @@
         <div class="panel">
           <div class="panel__header">
             <span class="panel__title"><i class="pi pi-user"></i> Client</span>
+            <div class="flex gap-1">
+              <p-button label="Retrait" icon="pi pi-shop" size="small"
+                [severity]="createDeliveryType() === 'pickup' ? 'primary' : 'secondary'"
+                (onClick)="createDeliveryType.set('pickup')" />
+              <p-button label="Livraison" icon="pi pi-truck" size="small"
+                [severity]="createDeliveryType() === 'delivery' ? 'primary' : 'secondary'"
+                (onClick)="createDeliveryType.set('delivery')" />
+            </div>
           </div>
           <div class="panel__body">
             @if (!createCustomer()) {
