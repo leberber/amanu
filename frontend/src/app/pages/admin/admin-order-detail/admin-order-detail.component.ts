@@ -140,7 +140,7 @@ export class AdminOrderDetailComponent implements OnInit {
   );
 
   // Sidebar tab
-  activeTab = signal<'info' | 'history'>('info');
+  activeTab = signal<'payment' | 'client' | 'history'>('payment');
 
   // Create mode
   isCreateMode = signal(false);

@@ -533,9 +533,13 @@
 
         <!-- Tab bar -->
         <div class="sidebar-tabs">
-          <button class="sidebar-tab" [class.active]="activeTab() === 'info'" (click)="activeTab.set('info')">
-            <i class="pi pi-info-circle"></i>
-            Infos & Paiement
+          <button class="sidebar-tab" [class.active]="activeTab() === 'payment'" (click)="activeTab.set('payment')">
+            <i class="pi pi-credit-card"></i>
+            Paiement
+          </button>
+          <button class="sidebar-tab" [class.active]="activeTab() === 'client'" (click)="activeTab.set('client')">
+            <i class="pi pi-user"></i>
+            Client
           </button>
           <button class="sidebar-tab" [class.active]="activeTab() === 'history'" (click)="activeTab.set('history')">
             <i class="pi pi-history"></i>
@@ -543,14 +547,14 @@
           </button>
         </div>
 
-        @if (activeTab() === 'info') {
+        @if (activeTab() === 'client') {
 
         <!-- Order Info Card -->
         <div class="panel">
           <div class="panel__header">
             <span class="panel__title">
-              <i class="pi pi-info-circle"></i>
-              Informations
+              <i class="pi pi-user"></i>
+              Client
             </span>
           </div>
           <div class="panel__body p-0">
@@ -669,6 +673,10 @@
             </div>
           </div>
         </div>
+
+        } <!-- end client tab -->
+
+        @if (activeTab() === 'payment') {
 
         <!-- Payment Panel -->
         <div class="panel">
@@ -793,7 +801,7 @@
           </div>
         </div>
 
-        } <!-- end info tab -->
+        } <!-- end payment tab -->
 
         @if (activeTab() === 'history') {
 
