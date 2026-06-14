@@ -1292,6 +1292,7 @@
         "order_number": "N° Commande",
         "customer": "Détails Client",
         "date": "Date de Commande",
+        "type": "Type",
         "status": "Statut",
         "driver": "Livreur",
         "total": "Total",

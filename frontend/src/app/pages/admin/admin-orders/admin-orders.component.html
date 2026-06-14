@@ -65,6 +65,7 @@
             <div class="skeleton skeleton-text" style="width:50px"></div>
             <div class="skeleton skeleton-text" style="width:160px"></div>
             <div class="skeleton skeleton-text" style="width:90px"></div>
+            <div class="skeleton skeleton-badge" style="width:70px"></div>
             <div class="skeleton skeleton-badge" style="width:80px"></div>
             <div class="skeleton skeleton-badge" style="width:70px"></div>
             <div class="skeleton skeleton-text" style="width:80px; margin-left:auto"></div>
@@ -113,6 +114,7 @@
                 <th>#</th>
                 <th>{{ 'admin.orders.table.customer' | translate }}</th>
                 <th>{{ 'admin.orders.table.date' | translate }}</th>
+                <th>{{ 'admin.orders.table.type' | translate }}</th>
                 <th>{{ 'admin.orders.table.status' | translate }}</th>
                 <th>{{ 'admin.orders.table.payment' | translate }}</th>
                 <th class="text-right">{{ 'admin.orders.table.total' | translate }}</th>
@@ -130,6 +132,14 @@
                     }
                   </td>
                   <td class="text-500 text-sm">{{ order.created_at | appDate }}</td>
+                  <td>
+                    <p-tag
+                      [value]="isPickupOrder(order) ? 'Retrait' : 'Livraison'"
+                      [severity]="isPickupOrder(order) ? 'info' : 'secondary'"
+                      [rounded]="true"
+                      [icon]="isPickupOrder(order) ? 'pi pi-map-marker' : 'pi pi-truck'"
+                      styleClass="text-xs" />
+                  </td>
                   <td (click)="$event.stopPropagation()">
                     <button class="payment-tag-btn" (click)="openStatusPopover($event, order)" [disabled]="!canEditStatus(order.status)">
                       <p-tag

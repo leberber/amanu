@@ -1293,6 +1293,7 @@
         "order_id": "Order ID",
         "customer": "Customer Details",
         "date": "Order Date",
+        "type": "Type",
         "status": "Status",
         "driver": "Driver",
         "total": "Total",
