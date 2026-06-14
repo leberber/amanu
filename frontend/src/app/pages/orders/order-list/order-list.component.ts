@@ -83,11 +83,15 @@ export class OrderListComponent implements OnInit {
 
   // Computed values (reactive to time filter)
   totalSpend = computed(() =>
-    this.filteredOrders().reduce((sum, order) => sum + order.total_amount, 0)
+    this.filteredOrders()
+      .filter(o => o.status !== 'cancelled')
+      .reduce((sum, order) => sum + order.total_amount, 0)
   );
 
   totalOutstanding = computed(() =>
-    this.filteredOrders().reduce((sum, order) => sum + Math.max(0, order.total_amount - (order.total_paid ?? 0)), 0)
+    this.filteredOrders()
+      .filter(o => o.status !== 'cancelled')
+      .reduce((sum, order) => sum + Math.max(0, order.total_amount - (order.total_paid ?? 0)), 0)
   );
 
   // Paginated orders for table (respects time filter)
