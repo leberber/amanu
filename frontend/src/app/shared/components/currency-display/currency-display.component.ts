@@ -6,12 +6,10 @@ import { CurrencyService } from '../../../core/services/currency.service';
   standalone: true,
   host: { style: 'display: inline' },
   template: `
-    <span>{{ parts().integer }}</span><span class="currency-decimal">{{ parts().separator }}{{ parts().decimal }}</span><span> {{ parts().symbol }}</span>
+    <span>{{ parts().integer }}{{ parts().separator }}{{ parts().decimal }} {{ parts().symbol }}</span>
   `,
   styles: [`
-    .currency-decimal {
-      opacity: 0.45;
-    }
+    :host { white-space: nowrap; }
   `]
 })
 export class CurrencyDisplayComponent {

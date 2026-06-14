@@ -126,7 +126,7 @@
                   } @else if (diffItem.kind !== 'removed') {
                     <span class="order-item-card__qty">
                       <span class="hidden md:inline">{{ getCartonDisplay(diffItem.item) }}</span>
-                      <span class="md:hidden">{{ getCartonDisplayCompact(diffItem.item) }}</span>
+                      <span class="md:hidden">{{ getCartonDisplay(diffItem.item, true) }}</span>
                       ×
                       @if (diffItem.item.custom_unit_price) {
                         <span class="order-item-card__qty--original"><app-currency [value]="diffItem.item.unit_price" /></span>
