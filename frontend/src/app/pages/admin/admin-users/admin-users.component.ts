@@ -203,7 +203,7 @@ export class AdminUsersComponent extends BaseAdminListComponent implements OnIni
 
   // Navigation
   createNewUser(): void {
-    this.baseRouter.navigate([ROUTES.REGISTER]);
+    this.baseRouter.navigate([ROUTES.ADMIN.ADD_USER]);
   }
 
   navigateToEditUser(user: UserManage): void {

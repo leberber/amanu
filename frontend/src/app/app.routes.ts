@@ -177,6 +177,12 @@ export const routes: Routes = [
     data: { hideBottomNav: true }
   },
   {
+    path: 'admin/users/add',
+    loadComponent: () => import('./pages/admin/admin-create-user/admin-create-user.component').then(m => m.AdminCreateUserComponent),
+    canActivate: [adminGuard],
+    data: { hideBottomNav: true }
+  },
+  {
     path: 'admin/users/:id/edit',
     loadComponent: () => import('./pages/admin/admin-edit-user/admin-edit-user.component').then(m => m.AdminEditUserComponent),
     canActivate: [adminGuard],

@@ -162,6 +162,43 @@ def read_users(
     # Return structured response
     return UsersResponse(users=users_with_groups, total=total)
 
+class AdminUserCreate(BaseModel):
+    email: str
+    password: str
+    full_name: str
+    phone: Optional[str] = None
+    store_name: Optional[str] = None
+    address: Optional[str] = None
+    role: str = "customer"
+
+
+@router.post("", response_model=UserRead)
+def admin_create_user(
+    user_in: AdminUserCreate,
+    current_user: User = Depends(get_current_staff_user),
+    session: Session = Depends(get_session),
+) -> Any:
+    """Admin: Create a new active user account."""
+    existing = session.exec(select(User).where(User.email == user_in.email)).first()
+    if existing:
+        raise HTTPException(status_code=400, detail="The user with this email already exists.")
+
+    new_user = User(
+        email=user_in.email,
+        hashed_password=get_password_hash(user_in.password),
+        full_name=user_in.full_name,
+        phone=user_in.phone or None,
+        store_name=user_in.store_name or None,
+        address=user_in.address,
+        role=user_in.role,
+        is_active=True,
+    )
+    session.add(new_user)
+    session.commit()
+    session.refresh(new_user)
+    return new_user
+
+
 @router.get("/{user_id}", response_model=UserRead)
 def read_user_by_id(
     user_id: int,

@@ -1,0 +1,128 @@
+<app-agroclik-page-container>
+  <div pageTop>
+    <div class="admin-list-header animate-item" style="--item-delay: 0ms;">
+      <div class="header-title">
+        <div class="admin-icon-wrapper">
+          <div class="icon-bg"></div>
+          <div class="icon-circle">
+            <i class="pi pi-user-plus"></i>
+          </div>
+        </div>
+        <div class="title-text">
+          <h1>Créer un compte</h1>
+          <p>Ajouter un nouveau client ou chauffeur</p>
+        </div>
+      </div>
+      <button class="btn-secondary" (click)="goBack()">
+        <i class="pi pi-arrow-left"></i>
+        <span>Retour</span>
+      </button>
+    </div>
+  </div>
+
+  <div pageMain>
+    <div class="create-user-form" @pageAnimation>
+      <p-card>
+
+        <!-- Name -->
+        <div class="grid">
+          <div class="col-12 md:col-6">
+            <div class="flex flex-column gap-2">
+              <label class="font-semibold">Prénom <span class="text-red-500">*</span></label>
+              <input pInputText
+                [ngModel]="firstName()"
+                (ngModelChange)="onFirstName($event)"
+                placeholder="Ex: Ahmed"
+                class="w-full" />
+            </div>
+          </div>
+          <div class="col-12 md:col-6">
+            <div class="flex flex-column gap-2">
+              <label class="font-semibold">Nom <span class="text-red-500">*</span></label>
+              <input pInputText
+                [ngModel]="lastName()"
+                (ngModelChange)="onLastName($event)"
+                placeholder="Ex: Boudiaf"
+                class="w-full" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Store Name + Role -->
+        <div class="grid mt-4">
+          <div class="col-12 md:col-6">
+            <div class="flex flex-column gap-2">
+              <label class="font-semibold">Nom de la boutique</label>
+              <input pInputText
+                [ngModel]="storeName()"
+                (ngModelChange)="storeName.set($event)"
+                placeholder="Vide"
+                class="w-full" />
+            </div>
+          </div>
+          <div class="col-12 md:col-6">
+            <div class="flex flex-column gap-2">
+              <label class="font-semibold">Rôle <span class="text-red-500">*</span></label>
+              <p-select
+                [options]="roleOptions"
+                [ngModel]="role()"
+                (ngModelChange)="role.set($event)"
+                optionLabel="label"
+                optionValue="value"
+                class="w-full" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Phone -->
+        <div class="flex flex-column gap-2 mt-4">
+          <label class="font-semibold">Téléphone</label>
+          <input pInputText
+            [ngModel]="phone()"
+            (ngModelChange)="phone.set($event)"
+            placeholder="Optionnel"
+            class="w-full" />
+        </div>
+
+        <!-- Email -->
+        <div class="flex flex-column gap-2 mt-4">
+          <label class="font-semibold">Email <span class="text-red-500">*</span></label>
+          <input pInputText
+            [ngModel]="email()"
+            (ngModelChange)="email.set($event)"
+            placeholder="nom.prenom@gmail.com"
+            class="w-full" />
+          <small class="text-500">Auto-généré depuis le nom — modifiable</small>
+        </div>
+
+        <!-- Password -->
+        <div class="flex flex-column gap-2 mt-4">
+          <label class="font-semibold">Mot de passe <span class="text-red-500">*</span></label>
+          <input pInputText
+            [ngModel]="password()"
+            (ngModelChange)="password.set($event)"
+            class="w-full" />
+        </div>
+
+        <!-- Address -->
+        <div class="flex flex-column gap-2 mt-4">
+          <label class="font-semibold">Adresse</label>
+          <input pInputText
+            [ngModel]="address()"
+            (ngModelChange)="address.set($event)"
+            class="w-full" />
+        </div>
+
+        <!-- Submit -->
+        <div class="flex justify-content-end mt-5">
+          <p-button
+            label="Créer le compte"
+            icon="pi pi-check"
+            [loading]="creating()"
+            (onClick)="submit()" />
+        </div>
+
+      </p-card>
+    </div>
+  </div>
+</app-agroclik-page-container>
