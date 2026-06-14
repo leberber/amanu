@@ -71,6 +71,22 @@ export class OrderDetailComponent implements OnInit {
 
   // Computed
   totalAmount = computed(() => this.order()?.total_amount || 0);
+  catalogueSubtotal = computed(() => {
+    const items = this.order()?.items ?? [];
+    return items.reduce((sum, item) => sum + item.unit_price * item.quantity, 0);
+  });
+  itemsSubtotal = computed(() => this.catalogueSubtotal());
+  discountAmount = computed(() => {
+    const items = this.order()?.items ?? [];
+    const customDiscount = items.reduce((sum, item) =>
+      item.custom_unit_price && item.custom_unit_price < item.unit_price
+        ? sum + (item.unit_price - item.custom_unit_price) * item.quantity
+        : sum
+    , 0);
+    return customDiscount + (this.order()?.discount_amount ?? 0);
+  });
+  shippingCost = computed(() => this.order()?.shipping_cost ?? 0);
+  showBreakdown = computed(() => this.discountAmount() > 0 || this.shippingCost() > 0);
   canCancelOrder = computed(() => this.order()?.status === ORDER_STATUS.PENDING);
   totalPaid = computed(() =>
     (this.order()?.payments ?? []).reduce((sum, p) => sum + p.amount, 0)
@@ -187,6 +203,16 @@ export class OrderDetailComponent implements OnInit {
       ? this.translateService.instant(`units.${item.product_unit}_short`)
       : undefined;
     return getOrderCartonDisplay(item.quantity, item.pieces_per_box, packagingLabel, unitLabel);
+  }
+
+  getCartonDisplayCompact(item: OrderItem): string {
+    const packagingLabel = item.packaging_type
+      ? this.translateService.instant(`products.product.packaging_types.${item.packaging_type}`)
+      : undefined;
+    const unitLabel = item.product_unit
+      ? this.translateService.instant(`units.${item.product_unit}_short`)
+      : undefined;
+    return getOrderCartonDisplay(item.quantity, item.pieces_per_box, packagingLabel, unitLabel, true);
   }
 
   // Private methods

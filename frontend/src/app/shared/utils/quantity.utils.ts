@@ -50,10 +50,13 @@ export function getCartonDisplay(totalPieces: number, piecesPerBox?: number): st
  * Formats carton display for order items (e.g., "8x10" for 8 cartons of 10 pieces).
  * Order items already store carton count in quantity field.
  */
-export function getOrderCartonDisplay(totalPieces: number, piecesPerBox?: number, packagingLabel?: string, unitLabel?: string): string {
+export function getOrderCartonDisplay(totalPieces: number, piecesPerBox?: number, packagingLabel?: string, unitLabel?: string, compact = false): string {
   const pieces = piecesPerBox || 10;
   const cartons = totalPieces / pieces;
-  return packagingLabel && unitLabel
-    ? `${cartons} ${packagingLabel} × ${pieces} ${unitLabel}`
-    : `${cartons}x${pieces}`;
+  if (packagingLabel && unitLabel) {
+    return compact
+      ? `${cartons}${packagingLabel[0].toLowerCase()} × ${pieces}${unitLabel[0].toLowerCase()}`
+      : `${cartons} ${packagingLabel} × ${pieces} ${unitLabel}`;
+  }
+  return `${cartons}x${pieces}`;
 }

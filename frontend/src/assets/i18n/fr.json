@@ -703,6 +703,8 @@
       "order_actions_title": "Actions de Commande",
       "cancel_order_button": "Annuler la Commande",
       "cancel_order_note": "Vous ne pouvez annuler que les commandes qui n'ont pas encore été traitées.",
+      "subtotal": "Prix catalogue",
+      "discount": "Remise",
       "shipping_cost": "Frais de livraison",
       "contact_support": "Contacter le Support",
       "order_placed_success": "Commande Passée",

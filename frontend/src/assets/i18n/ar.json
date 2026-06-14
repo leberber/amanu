@@ -708,6 +708,8 @@
       "order_actions_title": "إجراءات الطلب",
       "cancel_order_button": "إلغاء الطلب",
       "cancel_order_note": "يمكنك إلغاء الطلبات التي لم تتم معالجتها بعد فقط.",
+      "subtotal": "السعر الأصلي",
+      "discount": "خصم",
       "shipping_cost": "رسوم التوصيل",
       "contact_support": "اتصل بالدعم",
       "order_placed_success": "تم تقديم الطلب",

@@ -95,15 +95,39 @@
   flex-direction: column;
   align-items: stretch;
   gap: 0;
+  background: var(--surface-card);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-lg);
 
-  .order-total-footer__row--sub {
-    border-top: 1px solid rgba(var(--primary-rgb), 0.1);
-    padding-top: var(--space-2);
-    margin-top: var(--space-2);
+  .order-total-footer__row {
+    padding: 10px 0;
   }
 
-  .order-total-footer__row--sub .order-total-footer__value {
-    font-size: var(--font-size-xl);
+  .order-total-footer__row--sub {
+    padding: 4px 0;
+
+    .order-total-footer__label {
+      font-size: var(--font-size-sm);
+      color: var(--text-color-secondary);
+      font-weight: var(--font-weight-normal);
+    }
+
+    .order-total-footer__value {
+      font-size: var(--font-size-base);
+      font-weight: var(--font-weight-semibold);
+    }
+  }
+
+  .order-total-footer__row--total {
+    border-top: 1px solid var(--surface-border);
+    padding-top: 10px;
+    margin-top: 4px;
+
+    .order-total-footer__label {
+      font-size: var(--font-size-sm);
+      color: var(--text-color-secondary);
+      font-weight: var(--font-weight-normal);
+    }
   }
 }
 
@@ -117,6 +141,16 @@
   font-size: 0.68rem;
   color: var(--text-color-secondary);
   font-weight: var(--font-weight-normal);
+}
+
+.order-total-footer__value--shipping {
+  color: #16a34a;
+  font-weight: var(--font-weight-semibold);
+}
+
+.order-total-footer__value--discount {
+  color: #dc2626;
+  font-weight: var(--font-weight-semibold);
 }
 
 .order-total-footer__value--paid {
