@@ -146,6 +146,7 @@ export class AdminOrderDetailComponent implements OnInit {
   isCreateMode = signal(false);
   createCustomer = signal<UserManage | null>(null);
   createDeliveryType = signal<'pickup' | 'delivery'>('pickup');
+  createShippingCost = signal<number>(0);
   customerSearchResults = signal<UserManage[]>([]);
   customerSearchLoading = signal(false);
   creatingOrder = signal(false);
@@ -246,7 +247,10 @@ export class AdminOrderDetailComponent implements OnInit {
     const newItemsTotal = this.pendingNewItems().reduce(
       (sum, { product, qty, customPrice }) => sum + (customPrice ?? product.price) * qty * (product.pieces_per_box || 1), 0
     );
-    if (this.isCreateMode()) return newItemsTotal;
+    if (this.isCreateMode()) {
+      const shipping = this.createDeliveryType() === 'delivery' ? this.createShippingCost() : 0;
+      return newItemsTotal + shipping;
+    }
 
     const order = this.order();
     if (!order?.items) return order?.total_amount ?? 0;
@@ -885,8 +889,10 @@ export class AdminOrderDetailComponent implements OnInit {
       custom_unit_price: customPrice ?? null
     }));
 
+    const shippingCost = this.createDeliveryType() === 'delivery' ? this.createShippingCost() : 0;
+
     this.creatingOrder.set(true);
-    this.adminService.createOrderForUser(customer.id, orderItems, this.createDeliveryType())
+    this.adminService.createOrderForUser(customer.id, orderItems, this.createDeliveryType(), shippingCost)
       .pipe(takeUntilDestroyed(this.destroyRef), finalize(() => this.creatingOrder.set(false)))
       .subscribe({
         next: (res) => {

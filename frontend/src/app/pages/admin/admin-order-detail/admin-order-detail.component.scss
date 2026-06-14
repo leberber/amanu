@@ -657,6 +657,18 @@
     color: var(--text-color-secondary);
   }
 
+  .shipping-cost-field {
+    width: 90px;
+    padding: 0.2rem 0.4rem;
+    border: 1px solid var(--surface-border);
+    border-radius: 6px;
+    background: var(--surface-card);
+    color: var(--text-color);
+    font-size: 0.85rem;
+    text-align: right;
+    &:focus { outline: none; border-color: var(--primary-color); }
+  }
+
   &__total {
     display: flex;
     align-items: center;

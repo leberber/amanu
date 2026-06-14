@@ -164,6 +164,12 @@
 
           <!-- Total Footer -->
           <div class="order-total-footer order-total-footer--stacked">
+            @if ((order()?.shipping_cost ?? 0) > 0) {
+              <div class="order-total-footer__row order-total-footer__row--sub">
+                <span class="order-total-footer__label">{{ 'orders.detail.shipping_cost' | translate }}</span>
+                <span class="order-total-footer__value"><app-currency [value]="order()!.shipping_cost!" /></span>
+              </div>
+            }
             <div class="order-total-footer__row order-total-footer__row--total">
               <span class="order-total-footer__label">{{ 'common.total' | translate }}</span>
               <span class="order-total-footer__value"><app-currency [value]="totalAmount()" /></span>

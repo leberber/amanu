@@ -155,8 +155,8 @@ export class AdminService {
     });
   }
 
-  createOrderForUser(userId: number, items: { product_id: number; quantity: number; custom_unit_price?: number | null }[], deliveryType: 'pickup' | 'delivery' = 'pickup'): Observable<{ order_id: number }> {
-    return this.apiService.post<{ order_id: number }>('/admin/create-order', { user_id: userId, items, delivery_type: deliveryType });
+  createOrderForUser(userId: number, items: { product_id: number; quantity: number; custom_unit_price?: number | null }[], deliveryType: 'pickup' | 'delivery' = 'pickup', shippingCost: number = 0): Observable<{ order_id: number }> {
+    return this.apiService.post<{ order_id: number }>('/admin/create-order', { user_id: userId, items, delivery_type: deliveryType, shipping_cost: shippingCost });
   }
 
   getUserById(userId: number): Observable<UserManage> {

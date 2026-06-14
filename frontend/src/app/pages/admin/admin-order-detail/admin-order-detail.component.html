@@ -508,6 +508,12 @@
                 <span>-<app-currency [value]="previewDiscount()" /></span>
               </div>
             }
+            @if ((order.shipping_cost ?? 0) > 0) {
+              <div class="items-footer__row">
+                <span>Frais de livraison</span>
+                <span><app-currency [value]="order.shipping_cost!" /></span>
+              </div>
+            }
             <div class="items-footer__total">
               <span class="font-semibold">{{ 'admin.orders.total' | translate }}</span>
               <span class="items-footer__amount">
@@ -948,7 +954,7 @@
             <div class="flex gap-1">
               <p-button label="Retrait" icon="pi pi-shop" size="small"
                 [severity]="createDeliveryType() === 'pickup' ? 'primary' : 'secondary'"
-                (onClick)="createDeliveryType.set('pickup')" />
+                (onClick)="createDeliveryType.set('pickup'); createShippingCost.set(0)" />
               <p-button label="Livraison" icon="pi pi-truck" size="small"
                 [severity]="createDeliveryType() === 'delivery' ? 'primary' : 'secondary'"
                 (onClick)="createDeliveryType.set('delivery')" />
@@ -1094,6 +1100,16 @@
               <div class="items-footer__row" style="color:#16a34a !important;">
                 <span>Remise</span>
                 <span>-<app-currency [value]="previewDiscount()" /></span>
+              </div>
+            }
+            @if (createDeliveryType() === 'delivery') {
+              <div class="items-footer__row">
+                <span>Frais de livraison</span>
+                <input type="number" min="0" step="100"
+                  class="shipping-cost-field"
+                  [value]="createShippingCost()"
+                  (input)="createShippingCost.set(+$any($event.target).value || 0)"
+                  placeholder="0">
               </div>
             }
             <div class="items-footer__total">

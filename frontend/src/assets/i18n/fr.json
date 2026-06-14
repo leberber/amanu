@@ -703,6 +703,7 @@
       "order_actions_title": "Actions de Commande",
       "cancel_order_button": "Annuler la Commande",
       "cancel_order_note": "Vous ne pouvez annuler que les commandes qui n'ont pas encore été traitées.",
+      "shipping_cost": "Frais de livraison",
       "contact_support": "Contacter le Support",
       "order_placed_success": "Commande Passée",
       "order_placed_success_message": "Votre commande a été passée avec succès !",

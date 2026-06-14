@@ -706,6 +706,7 @@
       "order_actions_title": "Order Actions",
       "cancel_order_button": "Cancel Order",
       "cancel_order_note": "You can only cancel orders that haven't been processed yet.",
+      "shipping_cost": "Delivery fee",
       "contact_support": "Contact Support",
       "order_placed_success": "Order Placed",
       "order_placed_success_message": "Your order has been placed successfully!",

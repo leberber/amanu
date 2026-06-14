@@ -539,6 +539,7 @@ def read_order(
         total_amount=order.total_amount,
         subtotal=order.subtotal,
         discount_amount=order.discount_amount,
+        shipping_cost=order.shipping_cost,
         promotion_id=order.promotion_id,
         created_at=order.created_at,
         updated_at=order.updated_at,

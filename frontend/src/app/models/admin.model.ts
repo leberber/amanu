@@ -75,6 +75,7 @@ export interface DashboardStats {
     contact_phone: string;
     subtotal?: number;
     discount_amount?: number;
+    shipping_cost?: number;
     total_amount: number;
     promotion_id?: number;
     created_at: string;

@@ -716,6 +716,7 @@ class AdminOrderCreatePayload(BaseModel):
     user_id: int
     items: List[AdminOrderCreateItem]
     delivery_type: str = "pickup"  # "pickup" or "delivery"
+    shipping_cost: float = 0.0
 
 @router.post("/create-order")
 def admin_create_order(
@@ -783,8 +784,8 @@ def admin_create_order(
         discount_amount=0,
         cross_sell_discount_amount=0,
         volume_discount_amount=0,
-        shipping_cost=0,
-        total_amount=subtotal,
+        shipping_cost=format_price(data.shipping_cost),
+        total_amount=format_price(subtotal + data.shipping_cost),
         total_weight_kg=total_weight_kg,
         delivery_type=DeliveryType.PICKUP if data.delivery_type == "pickup" else DeliveryType.STANDARD,
     )
