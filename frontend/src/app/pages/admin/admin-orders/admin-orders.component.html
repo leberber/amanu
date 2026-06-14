@@ -135,7 +135,7 @@
                   <td>
                     <p-tag
                       [value]="isPickupOrder(order) ? 'Retrait' : 'Livraison'"
-                      [severity]="isPickupOrder(order) ? 'info' : 'secondary'"
+                      [severity]="order.status === 'delivered' ? 'success' : 'secondary'"
                       [rounded]="true"
                       [icon]="isPickupOrder(order) ? 'pi pi-map-marker' : 'pi pi-truck'"
                       styleClass="text-xs" />
