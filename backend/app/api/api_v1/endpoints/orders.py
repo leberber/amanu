@@ -843,7 +843,7 @@ def _recalculate_payment_status(order: Order, session: Session) -> None:
 def _recalculate_order_total(order: Order, session: Session) -> None:
     """Recompute total_amount from current items."""
     items = session.exec(select(OrderItem).where(OrderItem.order_id == order.id)).all()
-    new_total = sum(i.quantity * i.unit_price for i in items)
+    new_total = sum(i.quantity * (i.custom_unit_price if i.custom_unit_price is not None else i.unit_price) for i in items)
     order.total_amount = round(new_total, 2)
     order.subtotal = round(new_total, 2)
     order.updated_at = datetime.now(timezone.utc)
@@ -1010,7 +1010,8 @@ class OrderItemAdd(SQLModel):
 
 
 class OrderItemUpdate(SQLModel):
-    quantity: float
+    quantity: Optional[float] = None
+    custom_unit_price: Optional[float] = None
 
 
 @router.post("/{order_id}/items", response_model=OrderWithItems)
@@ -1166,38 +1167,39 @@ def update_order_item(
     if order.status not in EDITABLE_STATUSES:
         raise HTTPException(status_code=400, detail="Order can only be edited when pending or confirmed")
 
-    if item_in.quantity <= 0:
-        raise HTTPException(status_code=400, detail="Quantity must be greater than 0")
-
     item = session.get(OrderItem, item_id)
     if not item or item.order_id != order_id:
         raise HTTPException(status_code=404, detail="Item not found")
 
-    old_qty = item.quantity
-    delta = item_in.quantity - old_qty  # positive = need more stock, negative = return stock
+    if item_in.quantity is not None:
+        if item_in.quantity <= 0:
+            raise HTTPException(status_code=400, detail="Quantity must be greater than 0")
+        old_qty = item.quantity
+        delta = item_in.quantity - old_qty
+        if delta > 0:
+            product = session.get(Product, item.product_id)
+            if product and product.stock_quantity < delta:
+                raise HTTPException(status_code=400, detail=f"Insufficient stock. Available: {product.stock_quantity}")
+            if product:
+                product.stock_quantity -= delta
+                session.add(product)
+        elif delta < 0:
+            product = session.get(Product, item.product_id)
+            if product:
+                product.stock_quantity += abs(delta)
+                session.add(product)
+        item.quantity = item_in.quantity
+        _write_audit(session, order_id, current_user.id, AuditAction.ITEM_QUANTITY_CHANGED, {
+            "product_id": item.product_id,
+            "product_name": item.product_name,
+            "old_quantity": old_qty,
+            "new_quantity": item_in.quantity,
+        })
 
-    if delta > 0:
-        product = session.get(Product, item.product_id)
-        if product and product.stock_quantity < delta:
-            raise HTTPException(status_code=400, detail=f"Insufficient stock. Available: {product.stock_quantity}")
-        if product:
-            product.stock_quantity -= delta
-            session.add(product)
-    elif delta < 0:
-        product = session.get(Product, item.product_id)
-        if product:
-            product.stock_quantity += abs(delta)
-            session.add(product)
+    if "custom_unit_price" in item_in.model_fields_set:
+        item.custom_unit_price = item_in.custom_unit_price
 
-    item.quantity = item_in.quantity
     session.add(item)
-
-    _write_audit(session, order_id, current_user.id, AuditAction.ITEM_QUANTITY_CHANGED, {
-        "product_id": item.product_id,
-        "product_name": item.product_name,
-        "old_quantity": old_qty,
-        "new_quantity": item_in.quantity,
-    })
 
     session.flush()
     _recalculate_order_total(order, session)
@@ -1247,6 +1249,7 @@ def _build_order_with_items(order: Order, session: Session) -> OrderWithItems:
                 product_id=i.product_id,
                 quantity=i.quantity,
                 unit_price=i.unit_price,
+                custom_unit_price=i.custom_unit_price,
                 product_name=i.product_name,
                 product_unit=i.product_unit,
                 pieces_per_box=i.pieces_per_box,
