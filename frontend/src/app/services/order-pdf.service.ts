@@ -124,8 +124,13 @@ export class OrderPdfService {
     const brandColorMap = new Map(uniqueBrands.map((b, i) => [b, BRAND_COLOR_PALETTE[i % BRAND_COLOR_PALETTE.length]]));
 
     const grossTotal = allItems.reduce((sum, item) => sum + item.unit_price * item.quantity, 0);
-    const remise = Math.round((grossTotal - order.total_amount) * 100) / 100;
+    const actualItemsTotal = allItems.reduce((sum, item) => sum + (item.custom_unit_price ?? item.unit_price) * item.quantity, 0);
+    const remise = Math.round((grossTotal - actualItemsTotal) * 100) / 100;
     const hasRemise = remise > 0.01;
+    const shipping = order.shipping_cost ?? 0;
+    const grandTotal = actualItemsTotal + shipping;
+    const totalPaid = order.total_paid ?? 0;
+    const balance = Math.round((grandTotal - totalPaid) * 100) / 100;
 
     const deliveryTypeLabel = order.delivery_type?.toLowerCase() === 'pickup'
       ? 'Retrait en dépôt'
@@ -183,8 +188,9 @@ export class OrderPdfService {
   .inv-meta-label { font-size: 7.5px; color: #aab4c8; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; }
   .inv-meta-value { font-size: 13px; font-weight: 800; color: #041f58; }
 
-  .inv-bot-row {
-    padding: 8px 36px; background: #f4f7ff;
+  .inv-footer {
+    margin-top: 20px; padding: 10px 36px;
+    border-top: 1px solid #e4ecf8; background: #f4f7ff;
     display: flex; align-items: center; justify-content: center; gap: 8px;
   }
   .inv-co-name { font-size: 11px; font-weight: 700; color: #041f58; }
@@ -235,13 +241,16 @@ export class OrderPdfService {
   tr:last-child td { border-bottom: none; }
 
   .bottom { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 24px 0; }
-  .notes-box { border: 1px solid #dbe5f0; border-radius: 12px; padding: 14px; font-size: 11px; color: #475569; }
-  .notes-box h5 { font-size: 11px; font-weight: 700; color: #063b88; margin-bottom: 6px; }
+  .notes-box { border: 1px solid #dbe5f0; border-radius: 12px; padding: 12px 14px; font-size: 11px; color: #475569; display: flex; flex-direction: column; gap: 10px; }
+  .notes-box h5 { font-size: 10.5px; font-weight: 700; color: #063b88; margin-bottom: 4px; text-transform: uppercase; letter-spacing: .4px; }
+  .notes-divider { border: none; border-top: 1px solid #e4ecf5; margin: 0; }
   .summary { border: 1px solid #dbe5f0; border-radius: 12px; padding: 14px; }
   .summary-title { background: #063b88; color: white; padding: 7px 14px; border-radius: 8px; font-weight: bold; margin-bottom: 10px; font-size: 12px; }
   .summary-row { display: flex; justify-content: space-between; border-bottom: 1px solid #e4ecf5; padding: 6px 0; font-size: 12px; }
   .summary-row.red strong { color: #dc2626; }
+  .summary-row.green strong { color: #16a34a; }
   .total { margin-top: 10px; background: linear-gradient(90deg, #041f58, #1a5fc8); color: white; border-radius: 8px; padding: 11px 14px; display: flex; justify-content: space-between; font-size: 16px; font-weight: bold; }
+  .balance { margin-top: 6px; border: 1.5px solid #dc2626; border-radius: 8px; padding: 8px 14px; display: flex; justify-content: space-between; font-size: 13px; font-weight: bold; color: #dc2626; }
 </style>
 </head>
 <body>
@@ -262,15 +271,6 @@ export class OrderPdfService {
       </div>
       ${pageNumHtml}
     </div>
-  </div>
-  <div class="inv-bot-row">
-    <span class="inv-co-name">${COMPANY_INFO.NAME}</span>
-    <div class="inv-co-sep"></div>
-    <span class="inv-co-sub">${COMPANY_INFO.PHONE_1}</span>
-    <div class="inv-co-sep"></div>
-    <span class="inv-co-sub">${COMPANY_INFO.EMAIL}</span>
-    <div class="inv-co-sep"></div>
-    <span class="inv-co-sub">${COMPANY_INFO.ADDRESS}, ${COMPANY_INFO.CITY}</span>
   </div>
 
   <div class="cards">
@@ -331,20 +331,44 @@ export class OrderPdfService {
 
   <div class="bottom">
     <div class="notes-box">
-      <h5>Notes de livraison</h5>
-      ${order.delivery_notes ?? '<span style="color:#94a3b8;font-style:italic;">Aucune note</span>'}
-      ${order.shipping_address ? `<br><br><strong>Adresse :</strong><br>${order.shipping_address}` : ''}
+      <div>
+        ${logoDataUrl ? `<img src="${logoDataUrl}" style="height:32px;width:auto;display:block;margin-bottom:8px;" alt="Logo" />` : `<h5>${COMPANY_INFO.NAME}</h5>`}
+        <div style="display:flex;flex-direction:column;gap:8px;margin-top:6px;">
+          <div style="display:flex;align-items:center;gap:6px;">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#063b88" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.15 11.5a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.06 0h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.09 7.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            <span style="font-size:10.5px;color:#334155;">${COMPANY_INFO.PHONE_1}</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#063b88" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+            <span style="font-size:10.5px;color:#334155;">${COMPANY_INFO.EMAIL}</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#063b88" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+            <span style="font-size:10.5px;color:#334155;">${COMPANY_INFO.ADDRESS}, ${COMPANY_INFO.CITY}</span>
+          </div>
+        </div>
+      </div>
+      <hr class="notes-divider">
+      <div>
+        <h5>Notes de livraison</h5>
+        <div style="font-size:10.5px;color:#475569;margin-top:4px;">${order.delivery_notes ?? '<span style="color:#94a3b8;font-style:italic;">Aucune note</span>'}</div>
+      </div>
     </div>
     <div class="summary">
       <div class="summary-title">RÉCAPITULATIF</div>
       ${discountLine}
       ${hasRemise ? `
         <div class="summary-row"><span>Prix catalogue</span><strong>${this.money(grossTotal)} DA</strong></div>
-        <div class="summary-row" style="color:#16a34a;"><span>Remise</span><strong style="color:#16a34a;">- ${this.money(remise)} DA</strong></div>
+        <div class="summary-row red"><span>Remise</span><strong>- ${this.money(remise)} DA</strong></div>
       ` : ''}
-      <div class="total"><span>TOTAL</span><span>${this.money(order.total_amount)} DA</span></div>
+      <div class="summary-row green"><span>Frais de livraison</span><strong>${shipping > 0 ? '+ ' + this.money(shipping) : '—'} DA</strong></div>
+      <div class="total"><span>TOTAL</span><span>${this.money(grandTotal)} DA</span></div>
+      ${balance > 0.01 ? `
+        <div class="balance"><span>SOLDE IMPAYÉ</span><span>${this.money(balance)} DA</span></div>
+      ` : ''}
     </div>
   </div>
+
 
 </div>
 </body>
