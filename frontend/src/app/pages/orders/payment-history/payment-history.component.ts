@@ -47,7 +47,7 @@ export class PaymentHistoryComponent implements OnInit {
 
   filteredOrders = computed(() => {
     const filter = this.timeFilter();
-    const orders = this.orders();
+    const orders = this.orders().filter(o => o.status !== 'cancelled');
     if (filter === 'all') return orders;
     const cutoff = new Date(Date.now() - TIME_FILTER_DAYS[filter] * 24 * 60 * 60 * 1000);
     return orders.filter(o => new Date(o.created_at) >= cutoff);
@@ -58,7 +58,9 @@ export class PaymentHistoryComponent implements OnInit {
   );
 
   totalOutstanding = computed(() =>
-    this.filteredOrders().reduce((sum, o) => sum + Math.max(0, o.total_amount - o.total_paid), 0)
+    this.orders()
+      .filter(o => o.status !== 'cancelled')
+      .reduce((sum, o) => sum + Math.max(0, o.total_amount - o.total_paid), 0)
   );
 
   ngOnInit(): void {

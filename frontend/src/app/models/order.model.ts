@@ -60,6 +60,7 @@ export interface OrderFinancialSummary {
   total_amount: number;
   total_paid: number;
   payment_status: 'unpaid' | 'partial' | 'paid';
+  status: string;
 }
 
 export type DiffKind = 'normal' | 'added' | 'removed' | 'changed';

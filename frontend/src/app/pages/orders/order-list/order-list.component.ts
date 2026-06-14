@@ -89,7 +89,7 @@ export class OrderListComponent implements OnInit {
   );
 
   totalOutstanding = computed(() =>
-    this.filteredOrders()
+    this.orders()
       .filter(o => o.status !== 'cancelled')
       .reduce((sum, order) => sum + Math.max(0, order.total_amount - (order.total_paid ?? 0)), 0)
   );

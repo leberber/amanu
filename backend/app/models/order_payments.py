@@ -73,6 +73,7 @@ class OrderFinancialSummary(SQLModel):
     total_amount: float
     total_paid: float
     payment_status: str
+    status: str
     model_config = {"from_attributes": True}
 
 
