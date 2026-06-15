@@ -547,6 +547,9 @@ def read_order(
         created_at=order.created_at,
         updated_at=order.updated_at,
         admin_modified_at=admin_modified_at_snapshot,
+        delivery_type=order.delivery_type,
+        pickup_date=order.pickup_date,
+        delivery_notes=order.delivery_notes,
         payments=[
             OrderPaymentCustomerReadInline(
                 id=p.id,

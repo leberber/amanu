@@ -136,11 +136,12 @@ export class OrderPdfService {
     const totalPaid = order.total_paid ?? 0;
     const balance = Math.round((grandTotal - totalPaid) * 100) / 100;
 
-    const deliveryTypeLabel = order.delivery_type?.toLowerCase() === 'pickup'
-      ? 'Retrait en dépôt'
-      : order.delivery_type?.toLowerCase() === 'priority'
-        ? 'Prioritaire'
-        : 'Standard';
+    const deliveryType = order.delivery_type?.toLowerCase();
+    const deliveryTypeLabel = deliveryType === 'pickup'
+      ? 'Retrait'
+      : deliveryType === 'priority'
+        ? 'Livraison Premium'
+        : 'Livraison Standard';
 
     const driverLine = order.driver
       ? `<br><span style="font-size:10px;color:#64748b;">Livreur : ${order.driver.full_name}</span>`
@@ -308,7 +309,7 @@ export class OrderPdfService {
         order.delivery_notes ?? '',
         order.pickup_date ? `Date retrait : ${this.dateService.formatDate(order.pickup_date)}` : '',
         order.driver ? `Livreur : ${order.driver.full_name}` : '',
-      ].filter(Boolean).join('<br>') || 'Livraison à domicile'}</div>
+      ].filter(Boolean).join('<br>') || (deliveryType === 'pickup' ? 'Retrait en dépôt' : 'Livraison à domicile')}</div>
     </div>
   </div>
   <div class="cards-table-gap"></div>
