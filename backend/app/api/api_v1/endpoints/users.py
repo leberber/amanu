@@ -11,6 +11,7 @@ from app.models.user import User, UserUpdate, UserRead, UserRole, UserGroupsUpda
 from app.models.user_group import UserGroup, UserGroupLink
 from app.models.order import Order
 from app.models.trip import Trip
+from app.models.driver import Driver, DriverVehicle
 from app.core.security import (
     get_current_user,
     get_current_active_user,
@@ -331,6 +332,16 @@ def delete_user(
     session.exec(update(Order).where(Order.driver_id == user_id).values(driver_id=None))
     session.exec(update(Trip).where(Trip.driver_id == user_id).values(driver_id=None))
     session.exec(update(Trip).where(Trip.suggested_driver_id == user_id).values(suggested_driver_id=None))
+
+    # Explicitly delete driver vehicles and driver profile (cascade not reliable)
+    driver = session.exec(select(Driver).where(Driver.user_id == user_id)).first()
+    if driver:
+        vehicles = session.exec(select(DriverVehicle).where(DriverVehicle.driver_id == driver.id)).all()
+        for v in vehicles:
+            session.delete(v)
+        session.flush()
+        session.delete(driver)
+        session.flush()
 
     session.delete(user)
     session.commit()
