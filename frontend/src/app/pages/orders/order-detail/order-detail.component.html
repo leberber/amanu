@@ -179,14 +179,24 @@
               }
               @if (shippingCost() > 0) {
                 <div class="order-total-footer__row order-total-footer__row--sub">
-                  <span class="order-total-footer__label">{{ 'orders.detail.shipping_cost' | translate }}</span>
-                  <span class="order-total-footer__value order-total-footer__value--shipping"><app-currency [value]="shippingCost()" /></span>
+                  <span class="order-total-footer__label">
+                    {{ 'orders.detail.shipping_cost' | translate }}
+                    @if (shippingDiscountPercent() > 0) {
+                      <span class="shipping-discount-badge">-{{ shippingDiscountPercent() }}%</span>
+                    }
+                  </span>
+                  <span class="order-total-footer__value order-total-footer__value--shipping">
+                    @if (shippingDiscountAmount() > 0) {
+                      <span class="shipping-original-price"><app-currency [value]="originalShippingCost()!" /></span>
+                    }
+                    <app-currency [value]="shippingCost()" />
+                  </span>
                 </div>
               }
             }
             <div class="order-total-footer__row order-total-footer__row--total">
               <span class="order-total-footer__label">{{ 'common.total' | translate }}</span>
-              <span class="order-total-footer__value"><app-currency [value]="totalAmount()" /></span>
+              <span class="order-total-footer__value"><app-currency [value]="grandTotal()" /></span>
             </div>
             @if (totalPaid() > 0) {
               <div class="order-total-footer__row order-total-footer__row--sub">

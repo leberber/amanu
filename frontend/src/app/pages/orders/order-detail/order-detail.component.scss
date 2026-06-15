@@ -144,8 +144,27 @@
 }
 
 .order-total-footer__value--shipping {
+  display: flex;
+  align-items: center;
+  gap: 4px;
   color: #16a34a;
   font-weight: var(--font-weight-semibold);
+}
+
+.shipping-discount-badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  background: #d1fae5;
+  color: #047857;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-left: 4px;
+}
+
+.shipping-original-price {
+  text-decoration: line-through;
+  color: #f87171;
+  font-size: 0.8rem;
 }
 
 .order-total-footer__value--discount {

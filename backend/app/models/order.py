@@ -70,6 +70,7 @@ class OrderBase(SQLModel):
     volume_discount_amount: float = Field(default=0)
     # Shipping cost (used for driver earnings calculation)
     shipping_cost: float = Field(default=0)
+    original_shipping_cost: Optional[float] = Field(default=None)
 
 
 class Order(OrderBase, table=True):
@@ -135,7 +136,8 @@ class OrderCreate(SQLModel):
     contact_phone: str
     items: List[OrderCreateItem]
     promotion_code: Optional[str] = None  # Optional promo code
-    shipping_cost: float = 0  # Shipping cost calculated by frontend
+    shipping_cost: float = 0
+    original_shipping_cost: Optional[float] = None  # Priority price before standard delivery discount
     delivery_type: DeliveryType = DeliveryType.STANDARD  # STANDARD or PRIORITY
     pickup_date: Optional[datetime] = None  # Scheduled pickup date/time
 
@@ -198,6 +200,7 @@ class OrderRead(OrderBase):
     cross_sell_discount_amount: float = 0
     volume_discount_amount: float = 0
     shipping_cost: float = 0
+    original_shipping_cost: Optional[float] = None
     promotion_id: Optional[int] = None
     user: Optional[UserInfo] = None
 

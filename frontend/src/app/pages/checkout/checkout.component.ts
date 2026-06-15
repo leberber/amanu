@@ -140,6 +140,7 @@ export class CheckoutComponent implements OnInit {
       items: this.orderService.cartItemsToOrderItems(this.cartItems()),
       promotion_code: this.appliedPromotion()?.code,
       shipping_cost: this.selectedShippingCost(),
+      original_shipping_cost: this.priorityPrice()?.cost ?? undefined,
       delivery_type: this.deliveryType(),
       pickup_date: pickupDate ? pickupDate.toISOString() : undefined
     };

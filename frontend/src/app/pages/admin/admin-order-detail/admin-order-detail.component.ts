@@ -265,7 +265,7 @@ export class AdminOrderDetailComponent implements OnInit {
       return sum + qty * price;
     }, 0);
 
-    return existingTotal + newItemsTotal;
+    return existingTotal + newItemsTotal + (order.shipping_cost ?? 0);
   });
 
   ngOnInit(): void {

@@ -83,6 +83,7 @@ export interface OrderCreate {
   items: OrderCreateItem[];
   promotion_code?: string;
   shipping_cost?: number;
+  original_shipping_cost?: number;
   delivery_type?: DeliveryType;
   pickup_date?: string;
 }
@@ -122,6 +123,7 @@ export interface Order {
   cross_sell_discount_amount?: number;
   volume_discount_amount?: number;
   shipping_cost?: number;
+  original_shipping_cost?: number;
   total_amount: number;
   promotion_id?: number;
   promotion_info?: PromotionInfo;

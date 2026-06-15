@@ -128,6 +128,10 @@ export class OrderPdfService {
     const remise = Math.round((grossTotal - actualItemsTotal) * 100) / 100;
     const hasRemise = remise > 0.01;
     const shipping = order.shipping_cost ?? 0;
+    const originalShipping = order.original_shipping_cost ?? shipping;
+    const shippingDiscountAmount = Math.round((originalShipping - shipping) * 100) / 100;
+    const hasShippingDiscount = shippingDiscountAmount > 0.01;
+    const shippingDiscountPercent = hasShippingDiscount ? Math.round(shippingDiscountAmount / originalShipping * 100) : 0;
     const grandTotal = actualItemsTotal + shipping;
     const totalPaid = order.total_paid ?? 0;
     const balance = Math.round((grandTotal - totalPaid) * 100) / 100;
@@ -361,7 +365,14 @@ export class OrderPdfService {
         <div class="summary-row"><span>Prix catalogue</span><strong>${this.money(grossTotal)} DA</strong></div>
         <div class="summary-row red"><span>Remise</span><strong>- ${this.money(remise)} DA</strong></div>
       ` : ''}
-      <div class="summary-row green"><span>Frais de livraison</span><strong>${shipping > 0 ? '+ ' + this.money(shipping) : '—'} DA</strong></div>
+      <div class="summary-row green">
+        <span>Frais de livraison${hasShippingDiscount ? ` <span style="font-size:10px;font-weight:700;background:#d1fae5;color:#047857;padding:1px 6px;border-radius:4px;margin-left:4px;">-${shippingDiscountPercent}%</span>` : ''}</span>
+        <strong>${shipping > 0
+          ? (hasShippingDiscount
+              ? `<span style="text-decoration:line-through;color:#f87171;font-size:10px;font-weight:400;margin-right:4px;">${this.money(originalShipping)} DA</span>+ ${this.money(shipping)}`
+              : '+ ' + this.money(shipping))
+          : '—'} DA</strong>
+      </div>
       <div class="total"><span>TOTAL</span><span>${this.money(grandTotal)} DA</span></div>
       ${balance > 0.01 ? `
         <div class="balance"><span>SOLDE IMPAYÉ</span><span>${this.money(balance)} DA</span></div>

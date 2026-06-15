@@ -85,12 +85,24 @@ export class OrderDetailComponent implements OnInit {
     return customDiscount + (this.order()?.discount_amount ?? 0);
   });
   shippingCost = computed(() => this.order()?.shipping_cost ?? 0);
+  originalShippingCost = computed(() => this.order()?.original_shipping_cost ?? null);
+  shippingDiscountAmount = computed(() => {
+    const orig = this.originalShippingCost();
+    if (!orig) return 0;
+    return Math.round((orig - this.shippingCost()) * 100) / 100;
+  });
+  shippingDiscountPercent = computed(() => {
+    const orig = this.originalShippingCost();
+    if (!orig) return 0;
+    return Math.round(this.shippingDiscountAmount() / orig * 100);
+  });
+  grandTotal = computed(() => this.totalAmount() + this.shippingCost());
   showBreakdown = computed(() => this.discountAmount() > 0 || this.shippingCost() > 0);
   canCancelOrder = computed(() => this.order()?.status === ORDER_STATUS.PENDING);
   totalPaid = computed(() =>
     (this.order()?.payments ?? []).reduce((sum, p) => sum + p.amount, 0)
   );
-  balance = computed(() => this.totalAmount() - this.totalPaid());
+  balance = computed(() => this.grandTotal() - this.totalPaid());
   lastPaymentDate = computed(() => {
     const payments = this.order()?.payments;
     if (!payments?.length) return null;

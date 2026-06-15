@@ -76,6 +76,7 @@ export interface DashboardStats {
     subtotal?: number;
     discount_amount?: number;
     shipping_cost?: number;
+    original_shipping_cost?: number;
     total_amount: number;
     promotion_id?: number;
     created_at: string;
