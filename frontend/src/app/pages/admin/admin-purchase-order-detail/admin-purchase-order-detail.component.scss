@@ -6,6 +6,16 @@
   padding-top: 0;
 }
 
+::ng-deep .qty-free-input {
+  width: 80px;
+
+  input {
+    padding: 6px 8px !important;
+    font-size: 1rem !important;
+    font-weight: 600 !important;
+  }
+}
+
 // Date picker pill inputs
 ::ng-deep input.date-pill {
   border-radius: 999px !important;

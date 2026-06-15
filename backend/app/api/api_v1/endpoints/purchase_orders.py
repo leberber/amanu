@@ -23,8 +23,11 @@ from app.core.audit import log_audit
 
 class FactureItemUpdate(BaseModel):
     item_id: int
+    quantity_ordered: Optional[int] = None
     facture_quantity: int
     facture_unit_price: float
+    units_per_carton: Optional[int] = None
+    unit_price: Optional[float] = None
     quantity_rejected: Optional[int] = None
     made_date: Optional[str] = None
     expiry_date: Optional[str] = None
@@ -244,6 +247,34 @@ async def get_product_lots(product_id: int, session: Session = Depends(get_sessi
         for lot in lots
     ]
 
+
+
+class CmupUpdate(BaseModel):
+    cmup: float
+
+
+@router.patch("/cmup/{product_id}")
+async def update_product_cmup(
+    product_id: int,
+    body: CmupUpdate,
+    session: Session = Depends(get_session),
+    current_user: User = Depends(get_current_staff_user)
+):
+    """Manually update the CMUP on the latest ProductPurchaseLot for a product."""
+    lot = session.exec(
+        select(ProductPurchaseLot)
+        .where(ProductPurchaseLot.product_id == product_id)
+        .order_by(ProductPurchaseLot.created_at.desc())
+    ).first()
+
+    if not lot:
+        raise HTTPException(status_code=404, detail="No purchase lot found for this product")
+
+    lot.cmup = body.cmup
+    session.add(lot)
+    session.commit()
+    session.refresh(lot)
+    return {"cmup": lot.cmup}
 
 
 @router.get("/{order_id}/audit-logs")
@@ -500,6 +531,10 @@ async def confirm_delivery(
                 item.quantity_received = quantity_received
                 item.facture_quantity = delivery_item.facture_quantity
                 item.facture_unit_price = delivery_item.facture_unit_price
+                if delivery_item.units_per_carton is not None:
+                    item.units_per_carton = delivery_item.units_per_carton
+                if delivery_item.unit_price is not None:
+                    item.unit_price = delivery_item.unit_price
 
                 product = None
 
@@ -748,8 +783,16 @@ async def update_facture_items(
         if len(change) > 1:  # more than just product_name
             item_changes.append(change)
 
+        if update.quantity_ordered is not None:
+            item.quantity_ordered = update.quantity_ordered
+            item.total_price = update.quantity_ordered * item.unit_price
         item.facture_quantity = update.facture_quantity
         item.facture_unit_price = update.facture_unit_price
+        if update.units_per_carton is not None:
+            item.units_per_carton = update.units_per_carton
+        if update.unit_price is not None:
+            item.unit_price = update.unit_price
+            item.total_price = item.quantity_ordered * update.unit_price
         session.add(item)
 
         # Also update the corresponding lot record if dates/rejected changed
@@ -774,6 +817,8 @@ async def update_facture_items(
                         pass
                 session.add(lot)
 
+    order.total_amount = sum(item.total_price for item in order.items)
+    session.add(order)
     log_audit(session, current_user, "update_facture", "purchase_order", order_id,
               {"items": item_changes} if item_changes else None)
     session.commit()

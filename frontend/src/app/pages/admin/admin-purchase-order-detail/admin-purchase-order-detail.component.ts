@@ -198,6 +198,8 @@ export class AdminPurchaseOrderDetailComponent implements OnInit {
         quantity_rejected: item.quantity_rejected,
         facture_quantity: item.facture_quantity,
         facture_unit_price: item.facture_unit_price,
+        units_per_carton: item.units_per_carton,
+        unit_price: item.unit_price,
         made_date: item.made_date ? toLocalDate(item.made_date) : null,
         expiry_date: item.expiry_date ? toLocalDate(item.expiry_date) : null
       }))
@@ -228,6 +230,33 @@ export class AdminPurchaseOrderDetailComponent implements OnInit {
 
   dismissWarning(): void {
     this.deliveryWarning.set(null);
+  }
+
+  setItemUnitPricePerPiece(index: number, pricePerPiece: number): void {
+    this.editableItems.update(items => {
+      const updated = [...items];
+      const item = updated[index];
+      const unitPrice = pricePerPiece * (item.units_per_carton || 1);
+      updated[index] = {
+        ...item,
+        unit_price: unitPrice,
+        total_price: unitPrice * item.quantity_ordered
+      };
+      return updated;
+    });
+  }
+
+  setItemQuantity(index: number, qty: number): void {
+    if (!qty || qty < 1) return;
+    this.editableItems.update(items => {
+      const updated = [...items];
+      updated[index] = {
+        ...updated[index],
+        quantity_ordered: qty,
+        total_price: qty * updated[index].unit_price
+      };
+      return updated;
+    });
   }
 
   // Quantity controls
@@ -311,8 +340,11 @@ export class AdminPurchaseOrderDetailComponent implements OnInit {
     this.saving.set(true);
     this.orderService.updateFactureItems(order.id, this.editableItems().map(item => ({
       item_id: item.id!,
+      quantity_ordered: item.quantity_ordered,
       facture_quantity: item.facture_quantity,
       facture_unit_price: item.facture_unit_price,
+      units_per_carton: item.units_per_carton,
+      unit_price: item.unit_price,
       quantity_rejected: item.quantity_rejected,
       made_date: item.made_date ? toLocalDate(item.made_date) : null,
       expiry_date: item.expiry_date ? toLocalDate(item.expiry_date) : null,

@@ -146,6 +146,8 @@ class DeliveryItemConfirmation(BaseModel):
     quantity_rejected: int = 0
     facture_quantity: int = 0
     facture_unit_price: float = 0.0
+    units_per_carton: Optional[int] = None
+    unit_price: Optional[float] = None
     made_date: Optional[str] = None    # ISO format: YYYY-MM-DD
     expiry_date: Optional[str] = None  # ISO format: YYYY-MM-DD
 

@@ -115,6 +115,7 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
 
   // Inline editing state
   priceEdit = new InlineEditState<number>(0);
+  cmupEdit = new InlineEditState<number>(0);
   stockEdit = new InlineEditState<number>(0);
   statusEdit = new InlineEditState<boolean>(true);
 
@@ -421,6 +422,36 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
 
   isEditingPrice(productId: number): boolean {
     return this.priceEdit.isEditing(productId);
+  }
+
+  // Inline CMUP editing methods
+  startEditCmup(product: Product): void {
+    this.cmupEdit.start(product.id, this.getCmup(product.id) ?? 0);
+  }
+
+  cancelEditCmup(): void {
+    this.cmupEdit.cancel();
+  }
+
+  saveCmup(product: Product): void {
+    const newCmup = this.cmupEdit.value;
+    this.purchaseOrderService.updateCmup(product.id, newCmup)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.cmupMap.update(map => ({ ...map, [product.id]: newCmup }));
+          this.cmupEdit.cancel();
+          this.baseToast.showSuccess('admin.products.cmup_updated');
+        },
+        error: (error) => {
+          this.cmupEdit.cancel();
+          this.baseToast.showApiError(error, 'admin.products.cmup_update_failed');
+        }
+      });
+  }
+
+  isEditingCmup(productId: number): boolean {
+    return this.cmupEdit.isEditing(productId);
   }
 
   // Inline stock editing methods

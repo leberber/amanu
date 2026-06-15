@@ -129,6 +129,8 @@ export interface DeliveryConfirmation {
     quantity_received: number;
     facture_quantity: number;
     facture_unit_price: number;
+    units_per_carton?: number;
+    unit_price?: number;
   }[];
   notes?: string;
 }
@@ -205,7 +207,7 @@ export class PurchaseOrderService {
     return this.api.post<PurchaseOrder>(`/purchase-orders/${id}/deliver`, delivery);
   }
 
-  updateFactureItems(orderId: number, items: { item_id: number; facture_quantity: number; facture_unit_price: number; quantity_rejected?: number; made_date?: string | null; expiry_date?: string | null }[]): Observable<PurchaseOrder> {
+  updateFactureItems(orderId: number, items: { item_id: number; quantity_ordered?: number; facture_quantity: number; facture_unit_price: number; units_per_carton?: number; unit_price?: number; quantity_rejected?: number; made_date?: string | null; expiry_date?: string | null }[]): Observable<PurchaseOrder> {
     return this.api.patch<PurchaseOrder>(`/purchase-orders/${orderId}/facture-items`, { items });
   }
 
@@ -227,6 +229,10 @@ export class PurchaseOrderService {
 
   getOrderAuditLogs(orderId: number): Observable<AuditLog[]> {
     return this.api.get<AuditLog[]>(`/purchase-orders/${orderId}/audit-logs`);
+  }
+
+  updateCmup(productId: number, cmup: number): Observable<{ cmup: number }> {
+    return this.api.patch<{ cmup: number }>(`/purchase-orders/cmup/${productId}`, { cmup });
   }
 
 

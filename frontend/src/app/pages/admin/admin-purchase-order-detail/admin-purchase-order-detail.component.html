@@ -66,7 +66,17 @@
                       <span class="pill purple">{{ item.brand }}</span>
                     </td>
                     <td class="text-center">
-                      <span class="text-secondary">{{ item.units_per_carton }}</span>
+                      @if (order()!.status === 'sent' || order()!.status === 'delivered') {
+                        <p-inputNumber
+                          [(ngModel)]="editableItems()[i].units_per_carton"
+                          [min]="1"
+                          [showButtons]="false"
+                          styleClass="w-full"
+                          inputStyleClass="text-center"
+                        />
+                      } @else {
+                        <span class="text-secondary">{{ item.units_per_carton }}</span>
+                      }
                     </td>
                     <td class="text-center">
                       @if (order()!.status === 'sent' || order()!.status === 'delivered') {
@@ -79,9 +89,14 @@
                             (onClick)="decrementQuantity(i)"
                             [disabled]="editableItems()[i].quantity_ordered <= 1"
                           />
-                          <div class="quantity-display quantity-display--sm">
-                            <span class="quantity-display__primary">{{ editableItems()[i].quantity_ordered }}</span>
-                          </div>
+                          <p-inputNumber
+                            [ngModel]="editableItems()[i].quantity_ordered"
+                            (ngModelChange)="setItemQuantity(i, $event)"
+                            [min]="1"
+                            [showButtons]="false"
+                            styleClass="qty-free-input"
+                            inputStyleClass="text-center"
+                          />
                           <p-button
                             icon="pi pi-plus"
                             [rounded]="true"
@@ -94,10 +109,22 @@
                         <span class="font-semibold">{{ item.quantity_ordered }}</span>
                       }
                     <td class="text-right">
-                      <span class="text-secondary"><app-currency [value]="item.unit_price / item.units_per_carton" /></span>
+                      @if (order()!.status === 'sent' || order()!.status === 'delivered') {
+                        <p-inputNumber
+                          [ngModel]="editableItems()[i].unit_price / editableItems()[i].units_per_carton"
+                          (ngModelChange)="setItemUnitPricePerPiece(i, $event)"
+                          [min]="0"
+                          [minFractionDigits]="2"
+                          [showButtons]="false"
+                          styleClass="w-full"
+                          inputStyleClass="text-right"
+                        />
+                      } @else {
+                        <span class="text-secondary"><app-currency [value]="item.unit_price / item.units_per_carton" /></span>
+                      }
                     </td>
                     <td class="text-right">
-                      <span class="text-secondary"><app-currency [value]="item.unit_price" /></span>
+                      <span class="text-secondary"><app-currency [value]="editableItems()[i].unit_price" /></span>
                     </td>
                     <td class="text-right">
                       <span class="font-bold"><app-currency [value]="item.total_price" /></span>

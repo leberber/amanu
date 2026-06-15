@@ -295,12 +295,32 @@
 
                   <!-- Purchase Price (CMUP) -->
                   @if (isColumnVisible('purchase_price')) {
-                    <td class="text-center">
-                      @if (getCmup(product.id); as cmup) {
-                        <span class="font-semibold text-sm"><app-currency [value]="cmup" /></span>
-                      } @else {
-                        <span class="text-color-secondary">—</span>
-                      }
+                    <td class="text-center" (click)="$event.stopPropagation()">
+                    @if (!isEditingCmup(product.id)) {
+                      <div class="editable-cell" (click)="startEditCmup(product)">
+                        @if (getCmup(product.id); as cmup) {
+                          <div class="editable-cell__value"><app-currency [value]="cmup" /></div>
+                        } @else {
+                          <div class="editable-cell__value text-color-secondary">—</div>
+                        }
+                        <i class="pi pi-pencil editable-cell__icon"></i>
+                      </div>
+                    } @else {
+                      <div class="cell-edit justify-content-center">
+                        <input
+                          class="cell-edit__input"
+                          type="number"
+                          [(ngModel)]="cmupEdit.value"
+                          (keydown.enter)="saveCmup(product)"
+                          (keydown.escape)="cancelEditCmup()">
+                        <button class="cell-edit__btn cell-edit__btn--save" (click)="saveCmup(product)">
+                          <i class="pi pi-check"></i>
+                        </button>
+                        <button class="cell-edit__btn cell-edit__btn--cancel" (click)="cancelEditCmup()">
+                          <i class="pi pi-times"></i>
+                        </button>
+                      </div>
+                    }
                     </td>
                   }
 
