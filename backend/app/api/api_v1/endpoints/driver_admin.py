@@ -15,6 +15,7 @@ from app.models.driver_config import (
     DriverSystemConfig, DriverSystemConfigRead, DriverSystemConfigUpdate
 )
 from app.models.product import Product
+from app.models.trip import Trip, TripStop, TripStatus, StopStatus
 from sqlmodel import SQLModel
 
 
@@ -364,6 +365,30 @@ def assign_order_to_driver(
         session.add(driver)
 
     session.add(order)
+    session.flush()  # get order persisted so we can reference it
+
+    # Create a trip for this order if it doesn't already have one
+    if not order.trip_id:
+        trip = Trip(
+            driver_id=driver_user.id,
+            status=TripStatus.PENDING,
+            created_by_id=current_user.id,
+            assigned_at=now,
+        )
+        session.add(trip)
+        session.flush()  # get trip.id
+
+        stop = TripStop(
+            trip_id=trip.id,
+            order_id=order.id,
+            sequence=1,
+            status=StopStatus.PENDING,
+        )
+        session.add(stop)
+
+        order.trip_id = trip.id
+        session.add(order)
+
     session.commit()
     session.refresh(order)
 
