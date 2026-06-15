@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { DecimalPipe, DatePipe } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { ToastModule } from 'primeng/toast';
+import { DrawerModule } from 'primeng/drawer';
 import { FormsModule } from '@angular/forms';
 import { DatePickerModule } from 'primeng/datepicker';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -27,6 +28,7 @@ export type DeliveryMethod = 'delivery' | 'pickup';
   imports: [
     TranslateModule,
     ToastModule,
+    DrawerModule,
     FormsModule,
     DatePickerModule,
     DecimalPipe,
@@ -67,6 +69,7 @@ export class OrderSummaryComponent implements OnInit {
   shippingResponse = signal<ShippingCostResponse | null>(null);
   shippingError = signal<string | null>(null);
   showShippingDetails = signal(false);
+  showPricingInfo = signal(false);
 
   // Can proceed to checkout
   canProceed = computed(() => {
@@ -154,6 +157,11 @@ export class OrderSummaryComponent implements OnInit {
   // Delivery type (standard vs priority)
   selectDeliveryType(type: DeliveryType): void {
     this.deliveryType.set(type);
+  }
+
+  selectTypeAndClose(type: DeliveryType): void {
+    this.deliveryType.set(type);
+    setTimeout(() => this.showPricingInfo.set(false), 220);
   }
 
   // Toggle shipping details

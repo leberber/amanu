@@ -91,6 +91,15 @@
                 <span class="delivery-type-row__price--discounted"><app-currency [value]="priorityPrice()?.cost" /></span>
               </div>
             </div>
+
+            <!-- How is this calculated? -->
+            <button
+              type="button"
+              class="pricing-info-trigger"
+              (click)="showPricingInfo.set(true); $event.stopPropagation()">
+              <i class="pi pi-info-circle"></i>
+              <span>{{ 'order_summary.how_calculated' | translate }}</span>
+            </button>
           </div>
 
           <!-- Divider -->
@@ -349,5 +358,185 @@
     [fullWidthButton]="true"
     [disabled]="!canProceed()"
     (buttonClick)="proceedToCheckout()" />
+
+  <!-- Pricing Info Bottom Sheet -->
+  <p-drawer
+    [visible]="showPricingInfo()"
+    (visibleChange)="showPricingInfo.set($event)"
+    position="bottom"
+    styleClass="pricing-info-drawer"
+    [style]="{ height: '100vh' }">
+
+    <!-- Footer: switch + confirm -->
+    <ng-template pTemplate="footer">
+      @if (shippingResponse()) {
+        <div class="pi-footer">
+          @if (deliveryType() === 'PRIORITY') {
+            <button class="pi-switch-btn pi-switch-btn--to-standard" (click)="selectDeliveryType('STANDARD')">
+              <div class="pi-switch-btn__left">
+                <i class="pi pi-users"></i>
+                <div>
+                  <span class="pi-switch-btn__action">{{ 'order_summary.switch_to_standard' | translate }}</span>
+                  <span class="pi-switch-btn__meta">24h · <app-currency [value]="standardPrice()!.cost" /></span>
+                </div>
+              </div>
+              <i class="pi pi-arrow-right-arrow-left"></i>
+            </button>
+          }
+          @if (deliveryType() === 'STANDARD') {
+            <button class="pi-switch-btn pi-switch-btn--to-priority" (click)="selectDeliveryType('PRIORITY')">
+              <div class="pi-switch-btn__left">
+                <i class="pi pi-bolt"></i>
+                <div>
+                  <span class="pi-switch-btn__action">{{ 'order_summary.switch_to_priority' | translate }}</span>
+                  <span class="pi-switch-btn__meta">2h · <app-currency [value]="priorityPrice()!.cost" /></span>
+                </div>
+              </div>
+              <i class="pi pi-arrow-right-arrow-left"></i>
+            </button>
+          }
+          <button class="pi-confirm-btn" (click)="showPricingInfo.set(false)">
+            <i class="pi pi-check"></i>
+            {{ 'order_summary.confirm_delivery_type' | translate }}
+          </button>
+        </div>
+      }
+    </ng-template>
+
+    @if (shippingResponse()) {
+
+      <div class="pi-sheet">
+
+        <!-- Section header -->
+        @if (deliveryType() === 'PRIORITY') {
+          <div class="pi-section-header pi-section-header--priority">
+            <div class="pi-section-header__title-row">
+              <h2 class="pi-section-header__title">{{ 'checkout.priority_delivery' | translate }}</h2>
+              <button class="pi-close-btn" (click)="showPricingInfo.set(false)"><i class="pi pi-times"></i></button>
+            </div>
+            <div class="pi-section-header__time">
+              <i class="pi pi-bolt"></i>
+              <span>en moins de</span>
+              <strong class="pi-section-header__highlight">2h</strong>
+            </div>
+            <p class="pi-section-header__desc">{{ 'order_summary.priority_delivery_detail' | translate }}</p>
+          </div>
+        }
+        @if (deliveryType() === 'STANDARD') {
+          <div class="pi-section-header pi-section-header--standard">
+            <div class="pi-section-header__title-row">
+              <h2 class="pi-section-header__title">{{ 'checkout.standard_delivery' | translate }}</h2>
+              <button class="pi-close-btn" (click)="showPricingInfo.set(false)"><i class="pi pi-times"></i></button>
+            </div>
+            <div class="pi-section-header__time">
+              <i class="pi pi-clock"></i>
+              <span>en moins de</span>
+              <strong class="pi-section-header__highlight">24h</strong>
+            </div>
+            @if (standardPrice()!.discount_percent > 0) {
+              <p class="pi-section-header__saving-text">{{ standardPrice()!.discount_percent }}% de réduction appliquée sur cette livraison</p>
+            }
+            <p class="pi-section-header__desc">{{ 'order_summary.standard_delivery_detail' | translate }}</p>
+          </div>
+        }
+
+        <!-- Breakdown -->
+        <div class="pi-breakdown">
+          <p class="pi-breakdown__label">{{ 'order_summary.how_calculated' | translate }}</p>
+
+          <!-- Base cost -->
+          <div class="pi-breakdown__item">
+            <div class="pi-breakdown__item-left">
+              <div class="pi-breakdown__icon pi-breakdown__icon--indigo"><i class="pi pi-wallet"></i></div>
+              <div>
+                <span class="pi-breakdown__item-name">{{ 'order_summary.base_cost' | translate }}</span>
+              </div>
+            </div>
+            <span class="pi-breakdown__item-value"><app-currency [value]="shippingResponse()!.breakdown.base_cost" /></span>
+          </div>
+
+          <!-- Distance -->
+          @if (shippingResponse()!.breakdown.distance_cost > 0) {
+            <div class="pi-breakdown__item">
+              <div class="pi-breakdown__item-left">
+                <div class="pi-breakdown__icon pi-breakdown__icon--amber"><i class="pi pi-map-marker"></i></div>
+                <div>
+                  <span class="pi-breakdown__item-name">{{ 'order_summary.distance_cost' | translate }}</span>
+                  <span class="pi-breakdown__meta">{{ shippingResponse()!.distance_km }} km × {{ shippingResponse()!.breakdown.distance_cost / shippingResponse()!.distance_km | number:'1.0-0' }} DZD/km</span>
+                </div>
+              </div>
+              <span class="pi-breakdown__item-value"><app-currency [value]="shippingResponse()!.breakdown.distance_cost" /></span>
+            </div>
+          }
+
+          <!-- Weight -->
+          @if (shippingResponse()!.breakdown.weight_cost > 0) {
+            <div class="pi-breakdown__item">
+              <div class="pi-breakdown__item-left">
+                <div class="pi-breakdown__icon pi-breakdown__icon--blue"><i class="pi pi-box"></i></div>
+                <div>
+                  <span class="pi-breakdown__item-name">{{ 'order_summary.weight_cost' | translate }}</span>
+                </div>
+              </div>
+              <span class="pi-breakdown__item-value"><app-currency [value]="shippingResponse()!.breakdown.weight_cost" /></span>
+            </div>
+          }
+
+          <!-- Volume -->
+          @if (shippingResponse()!.breakdown.volume_cost > 0) {
+            <div class="pi-breakdown__item">
+              <div class="pi-breakdown__item-left">
+                <div class="pi-breakdown__icon pi-breakdown__icon--violet"><i class="pi pi-th-large"></i></div>
+                <div>
+                  <span class="pi-breakdown__item-name">{{ 'order_summary.volume_cost' | translate }}</span>
+                </div>
+              </div>
+              <span class="pi-breakdown__item-value"><app-currency [value]="shippingResponse()!.breakdown.volume_cost" /></span>
+            </div>
+          }
+
+          <!-- Subtotal before discounts -->
+          <div class="pi-breakdown__subtotal">
+            <span>Sous-total</span>
+            <span><app-currency [value]="shippingResponse()!.breakdown.total_before_bounds" /></span>
+          </div>
+
+          <!-- Order tier discount -->
+          @if (shippingResponse()!.discount_applied) {
+            <div class="pi-breakdown__item">
+              <div class="pi-breakdown__item-left">
+                <div class="pi-breakdown__icon pi-breakdown__icon--green"><i class="pi pi-percentage"></i></div>
+                <div>
+                  <span class="pi-breakdown__item-name pi-breakdown__item-name--green">{{ 'order_summary.shipping_discount_label' | translate: { percent: shippingResponse()!.discount_percent } }}</span>
+                </div>
+              </div>
+              <span class="pi-breakdown__item-value pi-breakdown__item-value--green">-<app-currency [value]="shippingResponse()!.breakdown.discount_amount" /></span>
+            </div>
+          }
+
+          <!-- Standard delivery discount -->
+          @if (deliveryType() === 'STANDARD' && standardPrice()!.discount_percent > 0) {
+            <div class="pi-breakdown__item">
+              <div class="pi-breakdown__item-left">
+                <div class="pi-breakdown__icon pi-breakdown__icon--teal"><i class="pi pi-users"></i></div>
+                <div>
+                  <span class="pi-breakdown__item-name pi-breakdown__item-name--green">{{ 'order_summary.shipping_discount_label' | translate: { percent: standardPrice()!.discount_percent } }} (standard)</span>
+                </div>
+              </div>
+              <span class="pi-breakdown__item-value pi-breakdown__item-value--green">-<app-currency [value]="priorityPrice()!.cost - standardPrice()!.cost" /></span>
+            </div>
+          }
+
+          <!-- Total -->
+          <div class="pi-breakdown__total">
+            <span>{{ 'common.total' | translate }}</span>
+            <span><app-currency [value]="deliveryCost()" /></span>
+          </div>
+        </div>
+
+      </div>
+
+    }
+  </p-drawer>
 
 </app-page-layout>
