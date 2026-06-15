@@ -130,14 +130,14 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
   paymentRemaining = computed(() => {
     const order = this.paymentOrder();
     if (!order) return 0;
-    return Math.max(0, order.total_amount - this.paymentTotalPaid());
+    return Math.max(0, order.total_amount + (order.shipping_cost ?? 0) - this.paymentTotalPaid());
   });
 
   // Outstanding balance on the order being moved to "delivered"
   deliveryPaymentWarning = computed(() => {
     const order = this.editingOrder();
     if (!order || this.selectedNewStatus() !== 'delivered') return 0;
-    return Math.max(0, order.total_amount - (order.total_paid ?? 0));
+    return Math.max(0, order.total_amount + (order.shipping_cost ?? 0) - (order.total_paid ?? 0));
   });
 
   // Inline payment form inside the status popover
@@ -585,7 +585,7 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
     this.adminService.getOrderPayments(order.id).subscribe({
       next: (response) => {
         this.paymentTotalPaid.set(response.total_paid);
-        this.paymentAmount.set(Math.max(0, order.total_amount - response.total_paid));
+        this.paymentAmount.set(Math.max(0, order.total_amount + (order.shipping_cost ?? 0) - response.total_paid));
         this.loadingPaymentInfo.set(false);
       },
       error: () => {
@@ -609,7 +609,8 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
     }).subscribe({
       next: () => {
         const newTotalPaid = this.paymentTotalPaid() + this.paymentAmount();
-        const newStatus = newTotalPaid >= order.total_amount ? 'paid'
+        const orderTotal = order.total_amount + (order.shipping_cost ?? 0);
+        const newStatus = newTotalPaid >= orderTotal ? 'paid'
           : newTotalPaid > 0 ? 'partial' : 'unpaid';
 
         this.allOrders.update(orders => {
