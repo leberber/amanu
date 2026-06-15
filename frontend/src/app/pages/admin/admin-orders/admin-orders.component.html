@@ -134,11 +134,14 @@
                   <td class="text-500 text-sm">{{ order.created_at | appDate }}</td>
                   <td>
                     <p-tag
-                      [value]="isPickupOrder(order) ? 'Retrait' : 'Livraison'"
-                      [severity]="order.status === 'delivered' ? 'success' : 'secondary'"
+                      [value]="getDeliveryLabel(order)"
+                      [severity]="order.status === 'delivered' ? 'success' : getDeliverySeverity(order)"
                       [rounded]="true"
-                      [icon]="isPickupOrder(order) ? 'pi pi-map-marker' : 'pi pi-truck'"
+                      [icon]="getDeliveryIcon(order)"
                       styleClass="text-xs" />
+                    @if ((order.shipping_cost ?? 0) > 0) {
+                      <div class="text-xs text-500 mt-1"><app-currency [value]="order.shipping_cost!" /></div>
+                    }
                   </td>
                   <td (click)="$event.stopPropagation()">
                     <button class="payment-tag-btn" (click)="openStatusPopover($event, order)" [disabled]="!canEditStatus(order.status)">
@@ -159,9 +162,9 @@
                     </button>
                   </td>
                   <td class="text-right">
-                    <div class="font-semibold"><app-currency [value]="order.total_amount" /></div>
+                    <div class="font-semibold"><app-currency [value]="getOrderTotal(order)" /></div>
                     @if (order.payment_status === 'partial') {
-                      <div class="order-balance-remaining"><app-currency [value]="order.total_amount - (order.total_paid ?? 0)" /></div>
+                      <div class="order-balance-remaining"><app-currency [value]="getOrderTotal(order) - (order.total_paid ?? 0)" /></div>
                     }
                   </td>
                   <td class="text-center" (click)="$event.stopPropagation()">

@@ -320,6 +320,31 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
     return order.delivery_type?.toLowerCase() === 'pickup';
   }
 
+  getDeliveryLabel(order: Order): string {
+    const type = order.delivery_type?.toLowerCase();
+    if (type === 'pickup') return 'Retrait';
+    if (type === 'priority') return 'Premium';
+    return 'Standard';
+  }
+
+  getDeliveryIcon(order: Order): string {
+    const type = order.delivery_type?.toLowerCase();
+    if (type === 'pickup') return 'pi pi-map-marker';
+    if (type === 'priority') return 'pi pi-bolt';
+    return 'pi pi-truck';
+  }
+
+  getDeliverySeverity(order: Order): 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contrast' {
+    const type = order.delivery_type?.toLowerCase();
+    if (type === 'pickup') return 'secondary';
+    if (type === 'priority') return 'warn';
+    return 'info';
+  }
+
+  getOrderTotal(order: Order): number {
+    return order.total_amount + (order.shipping_cost ?? 0);
+  }
+
   // Status editing - delegate to service
   getNextStatuses(currentStatus: string, order?: Order): { value: string; label: string; icon: string }[] {
     const isPickup = order ? this.isPickupOrder(order) : false;
