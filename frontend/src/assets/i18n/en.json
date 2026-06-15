@@ -2197,6 +2197,7 @@
       "min_cost_hint": "Never charge less than this amount",
       "max_cost": "Maximum Cost",
       "max_cost_hint": "Never charge more than this amount",
+      "standard_delivery_discount": "Standard Delivery Discount (%)",
       "discount_tiers": "Discount Tiers",
       "discount_tiers_hint": "Configure discounts based on order total. Customers who reach higher order amounts get bigger shipping discounts.",
       "no_tiers": "No discount tiers configured",

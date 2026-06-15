@@ -78,6 +78,7 @@ export class AdminShippingConfigComponent implements OnInit {
       min_shipping_cost: [200, [Validators.required, Validators.min(0)]],
       max_shipping_cost: [5000, [Validators.required, Validators.min(0)]],
       shipping_discount_tiers: this.fb.array([]),
+      standard_delivery_discount_percent: [30, [Validators.required, Validators.min(0), Validators.max(100)]],
       is_active: [true]
     });
 
@@ -123,6 +124,7 @@ export class AdminShippingConfigComponent implements OnInit {
       price_per_min: config.price_per_min,
       min_shipping_cost: config.min_shipping_cost,
       max_shipping_cost: config.max_shipping_cost,
+      standard_delivery_discount_percent: config.standard_delivery_discount_percent,
       is_active: config.is_active
     });
 

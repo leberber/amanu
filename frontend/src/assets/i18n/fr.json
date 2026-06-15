@@ -2198,6 +2198,7 @@
       "min_cost_hint": "Ne jamais facturer moins que ce montant",
       "max_cost": "Coût Maximum",
       "max_cost_hint": "Ne jamais facturer plus que ce montant",
+      "standard_delivery_discount": "Remise Livraison Standard (%)",
       "discount_tiers": "Paliers de Réduction",
       "discount_tiers_hint": "Configurez des réductions basées sur le total de la commande. Les clients avec des commandes plus élevées bénéficient de réductions plus importantes.",
       "no_tiers": "Aucun palier de réduction configuré",

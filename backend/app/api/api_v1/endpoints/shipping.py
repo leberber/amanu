@@ -157,7 +157,7 @@ def calculate_shipping_cost(
             message = f"Add {next_tier['amount_needed']} DZD more to get {int(next_tier['discount_percent'])}% off shipping!"
 
     # Calculate standard delivery price (discounted for batching)
-    STANDARD_DISCOUNT_PERCENT = 30  # 30% discount for standard delivery
+    STANDARD_DISCOUNT_PERCENT = config.standard_delivery_discount_percent
     standard_cost = round(final_cost * (1 - STANDARD_DISCOUNT_PERCENT / 100), 2)
 
     # Build delivery type pricing

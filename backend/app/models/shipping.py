@@ -65,6 +65,12 @@ class ShippingPriceConfig(SQLModel, table=True):
         description="List of discount tiers: [{min_order, discount_percent}]"
     )
 
+    # Standard delivery discount (applied when order is batched)
+    standard_delivery_discount_percent: float = Field(
+        default=30.0,
+        description="Discount percentage applied to standard (batched) delivery vs priority (0-100)"
+    )
+
     # Driver commission (percentage of shipping cost that goes to driver)
     driver_commission_percent: float = Field(
         default=100.0,
@@ -90,6 +96,7 @@ class ShippingPriceConfigCreate(SQLModel):
     min_shipping_cost: float = 200.0
     max_shipping_cost: float = 5000.0
     shipping_discount_tiers: Optional[List[dict]] = None
+    standard_delivery_discount_percent: float = 30.0
     driver_commission_percent: float = 100.0
 
 
@@ -103,6 +110,7 @@ class ShippingPriceConfigUpdate(SQLModel):
     min_shipping_cost: Optional[float] = None
     max_shipping_cost: Optional[float] = None
     shipping_discount_tiers: Optional[List[dict]] = None
+    standard_delivery_discount_percent: Optional[float] = None
     driver_commission_percent: Optional[float] = None
     is_active: Optional[bool] = None
 
@@ -119,6 +127,7 @@ class ShippingPriceConfigRead(SQLModel):
     min_shipping_cost: float
     max_shipping_cost: float
     shipping_discount_tiers: Optional[List[dict]] = None
+    standard_delivery_discount_percent: float
     driver_commission_percent: float
     is_active: bool
     created_at: datetime
