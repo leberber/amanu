@@ -6,7 +6,7 @@ from pydantic import BaseModel
 from app.database import get_session
 from app.core.security import get_current_staff_user, get_password_hash
 from app.models.user import User, UserRead, UserRole
-from app.models.driver import Driver
+from app.models.driver import Driver, DriverVehicle, VehicleType
 
 router = APIRouter()
 
@@ -47,7 +47,16 @@ def create_account(
     session.refresh(user)
 
     if data.role == "driver":
-        session.add(Driver(user_id=user.id))
+        driver = Driver(user_id=user.id)
+        session.add(driver)
+        session.commit()
+        session.refresh(driver)
+        session.add(DriverVehicle(
+            driver_id=driver.id,
+            vehicle_type=VehicleType.MINI_VAN,
+            capacity_kg=10000.0,
+            is_primary=True,
+        ))
         session.commit()
 
     return user
