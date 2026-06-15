@@ -103,7 +103,7 @@
                   <span class="payment-history-item__order">{{ 'orders.payments.order_ref' | translate }}{{ order.order_id }}</span>
                 </div>
                 <div class="payment-history-item__right">
-                  <span class="payment-history-item__amount payment-history-item__amount--{{ order.payment_status }}"><app-currency [value]="order.total_amount" /></span>
+                  <span class="payment-history-item__amount payment-history-item__amount--{{ order.payment_status }}"><app-currency [value]="order.total_amount + order.shipping_cost" /></span>
                   <span class="payment-status-pill payment-status-pill--{{ order.payment_status }}">
                     {{ 'orders.payments.status_' + order.payment_status | translate }}
                   </span>

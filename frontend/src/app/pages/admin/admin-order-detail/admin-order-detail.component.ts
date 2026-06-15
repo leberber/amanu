@@ -211,7 +211,8 @@ export class AdminOrderDetailComponent implements OnInit {
 
   // Payment balance
   balance = computed(() => {
-    const total = this.order()?.total_amount ?? 0;
+    const order = this.order();
+    const total = (order?.total_amount ?? 0) + (order?.shipping_cost ?? 0);
     return total - this.totalPaid();
   });
 

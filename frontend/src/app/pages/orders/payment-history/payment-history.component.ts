@@ -60,7 +60,7 @@ export class PaymentHistoryComponent implements OnInit {
   totalOutstanding = computed(() =>
     this.orders()
       .filter(o => o.status !== 'cancelled')
-      .reduce((sum, o) => sum + Math.max(0, o.total_amount - o.total_paid), 0)
+      .reduce((sum, o) => sum + Math.max(0, o.total_amount + o.shipping_cost - o.total_paid), 0)
   );
 
   ngOnInit(): void {
@@ -83,7 +83,7 @@ export class PaymentHistoryComponent implements OnInit {
   }
 
   getRemaining(order: OrderFinancialSummary): number {
-    return Math.max(0, order.total_amount - order.total_paid);
+    return Math.max(0, order.total_amount + order.shipping_cost - order.total_paid);
   }
 
   getPaymentStatusSeverity(status: string): string {

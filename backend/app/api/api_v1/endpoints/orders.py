@@ -471,6 +471,7 @@ def get_financial_summary(
             order_id=o.id,
             created_at=o.created_at,
             total_amount=o.total_amount,
+            shipping_cost=o.shipping_cost or 0.0,
             total_paid=o.total_paid or 0.0,
             payment_status=o.payment_status or "unpaid",
             status=o.status.value.lower() if hasattr(o.status, 'value') else str(o.status).lower(),

@@ -85,13 +85,13 @@ export class OrderListComponent implements OnInit {
   totalSpend = computed(() =>
     this.filteredOrders()
       .filter(o => o.status !== 'cancelled')
-      .reduce((sum, order) => sum + order.total_amount, 0)
+      .reduce((sum, order) => sum + order.total_amount + (order.shipping_cost ?? 0), 0)
   );
 
   totalOutstanding = computed(() =>
     this.orders()
       .filter(o => o.status !== 'cancelled')
-      .reduce((sum, order) => sum + Math.max(0, order.total_amount - (order.total_paid ?? 0)), 0)
+      .reduce((sum, order) => sum + Math.max(0, order.total_amount + (order.shipping_cost ?? 0) - (order.total_paid ?? 0)), 0)
   );
 
   // Paginated orders for table (respects time filter)

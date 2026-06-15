@@ -58,6 +58,7 @@ export interface OrderFinancialSummary {
   order_id: number;
   created_at: string;
   total_amount: number;
+  shipping_cost: number;
   total_paid: number;
   payment_status: 'unpaid' | 'partial' | 'paid';
   status: string;

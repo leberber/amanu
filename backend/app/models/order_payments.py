@@ -71,6 +71,7 @@ class OrderFinancialSummary(SQLModel):
     order_id: int
     created_at: datetime
     total_amount: float
+    shipping_cost: float
     total_paid: float
     payment_status: str
     status: str
