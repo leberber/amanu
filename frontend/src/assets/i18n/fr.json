@@ -1364,7 +1364,8 @@
       "roles": {
         "customer": "Client",
         "staff": "Personnel",
-        "admin": "Admin"
+        "admin": "Admin",
+        "driver": "Chauffeur"
       },
       "clear_filters": "Effacer les Filtres",
       "showing": "Affichage de {{shown}} sur {{total}} utilisateurs",

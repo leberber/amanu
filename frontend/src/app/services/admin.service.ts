@@ -176,7 +176,7 @@ export class AdminService {
   }
 
   createUser(userData: any): Observable<UserManage> {
-    return this.apiService.post<UserManage>('/users', userData);
+    return this.apiService.post<UserManage>('/admin/tools/create-account', userData);
   }
 
   // Customer Routes
