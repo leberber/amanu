@@ -550,6 +550,14 @@
       font-weight: var(--font-weight-semibold);
       margin-top: 2px;
     }
+
+    &--total {
+      color: var(--text-color);
+      font-weight: var(--font-weight-semibold);
+      border-top: 1px solid var(--border-color-light);
+      padding-top: var(--space-2);
+      margin-top: var(--space-1);
+    }
   }
 
   &__paid { color: #16a34a; }

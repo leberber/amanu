@@ -438,6 +438,16 @@
             <span>{{ 'admin.orders.order_total' | translate }}</span>
             <span class="font-semibold"><app-currency [value]="order.total_amount" /></span>
           </div>
+          @if ((order.shipping_cost ?? 0) > 0) {
+            <div class="payment-popup__info-row">
+              <span>Frais de livraison</span>
+              <span class="font-semibold"><app-currency [value]="order.shipping_cost!" /></span>
+            </div>
+            <div class="payment-popup__info-row payment-popup__info-row--total">
+              <span>Total (avec livraison)</span>
+              <span class="font-semibold"><app-currency [value]="getOrderTotal(order)" /></span>
+            </div>
+          }
           @if (paymentTotalPaid() > 0) {
             <div class="payment-popup__info-row">
               <span>{{ 'admin.orders.already_paid' | translate }}</span>
