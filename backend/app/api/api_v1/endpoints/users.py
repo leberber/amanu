@@ -3,12 +3,14 @@ from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Query, BackgroundTasks
 from sqlmodel import Session, select, func
-from sqlalchemy import or_
+from sqlalchemy import or_, update
 from pydantic import BaseModel
 
 from app.database import get_session
 from app.models.user import User, UserUpdate, UserRead, UserRole, UserGroupsUpdate, UserGroupBasic
 from app.models.user_group import UserGroup, UserGroupLink
+from app.models.order import Order
+from app.models.trip import Trip
 from app.core.security import (
     get_current_user,
     get_current_active_user,
@@ -325,6 +327,11 @@ def delete_user(
             detail="Cannot delete your own user account",
         )
     
+    # Unassign any orders/trips where this user was the driver
+    session.exec(update(Order).where(Order.driver_id == user_id).values(driver_id=None))
+    session.exec(update(Trip).where(Trip.driver_id == user_id).values(driver_id=None))
+    session.exec(update(Trip).where(Trip.suggested_driver_id == user_id).values(suggested_driver_id=None))
+
     session.delete(user)
     session.commit()
     return None

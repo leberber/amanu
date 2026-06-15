@@ -14,6 +14,7 @@ export class StatusSeverityService {
   getRoleOptions(): { label: string; value: string }[] {
     return [
       { label: this.translateService.instant('admin.users.roles.customer'), value: USER_ROLES.CUSTOMER },
+      { label: this.translateService.instant('admin.users.roles.driver'), value: USER_ROLES.DRIVER },
       { label: this.translateService.instant('admin.users.roles.staff'), value: USER_ROLES.STAFF },
       { label: this.translateService.instant('admin.users.roles.admin'), value: USER_ROLES.ADMIN }
     ];
