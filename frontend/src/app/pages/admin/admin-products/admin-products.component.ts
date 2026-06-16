@@ -67,6 +67,9 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
   // Computed: has more products to load from server
   hasMore = computed(() => this.displayedProducts().length < this.totalProducts());
 
+  // Default to active products
+  override statusFilter: string = 'active';
+
   // Category filter
   categoryFilter: number | null = null;
 
@@ -112,6 +115,43 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
   lots = signal<ProductPurchaseLot[]>([]);
   lotsLoading = signal(false);
   drawerExiting = signal(false);
+
+  // Sorting state
+  sortField = signal<'price' | 'stock' | 'purchase_price' | 'profit' | null>('stock');
+  sortDir = signal<'asc' | 'desc'>('asc');
+
+  sortedProducts = computed(() => {
+    const products = this.displayedProducts();
+    const field = this.sortField();
+    const dir = this.sortDir();
+    if (!field) return products;
+    return [...products].sort((a, b) => {
+      let aVal: number;
+      let bVal: number;
+      switch (field) {
+        case 'price':       aVal = a.price;              bVal = b.price;              break;
+        case 'stock':       aVal = a.stock_quantity;     bVal = b.stock_quantity;     break;
+        case 'purchase_price': aVal = this.getCmup(a.id) ?? -1; bVal = this.getCmup(b.id) ?? -1; break;
+        case 'profit':      aVal = this.getProfit(a) ?? -Infinity; bVal = this.getProfit(b) ?? -Infinity; break;
+        default:            return 0;
+      }
+      return dir === 'asc' ? aVal - bVal : bVal - aVal;
+    });
+  });
+
+  toggleSort(field: 'price' | 'stock' | 'purchase_price' | 'profit'): void {
+    if (this.sortField() === field) {
+      this.sortDir.set(this.sortDir() === 'asc' ? 'desc' : 'asc');
+    } else {
+      this.sortField.set(field);
+      this.sortDir.set('asc');
+    }
+  }
+
+  getSortIcon(field: string): string {
+    if (this.sortField() !== field) return 'pi pi-arrow-right-arrow-left sort-icon';
+    return this.sortDir() === 'asc' ? 'pi pi-arrow-up sort-icon active' : 'pi pi-arrow-down sort-icon active';
+  }
 
   // Inline editing state
   priceEdit = new InlineEditState<number>(0);

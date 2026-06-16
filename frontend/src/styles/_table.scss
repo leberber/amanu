@@ -151,6 +151,37 @@
       letter-spacing: var(--letter-spacing-wide);
       color: var(--text-color-secondary);
       white-space: nowrap;
+
+      &.sortable {
+        user-select: none;
+        transition: background var(--transition-fast), color var(--transition-fast);
+
+        &:hover {
+          background: var(--surface-hover);
+          color: var(--text-color);
+
+          .sort-icon { opacity: 0.6; }
+        }
+
+        .sort-header {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.35rem;
+        }
+
+        .sort-icon {
+          font-size: 0.7rem;
+          opacity: 0.25;
+          transform: rotate(90deg);
+          transition: opacity var(--transition-fast), color var(--transition-fast);
+
+          &.active {
+            opacity: 1;
+            color: var(--primary-color);
+            transform: none;
+          }
+        }
+      }
     }
   }
 

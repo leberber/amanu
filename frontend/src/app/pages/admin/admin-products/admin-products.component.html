@@ -202,17 +202,33 @@
                 @if (isColumnVisible('volume')) { <th style="width: 8%" class="text-center">{{ 'admin.products.table.volume' | translate }}</th> }
                 @if (isColumnVisible('weight')) { <th style="width: 8%" class="text-center">{{ 'admin.products.table.weight' | translate }}</th> }
                 @if (isColumnVisible('tva')) { <th style="width: 6%" class="text-center">{{ 'admin.products.table.tva' | translate }}</th> }
-                @if (isColumnVisible('purchase_price')) { <th style="width: 12%" class="text-center">{{ 'admin.products.table.purchase_price' | translate }}</th> }
-                @if (isColumnVisible('price')) { <th style="width: 10%" class="text-center">{{ 'admin.products.table.price' | translate }}</th> }
-                @if (isColumnVisible('profit')) { <th style="width: 10%" class="text-center">{{ 'admin.products.table.profit' | translate }}</th> }
-                @if (isColumnVisible('stock')) { <th style="width: 14%" class="text-center">{{ 'admin.products.table.stock' | translate }}</th> }
+                @if (isColumnVisible('purchase_price')) {
+                  <th style="width: 12%" class="text-center sortable" (click)="toggleSort('purchase_price')">
+                    <span class="sort-header">{{ 'admin.products.table.purchase_price' | translate }}<i [class]="getSortIcon('purchase_price')"></i></span>
+                  </th>
+                }
+                @if (isColumnVisible('price')) {
+                  <th style="width: 10%" class="text-center sortable" (click)="toggleSort('price')">
+                    <span class="sort-header">{{ 'admin.products.table.price' | translate }}<i [class]="getSortIcon('price')"></i></span>
+                  </th>
+                }
+                @if (isColumnVisible('profit')) {
+                  <th style="width: 10%" class="text-center sortable" (click)="toggleSort('profit')">
+                    <span class="sort-header">{{ 'admin.products.table.profit' | translate }}<i [class]="getSortIcon('profit')"></i></span>
+                  </th>
+                }
+                @if (isColumnVisible('stock')) {
+                  <th style="width: 14%" class="text-center sortable" (click)="toggleSort('stock')">
+                    <span class="sort-header">{{ 'admin.products.table.stock' | translate }}<i [class]="getSortIcon('stock')"></i></span>
+                  </th>
+                }
                 @if (isColumnVisible('lifecycle')) { <th style="width: 12%" class="text-center">{{ 'admin.products.table.lifecycle' | translate }}</th> }
                 @if (isColumnVisible('status')) { <th style="width: 12%" class="text-center">{{ 'admin.products.table.status' | translate }}</th> }
                 @if (isColumnVisible('actions')) { <th style="width: 12%" class="text-center">{{ 'admin.products.table.actions' | translate }}</th> }
               </tr>
             </thead>
             <tbody>
-              @for (product of displayedProducts(); track product.id; let i = $index) {
+              @for (product of sortedProducts(); track product.id; let i = $index) {
                 <tr class="table-row-animate clickable-row" [style.--row-delay]="((i < 10 ? i : 10) * 40) + 'ms'" (click)="openLots(product, $event)">
                   <!-- Product Image -->
                   @if (isColumnVisible('image')) {
