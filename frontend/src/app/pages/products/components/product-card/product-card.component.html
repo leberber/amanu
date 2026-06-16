@@ -19,6 +19,9 @@
       @if (hasVolumeDiscountPromotion()) {
         <p-tag severity="info" [value]="'products.volume_deal' | translate" icon="pi pi-percentage"></p-tag>
       }
+      @if (isNew()) {
+        <p-tag severity="success" [value]="'products.badge_new' | translate" icon="pi pi-star-fill"></p-tag>
+      }
       @if (isLowStock() && !isOutOfStock()) {
         <p-tag severity="warning" [value]="'products.stock.low_stock_title' | translate" icon="pi pi-exclamation-triangle"></p-tag>
       }

@@ -73,6 +73,10 @@ export class ProductCardComponent {
   readonly ROUTES = ROUTES;
   isLoggedIn = this.authService.isLoggedIn$;
   hasGroupDiscount = computed(() => checkHasGroupDiscount(this.product()));
+  isNew = computed(() => {
+    const newUntil = this.product().new_until;
+    return !!newUntil && new Date(newUntil) > new Date();
+  });
   private cartService = inject(CartService);
   private flyToCartService = inject(FlyToCartService);
   private translateService = inject(TranslateService);

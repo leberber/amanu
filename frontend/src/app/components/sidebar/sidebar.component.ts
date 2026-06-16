@@ -134,6 +134,11 @@ export class SidebarComponent implements OnInit {
         route: ROUTES.PROMOTIONS
       },
       {
+        label: this.translateService.instant('new_arrivals.title'),
+        icon: 'pi pi-star',
+        route: ROUTES.NEW_ARRIVALS
+      },
+      {
         label: this.translateService.instant('common.cart'),
         icon: 'pi pi-shopping-cart',
         route: ROUTES.CART,

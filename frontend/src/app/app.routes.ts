@@ -378,6 +378,10 @@ export const routes: Routes = [
     data: { hideBottomNav: true }
   },
   {
+    path: 'nouveautes',
+    loadComponent: () => import('./pages/new-arrivals/new-arrivals.component').then(m => m.NewArrivalsComponent)
+  },
+  {
     path: 'settings',
     loadComponent: () => import('./pages/settings/settings.component').then(m => m.SettingsComponent),
     canActivate: [authGuard],

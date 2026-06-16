@@ -393,6 +393,18 @@
                       }
                     </div>
 
+                    <div class="form-field mt-4">
+                      <div class="field-box" [class.filled]="productForm.get('new_until')?.value">
+                        <div class="field-box__icon field-box__icon--success">
+                          <i class="pi pi-star"></i>
+                        </div>
+                        <div class="field-box__content">
+                          <label>{{ 'admin.products.form.new_until' | translate }}</label>
+                          <p-datepicker formControlName="new_until" [showButtonBar]="true" [showIcon]="true" dateFormat="dd/mm/yy" [placeholder]="'admin.products.form.new_until_placeholder' | translate" styleClass="w-full" appendTo="body" />
+                        </div>
+                      </div>
+                    </div>
+
                     <div class="active-switch-container mt-5">
                       <div
                         class="active-switch"

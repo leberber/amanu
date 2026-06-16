@@ -11,6 +11,7 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { TextareaModule } from 'primeng/textarea';
 import { SelectModule } from 'primeng/select';
 import { ToastModule } from 'primeng/toast';
+import { DatePickerModule } from 'primeng/datepicker';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { ProductService } from '../../../services/product.service';
@@ -46,6 +47,7 @@ interface ProductWithTranslations extends Product {
     TextareaModule,
     SelectModule,
     ToastModule,
+    DatePickerModule,
     TranslateModule,
     PageLayoutComponent
   ],
@@ -276,6 +278,7 @@ export class AdminAddProductComponent implements OnInit {
       weight: [null],
       tva_rate: [0],
       max_order_cartons: [null],
+      new_until: [null],
     });
 
     this.loadCategories();
@@ -385,6 +388,7 @@ export class AdminAddProductComponent implements OnInit {
             weight: product.weight || '',
             tva_rate: product.tva_rate ?? 0,
             max_order_cartons: product.max_order_cartons ?? null,
+            new_until: product.new_until ? new Date(product.new_until) : null,
           });
 
           this.packagingTypeValue.set(product.packaging_type || null);
@@ -433,6 +437,7 @@ export class AdminAddProductComponent implements OnInit {
         weight: formValues.weight || null,
         tva_rate: formValues.tva_rate ?? 0,
         max_order_cartons: formValues.max_order_cartons || null,
+        new_until: formValues.new_until ? (formValues.new_until as Date).toISOString() : null,
       }
     );
 

@@ -28,6 +28,7 @@ export const ROUTES = {
   ORDER_PAYMENTS: '/orders/payments',
   ORDER_DETAIL: '/orders/:id',
   PROMOTIONS: '/promotions',
+  NEW_ARRIVALS: '/nouveautes',
   SETTINGS: '/settings',
   NOTIFICATIONS: '/notifications',
   COMPLETE_PROFILE: '/complete-profile',

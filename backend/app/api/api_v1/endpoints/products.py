@@ -188,6 +188,7 @@ def read_products(
     brand_id: Optional[int] = None,
     is_organic: Optional[bool] = None,
     active_only: bool = Query(True),
+    new_only: bool = Query(False),
     search: Optional[str] = None,
     min_price: Optional[float] = None,
     max_price: Optional[float] = None,
@@ -214,7 +215,10 @@ def read_products(
 
     if active_only:
         query = query.where(Product.is_active == True)
-    
+
+    if new_only:
+        query = query.where(Product.new_until >= datetime.now(timezone.utc))
+
     if min_price is not None:
         query = query.where(Product.price >= min_price)
     

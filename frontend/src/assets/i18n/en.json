@@ -195,6 +195,7 @@
   "products": {
     "title": "Our Products",
     "free_gift": "+1 Free",
+    "badge_new": "New",
     "volume_deal": "Volume Deal",
     "volume_promo": {
       "title": "Special Offer",
@@ -1754,6 +1755,8 @@
         "pieces_per_box_hint": "Number of individual pieces in one box/carton",
         "max_order_cartons": "Max Order (Cartons)",
         "max_order_cartons_placeholder": "No limit",
+        "new_until": "\"New\" badge until",
+        "new_until_placeholder": "Badge expiry date",
         "volume": "Volume",
         "volume_placeholder": "e.g., 1.5",
         "weight": "Weight",
@@ -2587,6 +2590,11 @@
   "cross_sell": {
     "potential_discount": "Get {{discount}} off if you buy {{triggers}}!",
     "discount_earned": "You saved {{savings}} on {{target}}!"
+  },
+  "new_arrivals": {
+    "title": "New Arrivals",
+    "subtitle": "The latest arrivals",
+    "empty": "No new arrivals at the moment"
   },
   "promotions_page": {
     "title": "Current Offers",

@@ -70,6 +70,7 @@ class ProductBase(SQLModel):
     is_organic: bool = Field(default=False)
     image_url: Optional[str] = Field(default=None, max_length=255)
     max_order_cartons: Optional[int] = Field(default=None)  # Max cartons a customer can order; null = no limit
+    new_until: Optional[datetime] = Field(default=None)  # Show "New" badge until this date
 
 class Product(SQLModel, table=True):
     """Database model for products"""
@@ -105,6 +106,7 @@ class Product(SQLModel, table=True):
     is_organic: bool = Field(default=False)
     image_url: Optional[str] = Field(default=None, max_length=255)
     max_order_cartons: Optional[int] = Field(default=None)  # Max cartons a customer can order; null = no limit
+    new_until: Optional[datetime] = Field(default=None)  # Show "New" badge until this date
 
     # Timestamps
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
@@ -156,6 +158,7 @@ class ProductUpdate(SQLModel):
     is_organic: Optional[bool] = Field(default=None)
     image_url: Optional[str] = Field(default=None, max_length=255)
     max_order_cartons: Optional[int] = Field(default=None)
+    new_until: Optional[datetime] = Field(default=None)
 
 class ProductPromotion(SQLModel):
     """Promotion info attached to a product"""
@@ -171,6 +174,7 @@ class ProductRead(ProductBase):
     id: int
     created_at: datetime
     updated_at: Optional[datetime] = None
+    new_until: Optional[datetime] = None
     promotion: Optional[ProductPromotion] = None  # Active promotion for this product
     group_discount: Optional[float] = None      # Best group discount amount for current user (DA)
     effective_price: Optional[float] = None     # price after group discount

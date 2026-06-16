@@ -53,6 +53,7 @@ export interface Product {
     weight?: number;  // in kilograms (kg)
     tva_rate?: number;  // TVA rate: 0, 9, or 19
     max_order_cartons?: number | null;  // Max cartons a customer can order; null = no limit
+    new_until?: string | null;         // Show "New" badge until this date
     promotion?: ProductPromotion;  // Active promotion applied to this product
     group_discount?: number;       // Best group discount in DA for current user
     effective_price?: number;      // price after group discount
@@ -65,6 +66,7 @@ export interface Product {
     brand_id?: number;
     is_organic?: boolean;
     active_only?: boolean;
+    new_only?: boolean;
     search?: string;
     min_price?: number;
     max_price?: number;

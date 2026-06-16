@@ -1,0 +1,103 @@
+<app-page-layout
+  title="new_arrivals.title"
+  subtitle="new_arrivals.subtitle"
+  icon="pi pi-star">
+
+  @if (loading()) {
+    <div class="item-grid">
+      @for (i of skeletonGridItems; track i) {
+        <div class="skeleton-product-card">
+          <div class="skeleton-image-wrapper">
+            <div class="skeleton skeleton-badge"></div>
+            <i class="pi pi-image skeleton-icon"></i>
+          </div>
+          <div class="skeleton-content">
+            <div class="skeleton skeleton-name"></div>
+            <div class="skeleton skeleton-price-text"></div>
+            <div class="skeleton-actions-row">
+              <div class="skeleton skeleton-qty-btn"></div>
+              <div class="skeleton skeleton-cart-btn"></div>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  } @else if (error()) {
+    <app-empty-state
+      icon="pi-exclamation-triangle"
+      title="common.error"
+      actionLabel="actions.retry"
+      (actionClick)="loadProducts()">
+    </app-empty-state>
+  } @else if (products().length === 0) {
+    <app-empty-state
+      icon="pi-star"
+      title="new_arrivals.empty">
+    </app-empty-state>
+  } @else {
+    <div class="item-grid">
+      @for (product of products(); track product.id; let i = $index) {
+        <app-product-card
+          [product]="product"
+          [selectedBoxOption]="getSelectedBoxOption(product.id)"
+          (addToCartEvent)="onAddToCart($event)"
+          (quantitySelectorEvent)="onQuantitySelectorOpen($event)"
+          class="product-card-wrapper item-animate"
+          [style.animation-delay]="(i * animationDelayMs) + 'ms'">
+        </app-product-card>
+      }
+    </div>
+  }
+
+</app-page-layout>
+
+<!-- Quantity Selector Overlay -->
+@if (showQuantitySelector() && activeProduct(); as product) {
+  <div class="quantity-overlay" (click)="closeQuantitySelector()">
+    <div class="quantity-overlay__panel" (click)="$event.stopPropagation()">
+      <div class="quantity-overlay__header">
+        <div class="quantity-overlay__product">
+          <img [src]="getProductImageUrl(product)" [alt]="product.name" loading="lazy" appImageFallback>
+          <div class="quantity-overlay__product-info">
+            <h4>{{ product.name }}</h4>
+            <span class="quantity-overlay__price"><app-currency [value]="getEffectivePrice(product)" /> / {{ product.unit | appUnit }}</span>
+          </div>
+        </div>
+        <button class="quantity-overlay__close" (click)="closeQuantitySelector()">
+          <i class="pi pi-times"></i>
+        </button>
+      </div>
+
+      <div class="quantity-overlay__options">
+        @for (option of getBoxOptions(product); track option.boxes) {
+          <button
+            class="quantity-option"
+            [class.quantity-option--selected]="selectedBoxOptions[product.id]?.boxes === option.boxes"
+            (click)="selectBoxOption(option)">
+            <div class="quantity-option__boxes">
+              <span class="quantity-option__count">{{ option.boxes }}</span>
+              <span class="quantity-option__label">{{ getPackagingTypeForCount(product, option.boxes) }}</span>
+            </div>
+            <span class="quantity-option__price"><app-currency [value]="option.price" /></span>
+            <span class="quantity-option__pieces">{{ option.pieces }} {{ getPiecesLabel(option.pieces) | translate }}</span>
+            @if (selectedBoxOptions[product.id]?.boxes === option.boxes) {
+              <i class="pi pi-check quantity-option__check"></i>
+            }
+          </button>
+        }
+      </div>
+
+      <div class="quantity-overlay__footer">
+        <button
+          class="quantity-overlay__confirm"
+          [disabled]="!selectedBoxOptions[product.id]"
+          (click)="confirmQuantitySelection()">
+          <span>{{ 'common.confirm' | translate }}</span>
+          @if (selectedBoxOptions[product.id]; as option) {
+            <span class="quantity-overlay__confirm-price"><app-currency [value]="option.price" /></span>
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+}
