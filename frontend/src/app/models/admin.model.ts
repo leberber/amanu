@@ -163,6 +163,7 @@ export interface DashboardStats {
     updated_at?: string;
     groups?: UserGroupBasic[];
     fiscal_info?: { rc?: string; na?: string; nif?: string; nis?: string };
+    remaining_balance?: number;
   }
 
   // Customer Route (for delivery route optimization)

@@ -1390,6 +1390,7 @@
         "role": "Rôle",
         "status": "Statut",
         "created": "Créé",
+        "balance": "Solde Impayé",
         "actions": "Actions"
       },
       "status": {

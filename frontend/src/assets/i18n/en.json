@@ -1387,6 +1387,7 @@
         "role": "Role",
         "status": "Status",
         "created": "Created",
+        "balance": "Outstanding Balance",
         "actions": "Actions"
       },
       "status": {

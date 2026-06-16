@@ -3,11 +3,12 @@ from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Query, BackgroundTasks
 from sqlmodel import Session, select, func
-from sqlalchemy import or_, update
+from sqlalchemy import or_, update, case
 from pydantic import BaseModel
 
 from app.database import get_session
 from app.models.user import User, UserUpdate, UserRead, UserRole, UserGroupsUpdate, UserGroupBasic
+from app.models.order import OrderStatus
 from app.models.user_group import UserGroup, UserGroupLink
 from app.models.order import Order
 from app.models.trip import Trip
@@ -155,11 +156,27 @@ def read_users(
                 UserGroupBasic(id=group.id, name=group.name, color=group.color)
             )
 
-    # Add groups to each user
+    # Compute remaining balance per user in one aggregate query
+    outstanding_expr = case(
+        (
+            Order.total_amount + func.coalesce(Order.shipping_cost, 0.0) - func.coalesce(Order.total_paid, 0.0) > 0,
+            Order.total_amount + func.coalesce(Order.shipping_cost, 0.0) - func.coalesce(Order.total_paid, 0.0)
+        ),
+        else_=0.0
+    )
+    balance_rows = session.exec(
+        select(Order.user_id, func.sum(outstanding_expr).label('remaining_balance'))
+        .where(Order.user_id.in_(user_ids), Order.status != OrderStatus.CANCELLED)
+        .group_by(Order.user_id)
+    ).all()
+    balance_map = {row[0]: row[1] for row in balance_rows}
+
+    # Add groups and balance to each user
     users_with_groups = []
     for user in users:
         user_dict = UserRead.model_validate(user).model_dump()
         user_dict["groups"] = user_groups_map.get(user.id, [])
+        user_dict["remaining_balance"] = balance_map.get(user.id, 0.0)
         users_with_groups.append(UserRead(**user_dict))
 
     # Return structured response

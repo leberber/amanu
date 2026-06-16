@@ -139,6 +139,7 @@ class UserRead(UserBase):
     created_at: datetime
     updated_at: Optional[datetime] = None
     groups: List[UserGroupBasic] = []
+    remaining_balance: Optional[float] = None  # Computed: sum of unpaid order amounts
 
 
 class UserGroupsUpdate(SQLModel):

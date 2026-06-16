@@ -65,13 +65,41 @@ export class AdminUsersComponent extends BaseAdminListComponent implements OnIni
       { field: 'details', label: 'admin.users.table.user', visible: true },
       { field: 'role', label: 'admin.users.table.role', visible: true },
       { field: 'status', label: 'admin.users.table.status', visible: true },
+      { field: 'balance', label: 'admin.users.table.balance', visible: true },
       { field: 'created', label: 'admin.users.table.created', visible: !isMobile },
       { field: 'actions', label: 'admin.users.table.actions', visible: !isMobile }
     ];
   }
 
   // Role segment filter (different from status filter)
-  roleFilter: 'all' | 'customer' | 'staff' | 'admin' = 'all';
+  roleFilter: 'all' | 'customer' | 'staff' | 'admin' = 'customer';
+
+  // Sorting
+  sortField: 'remaining_balance' | null = 'remaining_balance';
+  sortDir: 'asc' | 'desc' = 'desc';
+
+  get sortedUsers(): UserManage[] {
+    if (this.sortField !== 'remaining_balance') return this.users;
+    return [...this.users].sort((a, b) => {
+      const aVal = a.remaining_balance ?? 0;
+      const bVal = b.remaining_balance ?? 0;
+      return this.sortDir === 'asc' ? aVal - bVal : bVal - aVal;
+    });
+  }
+
+  toggleSortBalance(): void {
+    if (this.sortField === 'remaining_balance') {
+      this.sortDir = this.sortDir === 'asc' ? 'desc' : 'asc';
+    } else {
+      this.sortField = 'remaining_balance';
+      this.sortDir = 'desc';
+    }
+  }
+
+  getSortIcon(field: string): string {
+    if (this.sortField !== field) return 'pi pi-arrow-right-arrow-left sort-icon';
+    return this.sortDir === 'asc' ? 'pi pi-arrow-up sort-icon active' : 'pi pi-arrow-down sort-icon active';
+  }
 
   // Inline editing state
   roleEdit = new InlineEditState<string>('');

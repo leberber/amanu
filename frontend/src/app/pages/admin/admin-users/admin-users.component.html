@@ -218,12 +218,17 @@
                   @if (isColumnVisible('details')) { <th style="width: 30%">{{ 'admin.users.table.user' | translate }}</th> }
                   @if (isColumnVisible('role')) { <th style="width: 15%" class="text-center">{{ 'admin.users.table.role' | translate }}</th> }
                   @if (isColumnVisible('status')) { <th style="width: 15%" class="text-center">{{ 'admin.users.table.status' | translate }}</th> }
+                  @if (isColumnVisible('balance')) {
+                    <th style="width: 15%" class="text-center sortable" (click)="toggleSortBalance()">
+                      <span class="sort-header">{{ 'admin.users.table.balance' | translate }}<i [class]="getSortIcon('remaining_balance')"></i></span>
+                    </th>
+                  }
                   @if (isColumnVisible('created')) { <th style="width: 15%" class="text-center">{{ 'admin.users.table.created' | translate }}</th> }
                   @if (isColumnVisible('actions')) { <th style="width: 17%" class="text-center">{{ 'admin.users.table.actions' | translate }}</th> }
                 </tr>
               </thead>
               <tbody>
-                @for (user of users; track user.id; let i = $index) {
+                @for (user of sortedUsers; track user.id; let i = $index) {
                   <tr class="table-row-animate clickable-row" [style.--row-delay]="(i * 40) + 'ms'" (click)="navigateToEditUser(user)">
                     <!-- ID -->
                     @if (isColumnVisible('id')) {
@@ -313,6 +318,17 @@
                               <i class="pi pi-times"></i>
                             </button>
                           </div>
+                        }
+                      </td>
+                    }
+
+                    <!-- Remaining Balance -->
+                    @if (isColumnVisible('balance')) {
+                      <td class="text-center">
+                        @if ((user.remaining_balance ?? 0) > 0) {
+                          <span class="font-semibold text-red-500"><app-currency [value]="user.remaining_balance" /></span>
+                        } @else {
+                          <span class="text-green-500"><i class="pi pi-check-circle"></i></span>
                         }
                       </td>
                     }
