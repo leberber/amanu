@@ -270,7 +270,6 @@
                 <div class="stock-bar">
                   <div class="stock-bar__fill" [style.width.%]="stockPercentage()" [class.stock-bar__fill--low]="isLowStock()"></div>
                 </div>
-                <span class="stock-text">{{ stockInCartons() }} {{ getPackagingTypeForCount(stockInCartons()) }} {{ 'products.stock.available' | translate }}</span>
               </div>
             } @else {
               <div class="stock-empty">
