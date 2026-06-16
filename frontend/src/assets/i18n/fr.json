@@ -2643,7 +2643,8 @@
   "new_arrivals": {
     "title": "Nouveautés",
     "subtitle": "Les dernières arrivées",
-    "empty": "Aucune nouveauté pour le moment"
+    "empty": "Aucune nouveauté pour le moment",
+    "banner_cta": "Voir tout"
   },
   "promotions_page": {
     "title": "Offres en Cours",

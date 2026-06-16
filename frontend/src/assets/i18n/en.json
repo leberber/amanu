@@ -2594,7 +2594,8 @@
   "new_arrivals": {
     "title": "New Arrivals",
     "subtitle": "The latest arrivals",
-    "empty": "No new arrivals at the moment"
+    "empty": "No new arrivals at the moment",
+    "banner_cta": "See all"
   },
   "promotions_page": {
     "title": "Current Offers",

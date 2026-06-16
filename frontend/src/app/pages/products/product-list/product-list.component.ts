@@ -1,5 +1,5 @@
 import { Component, computed, inject, OnInit, signal, DestroyRef, ViewChild, ElementRef } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Observable, of } from 'rxjs';
 import { switchMap, tap } from 'rxjs/operators';
@@ -27,6 +27,7 @@ import { getEffectivePrice as calcEffectivePrice } from '../../../shared/utils/d
 import { generateBoxOptions, BoxOption } from '../../../shared/utils/box-options.utils';
 import { DEFAULTS } from '../../../core/constants/app.constants';
 import { ANIMATION, UI } from '../../../core/constants/ui.constants';
+import { ROUTES } from '../../../core/constants/routes.constants';
 import { HorizontalFilterComponent } from '../../../shared/components/horizontal-filter/horizontal-filter.component';
 import { SearchInputComponent } from '../../../shared/components/search-input/search-input.component';
 import { CurrencyDisplayComponent } from '../../../shared/components/currency-display/currency-display.component';
@@ -37,6 +38,7 @@ import { ImageFallbackDirective } from '../../../shared/directives/image-fallbac
   selector: 'app-product-list',
   standalone: true,
   imports: [
+    RouterLink,
     ToastModule,
     ButtonModule,
     TranslateModule,
@@ -81,6 +83,9 @@ export class ProductListComponent implements OnInit {
     sort_order: 'asc'
   });
 
+  readonly routes = ROUTES;
+  showNewArrivalsBanner = signal(localStorage.getItem('new_arrivals_banner_dismissed') !== 'true');
+
   selectedBoxOptions: { [key: number]: BoxOption | null } = {};
   showQuantitySelector = signal(false);
   activeProduct = signal<Product | null>(null);
@@ -108,6 +113,11 @@ export class ProductListComponent implements OnInit {
         this.filters.update(f => ({ ...f, search: query }));
         this.loadProducts().subscribe();
       });
+  }
+
+  dismissNewArrivalsBanner(): void {
+    localStorage.setItem('new_arrivals_banner_dismissed', 'true');
+    this.showNewArrivalsBanner.set(false);
   }
 
   openMobileSearch(): void {
