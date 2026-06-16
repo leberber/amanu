@@ -250,7 +250,9 @@ export class ProductDetailComponent implements OnInit {
     const p = this.product();
     if (!p) return;
     const step = p.pieces_per_box || 1;
-    const maxQty = p.stock_quantity || Infinity;
+    const maxByStock = p.stock_quantity || Infinity;
+    const maxByCartons = p.max_order_cartons ? p.max_order_cartons * step : Infinity;
+    const maxQty = Math.min(maxByStock, maxByCartons);
     if (this.selectedQuantity() + step <= maxQty) {
       this.selectedQuantity.set(this.selectedQuantity() + step);
     }

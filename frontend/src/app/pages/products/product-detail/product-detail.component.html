@@ -325,7 +325,7 @@
                   type="button"
                   icon="pi pi-plus"
                   class="p-button-outlined quantity-btn"
-                  [disabled]="isOutOfStock() || (product()?.stock_quantity && selectedQuantity() >= product()!.stock_quantity)"
+                  [disabled]="isOutOfStock() || (product()?.stock_quantity && selectedQuantity() >= product()!.stock_quantity) || (product()?.max_order_cartons && selectedCartons() >= product()!.max_order_cartons!)"
                   (click)="incrementQuantity()">
                 </button>
               </div>
