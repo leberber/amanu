@@ -23,7 +23,8 @@ import {
   LocationMapStepComponent,
   StoreDetailsStepComponent,
   VehicleDetailsStepComponent,
-  ConfirmationStepComponent
+  ConfirmationStepComponent,
+  NotificationsStepComponent
 } from './steps';
 
 @Component({
@@ -40,7 +41,8 @@ import {
     LocationMapStepComponent,
     StoreDetailsStepComponent,
     VehicleDetailsStepComponent,
-    ConfirmationStepComponent
+    ConfirmationStepComponent,
+    NotificationsStepComponent
   ],
   providers: [RegisterStateService],
   templateUrl: './register.component.html',

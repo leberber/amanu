@@ -1,7 +1,7 @@
 <div class="register-carousel" [class.register-carousel--ready]="state.pageReady()" [class.register-carousel--no-animation]="state.stateRestored">
 
-  <!-- Progress Header (hidden on steps 0, 3=map, 6=success, or when input focused) -->
-  <div class="progress-header" [class.hidden]="state.activeStep() === 0 || state.activeStep() === 3 || state.activeStep() === 6 || state.isInputFocused()">
+  <!-- Progress Header (hidden on steps 0, 3=map, 6=notifications, 7=success, or when input focused) -->
+  <div class="progress-header" [class.hidden]="state.activeStep() === 0 || state.activeStep() === 3 || state.activeStep() === 6 || state.activeStep() === 7 || state.isInputFocused()">
     <div class="progress-content">
       @if (state.activeStep() > 0) {
         <button class="back-nav" (click)="prevStep()">
@@ -97,7 +97,14 @@
         </div>
       </div>
 
-      <!-- Step 6: Success -->
+      <!-- Step 6: Push Notification Permission -->
+      <div class="carousel-slide carousel-slide--modern">
+        <div class="register-step">
+          <app-notifications-step (done)="state.activeStep.set(7)" />
+        </div>
+      </div>
+
+      <!-- Step 7: Success -->
       <div class="carousel-slide">
         <div class="slide-content">
           <app-inactive-user-message

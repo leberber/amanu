@@ -6,3 +6,4 @@ export { LocationMapStepComponent } from './location-map/location-map-step.compo
 export { StoreDetailsStepComponent } from './store-details/store-details-step.component';
 export { VehicleDetailsStepComponent } from './vehicle-details/vehicle-details-step.component';
 export { ConfirmationStepComponent } from './confirmation/confirmation-step.component';
+export { NotificationsStepComponent } from './notifications/notifications-step.component';

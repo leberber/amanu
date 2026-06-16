@@ -21,7 +21,7 @@ from app.models.notification_history import (
     NotificationStatus
 )
 from app.models.user_group import UserGroup, UserGroupLink
-from app.core.security import get_current_active_user, get_current_admin_user, get_current_staff_user
+from app.core.security import get_current_user, get_current_active_user, get_current_admin_user, get_current_staff_user
 from app.core.push import PushService
 from app.core.config import settings
 
@@ -239,7 +239,7 @@ def get_vapid_public_key():
 def subscribe(
     subscription: PushSubscriptionCreate,
     session: Session = Depends(get_session),
-    current_user: Optional[User] = Depends(get_current_active_user),
+    current_user: Optional[User] = Depends(get_current_user),
 ):
     """Subscribe to push notifications."""
     # Check if already subscribed

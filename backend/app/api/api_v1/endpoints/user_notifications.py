@@ -14,7 +14,7 @@ from app.models.user_notification import (
     UserNotificationRead,
     UnreadCountResponse,
 )
-from app.core.security import get_current_active_user
+from app.core.security import get_current_active_user, get_current_user
 
 router = APIRouter()
 
@@ -26,7 +26,7 @@ def get_my_notifications(
     unread_only: bool = Query(False),
     lang: str = Query("en", description="Language for translations (en, fr, ar)"),
     session: Session = Depends(get_session),
-    current_user: User = Depends(get_current_active_user),
+    current_user: User = Depends(get_current_user),
 ):
     """
     Get current user's notifications.
@@ -78,7 +78,7 @@ def get_my_notifications(
 @router.get("/unread-count", response_model=UnreadCountResponse)
 def get_unread_count(
     session: Session = Depends(get_session),
-    current_user: User = Depends(get_current_active_user),
+    current_user: User = Depends(get_current_user),
 ):
     """
     Get count of unread notifications for current user.
@@ -97,7 +97,7 @@ def get_unread_count(
 def mark_as_read(
     notification_id: int,
     session: Session = Depends(get_session),
-    current_user: User = Depends(get_current_active_user),
+    current_user: User = Depends(get_current_user),
 ):
     """
     Mark a notification as read.
@@ -124,7 +124,7 @@ def mark_as_read(
 @router.post("/read-all")
 def mark_all_as_read(
     session: Session = Depends(get_session),
-    current_user: User = Depends(get_current_active_user),
+    current_user: User = Depends(get_current_user),
 ):
     """
     Mark all notifications as read for current user.
@@ -151,7 +151,7 @@ def mark_all_as_read(
 def delete_notification(
     notification_id: int,
     session: Session = Depends(get_session),
-    current_user: User = Depends(get_current_active_user),
+    current_user: User = Depends(get_current_user),
 ):
     """
     Delete a notification.
