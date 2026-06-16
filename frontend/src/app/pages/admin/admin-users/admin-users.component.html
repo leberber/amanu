@@ -214,16 +214,28 @@
             <table class="table">
               <thead>
                 <tr>
-                  @if (isColumnVisible('id')) { <th style="width: 8%" class="text-center">{{ 'admin.users.table.id' | translate }}</th> }
-                  @if (isColumnVisible('details')) { <th style="width: 30%">{{ 'admin.users.table.user' | translate }}</th> }
+                  @if (isColumnVisible('id')) {
+                    <th style="width: 8%" class="text-center sortable" (click)="toggleSort('id')">
+                      <span class="sort-header">{{ 'admin.users.table.id' | translate }}<i [class]="getSortIcon('id')"></i></span>
+                    </th>
+                  }
+                  @if (isColumnVisible('details')) {
+                    <th style="width: 30%" class="sortable" (click)="toggleSort('full_name')">
+                      <span class="sort-header">{{ 'admin.users.table.user' | translate }}<i [class]="getSortIcon('full_name')"></i></span>
+                    </th>
+                  }
                   @if (isColumnVisible('role')) { <th style="width: 15%" class="text-center">{{ 'admin.users.table.role' | translate }}</th> }
                   @if (isColumnVisible('status')) { <th style="width: 15%" class="text-center">{{ 'admin.users.table.status' | translate }}</th> }
                   @if (isColumnVisible('balance')) {
-                    <th style="width: 15%" class="text-center sortable" (click)="toggleSortBalance()">
+                    <th style="width: 15%" class="text-center sortable" (click)="toggleSort('remaining_balance')">
                       <span class="sort-header">{{ 'admin.users.table.balance' | translate }}<i [class]="getSortIcon('remaining_balance')"></i></span>
                     </th>
                   }
-                  @if (isColumnVisible('created')) { <th style="width: 15%" class="text-center">{{ 'admin.users.table.created' | translate }}</th> }
+                  @if (isColumnVisible('created')) {
+                    <th style="width: 15%" class="text-center sortable" (click)="toggleSort('created_at')">
+                      <span class="sort-header">{{ 'admin.users.table.created' | translate }}<i [class]="getSortIcon('created_at')"></i></span>
+                    </th>
+                  }
                   @if (isColumnVisible('actions')) { <th style="width: 17%" class="text-center">{{ 'admin.users.table.actions' | translate }}</th> }
                 </tr>
               </thead>

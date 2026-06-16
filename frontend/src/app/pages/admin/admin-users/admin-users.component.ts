@@ -75,24 +75,33 @@ export class AdminUsersComponent extends BaseAdminListComponent implements OnIni
   roleFilter: 'all' | 'customer' | 'staff' | 'admin' = 'customer';
 
   // Sorting
-  sortField: 'remaining_balance' | null = 'remaining_balance';
+  sortField: 'id' | 'full_name' | 'remaining_balance' | 'created_at' | null = 'remaining_balance';
   sortDir: 'asc' | 'desc' = 'desc';
 
   get sortedUsers(): UserManage[] {
-    if (this.sortField !== 'remaining_balance') return this.users;
+    if (!this.sortField) return this.users;
     return [...this.users].sort((a, b) => {
-      const aVal = a.remaining_balance ?? 0;
-      const bVal = b.remaining_balance ?? 0;
-      return this.sortDir === 'asc' ? aVal - bVal : bVal - aVal;
+      let aVal: number | string;
+      let bVal: number | string;
+      switch (this.sortField) {
+        case 'id':             aVal = a.id;                        bVal = b.id;                        break;
+        case 'full_name':      aVal = (a.full_name || '').toLowerCase(); bVal = (b.full_name || '').toLowerCase(); break;
+        case 'remaining_balance': aVal = a.remaining_balance ?? 0; bVal = b.remaining_balance ?? 0;    break;
+        case 'created_at':     aVal = a.created_at || '';          bVal = b.created_at || '';          break;
+        default: return 0;
+      }
+      if (aVal < bVal) return this.sortDir === 'asc' ? -1 : 1;
+      if (aVal > bVal) return this.sortDir === 'asc' ? 1 : -1;
+      return 0;
     });
   }
 
-  toggleSortBalance(): void {
-    if (this.sortField === 'remaining_balance') {
+  toggleSort(field: 'id' | 'full_name' | 'remaining_balance' | 'created_at'): void {
+    if (this.sortField === field) {
       this.sortDir = this.sortDir === 'asc' ? 'desc' : 'asc';
     } else {
-      this.sortField = 'remaining_balance';
-      this.sortDir = 'desc';
+      this.sortField = field;
+      this.sortDir = field === 'remaining_balance' ? 'desc' : 'asc';
     }
   }
 
