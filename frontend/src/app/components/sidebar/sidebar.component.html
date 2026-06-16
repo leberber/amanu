@@ -225,26 +225,12 @@
         <div class="mobile-menu__section">
           <div class="mobile-menu__section-title">{{ 'settings.preferences' | translate }}</div>
           <div class="mobile-menu__card">
-            <div class="mobile-menu__item mobile-menu__item--no-hover">
+            <div class="mobile-menu__item mobile-menu__item--last mobile-menu__item--no-hover">
               <div class="mobile-menu__item-icon">
                 <i class="pi pi-globe"></i>
               </div>
               <span class="mobile-menu__item-label">{{ 'settings.language' | translate }}</span>
               <app-language-selector></app-language-selector>
-            </div>
-            <div class="mobile-menu__item mobile-menu__item--last mobile-menu__item--no-hover">
-              <div class="mobile-menu__item-icon">
-                <i class="pi pi-th-large"></i>
-              </div>
-              <span class="mobile-menu__item-label">{{ 'settings.view_mode' | translate }}</span>
-              <div class="mobile-menu__view-toggle">
-                <button [class.active]="currentViewMode() === 'list'" (click)="toggleViewMode()">
-                  <i class="pi pi-list"></i>
-                </button>
-                <button [class.active]="currentViewMode() === 'grid'" (click)="toggleViewMode()">
-                  <i class="pi pi-th-large"></i>
-                </button>
-              </div>
             </div>
           </div>
         </div>

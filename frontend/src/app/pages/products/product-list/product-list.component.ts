@@ -17,13 +17,11 @@ import { PackagingTypeService } from '../../../core/services/packaging-type.serv
 import { FlyToCartService } from '../../../core/services/fly-to-cart.service';
 import { BrandService } from '../../../core/services/brand.service';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
-import { UserPreferencesService, ViewMode } from '../../../core/services/user-preferences.service';
 import { OverlayService } from '../../../core/services/overlay.service';
 import { CrossSellNotificationService } from '../../../core/services/cross-sell-notification.service';
 import { Product, Category, ProductFilter } from '../../../models/product.model';
 import { Brand } from '../../../models/brand.model';
 import { ProductCardComponent, AddToCartEvent, QuantitySelectorEvent } from '../components/product-card/product-card.component';
-import { ProductListItemComponent } from '../components/product-list-item/product-list-item.component';
 import { isOutOfStock as checkOutOfStock, isLowStock as checkLowStock } from '../../../shared/utils/stock.utils';
 import { getEffectivePrice as calcEffectivePrice } from '../../../shared/utils/discount.utils';
 import { generateBoxOptions, BoxOption } from '../../../shared/utils/box-options.utils';
@@ -43,7 +41,6 @@ import { ImageFallbackDirective } from '../../../shared/directives/image-fallbac
     ButtonModule,
     TranslateModule,
     ProductCardComponent,
-    ProductListItemComponent,
     HorizontalFilterComponent,
     SearchInputComponent,
     CurrencyDisplayComponent,
@@ -65,7 +62,6 @@ export class ProductListComponent implements OnInit {
   protected currencyService = inject(CurrencyService);
   private packagingTypeService = inject(PackagingTypeService);
   private flyToCartService = inject(FlyToCartService);
-  private preferencesService = inject(UserPreferencesService);
   protected searchService = inject(SearchService);
   private elementRef = inject(ElementRef);
   private overlayService = inject(OverlayService);
@@ -79,7 +75,6 @@ export class ProductListComponent implements OnInit {
   activeBrandId = signal<number | null>(null);
   filterMode = signal<'categories' | 'brands'>('categories');
   loading = signal(true);
-  layout = computed(() => this.preferencesService.productViewMode());
   filters = signal<ProductFilter>({
     active_only: true,
     sort_by: 'name',
@@ -97,7 +92,6 @@ export class ProductListComponent implements OnInit {
 
   readonly animationDelayMs = ANIMATION.STAGGER_DELAY;
   readonly skeletonGridItems = Array.from({ length: UI.SKELETON_GRID_COUNT }, (_, i) => i + 1);
-  readonly skeletonListItems = Array.from({ length: UI.SKELETON_LIST_COUNT }, (_, i) => i + 1);
 
   ngOnInit(): void {
     // BehaviorSubject emits immediately on subscribe, so no separate load call needed
@@ -140,10 +134,6 @@ export class ProductListComponent implements OnInit {
   onSearchInput(event: Event): void {
     const value = (event.target as HTMLInputElement).value;
     this.searchService.setQuery(value);
-  }
-
-  toggleViewMode(): void {
-    this.preferencesService.toggleProductViewMode();
   }
 
   toggleFilterMode(): void {
@@ -297,10 +287,6 @@ export class ProductListComponent implements OnInit {
     return product.image_url || DEFAULTS.PLACEHOLDER_IMAGE;
   }
 
-  viewToggleIcon = computed(() =>
-    this.layout() === 'grid' ? 'pi pi-list' : 'pi pi-th-large'
-  );
-
   getPiecesLabel(count: number): string {
     return count === 1
       ? 'products.product.quantity_selector.piece'
@@ -334,10 +320,6 @@ export class ProductListComponent implements OnInit {
             if (params['search']) {
               this.searchService.setQuery(params['search']);
               this.filters.update(f => ({ ...f, search: params['search'] }));
-            }
-
-            if (params['layout'] && (params['layout'] === 'grid' || params['layout'] === 'list')) {
-              this.preferencesService.setProductViewMode(params['layout'] as ViewMode);
             }
 
             this.loading.set(true);

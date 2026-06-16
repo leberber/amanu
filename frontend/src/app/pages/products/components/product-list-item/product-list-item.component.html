@@ -20,7 +20,19 @@
 
     <div class="product-list-item__meta">
       <div class="product-list-item__price">
-        <span class="price-current"><app-currency [value]="product().price" /></span>
+        @if (isLoggedIn | async) {
+          @if (hasGroupDiscount()) {
+            <span class="price-original"><app-currency [value]="product().price" /></span>
+            <span class="price-current price-current--discounted"><app-currency [value]="product().effective_price!" /></span>
+          } @else {
+            <span class="price-current"><app-currency [value]="product().price" /></span>
+          }
+        } @else {
+          <a [routerLink]="ROUTES.LOGIN" class="price-locked">
+            <i class="pi pi-lock"></i>
+            <span>{{ 'products.price.login_to_see' | translate }}</span>
+          </a>
+        }
         <span class="price-unit">/ {{ product().unit | appUnit }}</span>
       </div>
 
@@ -41,61 +53,63 @@
     </div>
 
     <!-- Actions -->
-    @if (!isOutOfStock() && boxOptions().length > 0) {
-      <div class="product-list-item__actions">
-        @if (isInCart()) {
-          <span class="cart-indicator cart-indicator--in">
-            <i class="pi pi-check-circle"></i>
-            {{ boxesInCart() }} {{ cartPackagingLabel() }} {{ 'products.cart.in_cart' | translate }}
-          </span>
-        }
-        <div class="product-list-item__cart-row">
-          <div class="quantity-selector-wrapper">
+    @if (isLoggedIn | async) {
+      @if (!isOutOfStock() && boxOptions().length > 0) {
+        <div class="product-list-item__actions">
+          @if (isInCart()) {
+            <span class="cart-indicator cart-indicator--in">
+              <i class="pi pi-check-circle"></i>
+              {{ boxesInCart() }} {{ cartPackagingLabel() }} {{ 'products.cart.in_cart' | translate }}
+            </span>
+          }
+          <div class="product-list-item__cart-row">
+            <div class="quantity-selector-wrapper">
+              <button
+                type="button"
+                class="quantity-selector-btn"
+                [class.quantity-selector-btn--in-cart]="quantityMatchesCart()"
+                [class.quantity-selector-btn--update]="isInCart() && !quantityMatchesCart()"
+                (click)="openQuantitySelector($event)">
+                <span class="quantity-selector-btn__text">
+                  @if (selectedBoxOption(); as option) {
+                    <span class="quantity-selector-btn__boxes">{{ option.boxes }} {{ getPackagingTypeForCount(option.boxes) }}</span>
+                    <span class="quantity-selector-btn__pieces">{{ option.pieces }} {{ getPiecesLabel(option.pieces) | translate }}</span>
+                  } @else {
+                    <span>{{ 'products.select_quantity' | translate }}</span>
+                  }
+                </span>
+                <i class="pi pi-chevron-down quantity-selector-btn__icon"></i>
+              </button>
+              @if (product().pieces_per_box) {
+                <span class="quantity-selector-hint">
+                  {{ product().pieces_per_box }} {{ product().unit | appUnit }} / {{ getPackagingTypeForCount(1) }}
+                  @if (selectedBoxOption(); as option) {
+                    <span class="quantity-selector-hint__total">&nbsp;&nbsp;<app-currency [value]="option.price" /></span>
+                  }
+                </span>
+              }
+            </div>
             <button
+              pButton
               type="button"
-              class="quantity-selector-btn"
-              [class.quantity-selector-btn--in-cart]="quantityMatchesCart()"
-              [class.quantity-selector-btn--update]="isInCart() && !quantityMatchesCart()"
-              (click)="openQuantitySelector($event)">
-              <span class="quantity-selector-btn__text">
-                @if (selectedBoxOption(); as option) {
-                  <span class="quantity-selector-btn__boxes">{{ option.boxes }} {{ getPackagingTypeForCount(option.boxes) }}</span>
-                  <span class="quantity-selector-btn__pieces">{{ option.pieces }} {{ getPiecesLabel(option.pieces) | translate }}</span>
-                } @else {
-                  <span>{{ 'products.select_quantity' | translate }}</span>
-                }
-              </span>
-              <i class="pi pi-chevron-down quantity-selector-btn__icon"></i>
+              [icon]="getCartButtonIcon()"
+              class="p-button-primary product-list-item__cart-btn"
+              [class.product-list-item__cart-btn--in-cart]="quantityMatchesCart()"
+              [class.product-list-item__cart-btn--update]="isInCart() && !quantityMatchesCart()"
+              [class.product-list-item__cart-btn--highlight]="highlightCart()"
+              [disabled]="!selectedBoxOption() || quantityMatchesCart()"
+              (click)="addToCart($event)">
             </button>
-            @if (product().pieces_per_box) {
-              <span class="quantity-selector-hint">
-                {{ product().pieces_per_box }} {{ product().unit | appUnit }} / {{ getPackagingTypeForCount(1) }}
-                @if (selectedBoxOption(); as option) {
-                  <span class="quantity-selector-hint__total">&nbsp;&nbsp;<app-currency [value]="option.price" /></span>
-                }
-              </span>
-            }
           </div>
-          <button
-            pButton
-            type="button"
-            [icon]="getCartButtonIcon()"
-            class="p-button-primary product-list-item__cart-btn"
-            [class.product-list-item__cart-btn--in-cart]="quantityMatchesCart()"
-            [class.product-list-item__cart-btn--update]="isInCart() && !quantityMatchesCart()"
-            [class.product-list-item__cart-btn--highlight]="highlightCart()"
-            [disabled]="!selectedBoxOption() || quantityMatchesCart()"
-            (click)="addToCart($event)">
-          </button>
         </div>
-      </div>
-    } @else {
-      <div class="product-list-item__actions product-list-item__actions--disabled">
-        <span class="stock-badge stock-badge--out">
-          <i class="pi pi-times-circle"></i>
-          {{ 'products.stock.out_of_stock' | translate }}
-        </span>
-      </div>
+      } @else {
+        <div class="product-list-item__actions product-list-item__actions--disabled">
+          <span class="stock-badge stock-badge--out">
+            <i class="pi pi-times-circle"></i>
+            {{ 'products.stock.out_of_stock' | translate }}
+          </span>
+        </div>
+      }
     }
   </div>
 </div>

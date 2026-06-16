@@ -3,7 +3,6 @@ import { FormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TranslateModule } from '@ngx-translate/core';
 import { ToggleSwitch } from 'primeng/toggleswitch';
-import { UserPreferencesService, ViewMode } from '../../core/services/user-preferences.service';
 import { PushService } from '../../services/push.service';
 import { ToastMessageService } from '../../core/services/toast-message.service';
 import { ROUTES } from '../../core/constants/routes.constants';
@@ -18,14 +17,12 @@ import { LanguageSelectorComponent } from '../../components/language-selector/la
   styleUrl: './settings.component.scss'
 })
 export class SettingsComponent implements OnInit {
-  private preferencesService = inject(UserPreferencesService);
   private pushService = inject(PushService);
   private toast = inject(ToastMessageService);
   private destroyRef = inject(DestroyRef);
 
   readonly routes = ROUTES;
 
-  currentViewMode = computed(() => this.preferencesService.productViewMode());
   notificationsEnabled = signal(false);
   loadingNotifications = signal(false);
 
@@ -36,10 +33,6 @@ export class SettingsComponent implements OnInit {
       .subscribe(isSubscribed => {
         this.notificationsEnabled.set(isSubscribed);
       });
-  }
-
-  setViewMode(mode: ViewMode): void {
-    this.preferencesService.setProductViewMode(mode);
   }
 
   async toggleNotifications(): Promise<void> {

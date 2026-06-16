@@ -1,5 +1,6 @@
 import { Component, OnInit, signal, inject, computed, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { DecimalPipe } from '@angular/common';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
@@ -13,7 +14,9 @@ import { ToastModule } from 'primeng/toast';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { ProductService } from '../../../services/product.service';
-import { Product } from '../../../models/product.model';
+import { Product, ProductGroupPrice, ProductGroupPriceUpsert, GroupDiscountType } from '../../../models/product.model';
+import { UserGroupService } from '../../../core/services/user-group.service';
+import { UserGroup } from '../../../models/user-group.model';
 import { BrandService } from '../../../core/services/brand.service';
 import { VALIDATION } from '../../../core/constants/validation.constants';
 import { PRODUCT } from '../../../core/constants/product.constants';
@@ -35,6 +38,7 @@ interface ProductWithTranslations extends Product {
   selector: 'app-admin-add-product',
   standalone: true,
   imports: [
+    DecimalPipe,
     FormsModule,
     ReactiveFormsModule,
     InputTextModule,
@@ -61,6 +65,7 @@ export class AdminAddProductComponent implements OnInit {
   private readonly adminFormService = inject(AdminFormService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly http = inject(HttpClient);
+  private readonly userGroupService = inject(UserGroupService);
 
   productForm!: FormGroup;
 
@@ -131,6 +136,123 @@ export class AdminAddProductComponent implements OnInit {
   );
 
   readonly ROUTES = ROUTES;
+
+  // ── Group Pricing ─────────────────────────────────────────────────────────
+  // For 'fixed': discount_value stores the TARGET PRICE (what the group pays)
+  // For 'percentage': discount_value stores the % off
+  // Conversion to actual discount happens on save.
+  allGroups = signal<UserGroup[]>([]);
+  groupPrices = signal<ProductGroupPriceUpsert[]>([]);
+  savingGroupPrices = signal(false);
+
+  readonly discountTypeOptions = [
+    { label: 'Prix fixe (DA)', value: 'fixed' as GroupDiscountType },
+    { label: '% de réduction', value: 'percentage' as GroupDiscountType }
+  ];
+
+  private get productPrice(): number {
+    return this.productForm.get('price')?.value || 0;
+  }
+
+  isGroupInPrices(groupId: number): boolean {
+    return this.groupPrices().some(p => p.group_id === groupId);
+  }
+
+  getGroupPrice(groupId: number): ProductGroupPriceUpsert | undefined {
+    return this.groupPrices().find(p => p.group_id === groupId);
+  }
+
+  getGroupEffectivePrice(groupId: number): number {
+    const entry = this.getGroupPrice(groupId);
+    if (!entry) return this.productPrice;
+    if (entry.discount_type === 'fixed') return entry.discount_value;
+    return Math.max(0, this.productPrice - (this.productPrice * entry.discount_value / 100));
+  }
+
+  toggleGroupDiscount(groupId: number): void {
+    if (this.isGroupInPrices(groupId)) {
+      this.groupPrices.update(prices => prices.filter(p => p.group_id !== groupId));
+    } else {
+      // Default target price = catalog price (admin adjusts downward)
+      this.groupPrices.update(prices => [...prices, {
+        group_id: groupId,
+        discount_type: 'fixed',
+        discount_value: this.productPrice
+      }]);
+    }
+  }
+
+  updateGroupDiscountValue(groupId: number, value: number): void {
+    this.groupPrices.update(prices =>
+      prices.map(p => p.group_id === groupId ? { ...p, discount_value: value } : p)
+    );
+  }
+
+  updateGroupDiscountType(groupId: number, type: GroupDiscountType): void {
+    const price = this.productPrice;
+    this.groupPrices.update(prices =>
+      prices.map(p => p.group_id === groupId ? {
+        ...p,
+        discount_type: type,
+        // Reset to sensible default when switching type
+        discount_value: type === 'fixed' ? price : 0
+      } : p)
+    );
+  }
+
+  saveGroupPrices(): void {
+    const productId = this.editProductId();
+    if (!productId) return;
+    const price = this.productPrice;
+
+    // Convert UI values to actual discount amounts before saving
+    const toSave: ProductGroupPriceUpsert[] = this.groupPrices().map(p => ({
+      group_id: p.group_id,
+      discount_type: p.discount_type,
+      discount_value: p.discount_type === 'fixed'
+        ? Math.max(0, price - p.discount_value)  // target price → discount amount
+        : p.discount_value                         // percentage stays as-is
+    }));
+
+    this.savingGroupPrices.set(true);
+    this.productService.setGroupPrices(productId, toSave)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.savingGroupPrices.set(false);
+          this.toast.showSuccess('admin.products.group_prices_saved');
+        },
+        error: () => {
+          this.savingGroupPrices.set(false);
+          this.toast.showError('admin.products.group_prices_error');
+        }
+      });
+  }
+
+  private loadGroupData(): void {
+    const productId = this.editProductId();
+    if (!productId) return;
+
+    this.userGroupService.getGroups(false)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({ next: (groups) => this.allGroups.set(groups) });
+
+    this.productService.getGroupPrices(productId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (prices) => {
+          const price = this.productPrice;
+          // Convert stored discount amounts back to UI values (target prices)
+          this.groupPrices.set(prices.map(p => ({
+            group_id: p.group_id,
+            discount_type: p.discount_type,
+            discount_value: p.discount_type === 'fixed'
+              ? price - p.discount_value   // discount amount → target price
+              : p.discount_value            // percentage stays as-is
+          })));
+        }
+      });
+  }
 
   ngOnInit(): void {
     this.productForm = this.fb.group({
@@ -273,6 +395,7 @@ export class AdminAddProductComponent implements OnInit {
           this.originalStock.set(product.stock_quantity);
           this.cartonsInput.set(0);
 
+          this.loadGroupData();
           this.loading.set(false);
         },
         error: () => {

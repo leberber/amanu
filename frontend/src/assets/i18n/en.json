@@ -287,6 +287,9 @@
         "palette_plural": "palettes"
       }
     },
+    "price": {
+      "login_to_see": "Login to see price"
+    },
     "stock": {
       "title": "Stock Availability",
       "out_of_stock": "Out of Stock",
@@ -402,6 +405,7 @@
     "sale": "SALE",
     "off": "OFF",
     "bundle_savings": "Bundle Savings",
+    "volume_savings": "Volume Discount",
     "cross_sell_message": "You saved {{savings}} on {{target}} because you added {{trigger}}!"
   },
   "order_summary": {

@@ -94,7 +94,6 @@ export class CheckoutComponent implements OnInit {
 
   // Computed from service
   cartItemCount = computed(() => this.cartItems().length);
-  cartTotal = this.cartService.subtotal;
   discountAmount = this.cartService.discountAmount;
   finalTotal = this.cartService.finalTotal;
   appliedPromotion = this.cartService.appliedPromotion;
@@ -108,9 +107,9 @@ export class CheckoutComponent implements OnInit {
     return this.standardPrice()?.cost ?? this.shippingService.lastShippingCost();
   });
 
-  // Total with selected shipping
+  // Total with selected shipping (finalTotal already includes per-item discounts + cross-sell + volume)
   totalWithShipping = computed(() => {
-    return this.finalTotal() + this.selectedShippingCost();
+    return this.finalTotal() - this.discountAmount() + this.selectedShippingCost();
   });
 
   ngOnInit(): void {

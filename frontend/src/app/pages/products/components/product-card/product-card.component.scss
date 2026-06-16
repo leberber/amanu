@@ -103,11 +103,28 @@
       &--promo {
         color: var(--red-500);
       }
+
+      &--discounted {
+        color: #16a34a;
+      }
+    }
+
+    .price-locked {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+      font-size: var(--font-size-sm);
+      color: var(--text-color-secondary);
+      text-decoration: none;
+
+      &:hover {
+        color: var(--primary-color);
+      }
     }
 
     .price-original {
       font-size: var(--font-size-sm);
-      color: var(--text-color-secondary);
+      color: #ef4444;
       text-decoration: line-through;
     }
 

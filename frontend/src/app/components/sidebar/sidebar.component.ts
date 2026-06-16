@@ -13,7 +13,6 @@ import { SidebarService } from '../../services/sidebar.service';
 import { UserNotificationService } from '../../services/user-notification.service';
 import { UserService } from '../../services/user.service';
 import { LanguageSelectorComponent } from '../language-selector/language-selector.component';
-import { UserPreferencesService } from '../../core/services/user-preferences.service';
 import { onLanguageChange } from '../../core/utils/language-change.util';
 import { ROUTES } from '../../core/constants/routes.constants';
 import { ADMIN_NAV_ITEMS, DRAWER_CLOSE_ROUTES } from '../../core/constants/navigation.constants';
@@ -45,7 +44,6 @@ export class SidebarComponent implements OnInit {
   private router = inject(Router);
   private destroyRef = inject(DestroyRef);
   private translateService = inject(TranslateService);
-  private preferencesService = inject(UserPreferencesService);
   private sidebarService = inject(SidebarService);
   private notificationService = inject(UserNotificationService);
   private breakpoint = inject(BreakpointService);
@@ -79,8 +77,6 @@ export class SidebarComponent implements OnInit {
   isAdminOrStaff = computed(() => this.authService.isAdminOrStaff());
   currentUser = this.currentUserSignal.asReadonly();
   userInitials = computed(() => getInitials(this.currentUser()?.full_name));
-  currentViewMode = computed(() => this.preferencesService.productViewMode());
-
   // Route constants for template
   readonly routes = ROUTES;
 
@@ -213,11 +209,6 @@ export class SidebarComponent implements OnInit {
   // Desktop collapse controls
   toggleCollapsed() {
     this.sidebarService.toggleCollapsed();
-  }
-
-  // Actions
-  toggleViewMode() {
-    this.preferencesService.toggleProductViewMode();
   }
 
   logout() {

@@ -172,3 +172,5 @@ class ProductRead(ProductBase):
     created_at: datetime
     updated_at: Optional[datetime] = None
     promotion: Optional[ProductPromotion] = None  # Active promotion for this product
+    group_discount: Optional[float] = None      # Best group discount amount for current user (DA)
+    effective_price: Optional[float] = None     # price after group discount

@@ -60,7 +60,8 @@ export class OrderService {
   cartItemsToOrderItems(cartItems: CartItem[]): OrderCreateItem[] {
     return cartItems.map(item => ({
       product_id: item.product_id,
-      quantity: item.quantity
+      quantity: item.quantity,
+      ...(item.product_discounted_price != null && { custom_unit_price: item.product_discounted_price })
     }));
   }
 }

@@ -76,13 +76,17 @@ export class OrderDetailComponent implements OnInit {
     return items.reduce((sum, item) => sum + item.unit_price * item.quantity, 0);
   });
   discountAmount = computed(() => {
-    const items = this.order()?.items ?? [];
-    const customDiscount = items.reduce((sum, item) =>
+    const order = this.order();
+    const items = order?.items ?? [];
+    const groupDiscount = items.reduce((sum, item) =>
       item.custom_unit_price && item.custom_unit_price < item.unit_price
         ? sum + (item.unit_price - item.custom_unit_price) * item.quantity
         : sum
     , 0);
-    return customDiscount + (this.order()?.discount_amount ?? 0);
+    return groupDiscount
+      + (order?.discount_amount ?? 0)
+      + (order?.cross_sell_discount_amount ?? 0)
+      + (order?.volume_discount_amount ?? 0);
   });
   shippingCost = computed(() => this.order()?.shipping_cost ?? 0);
   originalShippingCost = computed(() => this.order()?.original_shipping_cost ?? null);
@@ -96,7 +100,7 @@ export class OrderDetailComponent implements OnInit {
     if (!orig) return 0;
     return Math.round(this.shippingDiscountAmount() / orig * 100);
   });
-  grandTotal = computed(() => this.totalAmount() + this.shippingCost());
+  grandTotal = computed(() => this.itemsSubtotal() - this.discountAmount() + this.shippingCost());
   showBreakdown = computed(() => this.discountAmount() > 0 || this.shippingCost() > 0);
   canCancelOrder = computed(() => this.order()?.status === ORDER_STATUS.PENDING);
   totalPaid = computed(() =>

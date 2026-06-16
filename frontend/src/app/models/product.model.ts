@@ -1,6 +1,24 @@
 
 export type { Category } from './category.model';
 
+export type GroupDiscountType = 'fixed' | 'percentage';
+
+export interface ProductGroupPrice {
+  id: number;
+  product_id: number;
+  group_id: number;
+  discount_type: GroupDiscountType;
+  discount_value: number;
+  group_name?: string;
+  group_color?: string;
+}
+
+export interface ProductGroupPriceUpsert {
+  group_id: number;
+  discount_type: GroupDiscountType;
+  discount_value: number;
+}
+
 export interface ProductPromotion {
   id: number;
   name: string;
@@ -36,6 +54,8 @@ export interface Product {
     tva_rate?: number;  // TVA rate: 0, 9, or 19
     max_order_cartons?: number | null;  // Max cartons a customer can order; null = no limit
     promotion?: ProductPromotion;  // Active promotion applied to this product
+    group_discount?: number;       // Best group discount in DA for current user
+    effective_price?: number;      // price after group discount
   }
   
   

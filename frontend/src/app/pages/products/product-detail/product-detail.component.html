@@ -175,19 +175,29 @@
           <!-- Price Card -->
           <div class="card card--no-hover price-card" @slideUp>
             <span class="text-sm text-secondary font-medium">{{ 'common.price' | translate }}</span>
-            <div class="price-main mt-2">
-              @if (hasPromotion()) {
-                <div class="price-current price-current--promo"><app-currency [value]="discountedPrice()" /></div>
-                <div class="price-original"><app-currency [value]="product()?.price" /></div>
-                <div class="price-savings">
-                  <i class="pi pi-tag"></i>
-                  {{ 'products.promotion.you_save' | translate }} <app-currency [value]="savingsAmount()" />
-                </div>
-              } @else {
-                <div class="price-current"><app-currency [value]="product()?.price" /></div>
-              }
-            </div>
-            <div class="price-unit mt-2">{{ 'common.per' | translate }} {{ unitDisplay() }}</div>
+            @if (isLoggedIn | async) {
+              <div class="price-main mt-2">
+                @if (hasGroupDiscount()) {
+                  <div class="price-original"><app-currency [value]="product()?.price" /></div>
+                  <div class="price-current price-current--discounted"><app-currency [value]="product()?.effective_price" /></div>
+                } @else if (hasPromotion()) {
+                  <div class="price-current price-current--promo"><app-currency [value]="discountedPrice()" /></div>
+                  <div class="price-original"><app-currency [value]="product()?.price" /></div>
+                  <div class="price-savings">
+                    <i class="pi pi-tag"></i>
+                    {{ 'products.promotion.you_save' | translate }} <app-currency [value]="savingsAmount()" />
+                  </div>
+                } @else {
+                  <div class="price-current"><app-currency [value]="product()?.price" /></div>
+                }
+              </div>
+              <div class="price-unit mt-2">{{ 'common.per' | translate }} {{ unitDisplay() }}</div>
+            } @else {
+              <a [routerLink]="ROUTES.LOGIN" class="price-locked mt-3">
+                <i class="pi pi-lock"></i>
+                <span>{{ 'products.price.login_to_see' | translate }}</span>
+              </a>
+            }
           </div>
 
           <!-- Regular Promotion Card -->
@@ -280,6 +290,7 @@
           </div>
 
           <!-- Add to Cart Card -->
+          @if (isLoggedIn | async) {
           <div class="card card--no-hover cart-card" @slideUp>
             <span class="text-sm text-secondary font-medium mb-3 block">{{ 'products.cart.add_to_cart' | translate }}</span>
 
@@ -334,7 +345,7 @@
                 @if (qualifiesForFreeUnits()) {
                   <div class="quantity-total-prices">
                     <span class="quantity-total-original"><app-currency [value]="originalPriceWithFree()" /></span>
-                    <span class="quantity-total-price quantity-total-price--promo"><app-currency [value]="selectedQuantity() * (product()?.price || 0)" /></span>
+                    <span class="quantity-total-price quantity-total-price--promo"><app-currency [value]="selectedQuantity() * unitPrice()" /></span>
                   </div>
                   <span class="quantity-pieces-info">{{ totalCartonsWithFree() }} {{ getPackagingTypeForCount(totalCartonsWithFree()) }} ({{ freeCartonsEarned() }} {{ 'cart.free' | translate }})</span>
                 } @else if (qualifiesForVolumeDiscount()) {
@@ -346,11 +357,17 @@
                 } @else if (hasPromotion()) {
                   <div class="quantity-total-prices">
                     <span class="quantity-total-original"><app-currency [value]="selectedQuantity() * (product()?.price || 0)" /></span>
-                    <span class="quantity-total-price quantity-total-price--promo"><app-currency [value]="selectedQuantity() * discountedPrice()" /></span>
+                    <span class="quantity-total-price quantity-total-price--promo"><app-currency [value]="selectedQuantity() * unitPrice()" /></span>
+                  </div>
+                  <span class="quantity-pieces-info">{{ selectedQuantity() }} {{ unitDisplay() }}</span>
+                } @else if (hasGroupDiscount()) {
+                  <div class="quantity-total-prices">
+                    <span class="quantity-total-original"><app-currency [value]="selectedQuantity() * (product()?.price || 0)" /></span>
+                    <span class="quantity-total-price quantity-total-price--promo"><app-currency [value]="selectedQuantity() * unitPrice()" /></span>
                   </div>
                   <span class="quantity-pieces-info">{{ selectedQuantity() }} {{ unitDisplay() }}</span>
                 } @else {
-                  <span class="quantity-total-price"><app-currency [value]="selectedQuantity() * (product()?.price || 0)" /></span>
+                  <span class="quantity-total-price"><app-currency [value]="selectedQuantity() * unitPrice()" /></span>
                   <span class="quantity-pieces-info">{{ selectedQuantity() }} {{ unitDisplay() }}</span>
                 }
               </div>
@@ -376,6 +393,7 @@
               }
             </button>
           </div>
+          }
         </div>
       </div>
     </div>

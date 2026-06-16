@@ -61,6 +61,13 @@ export function hasPromotion(promotion: PromotionInfo | null | undefined): boole
   return promotion != null;
 }
 
+/**
+ * Check if a product has a group discount applied (effective_price < base price)
+ */
+export function hasGroupDiscount(product: { price: number; effective_price?: number | null }): boolean {
+  return product.effective_price != null && product.effective_price < product.price;
+}
+
 // ============================================
 // Volume Discount Calculation Utilities
 // ============================================

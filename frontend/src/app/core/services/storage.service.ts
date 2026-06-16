@@ -166,18 +166,6 @@ export class StorageService {
     this.set(STORAGE_KEYS.HAS_SEEN_ONBOARDING, 'true');
   }
 
-  // Product view mode (stored in preferences)
-  getProductViewMode(): 'grid' | 'list' {
-    const prefs = this.getJson<{ productViewMode?: string }>(STORAGE_KEYS.PREFERENCES, {});
-    return prefs.productViewMode === 'list' ? 'list' : 'grid';
-  }
-
-  setProductViewMode(mode: 'grid' | 'list'): void {
-    const prefs = this.getJson<Record<string, unknown>>(STORAGE_KEYS.PREFERENCES, {});
-    prefs['productViewMode'] = mode;
-    this.setJson(STORAGE_KEYS.PREFERENCES, prefs);
-  }
-
   // Sidebar collapsed state (stored in preferences)
   getSidebarCollapsed(): boolean {
     const prefs = this.getJson<{ sidebarCollapsed?: boolean }>(STORAGE_KEYS.PREFERENCES, {});

@@ -15,6 +15,7 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 # OAuth2 token URL
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl=f"{settings.API_V1_STR}/auth/login")
+oauth2_scheme_optional = OAuth2PasswordBearer(tokenUrl=f"{settings.API_V1_STR}/auth/login", auto_error=False)
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """Verify password against hash"""
@@ -71,6 +72,19 @@ def get_current_admin_user(current_user: User = Depends(get_current_user)) -> Us
             detail="The user doesn't have enough privileges"
         )
     return current_user
+
+def get_optional_user(token: Optional[str] = Depends(oauth2_scheme_optional), session: Session = Depends(get_session)) -> Optional[User]:
+    """Get current user if token provided, else None (for public endpoints)"""
+    if not token:
+        return None
+    try:
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+        email: str = payload.get("sub")
+        if email is None:
+            return None
+        return session.exec(select(User).where(User.email == email)).first()
+    except Exception:
+        return None
 
 def get_current_staff_user(current_user: User = Depends(get_current_user)) -> User:
     """Get current staff or admin user"""

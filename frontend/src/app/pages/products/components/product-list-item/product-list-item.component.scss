@@ -73,10 +73,31 @@
 
   // Price display
   &__price {
+    .price-original {
+      font-size: var(--font-size-sm);
+      color: #ef4444;
+      text-decoration: line-through;
+      margin-right: 0.25rem;
+    }
+
     .price-current {
       font-size: var(--font-size-base);
       font-weight: var(--font-weight-semibold);
-      color: var(--text-color);
+
+      &--discounted {
+        color: #16a34a;
+      }
+    }
+
+    .price-locked {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      font-size: var(--font-size-sm);
+      color: var(--text-color-secondary);
+      text-decoration: none;
+      &:hover { color: var(--primary-color); }
+      i { font-size: 0.75rem; }
     }
 
     .price-unit {

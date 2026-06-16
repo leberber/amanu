@@ -253,8 +253,9 @@ def create_order(
                 detail=f"Not enough stock for {product.name}. Available: {product.stock_quantity}",
             )
 
-        # Calculate item total
-        item_total = product.price * item.quantity
+        # Calculate item total (use custom_unit_price if provided, e.g. group discount)
+        effective_price = item.custom_unit_price if item.custom_unit_price is not None else product.price
+        item_total = effective_price * item.quantity
         subtotal += item_total
 
         # Calculate weight (product.weight is in kg per unit)
@@ -275,6 +276,7 @@ def create_order(
             product_id=item.product_id,
             quantity=item.quantity,
             unit_price=product.price,
+            custom_unit_price=item.custom_unit_price,
             product_name=product.name,
             product_unit=product.unit,
             pieces_per_box=product.pieces_per_box,

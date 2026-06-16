@@ -72,7 +72,6 @@ export class CartComponent implements OnInit {
   loading = signal(false);
   productQuantities: Record<string, number> = {};
   // Computed
-  cartSubtotal = this.cartService.subtotal;
   appliedPromotion = this.cartService.appliedPromotion;
   discountAmount = this.cartService.discountAmount;
   crossSellDiscounts = this.cartService.crossSellDiscounts;

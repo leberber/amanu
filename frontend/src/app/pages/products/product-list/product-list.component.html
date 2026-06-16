@@ -26,12 +26,6 @@
           }
           <button
             type="button"
-            class="mobile-search-view-toggle"
-            (click)="toggleViewMode()">
-            <i [class]="viewToggleIcon()"></i>
-          </button>
-          <button
-            type="button"
             class="mobile-search-close"
             (click)="closeMobileSearch()">
             <i class="pi pi-check"></i>
@@ -59,12 +53,6 @@
     <!-- Desktop Toolbar (desktop only) -->
     <div class="page-toolbar">
       <app-search-input variant="pill"></app-search-input>
-      <button
-        type="button"
-        class="view-toggle-btn"
-        (click)="toggleViewMode()">
-        <i [class]="viewToggleIcon()"></i>
-      </button>
     </div>
   </div>
 
@@ -72,47 +60,24 @@
   <div class="page-content--with-bottom-nav">
     @if (loading()) {
       <!-- Skeleton Loading -->
-      @if (layout() === 'grid') {
-        <div class="item-grid">
-          @for (i of skeletonGridItems; track i) {
-            <div class="skeleton-product-card">
-              <!-- Image with badge and product icon -->
-              <div class="skeleton-image-wrapper">
-                <div class="skeleton skeleton-badge"></div>
-                <i class="pi pi-image skeleton-icon"></i>
-              </div>
-              <!-- Content -->
-              <div class="skeleton-content">
-                <!-- Name -->
-                <div class="skeleton skeleton-name"></div>
-                <!-- Price -->
-                <div class="skeleton skeleton-price-text"></div>
-                <!-- Actions row -->
-                <div class="skeleton-actions-row">
-                  <div class="skeleton skeleton-qty-btn"></div>
-                  <div class="skeleton skeleton-cart-btn"></div>
-                </div>
+      <div class="item-grid">
+        @for (i of skeletonGridItems; track i) {
+          <div class="skeleton-product-card">
+            <div class="skeleton-image-wrapper">
+              <div class="skeleton skeleton-badge"></div>
+              <i class="pi pi-image skeleton-icon"></i>
+            </div>
+            <div class="skeleton-content">
+              <div class="skeleton skeleton-name"></div>
+              <div class="skeleton skeleton-price-text"></div>
+              <div class="skeleton-actions-row">
+                <div class="skeleton skeleton-qty-btn"></div>
+                <div class="skeleton skeleton-cart-btn"></div>
               </div>
             </div>
-          }
-        </div>
-      } @else {
-        <div class="item-list">
-          @for (i of skeletonListItems; track i) {
-            <div class="skeleton-product-list-item">
-              <div class="skeleton skeleton-image--list"></div>
-              <div class="skeleton-content">
-                <div class="skeleton skeleton-text skeleton-text--w70"></div>
-                <div class="skeleton skeleton-text skeleton-text--w40"></div>
-                <div class="skeleton-row">
-                  <div class="skeleton skeleton-text skeleton-text--flex"></div>
-                  <div class="skeleton skeleton-button"></div>
-                </div>
-              </div>
-            </div>
-          }
-        </div>
-      }
+          </div>
+        }
+      </div>
     } @else if (products().length === 0) {
       <!-- Empty State -->
       <div class="empty-state">
@@ -123,36 +88,20 @@
         <p class="empty-state__description">{{ 'products.empty.subtitle' | translate }}</p>
       </div>
     } @else {
-      <!-- Products Grid/List -->
-      @if (layout() === 'grid') {
-        <div class="item-grid" [attr.data-animation-key]="animationKey()">
-          @for (product of products(); track product.id; let i = $index) {
-            <app-product-card
-              [product]="product"
-              [selectedBoxOption]="getSelectedBoxOption(product.id)"
-              [highlightCart]="highlightedProductId() === product.id"
-              (addToCartEvent)="onAddToCart($event)"
-              (quantitySelectorEvent)="onQuantitySelectorOpen($event)"
-              class="product-card-wrapper item-animate"
-              [style.animation-delay]="(i * animationDelayMs) + 'ms'">
-            </app-product-card>
-          }
-        </div>
-      } @else {
-        <div class="item-list" [attr.data-animation-key]="animationKey()">
-          @for (product of products(); track product.id; let i = $index) {
-            <app-product-list-item
-              [product]="product"
-              [selectedBoxOption]="getSelectedBoxOption(product.id)"
-              [highlightCart]="highlightedProductId() === product.id"
-              (addToCartEvent)="onAddToCart($event)"
-              (quantitySelectorEvent)="onQuantitySelectorOpen($event)"
-              class="item-animate"
-              [style.animation-delay]="(i * animationDelayMs) + 'ms'">
-            </app-product-list-item>
-          }
-        </div>
-      }
+      <!-- Products Grid -->
+      <div class="item-grid" [attr.data-animation-key]="animationKey()">
+        @for (product of products(); track product.id; let i = $index) {
+          <app-product-card
+            [product]="product"
+            [selectedBoxOption]="getSelectedBoxOption(product.id)"
+            [highlightCart]="highlightedProductId() === product.id"
+            (addToCartEvent)="onAddToCart($event)"
+            (quantitySelectorEvent)="onQuantitySelectorOpen($event)"
+            class="product-card-wrapper item-animate"
+            [style.animation-delay]="(i * animationDelayMs) + 'ms'">
+          </app-product-card>
+        }
+      </div>
     }
   </div>
 </div>

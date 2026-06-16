@@ -284,6 +284,14 @@
             <span class="breakdown-row__value"><app-currency [value]="cartSubtotal()" /></span>
           </div>
 
+          <!-- Product savings (group discount + promotions) -->
+          @if (productSavings() > 0) {
+            <div class="breakdown-row">
+              <span class="breakdown-row__label">{{ 'promotions.discount' | translate }}</span>
+              <span class="breakdown-row__value breakdown-row__value--discount">-<app-currency [value]="productSavings()" /></span>
+            </div>
+          }
+
           <!-- Delivery Cost -->
           <div class="breakdown-row">
             <span class="breakdown-row__label">
@@ -319,6 +327,14 @@
             <div class="breakdown-row">
               <span class="breakdown-row__label">{{ 'promotions.bundle_savings' | translate }}</span>
               <span class="breakdown-row__value breakdown-row__value--discount">-<app-currency [value]="crossSellSavings()" /></span>
+            </div>
+          }
+
+          <!-- Volume Discount Savings (if any) -->
+          @if (volumeDiscountSavings() > 0) {
+            <div class="breakdown-row">
+              <span class="breakdown-row__label">{{ 'promotions.volume_savings' | translate }}</span>
+              <span class="breakdown-row__value breakdown-row__value--discount">-<app-currency [value]="volumeDiscountSavings()" /></span>
             </div>
           }
 

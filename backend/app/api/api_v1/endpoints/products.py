@@ -9,12 +9,14 @@ from sqlalchemy import Text
 
 from app.database import get_session
 from app.models.product import Product, ProductCreate, ProductUpdate, ProductRead, ProductPromotion
+from app.models.product_group_price import ProductGroupPrice, ProductGroupPriceRead, ProductGroupPriceUpsert, GroupDiscountType
 from app.models.facturation import FacturationItem, Facturation
 from app.models.category import Category
 from app.models.promotion import Promotion, PromotionScope
 from app.models.restock import RestockItem
 from app.models.purchase_order import PurchaseOrder, PurchaseOrderItem, PurchaseOrderStatus
-from app.core.security import get_current_staff_user, get_current_active_user
+from app.models.user_group import UserGroup, UserGroupLink
+from app.core.security import get_current_staff_user, get_current_active_user, get_optional_user
 from app.core.translation import TranslationService
 from app.models.user import User
 from app.services.s3 import S3Service
@@ -105,6 +107,37 @@ def enrich_products_with_promotions(
     return result
 
 
+def get_best_group_discount(product: Product, user: Optional[User], session: Session) -> Optional[float]:
+    """Compute the best group discount (in DA) for a product given the user's groups."""
+    if not user:
+        return None
+
+    links = session.exec(select(UserGroupLink).where(UserGroupLink.user_id == user.id)).all()
+    group_ids = [link.group_id for link in links]
+    if not group_ids:
+        return None
+
+    group_prices = session.exec(
+        select(ProductGroupPrice).where(
+            ProductGroupPrice.product_id == product.id,
+            ProductGroupPrice.group_id.in_(group_ids)
+        )
+    ).all()
+    if not group_prices:
+        return None
+
+    best = 0.0
+    for gp in group_prices:
+        if gp.discount_type == GroupDiscountType.FIXED:
+            discount = gp.discount_value
+        else:
+            discount = product.price * (gp.discount_value / 100)
+        if discount > best:
+            best = discount
+
+    return round(best, 2) if best > 0 else None
+
+
 @router.post("", response_model=ProductRead)
 def create_product(
     product_in: ProductCreate,
@@ -162,6 +195,7 @@ def read_products(
     sort_order: str = Query("asc", enum=["asc", "desc"]),
     lang: str = Query("en", description="Language for translations (en, fr, ar)"),
     session: Session = Depends(get_session),
+    current_user: Optional[User] = Depends(get_optional_user),
 ) -> Any:
     """
     Retrieve products with various filters and translation support.
@@ -231,8 +265,17 @@ def read_products(
     for product in products:
         TranslationService.apply_translations_to_model(product, lang)
 
-    # Enrich products with promotion info
-    return enrich_products_with_promotions(products, session)
+    # Enrich products with promotion info + group discounts
+    enriched = enrich_products_with_promotions(products, session)
+    if current_user:
+        for item in enriched:
+            product_obj = next((p for p in products if p.id == item['id']), None)
+            if product_obj:
+                discount = get_best_group_discount(product_obj, current_user, session)
+                if discount:
+                    item['group_discount'] = discount
+                    item['effective_price'] = round(item['price'] - discount, 2)
+    return enriched
 
 
 @router.get("/admin/paginated", response_model=PaginatedProductsResponse)
@@ -322,6 +365,7 @@ def read_product(
     product_id: int,
     lang: str = Query("en", description="Language for translations (en, fr, ar)"),
     session: Session = Depends(get_session),
+    current_user: Optional[User] = Depends(get_optional_user),
 ) -> Any:
     """
     Get product by ID with translation support.
@@ -340,6 +384,13 @@ def read_product(
     promotions = get_active_promotions(session)
     product_data = ProductRead.model_validate(product).model_dump()
     product_data['promotion'] = get_best_promotion_for_product(product, promotions)
+
+    # Add group discount if user is authenticated
+    if current_user:
+        discount = get_best_group_discount(product, current_user, session)
+        if discount:
+            product_data['group_discount'] = discount
+            product_data['effective_price'] = round(product_data['price'] - discount, 2)
 
     return product_data
 
@@ -598,4 +649,100 @@ def get_product_price_history(
             purchase_order_reference=order.reference
         )
         for item, order in rows
+    ]
+
+
+# =============================================================================
+# GROUP PRICING ENDPOINTS
+# =============================================================================
+
+@router.get("/{product_id}/group-prices", response_model=List[ProductGroupPriceRead])
+def get_product_group_prices(
+    product_id: int,
+    session: Session = Depends(get_session),
+    current_user: User = Depends(get_current_staff_user),
+) -> Any:
+    """Get all group discounts configured for a product (staff only)."""
+    product = session.get(Product, product_id)
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+
+    prices = session.exec(
+        select(ProductGroupPrice).where(ProductGroupPrice.product_id == product_id)
+    ).all()
+
+    # Load group names and colors
+    group_ids = [p.group_id for p in prices]
+    groups_map = {}
+    if group_ids:
+        groups = session.exec(select(UserGroup).where(UserGroup.id.in_(group_ids))).all()
+        groups_map = {g.id: g for g in groups}
+
+    return [
+        ProductGroupPriceRead(
+            id=p.id,
+            product_id=p.product_id,
+            group_id=p.group_id,
+            discount_type=p.discount_type,
+            discount_value=p.discount_value,
+            group_name=groups_map[p.group_id].name if p.group_id in groups_map else None,
+            group_color=groups_map[p.group_id].color if p.group_id in groups_map else None,
+        )
+        for p in prices
+    ]
+
+
+@router.put("/{product_id}/group-prices", response_model=List[ProductGroupPriceRead])
+def set_product_group_prices(
+    product_id: int,
+    prices_in: List[ProductGroupPriceUpsert],
+    session: Session = Depends(get_session),
+    current_user: User = Depends(get_current_staff_user),
+) -> Any:
+    """Replace all group discounts for a product (staff only). Pass empty list to clear all."""
+    product = session.get(Product, product_id)
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+
+    # Delete existing group prices for this product
+    existing = session.exec(
+        select(ProductGroupPrice).where(ProductGroupPrice.product_id == product_id)
+    ).all()
+    for ep in existing:
+        session.delete(ep)
+
+    # Insert new ones
+    new_prices = []
+    for p in prices_in:
+        gp = ProductGroupPrice(
+            product_id=product_id,
+            group_id=p.group_id,
+            discount_type=p.discount_type,
+            discount_value=p.discount_value,
+        )
+        session.add(gp)
+        new_prices.append(gp)
+
+    session.commit()
+    for gp in new_prices:
+        session.refresh(gp)
+
+    # Load group info for response
+    group_ids = [p.group_id for p in prices_in]
+    groups_map = {}
+    if group_ids:
+        groups = session.exec(select(UserGroup).where(UserGroup.id.in_(group_ids))).all()
+        groups_map = {g.id: g for g in groups}
+
+    return [
+        ProductGroupPriceRead(
+            id=gp.id,
+            product_id=gp.product_id,
+            group_id=gp.group_id,
+            discount_type=gp.discount_type,
+            discount_value=gp.discount_value,
+            group_name=groups_map[gp.group_id].name if gp.group_id in groups_map else None,
+            group_color=groups_map[gp.group_id].color if gp.group_id in groups_map else None,
+        )
+        for gp in new_prices
     ]

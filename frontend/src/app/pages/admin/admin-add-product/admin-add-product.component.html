@@ -419,6 +419,62 @@
                   </div>
                 </div>
               </div>
+
+              @if (isEditMode() && allGroups().length > 0) {
+                <div class="col-12 item-animate" [style.animation-delay]="'200ms'">
+                  <div class="form-card">
+                    <div class="card-header">
+                      <div class="card-header__icon card-header__icon--success">
+                        <i class="pi pi-users"></i>
+                      </div>
+                      <h3 class="card-header__title">Prix par groupe client</h3>
+                    </div>
+                    <div class="card-body">
+                      <div class="flex flex-column gap-3">
+                        @for (group of allGroups(); track group.id) {
+                          <div class="flex align-items-center gap-3 p-3 border-round surface-ground">
+                            <input type="checkbox"
+                              [checked]="isGroupInPrices(group.id)"
+                              (change)="toggleGroupDiscount(group.id)" />
+                            <span class="font-semibold flex-1">{{ group.name }}</span>
+                            @if (isGroupInPrices(group.id)) {
+                              <p-select
+                                [ngModel]="getGroupPrice(group.id)?.discount_type ?? 'fixed'"
+                                (ngModelChange)="updateGroupDiscountType(group.id, $event)"
+                                [ngModelOptions]="{standalone: true}"
+                                [options]="discountTypeOptions"
+                                optionLabel="label" optionValue="value"
+                                styleClass="w-10rem"
+                                appendTo="body" />
+                              <p-inputNumber
+                                [ngModel]="getGroupPrice(group.id)?.discount_value ?? 0"
+                                (ngModelChange)="updateGroupDiscountValue(group.id, $event)"
+                                [ngModelOptions]="{standalone: true}"
+                                [min]="0" [maxFractionDigits]="2"
+                                styleClass="w-7rem" />
+                              <span class="text-sm text-color-secondary">
+                                → {{ getGroupEffectivePrice(group.id) | number:'1.2-2' }} DA
+                              </span>
+                            }
+                          </div>
+                        }
+                      </div>
+                      <div class="flex justify-content-end mt-4">
+                        <button type="button" class="step-nav__btn step-nav__btn--finish"
+                          (click)="saveGroupPrices()"
+                          [disabled]="savingGroupPrices()">
+                          @if (savingGroupPrices()) {
+                            <i class="pi pi-spin pi-spinner"></i>
+                          } @else {
+                            <i class="pi pi-check"></i>
+                          }
+                          <span>Sauvegarder les prix</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              }
             </div>
           }
         </div>

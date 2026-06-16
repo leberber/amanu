@@ -287,6 +287,9 @@
         "palette_plural": "ألواح"
       }
     },
+    "price": {
+      "login_to_see": "سجّل دخولك لرؤية السعر"
+    },
     "stock": {
       "title": "التوفر",
       "out_of_stock": "غير متوفر",
@@ -400,6 +403,7 @@
     "sale": "خصم",
     "off": "تخفيض",
     "bundle_savings": "توفير الحزمة",
+    "volume_savings": "خصم الكمية",
     "cross_sell_message": "وفرت {{savings}} على {{target}} لأنك أضفت {{trigger}}!"
   },
   "order_summary": {

@@ -15,6 +15,8 @@ import { onLanguageChange } from '../../../core/utils/language-change.util';
 import { AdminService } from '../../../services/admin.service';
 import { UserManage, UsersResponse } from '../../../models/admin.model';
 import { BaseAdminListComponent, ColumnOption } from '../../../shared/base/base-admin-list.component';
+import { UserGroupService } from '../../../core/services/user-group.service';
+import { UserGroup, UserGroupBasic } from '../../../models/user-group.model';
 import { DateFormatPipe } from '../../../shared/pipes/date-format.pipe';
 import { InlineEditState } from '../../../shared/utils/inline-edit-state';
 import { ConfirmationDialogService } from '../../../core/services/confirmation-dialog.service';
@@ -125,6 +127,7 @@ export class AdminUsersComponent extends BaseAdminListComponent implements OnIni
   private statusService = inject(StatusSeverityService);
   private destroyRef = inject(DestroyRef);
   private readonly breakpoint = inject(BreakpointService);
+  private userGroupService = inject(UserGroupService);
 
   ngOnInit(): void {
     this.columnOptions = this.getInitialColumnOptions();
@@ -397,6 +400,68 @@ export class AdminUsersComponent extends BaseAdminListComponent implements OnIni
         error: () => {
           this.savingPassword.set(false);
           this.baseToast.showError('Erreur lors de la définition du mot de passe');
+        }
+      });
+  }
+
+  // ── Group Assignment Dialog ───────────────────────────────────────────────
+  showGroupDialog = signal(false);
+  groupDialogUser: UserManage | null = null;
+  allGroups: UserGroup[] = [];
+  selectedGroupIds: number[] = [];
+  savingGroups = signal(false);
+  loadingGroups = signal(false);
+
+  openGroupDialog(user: UserManage): void {
+    this.groupDialogUser = user;
+    this.selectedGroupIds = (user.groups || []).map(g => g.id);
+    this.showGroupDialog.set(true);
+
+    if (this.allGroups.length === 0) {
+      this.loadingGroups.set(true);
+      this.userGroupService.getGroups(false).subscribe({
+        next: (groups) => {
+          this.allGroups = groups;
+          this.loadingGroups.set(false);
+        },
+        error: () => {
+          this.loadingGroups.set(false);
+          this.baseToast.showError('admin.users.messages.update_failed_detail');
+        }
+      });
+    }
+  }
+
+  isGroupSelected(groupId: number): boolean {
+    return this.selectedGroupIds.includes(groupId);
+  }
+
+  toggleGroup(groupId: number): void {
+    if (this.isGroupSelected(groupId)) {
+      this.selectedGroupIds = this.selectedGroupIds.filter(id => id !== groupId);
+    } else {
+      this.selectedGroupIds = [...this.selectedGroupIds, groupId];
+    }
+  }
+
+  saveGroups(): void {
+    if (!this.groupDialogUser) return;
+    this.savingGroups.set(true);
+    this.userGroupService.updateUserGroups(this.groupDialogUser.id, this.selectedGroupIds)
+      .subscribe({
+        next: (updatedGroups: UserGroupBasic[]) => {
+          // Update in allUsers
+          const idx = this.allUsers.findIndex(u => u.id === this.groupDialogUser!.id);
+          if (idx !== -1) this.allUsers[idx].groups = updatedGroups;
+          const idx2 = this.users.findIndex(u => u.id === this.groupDialogUser!.id);
+          if (idx2 !== -1) this.users[idx2].groups = updatedGroups;
+          this.savingGroups.set(false);
+          this.showGroupDialog.set(false);
+          this.baseToast.showSuccess('admin.users.messages.groups_updated');
+        },
+        error: () => {
+          this.savingGroups.set(false);
+          this.baseToast.showError('admin.users.messages.update_failed_detail');
         }
       });
   }

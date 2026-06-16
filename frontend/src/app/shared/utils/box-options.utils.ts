@@ -16,6 +16,7 @@ export interface BoxProduct {
   stock_quantity: number;
   pieces_per_box?: number;
   price: number;
+  effective_price?: number;
   max_order_cartons?: number | null;
   promotion?: {
     discounted_price?: number;
@@ -23,9 +24,11 @@ export interface BoxProduct {
 }
 
 /**
- * Get the effective price for a product (with or without promotion)
+ * Get the effective unit price for a product (group discount > promotion > base price).
+ * Single source of truth used by all product views.
  */
-function getEffectivePrice(product: BoxProduct): number {
+export function getEffectiveUnitPrice(product: BoxProduct): number {
+  if (product.effective_price != null) return product.effective_price;
   return product.promotion?.discounted_price ?? product.price;
 }
 
@@ -54,7 +57,7 @@ export function generateBoxOptions(
 ): BoxOption[] {
   const options: BoxOption[] = [];
   const piecesPerBox = getPiecesPerBox(product);
-  const effectivePrice = getEffectivePrice(product);
+  const effectivePrice = getEffectiveUnitPrice(product);
   const maxBoxes = getMaxBoxes(product);
   const max = product.max_order_cartons != null
     ? Math.min(maxBoxes, product.max_order_cartons)

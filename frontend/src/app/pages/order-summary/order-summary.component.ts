@@ -105,8 +105,11 @@ export class OrderSummaryComponent implements OnInit {
   // Computed from CartService
   cartItems = this.cartService.items;
   cartSubtotal = this.cartService.subtotal;
+  private discountedSubtotal = this.cartService.discountedSubtotal;
+  productSavings = computed(() => this.cartSubtotal() - this.discountedSubtotal());
   discountAmount = this.cartService.discountAmount;
   crossSellSavings = this.cartService.crossSellSavings;
+  volumeDiscountSavings = this.cartService.volumeDiscountSavings;
   appliedPromotion = this.cartService.appliedPromotion;
   cartItemCount = computed(() => this.cartItems().length);
 
@@ -137,11 +140,12 @@ export class OrderSummaryComponent implements OnInit {
 
   // Computed final total including delivery
   finalTotal = computed(() => {
-    const subtotal = this.cartSubtotal();
+    const base = this.discountedSubtotal();
     const discount = this.discountAmount();
     const crossSell = this.crossSellSavings();
+    const volumeDiscount = this.volumeDiscountSavings();
     const delivery = this.deliveryCost();
-    return subtotal - discount - crossSell + delivery;
+    return base - discount - crossSell - volumeDiscount + delivery;
   });
 
   // Delivery method
@@ -195,7 +199,7 @@ export class OrderSummaryComponent implements OnInit {
       h3_index: user.h3_index,
       weight_kg: this.cartService.totalWeight(),
       volume_m3: volumeM3,
-      order_total: this.cartSubtotal()
+      order_total: this.discountedSubtotal()
     }).pipe(
       takeUntilDestroyed(this.destroyRef)
     ).subscribe({

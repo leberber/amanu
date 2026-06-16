@@ -1,5 +1,6 @@
 import { Component, OnInit, inject, signal, computed, DestroyRef } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { AsyncPipe } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
@@ -23,19 +24,23 @@ import { Product } from '../../../models/product.model';
 import { Brand } from '../../../models/brand.model';
 import { ROUTES } from '../../../core/constants/routes.constants';
 import { getDefaultQuantity } from '../../../shared/utils/quantity.utils';
+import { getEffectiveUnitPrice } from '../../../shared/utils/box-options.utils';
 import { FlyToCartService } from '../../../core/services/fly-to-cart.service';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
 import { BrandService } from '../../../core/services/brand.service';
 import { ImageFallbackDirective } from '../../../shared/directives/image-fallback.directive';
 import { isOutOfStock as checkOutOfStock, isLowStock as checkLowStock } from '../../../shared/utils/stock.utils';
-import { formatDiscountLabel, getEffectivePrice, hasPromotion as checkHasPromotion, calculateVolumeDiscount } from '../../../shared/utils/discount.utils';
+import { formatDiscountLabel, getEffectivePrice, hasPromotion as checkHasPromotion, hasGroupDiscount as checkHasGroupDiscount, calculateVolumeDiscount, calculateOriginalPriceWithFree } from '../../../shared/utils/discount.utils';
 import { CrossSellNotificationService } from '../../../core/services/cross-sell-notification.service';
 import { VolumeDiscountService } from '../../../services/volume-discount.service';
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-product-detail',
   standalone: true,
   imports: [
+    AsyncPipe,
+    RouterLink,
     ToastModule,
     ButtonModule,
     TagModule,
@@ -77,7 +82,10 @@ export class ProductDetailComponent implements OnInit {
   private brandService = inject(BrandService);
   private crossSellNotification = inject(CrossSellNotificationService);
   private volumeDiscountService = inject(VolumeDiscountService);
+  private authService = inject(AuthService);
   private destroyRef = inject(DestroyRef);
+
+  isLoggedIn = this.authService.isLoggedIn$;
   private packagingTypeService = inject(PackagingTypeService);
 
   // Constants
@@ -139,6 +147,18 @@ export class ProductDetailComponent implements OnInit {
     return p.price - this.discountedPrice();
   });
 
+  // Computed - group discount
+  hasGroupDiscount = computed(() => {
+    const p = this.product();
+    return !!p && checkHasGroupDiscount(p);
+  });
+
+  // The unit price to use for all quantity × price calculations (shared logic)
+  unitPrice = computed(() => {
+    const p = this.product();
+    return p ? getEffectiveUnitPrice(p) : 0;
+  });
+
   // Computed - volume discount config
   volumeDiscount = computed(() => {
     const p = this.product();
@@ -180,7 +200,7 @@ export class ProductDetailComponent implements OnInit {
     return calculateVolumeDiscount(
       this.selectedCartons(),
       { discount_type: vd.discount_type, discount_value: vd.discount_value, min_quantity: vd.min_quantity },
-      p.price,
+      this.unitPrice(),
       p.pieces_per_box || 1
     );
   });
@@ -199,9 +219,12 @@ export class ProductDetailComponent implements OnInit {
   originalPriceWithFree = computed(() => {
     const p = this.product();
     if (!p) return 0;
-    const totalCartons = this.totalCartonsWithFree();
-    const pricePerCarton = p.price * (p.pieces_per_box || 1);
-    return totalCartons * pricePerCarton;
+    return calculateOriginalPriceWithFree(
+      this.selectedQuantity(),
+      this.unitPrice(),
+      p.pieces_per_box || 1,
+      this.freeCartonsEarned()
+    );
   });
 
   qualifiesForVolumeDiscount = computed(() => {
@@ -219,7 +242,7 @@ export class ProductDetailComponent implements OnInit {
   priceAfterVolumeDiscount = computed(() => {
     const p = this.product();
     if (!p) return 0;
-    const totalPrice = this.selectedQuantity() * p.price;
+    const totalPrice = this.selectedQuantity() * this.unitPrice();
     return totalPrice - this.volumeDiscountSavings();
   });
 

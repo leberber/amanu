@@ -75,6 +75,7 @@ export interface DiffDisplayItem {
 export interface OrderCreateItem {
   product_id: number;
   quantity: number;
+  custom_unit_price?: number;
 }
 
 export interface OrderCreate {

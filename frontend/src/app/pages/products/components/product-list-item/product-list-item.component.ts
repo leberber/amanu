@@ -1,10 +1,12 @@
 import { Component, inject, input, output, computed } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { AsyncPipe } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ButtonModule } from 'primeng/button';
 
 import { Product } from '../../../../models/product.model';
-import { RouteHelpers } from '../../../../core/constants/routes.constants';
+import { RouteHelpers, ROUTES } from '../../../../core/constants/routes.constants';
+import { AuthService } from '../../../../services/auth.service';
 import { CurrencyService } from '../../../../core/services/currency.service';
 import { PackagingTypeService } from '../../../../core/services/packaging-type.service';
 import { FlyToCartService } from '../../../../core/services/fly-to-cart.service';
@@ -16,7 +18,8 @@ import {
   isLowStock as checkLowStock
 } from '../../../../shared/utils/stock.utils';
 import {
-  getEffectivePrice
+  getEffectivePrice,
+  hasGroupDiscount as checkHasGroupDiscount
 } from '../../../../shared/utils/discount.utils';
 import {
   generateBoxOptions,
@@ -40,6 +43,7 @@ export interface QuantitySelectorEvent {
   standalone: true,
   imports: [
     RouterLink,
+    AsyncPipe,
     TranslateModule,
     ButtonModule,
     CurrencyDisplayComponent,
@@ -65,6 +69,15 @@ export class ProductListItemComponent {
   private flyToCartService = inject(FlyToCartService);
   private translateService = inject(TranslateService);
   private packagingTypeService = inject(PackagingTypeService);
+  private authService = inject(AuthService);
+
+  readonly ROUTES = ROUTES;
+
+  // Auth state
+  isLoggedIn = this.authService.isLoggedIn$;
+
+  // Group discount
+  hasGroupDiscount = computed(() => checkHasGroupDiscount(this.product()));
 
   // Computed - route
   productDetailLink = computed(() => RouteHelpers.productDetail(this.product().id));

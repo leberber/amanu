@@ -135,7 +135,7 @@
                 <span class="item-row__name">{{ item.product_name }}</span>
                 <span class="item-row__qty">{{ formatCartonCount(item) }}</span>
               </div>
-              <span class="item-row__price"><app-currency [value]="item.product_price * item.quantity" /></span>
+              <span class="item-row__price"><app-currency [value]="(item.product_discounted_price ?? item.product_price) * item.quantity" /></span>
             </div>
           }
         </div>

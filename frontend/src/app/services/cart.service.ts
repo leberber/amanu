@@ -255,7 +255,7 @@ export class CartService {
       product_id: product.id,
       product_name: product.name,
       product_price: product.price,
-      product_discounted_price: product.promotion?.discounted_price,
+      product_discounted_price: product.effective_price ?? product.promotion?.discounted_price,
       product_unit: product.unit,
       product_image: product.image_url,
       is_organic: product.is_organic,

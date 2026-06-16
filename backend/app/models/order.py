@@ -128,6 +128,7 @@ class OrderCreateItem(SQLModel):
     """Model for item in order creation"""
     product_id: int
     quantity: float = Field(gt=0)
+    custom_unit_price: Optional[float] = None
 
 class OrderCreate(SQLModel):
     """Model for creating a new order"""

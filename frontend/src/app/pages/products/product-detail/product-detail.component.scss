@@ -143,13 +143,31 @@
   line-height: 1;
 
   &--promo {
-    color: var(--red-500);
+    color: #ef4444;
+  }
+
+  &--discounted {
+    color: #16a34a;
+  }
+}
+
+.price-locked {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--text-color-secondary);
+  text-decoration: none;
+
+  &:hover {
+    color: var(--primary-color);
   }
 }
 
 .price-original {
   font-size: 1.1rem;
-  color: var(--text-color-secondary);
+  color: #ef4444;
   text-decoration: line-through;
 }
 

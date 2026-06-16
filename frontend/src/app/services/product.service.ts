@@ -3,7 +3,7 @@ import { Injectable, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { ApiService } from './api.service';
 import { TranslationService } from './translation.service';
-import { Product, Category, ProductFilter, PaginatedProductsResponse, AdminProductFilter } from '../models/product.model';
+import { Product, Category, ProductFilter, PaginatedProductsResponse, AdminProductFilter, ProductGroupPrice, ProductGroupPriceUpsert } from '../models/product.model';
 
 @Injectable({
   providedIn: 'root'
@@ -131,5 +131,13 @@ export class ProductService {
     if (filters.search) params.search = filters.search;
 
     return this.apiService.get<PaginatedProductsResponse>('/products/admin/paginated', { params });
+  }
+
+  getGroupPrices(productId: number): Observable<ProductGroupPrice[]> {
+    return this.apiService.get<ProductGroupPrice[]>(`/products/${productId}/group-prices`);
+  }
+
+  setGroupPrices(productId: number, prices: ProductGroupPriceUpsert[]): Observable<ProductGroupPrice[]> {
+    return this.apiService.put<ProductGroupPrice[]>(`/products/${productId}/group-prices`, prices);
   }
 }

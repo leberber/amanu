@@ -287,6 +287,9 @@
         "palette_plural": "palettes"
       }
     },
+    "price": {
+      "login_to_see": "Connectez-vous pour voir le prix"
+    },
     "stock": {
       "title": "Disponibilité",
       "out_of_stock": "Rupture de Stock",
@@ -399,6 +402,7 @@
     "sale": "PROMO",
     "off": "DE RÉDUCTION",
     "bundle_savings": "Économies groupées",
+    "volume_savings": "Remise volume",
     "cross_sell_message": "Vous économisez {{savings}} sur {{target}} grâce à {{trigger}} !"
   },
   "order_summary": {
