@@ -222,7 +222,11 @@
                     <span class="sort-header">{{ 'admin.products.table.stock' | translate }}<i [class]="getSortIcon('stock')"></i></span>
                   </th>
                 }
-                @if (isColumnVisible('lifecycle')) { <th style="width: 12%" class="text-center">{{ 'admin.products.table.lifecycle' | translate }}</th> }
+                @if (isColumnVisible('lifecycle')) {
+                  <th style="width: 12%" class="text-center sortable" (click)="toggleSort('lifecycle')">
+                    <span class="sort-header">{{ 'admin.products.table.lifecycle' | translate }}<i [class]="getSortIcon('lifecycle')"></i></span>
+                  </th>
+                }
                 @if (isColumnVisible('status')) { <th style="width: 12%" class="text-center">{{ 'admin.products.table.status' | translate }}</th> }
                 @if (isColumnVisible('actions')) { <th style="width: 12%" class="text-center">{{ 'admin.products.table.actions' | translate }}</th> }
               </tr>

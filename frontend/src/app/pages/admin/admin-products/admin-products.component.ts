@@ -117,7 +117,7 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
   drawerExiting = signal(false);
 
   // Sorting state
-  sortField = signal<'price' | 'stock' | 'purchase_price' | 'profit' | null>('stock');
+  sortField = signal<'price' | 'stock' | 'purchase_price' | 'profit' | 'lifecycle' | null>('stock');
   sortDir = signal<'asc' | 'desc'>('asc');
 
   sortedProducts = computed(() => {
@@ -133,18 +133,22 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
         case 'stock':       aVal = a.stock_quantity;     bVal = b.stock_quantity;     break;
         case 'purchase_price': aVal = this.getCmup(a.id) ?? -1; bVal = this.getCmup(b.id) ?? -1; break;
         case 'profit':      aVal = this.getProfit(a) ?? -Infinity; bVal = this.getProfit(b) ?? -Infinity; break;
+        case 'lifecycle':
+          aVal = Math.max(-1, ...this.getProductLifecycle(a.id).map(l => l.percentage));
+          bVal = Math.max(-1, ...this.getProductLifecycle(b.id).map(l => l.percentage));
+          break;
         default:            return 0;
       }
       return dir === 'asc' ? aVal - bVal : bVal - aVal;
     });
   });
 
-  toggleSort(field: 'price' | 'stock' | 'purchase_price' | 'profit'): void {
+  toggleSort(field: 'price' | 'stock' | 'purchase_price' | 'profit' | 'lifecycle'): void {
     if (this.sortField() === field) {
       this.sortDir.set(this.sortDir() === 'asc' ? 'desc' : 'asc');
     } else {
       this.sortField.set(field);
-      this.sortDir.set('asc');
+      this.sortDir.set(field === 'lifecycle' ? 'desc' : 'asc');
     }
   }
 
