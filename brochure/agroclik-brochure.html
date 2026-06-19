@@ -91,7 +91,7 @@
 
     /* --- BACK PANEL (left when flat, seen last) --- */
     .back-panel {
-      background: var(--off-white);
+      background: var(--white);
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -272,25 +272,27 @@
 
     /* --- FRONT COVER (center panel) --- */
     .front-cover {
-      background: #0F3C82;
-      color: white;
+      background: var(--off-white);
+      color: var(--text-dark);
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       text-align: center;
       position: relative;
+      border-left: 1px dashed #cbd5e1;
+      border-right: 1px dashed #cbd5e1;
     }
 
-    .cover-content {
+.cover-content {
       position: relative;
       z-index: 1;
     }
 
     .cover-badge {
       display: inline-block;
-      background: rgba(255,255,255,0.2);
-      border: 1px solid rgba(255,255,255,0.3);
+      background: rgba(15,60,130,0.07);
+      border: 1px solid rgba(15,60,130,0.18);
       border-radius: 20px;
       padding: 1.5mm 4mm;
       font-size: 5.5pt;
@@ -298,23 +300,25 @@
       text-transform: uppercase;
       letter-spacing: 1px;
       margin-bottom: 3mm;
+      color: var(--blue-dark);
     }
 
     .cover-logo-icon {
       width: 12mm;
       height: 12mm;
       margin: 0 auto 3mm;
-      background: white;
+      background: var(--off-white);
       border-radius: 3mm;
       display: flex;
       align-items: center;
       justify-content: center;
+      border: 1px solid var(--gray-light);
     }
 
     .cover-logo-icon svg {
       width: 10mm;
       height: 10mm;
-      fill: white;
+      fill: var(--blue-dark);
     }
 
     .cover-title {
@@ -323,16 +327,17 @@
       letter-spacing: -0.5px;
       line-height: 1;
       margin-bottom: 1.5mm;
+      color: var(--blue-dark);
     }
 
     .cover-title span {
-      color: #7DD3A0;
+      color: var(--green);
     }
 
     .cover-tagline {
       font-size: 8pt;
       font-weight: 600;
-      color: rgba(255,255,255,0.95);
+      color: var(--blue-light);
       margin-bottom: 4mm;
       letter-spacing: 0.3px;
     }
@@ -340,7 +345,7 @@
     .cover-divider {
       width: 12mm;
       height: 0.5mm;
-      background: rgba(255,255,255,0.8);
+      background: linear-gradient(to right, var(--blue-main), var(--green));
       margin: 0 auto 4mm;
       border-radius: 1mm;
     }
@@ -348,7 +353,7 @@
     .cover-subtitle {
       font-size: 6.5pt;
       line-height: 1.4;
-      color: rgba(255,255,255,0.95);
+      color: var(--gray-dark);
       max-width: 70mm;
       font-weight: 400;
     }
@@ -364,8 +369,8 @@
 
     .cover-website {
       font-size: 6.5pt;
-      font-weight: 600;
-      color: rgba(255,255,255,0.9);
+      font-weight: 700;
+      color: var(--blue-dark);
       letter-spacing: 0.5px;
     }
 
@@ -377,8 +382,8 @@
     }
 
     .store-badge-small {
-      background: rgba(255,255,255,0.12);
-      border: 1px solid rgba(255,255,255,0.2);
+      background: rgba(15,60,130,0.06);
+      border: 1px solid rgba(15,60,130,0.15);
       border-radius: 2mm;
       padding: 1.5mm 4mm;
       font-size: 6.5pt;
@@ -386,12 +391,13 @@
       display: flex;
       align-items: center;
       gap: 1.5mm;
+      color: var(--blue-dark);
     }
 
     .store-badge-small svg {
       width: 3mm;
       height: 3mm;
-      fill: white;
+      fill: var(--blue-dark);
     }
 
     /* --- INSIDE FLAP (right panel, first thing seen when opening) --- */
@@ -556,19 +562,19 @@
 
     /* --- Inside Center: Features --- */
     .inside-center {
-      background: #0F3C82;
-      color: white;
+      background: var(--off-white);
+      color: var(--text-dark);
       display: flex;
       flex-direction: column;
       justify-content: center;
     }
 
     .inside-center .section-label {
-      color: rgba(255,255,255,0.6);
+      color: var(--blue-light);
     }
 
     .inside-center .section-title {
-      color: white;
+      color: var(--blue-dark);
     }
 
     .feature-grid {
@@ -578,8 +584,9 @@
     }
 
     .feature-card {
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,255,255,0.1);
+      background: var(--white);
+      border: 1px solid var(--gray-light);
+      border-left: 2.5px solid var(--blue-main);
       border-radius: 1.5mm;
       padding: 2mm;
       display: flex;
@@ -587,32 +594,57 @@
       align-items: flex-start;
     }
 
+    .feature-card:nth-child(2n) {
+      border-left-color: var(--green);
+    }
+
+    .feature-card:nth-child(3n) {
+      border-left-color: #D97706;
+    }
+
     .feature-card-icon {
       width: 5mm;
       height: 5mm;
       border-radius: 1.5mm;
-      background: rgba(255,255,255,0.12);
+      background: linear-gradient(135deg, #EBF3FF, #DBEAFE);
       display: flex;
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
     }
 
+    .feature-card:nth-child(2n) .feature-card-icon {
+      background: linear-gradient(135deg, #ECFDF5, #D1FAE5);
+    }
+
+    .feature-card:nth-child(3n) .feature-card-icon {
+      background: linear-gradient(135deg, #FFFBEB, #FEF3C7);
+    }
+
     .feature-card-icon svg {
       width: 3mm;
       height: 3mm;
-      fill: #7DD3A0;
+      fill: var(--blue-main);
+    }
+
+    .feature-card:nth-child(2n) .feature-card-icon svg {
+      fill: var(--green);
+    }
+
+    .feature-card:nth-child(3n) .feature-card-icon svg {
+      fill: #D97706;
     }
 
     .feature-card h4 {
       font-size: 6pt;
       font-weight: 700;
       margin-bottom: 0;
+      color: var(--text-dark);
     }
 
     .feature-card p {
       font-size: 5pt;
-      opacity: 0.75;
+      color: var(--gray-dark);
       line-height: 1.3;
     }
 
