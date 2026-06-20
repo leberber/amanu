@@ -51,6 +51,45 @@
   </section>
 
   <!-- ======================================================
+       OFFERS / PROMOTIONS
+  ======================================================= -->
+  @if (promoProducts().length > 0) {
+    <section class="home-section reveal-section" appReveal>
+      <div class="section-header">
+        <h2 class="section-title">Offres en cours</h2>
+        <a [routerLink]="ROUTES.PROMOTIONS" class="section-link">
+          Voir tout <i class="pi pi-angle-right"></i>
+        </a>
+      </div>
+      <div class="scroll-track">
+        @for (product of promoProducts(); track product.id) {
+          <a class="promo-card" [routerLink]="ROUTES.PRODUCTS" [queryParams]="{id: product.id}">
+            <div class="promo-card__badge">
+              @if (product.promotion!.discount_type === 'percentage') {
+                -{{ product.promotion!.discount_value }}%
+              } @else {
+                -{{ product.promotion!.discount_value | number:'1.0-0' }} DA
+              }
+            </div>
+            <div class="promo-card__img">
+              @if (product.image_url) {
+                <img [src]="product.image_url" [alt]="product.name" loading="lazy" appImageFallback />
+              } @else {
+                <i class="pi pi-box"></i>
+              }
+            </div>
+            <p class="promo-card__name">{{ product.name }}</p>
+            <div class="promo-card__prices">
+              <span class="promo-card__old">{{ product.price | number:'1.0-0' }} DA</span>
+              <span class="promo-card__new">{{ product.promotion!.discounted_price | number:'1.0-0' }} DA</span>
+            </div>
+          </a>
+        }
+      </div>
+    </section>
+  }
+
+  <!-- ======================================================
        NEW PRODUCTS
   ======================================================= -->
   @if (newProducts().length > 0) {
@@ -120,11 +159,15 @@
       </div>
       <div class="scroll-track">
         @for (brand of brands(); track brand.id) {
-          <a class="brand-pill" [routerLink]="ROUTES.PRODUCTS" [queryParams]="{brand: brand.id}">
-            @if (brand.logo_url) {
-              <img [src]="brand.logo_url" [alt]="brand.name" loading="lazy" appImageFallback class="brand-pill__logo" />
-            }
-            <span>{{ brand.name }}</span>
+          <a class="cat-card" [routerLink]="ROUTES.PRODUCTS" [queryParams]="{brand: brand.id}">
+            <div class="cat-card__img">
+              @if (brand.logo_url) {
+                <img [src]="brand.logo_url" [alt]="brand.name" loading="lazy" appImageFallback />
+              } @else {
+                <i class="pi pi-tag"></i>
+              }
+            </div>
+            <span class="cat-card__name">{{ brand.name }}</span>
           </a>
         }
       </div>
@@ -167,34 +210,53 @@
   ======================================================= -->
   <section class="home-section features-section reveal-section" appReveal>
     <div class="section-header">
-      <h2 class="section-title">Pourquoi AgroClik ?</h2>
+      <h2 class="section-title">Pourquoi choisir AgroClik ?</h2>
     </div>
+    <p class="section-sub">La plateforme pensée pour les commerçants qui veulent simplifier leur approvisionnement.</p>
     <div class="features-grid">
       <div class="feature-card">
-        <div class="feature-card__icon" style="background: #dcfce7">
+        <div class="feature-card__icon" style="background: linear-gradient(135deg, #EBF3FF, #DBEAFE)">
+          <i class="pi pi-tag" style="color: #1d4ed8"></i>
+        </div>
+        <div>
+          <h3>Prix de gros compétitifs</h3>
+          <p>Des prix imbattables sur tous les produits agroalimentaires</p>
+        </div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-card__icon" style="background: linear-gradient(135deg, #ECFDF5, #D1FAE5)">
           <i class="pi pi-truck" style="color: #16a34a"></i>
         </div>
         <div>
-          <h3>{{ 'home.features.fast_delivery.title' | translate }}</h3>
-          <p>{{ 'home.features.fast_delivery.description' | translate }}</p>
+          <h3>Livraison rapide</h3>
+          <p>Livraison en 24h ou retrait sur place selon votre choix</p>
         </div>
       </div>
       <div class="feature-card">
-        <div class="feature-card__icon" style="background: #dbeafe">
-          <i class="pi pi-shield" style="color: #2563eb"></i>
+        <div class="feature-card__icon" style="background: linear-gradient(135deg, #FFFBEB, #FEF3C7)">
+          <i class="pi pi-shield" style="color: #d97706"></i>
         </div>
         <div>
-          <h3>{{ 'home.features.quality_guaranteed.title' | translate }}</h3>
-          <p>{{ 'home.features.quality_guaranteed.description' | translate }}</p>
+          <h3>Qualité garantie</h3>
+          <p>Produits sélectionnés et contrôlés avant chaque envoi</p>
         </div>
       </div>
       <div class="feature-card">
-        <div class="feature-card__icon" style="background: #fef3c7">
-          <i class="pi pi-sun" style="color: #d97706"></i>
+        <div class="feature-card__icon" style="background: linear-gradient(135deg, #F3E8FF, #E9D5FF)">
+          <i class="pi pi-percentage" style="color: #7c3aed"></i>
         </div>
         <div>
-          <h3>{{ 'home.features.organic_options.title' | translate }}</h3>
-          <p>{{ 'home.features.organic_options.description' | translate }}</p>
+          <h3>Remises automatiques</h3>
+          <p>Remises volume, offres groupées et codes promo</p>
+        </div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-card__icon" style="background: linear-gradient(135deg, #EBF3FF, #DBEAFE)">
+          <i class="pi pi-mobile" style="color: #1d4ed8"></i>
+        </div>
+        <div>
+          <h3>Application mobile</h3>
+          <p>Commandez depuis votre téléphone, partout et à tout moment</p>
         </div>
       </div>
     </div>

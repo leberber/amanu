@@ -73,6 +73,7 @@ export class HomeComponent implements OnInit {
     },
   ];
 
+  promoProducts = signal<Product[]>([]);
   newProducts = signal<Product[]>([]);
   private rawCategories = signal<Category[]>([]);
 
@@ -88,10 +89,20 @@ export class HomeComponent implements OnInit {
     this.loadCategories();
     this.loadBrands();
     this.loadNewProducts();
+    this.loadPromoProducts();
 
     this.translationService.currentLanguage$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.transformCategories());
+  }
+
+  private loadPromoProducts(): void {
+    this.productService.getProducts({ active_only: true, limit: 50 })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (products) => this.promoProducts.set(products.filter(p => p.promotion).slice(0, 10)),
+        error: () => {}
+      });
   }
 
   private loadNewProducts(): void {
