@@ -6,7 +6,7 @@
   </button>
 }
 
-<div class="bottom-nav">
+<div class="bottom-nav" [class.bottom-nav--footer]="homeScroll.nearFooter()">
   <!-- Sliding Indicator -->
   <div class="bottom-nav__indicator" [style.left.px]="indicatorLeft()" [style.width.px]="indicatorWidth()"></div>
 

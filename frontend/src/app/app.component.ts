@@ -19,6 +19,7 @@ import { ROUTES } from './core/constants/routes.constants';
 import { ANIMATION } from './core/constants/ui.constants';
 import { BreakpointService } from './core/services/breakpoint.service';
 import { VolumeDiscountService } from './services/volume-discount.service';
+import { HomeScrollService } from './core/services/home-scroll.service';
 
 // Base styles for route animations
 const baseStyles = [
@@ -105,6 +106,7 @@ export class AppComponent implements OnInit {
   private readonly breakpoint = inject(BreakpointService);
   private readonly volumeDiscountService = inject(VolumeDiscountService);
   private readonly authService = inject(AuthService);
+  readonly homeScroll = inject(HomeScrollService);
 
   showNavigation = signal(false);
   hideBottomNav = signal(false);

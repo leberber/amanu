@@ -4,6 +4,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TranslateModule } from '@ngx-translate/core';
 import { filter } from 'rxjs/operators';
 import { AuthService } from '../../services/auth.service';
+import { HomeScrollService } from '../../core/services/home-scroll.service';
 import { CartService } from '../../services/cart.service';
 import { SidebarService } from '../../services/sidebar.service';
 import { UserNotificationService } from '../../services/user-notification.service';
@@ -19,6 +20,7 @@ import { ROUTES } from '../../core/constants/routes.constants';
 })
 export class BottomNavigationComponent implements OnInit, AfterViewInit {
   authService = inject(AuthService);
+  homeScroll = inject(HomeScrollService);
   private cartService = inject(CartService);
   private router = inject(Router);
   private destroyRef = inject(DestroyRef);

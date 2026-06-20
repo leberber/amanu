@@ -39,7 +39,7 @@
     </div>
   </main>
 
-  @if (showNavigation() && isMobile() && !hideBottomNav()) {
+  @if (showNavigation() && isMobile() && (!hideBottomNav() || homeScroll.scrolledDown())) {
     <app-bottom-navigation />
   }
 

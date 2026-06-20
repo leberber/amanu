@@ -1,5 +1,5 @@
 // frontend/src/app/pages/home/home.component.ts
-import { Component, inject, OnInit, signal, DestroyRef } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, signal, DestroyRef, HostListener } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { DecimalPipe } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -11,6 +11,7 @@ import { TranslationService } from '../../services/translation.service';
 import { ToastMessageService } from '../../core/services/toast-message.service';
 import { TranslationHelperService } from '../../core/services/translation-helper.service';
 import { AuthService } from '../../services/auth.service';
+import { HomeScrollService } from '../../core/services/home-scroll.service';
 import { Category, Product } from '../../models/product.model';
 import { Brand } from '../../models/brand.model';
 import { ROUTES } from '../../core/constants/routes.constants';
@@ -24,8 +25,9 @@ import { RevealDirective } from '../../shared/directives/reveal.directive';
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss'
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent implements OnInit, OnDestroy {
   readonly authService = inject(AuthService);
+  private homeScroll = inject(HomeScrollService);
   private productService = inject(ProductService);
   private brandService = inject(BrandService);
   private translationService = inject(TranslationService);
@@ -142,5 +144,17 @@ export class HomeComponent implements OnInit {
       image: category.image_url || ''
     }));
     this.categories.set(transformed);
+  }
+
+  @HostListener('scroll', ['$event.target'])
+  onScroll(el: HTMLElement): void {
+    this.homeScroll.scrolledDown.set(el.scrollTop > 150);
+    this.homeScroll.nearFooter.set(
+      el.scrollTop + el.clientHeight > el.scrollHeight - 280
+    );
+  }
+
+  ngOnDestroy(): void {
+    this.homeScroll.reset();
   }
 }
