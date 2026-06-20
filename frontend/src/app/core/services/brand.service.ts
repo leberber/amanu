@@ -22,13 +22,29 @@ export class BrandService {
    */
   getBrands(activeOnly: boolean = true): Observable<Brand[]> {
     const lang = this.translateService.currentLang || 'en';
-    let params = new HttpParams()
+    const params = new HttpParams()
       .set('active_only', activeOnly.toString())
       .set('lang', lang);
 
     return this.http.get<Brand[]>(this.apiUrl, { params }).pipe(
       map(brands => brands.sort((a, b) => a.name.localeCompare(b.name))),
       tap(brands => this.brandsCache$.next(brands))
+    );
+  }
+
+  /**
+   * Get brands that have active products in a given category.
+   * Does NOT update the global brands cache.
+   */
+  getBrandsByCategory(categoryId: number): Observable<Brand[]> {
+    const lang = this.translateService.currentLang || 'en';
+    const params = new HttpParams()
+      .set('active_only', 'true')
+      .set('lang', lang)
+      .set('category_id', categoryId.toString());
+
+    return this.http.get<Brand[]>(this.apiUrl, { params }).pipe(
+      map(brands => brands.sort((a, b) => a.name.localeCompare(b.name)))
     );
   }
 

@@ -59,7 +59,13 @@ export class HorizontalFilterComponent implements AfterViewInit {
   );
 
   iconClass = computed(() =>
-    this.filterType() === 'categories' ? 'pi pi-th-large' : 'pi pi-building'
+    this.filterType() === 'categories' ? 'pi pi-th-large' : 'pi pi-align-justify'
+  );
+
+  allOptionIconClass = computed(() =>
+    this.filterType() === 'brands' && this.activeItemId() !== null
+      ? 'pi pi-times'
+      : this.iconClass()
   );
 
   imageScale = computed(() =>

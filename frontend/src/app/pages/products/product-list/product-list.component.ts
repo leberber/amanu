@@ -1,4 +1,4 @@
-import { Component, computed, inject, OnInit, signal, DestroyRef, ViewChild, ElementRef } from '@angular/core';
+import { Component, inject, OnInit, signal, DestroyRef, ViewChild, ElementRef } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Observable, of } from 'rxjs';
@@ -72,10 +72,9 @@ export class ProductListComponent implements OnInit {
 
   products = signal<Product[]>([]);
   categories = signal<Category[]>([]);
-  brands = signal<Brand[]>([]);
+  categoryBrands = signal<Brand[]>([]);
   activeCategoryId = signal<number | null>(null);
   activeBrandId = signal<number | null>(null);
-  filterMode = signal<'categories' | 'brands'>('categories');
   loading = signal(true);
   filters = signal<ProductFilter>({
     active_only: true,
@@ -104,7 +103,6 @@ export class ProductListComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
         this.loadCategoriesAndProducts();
-        this.loadBrands();
       });
 
     this.searchService.searchTriggered$
@@ -153,43 +151,25 @@ export class ProductListComponent implements OnInit {
     this.searchService.setQuery(value);
   }
 
-  toggleFilterMode(): void {
-    const newMode = this.filterMode() === 'categories' ? 'brands' : 'categories';
-    this.filterMode.set(newMode);
-
-    if (newMode === 'categories') {
-      this.filters.update(f => {
-        const { brand_id, ...rest } = f;
-        return rest;
-      });
-    } else {
-      this.filters.update(f => {
-        const { category_id, ...rest } = f;
-        return rest;
-      });
-
-      if (!this.activeBrandId() && this.brands().length > 0) {
-        this.activeBrandId.set(this.brands()[0].id);
-      }
-    }
-
-    this.loading.set(true);
-    this.loadProducts().subscribe();
-  }
-
   selectCategoryFromBar(categoryId: number | null): void {
     if (categoryId === null) return;
     this.activeCategoryId.set(categoryId);
+    this.activeBrandId.set(null);
+    this.filters.update(f => { const { brand_id, ...rest } = f; return rest; });
     this.updateUrlParams({ category: categoryId, brand: null });
+    this.loadBrandsForCategory(categoryId);
     this.reloadWithAnimation();
   }
 
   selectBrand(brandId: number | null): void {
-    if (brandId === null) return;
-
     this.activeBrandId.set(brandId);
-    this.filters.update(f => ({ ...f, brand_id: brandId }));
-    this.updateUrlParams({ brand: brandId, category: null });
+    if (brandId) {
+      this.filters.update(f => ({ ...f, brand_id: brandId }));
+      this.updateUrlParams({ brand: brandId });
+    } else {
+      this.filters.update(f => { const { brand_id, ...rest } = f; return rest; });
+      this.updateUrlParams({ brand: null });
+    }
     this.reloadWithAnimation();
   }
 
@@ -310,6 +290,12 @@ export class ProductListComponent implements OnInit {
       : 'products.product.quantity_selector.pieces';
   }
 
+  private loadBrandsForCategory(categoryId: number): void {
+    this.brandService.getBrandsByCategory(categoryId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(brands => this.categoryBrands.set(brands));
+  }
+
   private loadCategoriesAndProducts(): void {
     this.productService.getCategories(true).subscribe({
       next: (categories) => {
@@ -319,18 +305,16 @@ export class ProductListComponent implements OnInit {
 
         this.route.queryParams.pipe(
           tap(params => {
-            // Read URL params first, before setting defaults
-            if (params['brand']) {
-              const brandId = Number(params['brand']);
-              this.filterMode.set('brands');
-              this.activeBrandId.set(brandId);
-              this.filters.update(f => ({ ...f, brand_id: brandId }));
-            } else if (params['category']) {
+            if (params['category']) {
               const categoryId = Number(params['category']);
-              this.filterMode.set('categories');
               this.activeCategoryId.set(categoryId);
-            } else if (!this.activeCategoryId() && !this.activeBrandId() && categories.length > 0) {
-              // Only set default if no URL params AND no active filter
+              if (params['brand']) {
+                const brandId = Number(params['brand']);
+                this.activeBrandId.set(brandId);
+                this.filters.update(f => ({ ...f, brand_id: brandId }));
+              }
+              this.loadBrandsForCategory(categoryId);
+            } else if (!this.activeCategoryId() && categories.length > 0) {
               this.setDefaultCategory(categories);
             }
 
@@ -353,8 +337,8 @@ export class ProductListComponent implements OnInit {
 
   private setDefaultCategory(categories: Category[]): void {
     if (categories.length > 0) {
-      this.filterMode.set('categories');
       this.activeCategoryId.set(categories[0].id);
+      this.loadBrandsForCategory(categories[0].id);
     }
   }
 
@@ -362,14 +346,9 @@ export class ProductListComponent implements OnInit {
     const currentFilters = { ...this.filters() };
 
     if (currentFilters.search) {
-      // Search across all categories/brands — ignore active filter
+      // Search across everything — ignore active category/brand filters
       delete currentFilters.category_id;
       delete currentFilters.brand_id;
-    } else if (this.filterMode() === 'brands') {
-      if (this.activeBrandId()) {
-        currentFilters.brand_id = this.activeBrandId()!;
-      }
-      delete currentFilters.category_id;
     } else {
       const categoryId = this.activeCategoryId();
       if (!categoryId) {
@@ -377,7 +356,13 @@ export class ProductListComponent implements OnInit {
         return of([]);
       }
       currentFilters.category_id = categoryId;
-      delete currentFilters.brand_id;
+
+      const brandId = this.activeBrandId();
+      if (brandId) {
+        currentFilters.brand_id = brandId;
+      } else {
+        delete currentFilters.brand_id;
+      }
     }
 
     return this.productService.getProducts(currentFilters).pipe(
@@ -425,12 +410,6 @@ export class ProductListComponent implements OnInit {
     });
   }
 
-  private loadBrands(): void {
-    this.brandService.getBrands(true).subscribe({
-      next: (brands) => this.brands.set(brands),
-      error: () => this.toast.showError('brands.error_loading')
-    });
-  }
 
   private updateUrlParams(params: { category?: number | null; brand?: number | null }): void {
     this.router.navigate([], {

@@ -34,21 +34,35 @@
       </div>
     }
 
-    <!-- Filter Bar (hidden on mobile when search overlay is active) -->
+    <!-- Category Filter Bar -->
     <app-horizontal-filter
       class="filter-bar"
       [class.filter-bar--hidden]="showMobileSearch()"
-      [items]="filterMode() === 'categories' ? categories() : brands()"
-      [activeItemId]="filterMode() === 'categories' ? activeCategoryId() : activeBrandId()"
-      [filterType]="filterMode()"
+      [items]="categories()"
+      [activeItemId]="activeCategoryId()"
+      filterType="categories"
       [showAllOption]="false"
       [showSearchIcon]="true"
       [isSearchActive]="showMobileSearch()"
-      [showModeToggle]="true"
-      (itemSelected)="filterMode() === 'categories' ? selectCategoryFromBar($event) : selectBrand($event)"
-      (searchToggle)="openMobileSearch()"
-      (modeToggle)="toggleFilterMode()">
+      [showModeToggle]="false"
+      (itemSelected)="selectCategoryFromBar($event)"
+      (searchToggle)="openMobileSearch()">
     </app-horizontal-filter>
+
+    <!-- Brand Sub-filter (shown when selected category has multiple brands) -->
+    @if (categoryBrands().length > 1) {
+      <app-horizontal-filter
+        class="filter-bar brand-sub-filter"
+        [class.filter-bar--hidden]="showMobileSearch()"
+        [items]="categoryBrands()"
+        [activeItemId]="activeBrandId()"
+        filterType="brands"
+        [showAllOption]="true"
+        [showModeToggle]="false"
+        [compact]="false"
+        (itemSelected)="selectBrand($event)">
+      </app-horizontal-filter>
+    }
 
     <!-- Desktop Toolbar (desktop only) -->
     <div class="page-toolbar">
@@ -57,7 +71,7 @@
   </div>
 
   <!-- Products Content -->
-  <div class="page-content--with-bottom-nav">
+  <div class="page-content--with-bottom-nav" [class.with-brand-bar]="categoryBrands().length > 1">
 
     <!-- New Arrivals Banner -->
     @if (showNewArrivalsBanner()) {

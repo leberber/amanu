@@ -38,6 +38,36 @@
   @media (min-width: 768px) {
     padding-top: 175px;
   }
+
+  &.with-brand-bar {
+    padding-top: 148px;
+
+    @media (min-width: 768px) {
+      padding-top: 238px;
+    }
+  }
+}
+
+// Brand sub-filter: same circular logos as categories but slightly smaller
+::ng-deep .brand-sub-filter {
+  border-top: 1px solid var(--surface-border);
+
+  .filter-bar {
+    --item-icon-size: 38px;
+    --item-icon-size-mobile: 34px;
+    padding: 0.5rem 0.75rem 1rem;
+  }
+
+  .item-name {
+    display: none;
+  }
+
+  // Red X on all-option when a brand is selected
+  .filter-item:has(.all-option):not(.active) .item-image.all-option {
+    background: rgba(239, 68, 68, 0.08);
+    border: 1.5px solid rgba(239, 68, 68, 0.3);
+    i { color: #ef4444; }
+  }
 }
 
 .new-arrivals-banner {

@@ -1,10 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlmodel import Session, select
-from typing import Any, List
+from typing import Any, List, Optional
 from datetime import datetime, timezone
 
 from app.database import get_session
 from app.models.brand import Brand, BrandCreate, BrandUpdate, BrandRead
+from app.models.product import Product
 from app.models.user import User
 from app.core.security import get_current_staff_user
 from app.core.translation import TranslationService
@@ -15,15 +16,24 @@ router = APIRouter()
 def read_brands(
     active_only: bool = Query(True),
     lang: str = Query("en", description="Language for translations (en, fr, ar)"),
+    category_id: Optional[int] = Query(None, description="Filter brands by category"),
     session: Session = Depends(get_session),
 ) -> Any:
     """
-    Retrieve all brands.
+    Retrieve all brands, optionally filtered by category.
     """
     query = select(Brand)
 
     if active_only:
         query = query.where(Brand.is_active == True)
+
+    if category_id is not None:
+        brand_ids_in_category = select(Product.brand_id).where(
+            Product.category_id == category_id,
+            Product.is_active == True,
+            Product.brand_id != None
+        )
+        query = query.where(Brand.id.in_(brand_ids_in_category))
 
     brands = session.exec(query).all()
 
