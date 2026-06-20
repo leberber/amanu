@@ -73,8 +73,10 @@ export class ProductListComponent implements OnInit {
   products = signal<Product[]>([]);
   categories = signal<Category[]>([]);
   categoryBrands = signal<Brand[]>([]);
+  allBrands = signal<Brand[]>([]);
   activeCategoryId = signal<number | null>(null);
   activeBrandId = signal<number | null>(null);
+  filterMode = signal<'category' | 'brand'>('category');
   loading = signal(true);
   filters = signal<ProductFilter>({
     active_only: true,
@@ -149,6 +151,16 @@ export class ProductListComponent implements OnInit {
   onSearchInput(event: Event): void {
     const value = (event.target as HTMLInputElement).value;
     this.searchService.setQuery(value);
+  }
+
+  selectBrandFromTopBar(brandId: number | null): void {
+    this.activeBrandId.set(brandId);
+    if (brandId) {
+      this.filters.update(f => ({ ...f, brand_id: brandId }));
+    } else {
+      this.filters.update(f => { const { brand_id, ...rest } = f; return rest; });
+    }
+    this.reloadWithAnimation();
   }
 
   selectCategoryFromBar(categoryId: number | null): void {
@@ -290,6 +302,12 @@ export class ProductListComponent implements OnInit {
       : 'products.product.quantity_selector.pieces';
   }
 
+  private loadAllBrands(): void {
+    this.brandService.getBrands(true)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(brands => this.allBrands.set(brands));
+  }
+
   private loadBrandsForCategory(categoryId: number): void {
     this.brandService.getBrandsByCategory(categoryId)
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -308,13 +326,24 @@ export class ProductListComponent implements OnInit {
             if (params['category']) {
               const categoryId = Number(params['category']);
               this.activeCategoryId.set(categoryId);
+              this.filterMode.set('category');
               if (params['brand']) {
                 const brandId = Number(params['brand']);
                 this.activeBrandId.set(brandId);
                 this.filters.update(f => ({ ...f, brand_id: brandId }));
               }
               this.loadBrandsForCategory(categoryId);
+            } else if (params['brand']) {
+              // Navigated from home via brand chip — auto brand mode
+              const brandId = Number(params['brand']);
+              this.filterMode.set('brand');
+              this.activeBrandId.set(brandId);
+              this.filters.update(f => ({ ...f, brand_id: brandId }));
+              if (this.allBrands().length === 0) {
+                this.loadAllBrands();
+              }
             } else if (!this.activeCategoryId() && categories.length > 0) {
+              this.filterMode.set('category');
               this.setDefaultCategory(categories);
             }
 
@@ -349,7 +378,17 @@ export class ProductListComponent implements OnInit {
       // Search across everything — ignore active category/brand filters
       delete currentFilters.category_id;
       delete currentFilters.brand_id;
+    } else if (this.filterMode() === 'brand') {
+      // Brand mode: filter by selected brand only, no category constraint
+      delete currentFilters.category_id;
+      const brandId = this.activeBrandId();
+      if (brandId) {
+        currentFilters.brand_id = brandId;
+      } else {
+        delete currentFilters.brand_id;
+      }
     } else {
+      // Category mode (default)
       const categoryId = this.activeCategoryId();
       if (!categoryId) {
         this.setProductsAndStopLoading([]);

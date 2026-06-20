@@ -34,33 +34,51 @@
       </div>
     }
 
-    <!-- Category Filter Bar -->
-    <app-horizontal-filter
-      class="filter-bar"
-      [class.filter-bar--hidden]="showMobileSearch()"
-      [items]="categories()"
-      [activeItemId]="activeCategoryId()"
-      filterType="categories"
-      [showAllOption]="false"
-      [showSearchIcon]="true"
-      [isSearchActive]="showMobileSearch()"
-      [showModeToggle]="false"
-      (itemSelected)="selectCategoryFromBar($event)"
-      (searchToggle)="openMobileSearch()">
-    </app-horizontal-filter>
-
-    <!-- Brand Sub-filter (shown when selected category has multiple brands) -->
-    @if (categoryBrands().length > 1) {
+    @if (filterMode() === 'category') {
+      <!-- Category Filter Bar -->
       <app-horizontal-filter
-        class="filter-bar brand-sub-filter"
+        class="filter-bar"
         [class.filter-bar--hidden]="showMobileSearch()"
-        [items]="categoryBrands()"
+        [items]="categories()"
+        [activeItemId]="activeCategoryId()"
+        filterType="categories"
+        [showAllOption]="false"
+        [showSearchIcon]="true"
+        [isSearchActive]="showMobileSearch()"
+        [showModeToggle]="false"
+        (itemSelected)="selectCategoryFromBar($event)"
+        (searchToggle)="openMobileSearch()">
+      </app-horizontal-filter>
+
+      <!-- Brand Sub-filter (shown when selected category has multiple brands) -->
+      @if (categoryBrands().length > 1) {
+        <app-horizontal-filter
+          class="filter-bar brand-sub-filter"
+          [class.filter-bar--hidden]="showMobileSearch()"
+          [items]="categoryBrands()"
+          [activeItemId]="activeBrandId()"
+          filterType="brands"
+          [showAllOption]="true"
+          [showModeToggle]="false"
+          [compact]="false"
+          (itemSelected)="selectBrand($event)">
+        </app-horizontal-filter>
+      }
+    } @else {
+      <!-- Brand Filter Bar (navigated from home via brand chip) -->
+      <app-horizontal-filter
+        class="filter-bar"
+        [class.filter-bar--hidden]="showMobileSearch()"
+        [items]="allBrands()"
         [activeItemId]="activeBrandId()"
         filterType="brands"
-        [showAllOption]="true"
+        [showAllOption]="false"
+        [showSearchIcon]="true"
+        [isSearchActive]="showMobileSearch()"
         [showModeToggle]="false"
         [compact]="false"
-        (itemSelected)="selectBrand($event)">
+        (itemSelected)="selectBrandFromTopBar($event)"
+        (searchToggle)="openMobileSearch()">
       </app-horizontal-filter>
     }
 
