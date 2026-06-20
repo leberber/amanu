@@ -23,6 +23,7 @@
         [routerLink]="ROUTES.PRODUCTS"
         icon="pi pi-arrow-right"
         iconPos="right"
+        styleClass="hero-cta"
       />
     </div>
 
@@ -54,7 +55,7 @@
        OFFERS / PROMOTIONS
   ======================================================= -->
   @if (promoProducts().length > 0) {
-    <section class="home-section reveal-section" appReveal>
+    <section class="home-section reveal-section" appReveal="right">
       <div class="section-header">
         <h2 class="section-title">Offres en cours</h2>
         <a [routerLink]="ROUTES.PROMOTIONS" class="section-link">
@@ -93,7 +94,7 @@
        NEW PRODUCTS
   ======================================================= -->
   @if (newProducts().length > 0) {
-    <section class="home-section reveal-section" appReveal>
+    <section class="home-section reveal-section" appReveal="right">
       <div class="section-header">
         <h2 class="section-title">Nouveautés</h2>
         <a [routerLink]="ROUTES.NEW_ARRIVALS" class="section-link">
@@ -102,7 +103,7 @@
       </div>
       <div class="scroll-track">
         @for (product of newProducts(); track product.id) {
-          <a class="new-product-card" [routerLink]="ROUTES.PRODUCTS" [queryParams]="{id: product.id}">
+          <a class="new-product-card" [routerLink]="ROUTES.NEW_ARRIVALS" [queryParams]="{id: product.id}">
             <div class="new-product-card__img">
               @if (product.image_url) {
                 <img [src]="product.image_url" [alt]="product.name" loading="lazy" appImageFallback />
@@ -177,14 +178,14 @@
   <!-- ======================================================
        SEGMENT CARDS (2×2 square grid)
   ======================================================= -->
-  <section class="home-section reveal-section" appReveal>
+  <section class="home-section reveal-section" appReveal="zoom">
     <div class="section-header">
       <h2 class="section-title">Quel type de commerce êtes-vous ?</h2>
     </div>
     <p class="section-sub">Trouvez les produits adaptés à votre activité</p>
     <div class="segments-grid">
       @for (segment of segments; track segment.label) {
-        <a class="segment-card" [routerLink]="ROUTES.PRODUCTS">
+        <a class="segment-card reveal-child" [routerLink]="ROUTES.PRODUCTS">
           <div class="segment-card__icon" [style.background]="segment.lightBg">
             <i [class]="segment.icon" [style.color]="segment.iconColor"></i>
           </div>
@@ -214,7 +215,7 @@
     </div>
     <p class="section-sub">La plateforme pensée pour les commerçants qui veulent simplifier leur approvisionnement.</p>
     <div class="features-grid">
-      <div class="feature-card">
+      <div class="feature-card reveal-child">
         <div class="feature-card__icon" style="background: linear-gradient(135deg, #EBF3FF, #DBEAFE)">
           <i class="pi pi-tag" style="color: #1d4ed8"></i>
         </div>
@@ -223,7 +224,7 @@
           <p>Des prix imbattables sur tous les produits agroalimentaires</p>
         </div>
       </div>
-      <div class="feature-card">
+      <div class="feature-card reveal-child">
         <div class="feature-card__icon" style="background: linear-gradient(135deg, #ECFDF5, #D1FAE5)">
           <i class="pi pi-truck" style="color: #16a34a"></i>
         </div>
@@ -232,7 +233,7 @@
           <p>Livraison en 24h ou retrait sur place selon votre choix</p>
         </div>
       </div>
-      <div class="feature-card">
+      <div class="feature-card reveal-child">
         <div class="feature-card__icon" style="background: linear-gradient(135deg, #FFFBEB, #FEF3C7)">
           <i class="pi pi-shield" style="color: #d97706"></i>
         </div>
@@ -241,7 +242,7 @@
           <p>Produits sélectionnés et contrôlés avant chaque envoi</p>
         </div>
       </div>
-      <div class="feature-card">
+      <div class="feature-card reveal-child">
         <div class="feature-card__icon" style="background: linear-gradient(135deg, #F3E8FF, #E9D5FF)">
           <i class="pi pi-percentage" style="color: #7c3aed"></i>
         </div>
@@ -250,7 +251,7 @@
           <p>Remises volume, offres groupées et codes promo</p>
         </div>
       </div>
-      <div class="feature-card">
+      <div class="feature-card reveal-child">
         <div class="feature-card__icon" style="background: linear-gradient(135deg, #EBF3FF, #DBEAFE)">
           <i class="pi pi-mobile" style="color: #1d4ed8"></i>
         </div>

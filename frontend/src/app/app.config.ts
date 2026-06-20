@@ -1,6 +1,4 @@
 import { ApplicationConfig, provideZoneChangeDetection, isDevMode, importProvidersFrom } from '@angular/core';
-import { provideLottieOptions } from 'ngx-lottie';
-import player from 'lottie-web';
 import { provideRouter, RouteReuseStrategy, withPreloading, PreloadAllModules } from '@angular/router';
 import { provideHttpClient, withInterceptors, HttpClient, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { CustomRouteReuseStrategy } from './core/strategies/custom-route-reuse.strategy';
@@ -42,7 +40,6 @@ export const appConfig: ApplicationConfig = {
       }
     }),
     MessageService,
-    provideLottieOptions({ player: () => player }),
     // Import TranslateModule with configuration
     importProvidersFrom(
       TranslateModule.forRoot({

@@ -23,8 +23,8 @@ import { AdminAddVolumeDiscountComponent } from './pages/admin/admin-add-volume-
 
 export const routes: Routes = [
   // Public Routes - No auth required
-  { path: '', component: HomeComponent },
-  { path: 'home', component: HomeComponent },
+  { path: '', component: HomeComponent, data: { hideBottomNav: true } },
+  { path: 'home', component: HomeComponent, data: { hideBottomNav: true } },
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
   { path: 'forgot-password', component: ForgotPasswordComponent },

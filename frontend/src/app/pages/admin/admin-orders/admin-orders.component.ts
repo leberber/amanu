@@ -6,7 +6,6 @@ import { SelectModule } from 'primeng/select';
 import { TranslateService } from '@ngx-translate/core';
 
 import { ADMIN_LIST_IMPORTS } from '../../../shared/imports/admin-shared.imports';
-import { TableSkeletonComponent, SkeletonColumn } from '../../../shared/components/table-skeleton/table-skeleton.component';
 import { TableLoadingRowsComponent, LoadingColumn } from '../../../shared/components/table-loading-rows/table-loading-rows.component';
 import { InfiniteScrollDirective } from '../../../shared/directives/infinite-scroll.directive';
 import { AgroclikPageContainerComponent } from '../../../shared/components/agroclik-page-container/agroclik-page-container.component';
@@ -30,7 +29,6 @@ import { BaseAdminListComponent, ColumnOption } from '../../../shared/base/base-
     ...ADMIN_LIST_IMPORTS,
     PopoverModule,
     SelectModule,
-    TableSkeletonComponent,
     TableLoadingRowsComponent,
     InfiniteScrollDirective,
     AgroclikPageContainerComponent
@@ -87,17 +85,6 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
 
   // Override status filter type for orders
   override statusFilter: string = 'all';
-
-  // Skeleton configuration
-  skeletonColumns: SkeletonColumn[] = [
-    { width: '8%', type: 'text', headerWidth: '60px' },
-    { width: '20%', type: 'text-multi', headerWidth: '80px' },
-    { width: '12%', type: 'text', headerWidth: '60px' },
-    { width: '12%', type: 'pill', headerWidth: '60px' },
-    { width: '18%', type: 'text-multi', headerWidth: '60px' },
-    { width: '12%', type: 'text', headerWidth: '60px' },
-    { width: '18%', type: 'actions', headerWidth: '60px' }
-  ];
 
   // Column visibility options - with mobile defaults (initialized in ngOnInit)
   override columnOptions: ColumnOption[] = [];

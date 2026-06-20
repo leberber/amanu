@@ -7,6 +7,7 @@
   height: 100%;
   overflow-y: auto;
   background: white;
+  overscroll-behavior-y: none;
 }
 
 // ============================================================
@@ -22,6 +23,19 @@
   justify-content: space-between;
   padding: 2.5rem 1.5rem 1.5rem;
   overflow: hidden;
+}
+
+// White fade at the very bottom — blends blobs into the next section
+.hero::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 160px;
+  background: linear-gradient(to top, #ffffff 30%, transparent 100%);
+  pointer-events: none;
+  z-index: 2;
 }
 
 // White fade at the very top — blends with the nav bar
@@ -136,6 +150,36 @@
   max-width: 290px;
 }
 
+// Hero CTA button
+::ng-deep .hero-cta {
+  background: linear-gradient(135deg, #1E7F3F, #0F3C82) !important;
+  border: none !important;
+  border-radius: 100px !important;
+  padding: 0.85rem 1.75rem !important;
+  font-size: 0.95rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.02em !important;
+  box-shadow: 0 6px 24px rgba(15, 60, 130, 0.35) !important;
+  transition: transform 0.18s ease, box-shadow 0.18s ease !important;
+
+  &:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 10px 32px rgba(15, 60, 130, 0.45) !important;
+  }
+
+  &:active {
+    transform: translateY(0) !important;
+  }
+
+  .p-button-icon {
+    transition: transform 0.18s ease !important;
+  }
+
+  &:hover .p-button-icon {
+    transform: translateX(4px) !important;
+  }
+}
+
 // Stats bar — frosted glass card
 .hero__stats {
   position: relative;
@@ -247,13 +291,35 @@
 .reveal-section {
   opacity: 0;
   transform: translateY(28px);
-  transition: opacity 0.5s ease, transform 0.5s ease;
+  transition: opacity 0.55s ease, transform 0.55s ease;
+
+  &.reveal-left  { transform: translateX(-44px); }
+  &.reveal-right { transform: translateX(44px); }
+  &.reveal-zoom  { transform: scale(0.93) translateY(10px); }
 
   &.is-visible {
     opacity: 1;
     transform: none;
   }
 }
+
+// Stagger children — nth-child delays, no JS needed
+.reveal-child {
+  opacity: 0;
+  transform: translateY(22px);
+  transition: opacity 0.45s ease, transform 0.45s ease;
+
+  .is-visible & {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.is-visible .reveal-child:nth-child(1) { transition-delay: 0ms; }
+.is-visible .reveal-child:nth-child(2) { transition-delay: 70ms; }
+.is-visible .reveal-child:nth-child(3) { transition-delay: 140ms; }
+.is-visible .reveal-child:nth-child(4) { transition-delay: 210ms; }
+.is-visible .reveal-child:nth-child(5) { transition-delay: 280ms; }
 
 // ============================================================
 // SHARED SECTION LAYOUT
@@ -542,12 +608,6 @@
   cursor: pointer;
   transition: box-shadow 0.2s ease, transform 0.2s ease;
 
-  animation: cardSlideUp 0.35s ease-out backwards;
-  &:nth-child(1) { animation-delay: 0.05s; }
-  &:nth-child(2) { animation-delay: 0.1s; }
-  &:nth-child(3) { animation-delay: 0.15s; }
-  &:nth-child(4) { animation-delay: 0.2s; }
-
   &:hover {
     box-shadow: 0 6px 24px rgba(0, 0, 0, 0.1);
     transform: translateY(-2px);
@@ -656,6 +716,7 @@
 
 .home-footer {
   background: var(--surface-800, #1e293b);
+  border-top: none;
   color: #94a3b8;
   padding: 2rem 1.25rem 5rem; // extra bottom for bottom nav
 
@@ -670,18 +731,21 @@
   }
 
   &__logo {
-    font-size: 1.4rem;
+    font-size: 1.6rem;
     font-weight: 900;
     color: #f1f5f9;
-    letter-spacing: -0.5px;
+    letter-spacing: -1.5px;
 
     span { color: #4ade80; }
   }
 
   &__tagline {
-    font-size: 0.78rem;
-    color: #64748b;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-color-secondary);
     margin: 0;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
   }
 
   &__links {
@@ -697,6 +761,7 @@
     font-size: 0.85rem;
     color: #94a3b8;
     text-decoration: none;
+    font-weight: 500;
     transition: color 0.15s;
 
     i { font-size: 0.8rem; }
@@ -720,7 +785,7 @@
   &__copy {
     font-size: 0.72rem;
     color: #475569;
-    border-top: 1px solid #1e293b;
+    border-top: 1px solid #334155;
     padding-top: 1rem;
   }
 }
