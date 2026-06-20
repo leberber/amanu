@@ -25,6 +25,19 @@
   border-bottom: 1px solid var(--surface-border);
 }
 
+// White fade at the very top — blends with the nav bar
+.hero::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 120px;
+  background: linear-gradient(to bottom, #ffffff 30%, transparent 100%);
+  pointer-events: none;
+  z-index: 2;
+}
+
 // Animated background blobs
 .hero__blob {
   position: absolute;
@@ -34,11 +47,11 @@
   animation: blobFloat 14s ease-in-out infinite;
 
   &--1 {
-    // Large green — top-right
+    // Large green — top-right, pushed down so very top stays white
     width: 440px;
     height: 440px;
     background: rgba(134, 239, 172, 0.45);
-    top: -100px;
+    top: 120px;
     right: -110px;
     animation-duration: 16s;
   }
@@ -60,7 +73,7 @@
     width: 220px;
     height: 220px;
     background: rgba(253, 230, 138, 0.5);
-    top: 38%;
+    top: 42%;
     right: 2%;
     animation-duration: 11s;
     animation-delay: -3s;
@@ -75,7 +88,7 @@
 
 .hero__content {
   position: relative;
-  z-index: 1;
+  z-index: 3;
 }
 
 .hero__badge {
@@ -99,12 +112,12 @@
 .hero__title {
   font-size: 4rem;
   font-weight: 900;
-  color: var(--text-color);
+  color: #0F3C82;
   line-height: 0.9;
   margin: 0 0 0.5rem;
   letter-spacing: -3px;
 
-  span { color: #16a34a; }
+  span { color: #1E7F3F; }
 }
 
 .hero__tagline {
@@ -127,7 +140,7 @@
 // Stats bar — frosted glass card
 .hero__stats {
   position: relative;
-  z-index: 1;
+  z-index: 3;
   display: flex;
   background: rgba(255, 255, 255, 0.72);
   backdrop-filter: blur(16px);
@@ -173,13 +186,49 @@
   letter-spacing: 0.05em;
 }
 
+// Bottle images — bottom right of hero (cycling one at a time)
+.hero__bottles {
+  position: absolute;
+  bottom: 150px;
+  right: 12px;
+  z-index: 2;
+  pointer-events: none;
+  width: 240px;
+  height: 380px;
+}
+
+.hero__bottle {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 240px;
+  height: 380px;
+  object-fit: contain;
+  object-position: bottom center;
+  opacity: 0;
+  animation: bottleCarousel 9s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+
+  &--1 { animation-delay: 0s; }
+  &--2 { animation-delay: -3s; }
+  &--3 { animation-delay: -6s; }
+}
+
+@keyframes bottleCarousel {
+  0%   { opacity: 0; transform: translateX(70px) scale(0.88); }
+  10%  { opacity: 1; transform: translateX(0)    scale(1); }
+  26%  { opacity: 1; transform: translateX(0)    scale(1); }
+  34%  { opacity: 0; transform: translateX(-70px) scale(0.88); }
+  100% { opacity: 0; transform: translateX(70px) scale(0.88); }
+}
+
 // Bouncing scroll indicator
 .hero__scroll-hint {
   position: absolute;
   bottom: 1rem;
   left: 50%;
   transform: translateX(-50%);
-  z-index: 1;
+  z-index: 3;
   color: var(--text-color-secondary);
   opacity: 0.45;
   animation: scrollBounce 2.2s ease-in-out infinite;

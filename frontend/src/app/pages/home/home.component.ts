@@ -4,7 +4,6 @@ import { RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ButtonModule } from 'primeng/button';
 import { TranslateModule } from '@ngx-translate/core';
-
 import { ProductService } from '../../services/product.service';
 import { BrandService } from '../../core/services/brand.service';
 import { TranslationService } from '../../services/translation.service';
