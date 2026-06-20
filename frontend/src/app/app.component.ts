@@ -10,6 +10,7 @@ import { ToastComponent } from './shared/components/toast/toast.component';
 import { SidebarComponent } from './components/sidebar/sidebar.component';
 import { OnboardingComponent } from './components/onboarding/onboarding.component';
 import { CrossSellNotificationComponent } from './shared/components/cross-sell-notification/cross-sell-notification.component';
+import { PushNudgeBannerComponent } from './shared/components/push-nudge-banner/push-nudge-banner.component';
 import { SidebarService } from './services/sidebar.service';
 import { NavigationService } from './core/services/navigation.service';
 import { StorageService } from './core/services/storage.service';
@@ -88,7 +89,8 @@ const slideAnimation = trigger('routeAnimation', [
     SidebarComponent,
     OnboardingComponent,
     ToastComponent,
-    CrossSellNotificationComponent
+    CrossSellNotificationComponent,
+    PushNudgeBannerComponent
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
