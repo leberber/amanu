@@ -85,7 +85,6 @@ export class ProductListComponent implements OnInit {
   });
 
   readonly routes = ROUTES;
-  showNewArrivalsBanner = signal(this.shouldShowBanner());
 
   selectedBoxOptions: { [key: number]: BoxOption | null } = {};
   showQuantitySelector = signal(false);
@@ -113,18 +112,6 @@ export class ProductListComponent implements OnInit {
         this.filters.update(f => ({ ...f, search: query }));
         this.loadProducts().subscribe();
       });
-  }
-
-  private shouldShowBanner(): boolean {
-    const dismissed = localStorage.getItem('new_arrivals_banner_dismissed_at');
-    if (!dismissed) return true;
-    const threeDaysMs = 3 * 24 * 60 * 60 * 1000;
-    return Date.now() - Number(dismissed) > threeDaysMs;
-  }
-
-  dismissNewArrivalsBanner(): void {
-    localStorage.setItem('new_arrivals_banner_dismissed_at', String(Date.now()));
-    this.showNewArrivalsBanner.set(false);
   }
 
   openMobileSearch(): void {

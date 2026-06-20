@@ -10,6 +10,7 @@ import { BrandService } from '../../core/services/brand.service';
 import { TranslationService } from '../../services/translation.service';
 import { ToastMessageService } from '../../core/services/toast-message.service';
 import { TranslationHelperService } from '../../core/services/translation-helper.service';
+import { AuthService } from '../../services/auth.service';
 import { Category, Product } from '../../models/product.model';
 import { Brand } from '../../models/brand.model';
 import { ROUTES } from '../../core/constants/routes.constants';
@@ -24,6 +25,7 @@ import { RevealDirective } from '../../shared/directives/reveal.directive';
   styleUrl: './home.component.scss'
 })
 export class HomeComponent implements OnInit {
+  readonly authService = inject(AuthService);
   private productService = inject(ProductService);
   private brandService = inject(BrandService);
   private translationService = inject(TranslationService);

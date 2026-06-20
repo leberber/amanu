@@ -34,18 +34,30 @@
       <img src="/images/bottle-mineral.png" alt="" class="hero__bottle hero__bottle--3" />
     </div>
 
-    <div class="hero__stats">
-      <div class="hero__stat">
-        <span class="hero__stat-value">500+</span>
-        <span class="hero__stat-label">Produits</span>
-      </div>
-      <div class="hero__stat">
-        <span class="hero__stat-value">50+</span>
-        <span class="hero__stat-label">Marques</span>
-      </div>
-      <div class="hero__stat">
-        <span class="hero__stat-value">J+1</span>
-        <span class="hero__stat-label">Livraison</span>
+    <div class="hero__bottom">
+      @if (!authService.isLoggedIn) {
+        <div class="hero__auth">
+          <a [routerLink]="ROUTES.LOGIN" class="hero__auth-btn hero__auth-btn--login">
+            <i class="pi pi-sign-in"></i> Se connecter
+          </a>
+          <a [routerLink]="ROUTES.REGISTER" class="hero__auth-btn hero__auth-btn--register">
+            <i class="pi pi-user-plus"></i> Créer un compte
+          </a>
+        </div>
+      }
+      <div class="hero__stats">
+        <div class="hero__stat">
+          <span class="hero__stat-value">500+</span>
+          <span class="hero__stat-label">Produits</span>
+        </div>
+        <div class="hero__stat">
+          <span class="hero__stat-value">50+</span>
+          <span class="hero__stat-label">Marques</span>
+        </div>
+        <div class="hero__stat">
+          <span class="hero__stat-value">J+1</span>
+          <span class="hero__stat-label">Livraison</span>
+        </div>
       </div>
     </div>
 

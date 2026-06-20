@@ -16,7 +16,7 @@
 
 .hero {
   position: relative;
-  min-height: 90vh;
+  min-height: 100svh;
   background: white;
   display: flex;
   flex-direction: column;
@@ -148,6 +148,58 @@
   margin: 0 0 2rem;
   line-height: 1.6;
   max-width: 290px;
+}
+
+.hero__bottom {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  position: relative;
+  z-index: 3;
+  margin-top: auto;
+}
+
+.hero__auth {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.hero__auth-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.55rem 1.1rem;
+  border-radius: 100px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.18s ease;
+
+  i { font-size: 0.8rem; }
+
+  &--login {
+    border: 1.5px solid rgba(0,0,0,0.15);
+    color: var(--text-color);
+    background: rgba(255,255,255,0.7);
+    backdrop-filter: blur(8px);
+
+    &:hover {
+      background: white;
+      border-color: rgba(0,0,0,0.25);
+    }
+  }
+
+  &--register {
+    background: rgba(15, 60, 130, 0.08);
+    border: 1.5px solid rgba(15, 60, 130, 0.2);
+    color: #0F3C82;
+
+    &:hover {
+      background: rgba(15, 60, 130, 0.14);
+    }
+  }
 }
 
 // Hero CTA button

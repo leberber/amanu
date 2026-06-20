@@ -91,23 +91,6 @@
   <!-- Products Content -->
   <div class="page-content--with-bottom-nav" [class.with-brand-bar]="categoryBrands().length > 1">
 
-    <!-- New Arrivals Banner -->
-    @if (showNewArrivalsBanner()) {
-      <a [routerLink]="routes.NEW_ARRIVALS" class="new-arrivals-banner">
-        <span class="new-arrivals-banner__icon">
-          <i class="pi pi-star-fill"></i>
-        </span>
-        <span class="new-arrivals-banner__text">
-          <strong>{{ 'new_arrivals.title' | translate }}</strong>
-          <span>{{ 'new_arrivals.subtitle' | translate }}</span>
-        </span>
-        <span class="new-arrivals-banner__cta">{{ 'new_arrivals.banner_cta' | translate }} →</span>
-        <button class="new-arrivals-banner__close" (click)="$event.preventDefault(); $event.stopPropagation(); dismissNewArrivalsBanner()">
-          <i class="pi pi-times"></i>
-        </button>
-      </a>
-    }
-
     @if (loading()) {
       <!-- Skeleton Loading -->
       <div class="item-grid">
