@@ -1,6 +1,7 @@
 // frontend/src/app/pages/home/home.component.ts
 import { Component, inject, OnInit, signal, DestroyRef } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { DecimalPipe } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ButtonModule } from 'primeng/button';
 import { TranslateModule } from '@ngx-translate/core';
@@ -9,7 +10,7 @@ import { BrandService } from '../../core/services/brand.service';
 import { TranslationService } from '../../services/translation.service';
 import { ToastMessageService } from '../../core/services/toast-message.service';
 import { TranslationHelperService } from '../../core/services/translation-helper.service';
-import { Category } from '../../models/product.model';
+import { Category, Product } from '../../models/product.model';
 import { Brand } from '../../models/brand.model';
 import { ROUTES } from '../../core/constants/routes.constants';
 import { ImageFallbackDirective } from '../../shared/directives/image-fallback.directive';
@@ -18,7 +19,7 @@ import { RevealDirective } from '../../shared/directives/reveal.directive';
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [RouterLink, ButtonModule, TranslateModule, ImageFallbackDirective, RevealDirective],
+  imports: [RouterLink, ButtonModule, TranslateModule, ImageFallbackDirective, RevealDirective, DecimalPipe],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss'
 })
@@ -72,6 +73,7 @@ export class HomeComponent implements OnInit {
     },
   ];
 
+  newProducts = signal<Product[]>([]);
   private rawCategories = signal<Category[]>([]);
 
   categories = signal<Array<{
@@ -85,10 +87,17 @@ export class HomeComponent implements OnInit {
   ngOnInit(): void {
     this.loadCategories();
     this.loadBrands();
+    this.loadNewProducts();
 
     this.translationService.currentLanguage$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.transformCategories());
+  }
+
+  private loadNewProducts(): void {
+    this.productService.getProducts({ new_only: true, limit: 10, active_only: true })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({ next: (p) => this.newProducts.set(p), error: () => {} });
   }
 
   private loadCategories(): void {

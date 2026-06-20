@@ -48,10 +48,36 @@
       </div>
     </div>
 
-    <div class="hero__scroll-hint">
-      <i class="pi pi-chevron-down"></i>
-    </div>
   </section>
+
+  <!-- ======================================================
+       NEW PRODUCTS
+  ======================================================= -->
+  @if (newProducts().length > 0) {
+    <section class="home-section reveal-section" appReveal>
+      <div class="section-header">
+        <h2 class="section-title">Nouveautés</h2>
+        <a [routerLink]="ROUTES.NEW_ARRIVALS" class="section-link">
+          Voir tout <i class="pi pi-angle-right"></i>
+        </a>
+      </div>
+      <div class="scroll-track">
+        @for (product of newProducts(); track product.id) {
+          <a class="new-product-card" [routerLink]="ROUTES.PRODUCTS" [queryParams]="{id: product.id}">
+            <div class="new-product-card__img">
+              @if (product.image_url) {
+                <img [src]="product.image_url" [alt]="product.name" loading="lazy" appImageFallback />
+              } @else {
+                <i class="pi pi-box"></i>
+              }
+            </div>
+            <p class="new-product-card__name">{{ product.name }}</p>
+            <p class="new-product-card__price">{{ product.effective_price ?? product.price | number:'1.0-0' }} DA</p>
+          </a>
+        }
+      </div>
+    </section>
+  }
 
   <!-- ======================================================
        SHOP BY CATEGORY
