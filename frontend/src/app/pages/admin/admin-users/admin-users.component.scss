@@ -13,6 +13,28 @@
   --table-max-height: calc(100vh - 375px);
 }
 
+.btn-secondary--active {
+  background: #dbeafe !important;
+  border-color: #3b82f6 !important;
+  color: #1d4ed8 !important;
+}
+
+.push-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #dbeafe;
+  color: #1d4ed8;
+  flex-shrink: 0;
+
+  i {
+    font-size: 0.65rem;
+  }
+}
+
 // =============================================================================
 // MOBILE TABLE OPTIMIZATIONS
 // =============================================================================

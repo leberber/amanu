@@ -8,6 +8,7 @@ from pydantic import BaseModel
 
 from app.database import get_session
 from app.models.user import User, UserUpdate, UserRead, UserRole, UserGroupsUpdate, UserGroupBasic
+from app.models.push_subscription import PushSubscription
 from app.models.order import OrderStatus
 from app.models.user_group import UserGroup, UserGroupLink
 from app.models.order import Order
@@ -171,12 +172,21 @@ def read_users(
     ).all()
     balance_map = {row[0]: row[1] for row in balance_rows}
 
-    # Add groups and balance to each user
+    # Batch load push subscription presence per user
+    push_rows = session.exec(
+        select(PushSubscription.user_id, func.count(PushSubscription.id).label('cnt'))
+        .where(PushSubscription.user_id.in_(user_ids))
+        .group_by(PushSubscription.user_id)
+    ).all()
+    push_map = {row[0]: row[1] > 0 for row in push_rows}
+
+    # Add groups, balance, and push status to each user
     users_with_groups = []
     for user in users:
         user_dict = UserRead.model_validate(user).model_dump()
         user_dict["groups"] = user_groups_map.get(user.id, [])
         user_dict["remaining_balance"] = balance_map.get(user.id, 0.0)
+        user_dict["has_push"] = push_map.get(user.id, False)
         users_with_groups.append(UserRead(**user_dict))
 
     # Return structured response

@@ -140,6 +140,7 @@ class UserRead(UserBase):
     updated_at: Optional[datetime] = None
     groups: List[UserGroupBasic] = []
     remaining_balance: Optional[float] = None  # Computed: sum of unpaid order amounts
+    has_push: bool = False  # Computed: whether user has any push subscriptions
 
 
 class UserGroupsUpdate(SQLModel):

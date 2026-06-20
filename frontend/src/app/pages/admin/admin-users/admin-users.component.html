@@ -82,6 +82,14 @@
       </div>
 
       <div class="flex align-items-center gap-2">
+        <button
+          class="btn-secondary"
+          [class.btn-secondary--active]="pushFilter"
+          (click)="pushFilter = !pushFilter; filterItems()"
+          pTooltip="Filtrer par notifications push">
+          <i class="pi pi-bell"></i>
+          <span class="hidden md:inline">Push <span class="count">{{ getPushCount() }}</span></span>
+        </button>
         <button class="btn-secondary" (click)="goToMapView()" [pTooltip]="'admin.users.map.view_on_map' | translate">
           <i class="pi pi-map-marker"></i>
           <span class="hidden md:inline">{{ 'admin.users.map.title' | translate }}</span>
@@ -302,7 +310,14 @@
                     @if (isColumnVisible('details')) {
                       <td>
                         <div class="info-display">
-                          <span class="info-display__name">{{ user.full_name }}</span>
+                          <div class="flex align-items-center gap-2">
+                            <span class="info-display__name">{{ user.full_name }}</span>
+                            @if (user.has_push) {
+                              <span class="push-badge" pTooltip="Notifications push activées">
+                                <i class="pi pi-bell"></i>
+                              </span>
+                            }
+                          </div>
                           @if (user.phone) {
                             <span class="info-display__tertiary">{{ user.phone | appPhone }}</span>
                           }

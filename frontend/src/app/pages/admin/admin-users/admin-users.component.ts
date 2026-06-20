@@ -76,6 +76,13 @@ export class AdminUsersComponent extends BaseAdminListComponent implements OnIni
   // Role segment filter (different from status filter)
   roleFilter: 'all' | 'customer' | 'staff' | 'admin' = 'customer';
 
+  // Push notification filter
+  pushFilter = false;
+
+  getPushCount(): number {
+    return this.getCountByPredicate(this.allUsers, u => !!u.has_push);
+  }
+
   // Sorting
   sortField: 'id' | 'full_name' | 'remaining_balance' | 'created_at' | null = 'remaining_balance';
   sortDir: 'asc' | 'desc' = 'desc';
@@ -207,6 +214,11 @@ export class AdminUsersComponent extends BaseAdminListComponent implements OnIni
       filtered = filtered.filter(user => user.role === this.roleFilter);
     }
 
+    // Apply push notification filter
+    if (this.pushFilter) {
+      filtered = filtered.filter(user => !!user.has_push);
+    }
+
     // Apply search filter
     if (this.hasSearchQuery()) {
       const search = this.searchQuery.toLowerCase();
@@ -231,13 +243,14 @@ export class AdminUsersComponent extends BaseAdminListComponent implements OnIni
 
   // Component-specific methods
   hasActiveFilters(): boolean {
-    return this.hasSearchQuery() || this.roleFilter !== 'all' || this.statusFilter !== 'all';
+    return this.hasSearchQuery() || this.roleFilter !== 'all' || this.statusFilter !== 'all' || this.pushFilter;
   }
 
   override clearFilters(): void {
     this.searchQuery = '';
     this.roleFilter = 'all';
     this.statusFilter = 'all';
+    this.pushFilter = false;
     this.filterItems();
   }
 
