@@ -1,7 +1,8 @@
 .users-map-container {
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 120px);
+  flex: 1;
+  min-height: 0;
   gap: 0;
 }
 
@@ -160,6 +161,13 @@
   span {
     color: var(--text-color-secondary);
   }
+}
+
+// Override page-content padding so map fills full height
+:host ::ng-deep .page-content {
+  padding: 0 !important;
+  margin: 0 !important;
+  overflow: hidden !important;
 }
 
 // Custom Marker Styles
@@ -468,9 +476,6 @@
   }
 
   .users-map-container {
-    height: calc(100dvh - 64px) !important;
-    margin: 0 !important;
-    padding: 0 !important;
     width: 100vw !important;
     margin-left: calc(-50vw + 50%) !important;
   }

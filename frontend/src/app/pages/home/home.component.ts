@@ -38,7 +38,8 @@ export class HomeComponent implements OnInit {
     {
       label: 'Cafétéria',
       description: 'Boissons, snacks et consommables pour votre espace café',
-      icon: 'pi pi-star',
+      icon: '',
+      emoji: '☕',
       colorFrom: '#92400e',
       colorTo: '#d97706',
       lightBg: '#fef3c7',
@@ -65,7 +66,7 @@ export class HomeComponent implements OnInit {
     {
       label: 'Général',
       description: 'Tous les produits disponibles dans notre catalogue',
-      icon: 'pi pi-th-large',
+      icon: 'pi pi-shopping-cart',
       colorFrom: '#581c87',
       colorTo: '#a855f7',
       lightBg: '#f3e8ff',

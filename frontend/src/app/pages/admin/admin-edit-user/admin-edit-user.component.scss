@@ -6,11 +6,24 @@
 //   - _layout.scss: page-layout
 // =============================================================================
 
+// Make <form> a flex container so it fills page-content (the fullscreen flex parent)
+form {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+// Ensure wizard itself participates in the flex chain
+::ng-deep .form-wizard--fullpage {
+  min-height: 0;
+}
 
 // Override wizard body when map step is shown - don't center, let map fill space
 ::ng-deep .form-wizard__body:has(.map-step) {
   justify-content: flex-start !important;
   padding: 0 !important;
+  min-height: 0;
 }
 
 // Map step - fills the wizard body completely
