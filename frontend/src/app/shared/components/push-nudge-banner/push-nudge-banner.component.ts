@@ -1,5 +1,4 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { SwPush } from '@angular/service-worker';
 import { PushService } from '../../../services/push.service';
 import { AuthService } from '../../../services/auth.service';
 
@@ -139,37 +138,59 @@ const COOLDOWN_DAYS = 7;
 export class PushNudgeBannerComponent implements OnInit {
   private pushService = inject(PushService);
   private authService = inject(AuthService);
-  private swPush = inject(SwPush);
 
   visible = signal(false);
   loading = signal(false);
 
   ngOnInit(): void {
-    // Only for logged-in customers, not admin/staff/driver
-    if (!this.authService.isLoggedIn || this.authService.isAdminOrStaff() || this.authService.isDriver()) {
+    // Debug override: run `localStorage.setItem('debug_push_nudge','1')` in console to force-show
+    if (localStorage.getItem('debug_push_nudge') === '1') {
+      setTimeout(() => this.visible.set(true), 1000);
       return;
     }
 
-    // Service worker must be available
-    if (!this.swPush.isEnabled) return;
+    // Only for logged-in customers, not admin/staff/driver
+    if (!this.authService.isLoggedIn || this.authService.isAdminOrStaff() || this.authService.isDriver()) {
+      localStorage.setItem('push_nudge_blocked', 'not_customer'); return;
+    }
 
-    // Skip if permission already granted or denied
-    if (typeof Notification === 'undefined') return;
-    if (Notification.permission !== 'default') return;
+    // Browser must support notifications
+    if (typeof Notification === 'undefined') {
+      localStorage.setItem('push_nudge_blocked', 'no_notification_api'); return;
+    }
+
+    // If the user explicitly denied, nothing we can do
+    if (Notification.permission === 'denied') {
+      localStorage.setItem('push_nudge_blocked', 'permission_denied'); return;
+    }
 
     // Skip if dismissed recently
     const dismissedAt = localStorage.getItem(DISMISSED_KEY);
     if (dismissedAt) {
       const days = (Date.now() - parseInt(dismissedAt, 10)) / (1000 * 60 * 60 * 24);
-      if (days < COOLDOWN_DAYS) return;
+      if (days < COOLDOWN_DAYS) {
+        localStorage.setItem('push_nudge_blocked', `dismissed_${Math.floor(days)}d_ago`); return;
+      }
     }
 
-    // Wait for subscription check, then show after a short delay
-    this.swPush.subscription.subscribe(sub => {
-      if (sub === null) {
-        setTimeout(() => this.visible.set(true), 3000);
-      }
-    });
+    // Check via Push Manager whether an actual subscription exists.
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.ready.then(reg =>
+        reg.pushManager.getSubscription().then(sub => {
+          if (sub) {
+            localStorage.setItem('push_nudge_blocked', 'already_subscribed');
+          } else {
+            localStorage.setItem('push_nudge_blocked', 'none_showing');
+            setTimeout(() => this.visible.set(true), 3000);
+          }
+        })
+      );
+    } else if (Notification.permission === 'default') {
+      localStorage.setItem('push_nudge_blocked', 'none_showing_no_sw');
+      setTimeout(() => this.visible.set(true), 3000);
+    } else {
+      localStorage.setItem('push_nudge_blocked', 'no_sw_permission_granted');
+    }
   }
 
   async enable(): Promise<void> {
