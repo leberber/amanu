@@ -390,6 +390,9 @@
                     } @else {
                       <app-currency [value]="item.unit_price * getEffectiveQty(item)" />
                     }
+                    @if (item.item_margin != null) {
+                      <span style="font-size:0.7rem;color:#16a34a;display:block;">+<app-currency [value]="item.item_margin" /> ({{ item.item_margin_pct | number:'1.0-1' }}%)</span>
+                    }
                   } @else {
                     <span class="item-row__deleted-badge">Supprimé</span>
                   }
@@ -523,6 +526,12 @@
                 <span style="font-size:1.125rem;font-weight:700;color:var(--text-color);"><app-currency [value]="previewTotal()" /></span>
               </span>
             </div>
+            @if (order.margin != null) {
+              <div class="items-footer__row" style="color:#16a34a;">
+                <span>Marge</span>
+                <span class="font-semibold"><app-currency [value]="order.margin" /> ({{ order.margin_pct | number:'1.0-1' }}%)</span>
+              </div>
+            }
           </div>
 
         </div>

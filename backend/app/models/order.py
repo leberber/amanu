@@ -46,6 +46,10 @@ class OrderItem(OrderItemBase, table=True):
     pieces_per_box: Optional[int] = Field(default=None)
     packaging_type: Optional[str] = Field(default=None)
     custom_unit_price: Optional[float] = Field(default=None)
+    # Stored margin fields (set at order creation / item edit)
+    cmup: Optional[float] = Field(default=None)
+    item_margin: Optional[float] = Field(default=None)
+    item_margin_pct: Optional[float] = Field(default=None)
 
     # Relationships
     order: "Order" = Relationship(back_populates="items")
@@ -109,6 +113,10 @@ class Order(OrderBase, table=True):
     # Payment tracking
     payment_status: str = Field(default="unpaid")  # unpaid | partial | paid
     total_paid: float = Field(default=0.0)
+
+    # Stored margin (set at order creation / item edit)
+    margin: Optional[float] = Field(default=None)
+    margin_pct: Optional[float] = Field(default=None)
 
     # Timestamps
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
@@ -238,6 +246,10 @@ class OrderRead(OrderBase):
             return delivery_type.value.lower()
         return str(delivery_type).lower()
 
+    # Margin (admin only, null when no CMUP data available)
+    margin: Optional[float] = None
+    margin_pct: Optional[float] = None
+
 
 # Create a new Pydantic model that explicitly includes items
 class OrderItemRead(SQLModel):
@@ -254,6 +266,10 @@ class OrderItemRead(SQLModel):
     packaging_type: Optional[str] = None
     image_url: Optional[str] = None
     brand_name: Optional[str] = None
+    # Margin fields (admin only, null when no CMUP data)
+    cmup: Optional[float] = None
+    item_margin: Optional[float] = None
+    item_margin_pct: Optional[float] = None
 
 
 class PromotionInfo(SQLModel):

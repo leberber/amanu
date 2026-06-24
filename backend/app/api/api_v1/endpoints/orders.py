@@ -17,6 +17,7 @@ from app.models.order_payments import (
     UserPaymentRead, OrderFinancialSummary
 )
 from app.models.product import Product
+from app.models.product_purchase_lot import ProductPurchaseLot
 from app.models.promotion import Promotion, PromotionUsage, PromotionScope
 from app.models.cross_sell_promotion import CrossSellPromotion, DiscountType as CrossSellDiscountType
 from app.models.volume_discount import VolumeDiscount, VolumeDiscountType
@@ -29,6 +30,52 @@ from app.core.notification_service import NotificationService
 from sqlmodel import SQLModel
 
 router = APIRouter()
+
+
+def _recalculate_order_margin(order: "Order", session: Session, items=None) -> None:
+    """Fetch latest CMUP per product and persist margin on order + items.
+
+    Pass `items` when already loaded to avoid a second DB round-trip.
+    """
+    if items is None:
+        items = session.exec(select(OrderItem).where(OrderItem.order_id == order.id)).all()
+    if not items:
+        return
+
+    product_ids = list({i.product_id for i in items})
+    lots = session.exec(
+        select(ProductPurchaseLot)
+        .where(ProductPurchaseLot.product_id.in_(product_ids))
+        .order_by(ProductPurchaseLot.product_id, ProductPurchaseLot.created_at.desc())
+    ).all()
+    cmup_map: dict = {}
+    for lot in lots:
+        if lot.product_id not in cmup_map:
+            cmup_map[lot.product_id] = lot.cmup
+
+    total_margin = 0.0
+    total_revenue = 0.0
+    has_data = False
+    for item in items:
+        cmup = cmup_map.get(item.product_id)
+        effective_price = item.custom_unit_price if item.custom_unit_price is not None else item.unit_price
+        total_revenue += effective_price * item.quantity
+        if cmup is not None:
+            has_data = True
+            item_margin = round((effective_price - cmup) * item.quantity, 2)
+            item_margin_pct = round((effective_price - cmup) / effective_price * 100, 1) if effective_price > 0 else None
+            total_margin += item_margin
+        else:
+            item_margin = None
+            item_margin_pct = None
+        item.cmup = cmup
+        item.item_margin = item_margin
+        item.item_margin_pct = item_margin_pct
+        session.add(item)
+
+    order.margin = round(total_margin, 2) if has_data and total_revenue > 0 else None
+    order.margin_pct = round(total_margin / total_revenue * 100, 1) if has_data and total_revenue > 0 else None
+    session.add(order)
 
 
 def calculate_cross_sell_discounts(
@@ -376,6 +423,10 @@ def create_order(
     session.commit()
     session.refresh(order)
 
+    # Store margin at creation time (uses CMUP snapshot from product_purchase_lots)
+    _recalculate_order_margin(order, session)
+    session.commit()
+
     # Notify admins and staff of the new order
     try:
         NotificationService.notify_admins_new_order(
@@ -409,7 +460,7 @@ def read_user_orders(
             .limit(limit)
             .order_by(Order.created_at.desc())
         ).unique().all()
-    # Staff and admins can see all orders
+    # Staff and admins can see all orders — also compute margin
     else:
         orders = session.exec(
             select(Order)
@@ -563,7 +614,33 @@ def read_order(
             for p in sorted(order.payments, key=lambda p: p.recorded_at)
         ],
         user=user_info,
-        items=[
+        items=[]
+    )
+
+    # Attach margin data (admin/staff only) — read from stored fields
+    if current_user.role != UserRole.CUSTOMER:
+        response.margin = order.margin
+        response.margin_pct = order.margin_pct
+        for item in order.items:
+            response.items.append(OrderItemRead(
+                id=item.id,
+                order_id=item.order_id,
+                product_id=item.product_id,
+                quantity=item.quantity,
+                unit_price=item.unit_price,
+                custom_unit_price=item.custom_unit_price,
+                product_name=item.product_name,
+                product_unit=item.product_unit,
+                pieces_per_box=item.pieces_per_box,
+                packaging_type=item.packaging_type,
+                image_url=item.product.image_url if item.product else None,
+                brand_name=item.product.brand.name if item.product and item.product.brand else None,
+                cmup=item.cmup,
+                item_margin=item.item_margin,
+                item_margin_pct=item.item_margin_pct,
+            ))
+    else:
+        response.items = [
             OrderItemRead(
                 id=item.id,
                 order_id=item.order_id,
@@ -576,11 +653,10 @@ def read_order(
                 pieces_per_box=item.pieces_per_box,
                 packaging_type=item.packaging_type,
                 image_url=item.product.image_url if item.product else None,
-                brand_name=item.product.brand.name if item.product and item.product.brand else None
+                brand_name=item.product.brand.name if item.product and item.product.brand else None,
             )
             for item in order.items
         ]
-    )
 
     # Add promotion info if exists
     if order.promotion_id:
@@ -851,7 +927,7 @@ def _recalculate_payment_status(order: Order, session: Session) -> None:
 
 
 def _recalculate_order_total(order: Order, session: Session) -> None:
-    """Recompute total_amount from current items."""
+    """Recompute total_amount from current items and refresh stored margin."""
     items = session.exec(select(OrderItem).where(OrderItem.order_id == order.id)).all()
     new_total = sum(i.quantity * (i.custom_unit_price if i.custom_unit_price is not None else i.unit_price) for i in items)
     order.total_amount = round(new_total, 2)
@@ -860,6 +936,8 @@ def _recalculate_order_total(order: Order, session: Session) -> None:
     session.add(order)
     # Re-check payment status against the new total
     _recalculate_payment_status(order, session)
+    # Refresh stored margin after item changes (reuse already-fetched items)
+    _recalculate_order_margin(order, session, items)
 
 
 # =============================================================================
@@ -1266,6 +1344,9 @@ def _build_order_with_items(order: Order, session: Session) -> OrderWithItems:
                 packaging_type=i.packaging_type,
                 image_url=i.product.image_url if i.product else None,
                 brand_name=i.product.brand.name if i.product and i.product.brand else None,
+                cmup=i.cmup,
+                item_margin=i.item_margin,
+                item_margin_pct=i.item_margin_pct,
             )
             for i in items
         ],

@@ -96,6 +96,9 @@ export interface DashboardStats {
     // Payment
     payment_status?: string; // unpaid | partial | paid
     total_paid?: number;
+    // Margin (admin only)
+    margin?: number;
+    margin_pct?: number;
   }
 
   export interface OrderPayment {
@@ -143,6 +146,10 @@ export interface DashboardStats {
     brand_name?: string;
     pieces_per_box?: number;
     packaging_type?: string;
+    // Margin (admin only)
+    cmup?: number;
+    item_margin?: number;
+    item_margin_pct?: number;
   }
   
   export interface UserManage {
