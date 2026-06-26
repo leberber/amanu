@@ -8,6 +8,7 @@ from sqlmodel import Session, select, or_, func
 from sqlalchemy import Text
 
 from app.database import get_session
+from app.models.segment import ProductSegment
 from app.models.product import Product, ProductCreate, ProductUpdate, ProductRead, ProductPromotion
 from app.models.product_group_price import ProductGroupPrice, ProductGroupPriceRead, ProductGroupPriceUpsert, GroupDiscountType
 from app.models.facturation import FacturationItem, Facturation
@@ -138,6 +139,34 @@ def get_best_group_discount(product: Product, user: Optional[User], session: Ses
     return round(best, 2) if best > 0 else None
 
 
+def get_product_segment_ids(product_id: int, session: Session) -> list:
+    """Return list of segment_ids for a product."""
+    links = session.exec(
+        select(ProductSegment).where(ProductSegment.product_id == product_id)
+    ).all()
+    return [l.segment_id for l in links]
+
+
+def set_product_segments(product_id: int, segment_ids: list, session: Session) -> None:
+    """Replace all segment links for a product."""
+    session.exec(
+        select(ProductSegment).where(ProductSegment.product_id == product_id)
+    )
+    existing = session.exec(
+        select(ProductSegment).where(ProductSegment.product_id == product_id)
+    ).all()
+    for link in existing:
+        session.delete(link)
+    for sid in segment_ids:
+        session.add(ProductSegment(product_id=product_id, segment_id=sid))
+
+
+def enrich_with_segments(product_data: dict, session: Session) -> dict:
+    """Add segment_ids to a product dict."""
+    product_data['segment_ids'] = get_product_segment_ids(product_data['id'], session)
+    return product_data
+
+
 @router.post("", response_model=ProductRead)
 def create_product(
     product_in: ProductCreate,
@@ -156,9 +185,14 @@ def create_product(
             detail="Category not found",
         )
 
-    product = Product.model_validate(product_in)
+    segment_ids = product_in.segment_ids or []
+    product_data = product_in.model_dump(exclude={'segment_ids'})
+    product = Product(**product_data)
     session.add(product)
     session.flush()  # Get product ID before creating RestockItem
+
+    # Save segment links
+    set_product_segments(product.id, segment_ids, session)
 
     # Auto-create RestockItem so product appears in purchasing page
     restock_item = RestockItem(
@@ -178,7 +212,9 @@ def create_product(
 
     session.commit()
     session.refresh(product)
-    return product
+    product_data = ProductRead.model_validate(product).model_dump()
+    product_data['segment_ids'] = segment_ids
+    return product_data
 
 @router.get("", response_model=List[ProductRead])
 def read_products(
@@ -194,6 +230,7 @@ def read_products(
     max_price: Optional[float] = None,
     sort_by: str = Query("name", enum=["name", "price", "created_at"]),
     sort_order: str = Query("asc", enum=["asc", "desc"]),
+    segment_id: Optional[int] = None,
     lang: str = Query("en", description="Language for translations (en, fr, ar)"),
     session: Session = Depends(get_session),
     current_user: Optional[User] = Depends(get_optional_user),
@@ -262,6 +299,13 @@ def read_products(
     elif sort_by == "created_at":
         query = query.order_by(Product.created_at.desc() if sort_order == "desc" else Product.created_at)
     
+    # Filter by segment if provided
+    if segment_id is not None:
+        product_in_segment = select(ProductSegment.product_id).where(
+            ProductSegment.segment_id == segment_id
+        )
+        query = query.where(Product.id.in_(product_in_segment))
+
     # Apply pagination
     products = session.exec(query.offset(skip).limit(limit)).all()
 
@@ -269,10 +313,20 @@ def read_products(
     for product in products:
         TranslationService.apply_translations_to_model(product, lang)
 
-    # Enrich products with promotion info + group discounts
+    # Build segment_ids map for all products in one query
+    product_ids = [p.id for p in products]
+    seg_links = session.exec(
+        select(ProductSegment).where(ProductSegment.product_id.in_(product_ids))
+    ).all() if product_ids else []
+    seg_map: dict = {}
+    for link in seg_links:
+        seg_map.setdefault(link.product_id, []).append(link.segment_id)
+
+    # Enrich products with promotion info + group discounts + segments
     enriched = enrich_products_with_promotions(products, session)
-    if current_user:
-        for item in enriched:
+    for item in enriched:
+        item['segment_ids'] = seg_map.get(item['id'], [])
+        if current_user:
             product_obj = next((p for p in products if p.id == item['id']), None)
             if product_obj:
                 discount = get_best_group_discount(product_obj, current_user, session)
@@ -388,6 +442,7 @@ def read_product(
     promotions = get_active_promotions(session)
     product_data = ProductRead.model_validate(product).model_dump()
     product_data['promotion'] = get_best_promotion_for_product(product, promotions)
+    product_data['segment_ids'] = get_product_segment_ids(product.id, session)
 
     # Add group discount if user is authenticated
     if current_user:
@@ -424,17 +479,23 @@ def update_product(
                 detail="Category not found",
             )
     
-    # Update fields
-    update_data = product_in.model_dump(exclude_unset=True)
+    # Update fields (excluding segment_ids which are handled separately)
+    update_data = product_in.model_dump(exclude_unset=True, exclude={'segment_ids'})
     for field, value in update_data.items():
         setattr(product, field, value)
-    
+
     product.updated_at = datetime.now(timezone.utc)
-    
     session.add(product)
+
+    # Update segment links if provided
+    if product_in.segment_ids is not None:
+        set_product_segments(product.id, product_in.segment_ids, session)
+
     session.commit()
     session.refresh(product)
-    return product
+    product_data = ProductRead.model_validate(product).model_dump()
+    product_data['segment_ids'] = get_product_segment_ids(product.id, session)
+    return product_data
 
 @router.delete("/{product_id}")
 def delete_product(

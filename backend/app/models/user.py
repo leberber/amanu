@@ -137,6 +137,7 @@ class UserRead(UserBase):
     h3_index: Optional[str] = None
     user_preferences: Optional[Dict[str, Any]] = None
     created_at: datetime
+    segment_ids: List[int] = []
     updated_at: Optional[datetime] = None
     groups: List[UserGroupBasic] = []
     remaining_balance: Optional[float] = None  # Computed: sum of unpaid order amounts

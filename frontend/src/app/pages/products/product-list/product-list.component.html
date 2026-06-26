@@ -34,7 +34,7 @@
       </div>
     }
 
-    @if (filterMode() === 'category') {
+    @if (filterMode() !== 'brand') {
       <!-- Category Filter Bar -->
       <app-horizontal-filter
         class="filter-bar"
@@ -51,7 +51,7 @@
       </app-horizontal-filter>
 
       <!-- Brand Sub-filter (shown when selected category has multiple brands) -->
-      @if (categoryBrands().length > 1) {
+      @if (categoryBrands().length > 0) {
         <app-horizontal-filter
           class="filter-bar brand-sub-filter"
           [class.filter-bar--hidden]="showMobileSearch()"
@@ -69,7 +69,7 @@
       <app-horizontal-filter
         class="filter-bar"
         [class.filter-bar--hidden]="showMobileSearch()"
-        [items]="allBrands()"
+        [items]="categoryBrands()"
         [activeItemId]="activeBrandId()"
         filterType="brands"
         [showAllOption]="false"

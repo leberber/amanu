@@ -11,6 +11,11 @@ from app.models.user import User, UserUpdate, UserRead, UserRole, UserGroupsUpda
 from app.models.push_subscription import PushSubscription
 from app.models.order import OrderStatus
 from app.models.user_group import UserGroup, UserGroupLink
+from app.models.segment import UserSegment, SegmentRead
+from pydantic import BaseModel as PydanticBaseModel
+
+class UserSegmentsUpdate(PydanticBaseModel):
+    segment_ids: list[int]
 from app.models.order import Order
 from app.models.trip import Trip
 from app.models.driver import Driver, DriverVehicle
@@ -180,13 +185,22 @@ def read_users(
     ).all()
     push_map = {row[0]: row[1] > 0 for row in push_rows}
 
-    # Add groups, balance, and push status to each user
+    # Batch load segment links for these users
+    seg_links = session.exec(
+        select(UserSegment).where(UserSegment.user_id.in_(user_ids))
+    ).all()
+    user_segments_map: dict = {}
+    for link in seg_links:
+        user_segments_map.setdefault(link.user_id, []).append(link.segment_id)
+
+    # Add groups, balance, push status, and segments to each user
     users_with_groups = []
     for user in users:
         user_dict = UserRead.model_validate(user).model_dump()
         user_dict["groups"] = user_groups_map.get(user.id, [])
         user_dict["remaining_balance"] = balance_map.get(user.id, 0.0)
         user_dict["has_push"] = push_map.get(user.id, False)
+        user_dict["segment_ids"] = user_segments_map.get(user.id, [])
         users_with_groups.append(UserRead(**user_dict))
 
     # Return structured response
@@ -458,3 +472,35 @@ def update_user_groups(
             groups.append(UserGroupBasic(id=group.id, name=group.name, color=group.color))
 
     return groups
+
+
+@router.get("/{user_id}/segments", response_model=List[int])
+def get_user_segments(
+    user_id: int,
+    current_user: User = Depends(get_current_staff_user),
+    session: Session = Depends(get_session),
+) -> Any:
+    links = session.exec(select(UserSegment).where(UserSegment.user_id == user_id)).all()
+    return [l.segment_id for l in links]
+
+
+@router.put("/{user_id}/segments", response_model=List[int])
+def update_user_segments(
+    user_id: int,
+    segments_in: UserSegmentsUpdate,
+    current_user: User = Depends(get_current_staff_user),
+    session: Session = Depends(get_session),
+) -> Any:
+    user = session.get(User, user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    existing = session.exec(select(UserSegment).where(UserSegment.user_id == user_id)).all()
+    for link in existing:
+        session.delete(link)
+
+    for segment_id in segments_in.segment_ids:
+        session.add(UserSegment(user_id=user_id, segment_id=segment_id))
+
+    session.commit()
+    return segments_in.segment_ids

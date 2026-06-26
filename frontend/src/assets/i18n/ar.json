@@ -1604,6 +1604,33 @@
       "table_options": "خيارات الجدول",
       "visible_columns": "الأعمدة المرئية"
     },
+    "segments": {
+      "title": "شرائح العملاء",
+      "subtitle": "إدارة الشرائح لتصفية المنتجات حسب نوع التجارة",
+      "add_segment": "إضافة شريحة",
+      "segments_count": "شرائح",
+      "form": {
+        "name": "المعرف",
+        "name_placeholder": "مثال: cafeteria",
+        "name_hint": "أحرف صغيرة، بدون مسافات",
+        "label_fr": "التسمية (بالفرنسية)",
+        "label_fr_placeholder": "مثال: Cafétéria",
+        "label_en": "التسمية (بالإنجليزية)",
+        "label_en_placeholder": "مثال: Cafeteria",
+        "label_ar": "التسمية (بالعربية)",
+        "label_ar_placeholder": "مثال: كافيتيريا"
+      },
+      "table": {
+        "id": "المعرف",
+        "name": "الرمز",
+        "label_fr": "التسمية",
+        "actions": "إجراءات"
+      },
+      "empty": {
+        "title": "لا توجد شرائح",
+        "description": "أنشئ شرائح لاستهداف أنواع تجارية محددة"
+      }
+    },
     "products": {
       "title": "إدارة المنتجات",
       "subtitle": "إدارة كتالوج المنتجات",
@@ -1894,6 +1921,7 @@
       "promotions": "العروض",
       "notifications": "الإشعارات",
       "user_groups": "مجموعات المستخدمين",
+      "segments": "شرائح العملاء",
       "reports": "التقارير",
       "settings": "الإعدادات",
       "shipping": "الشحن",

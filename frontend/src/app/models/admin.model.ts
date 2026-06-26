@@ -172,6 +172,7 @@ export interface DashboardStats {
     fiscal_info?: { rc?: string; na?: string; nif?: string; nis?: string };
     remaining_balance?: number;
     has_push?: boolean;
+    segment_ids?: number[];
   }
 
   // Customer Route (for delivery route optimization)

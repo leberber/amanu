@@ -6,6 +6,7 @@ from datetime import datetime, timezone
 from app.database import get_session
 from app.models.brand import Brand, BrandCreate, BrandUpdate, BrandRead
 from app.models.product import Product
+from app.models.segment import ProductSegment
 from app.models.user import User
 from app.core.security import get_current_staff_user
 from app.core.translation import TranslationService
@@ -17,23 +18,45 @@ def read_brands(
     active_only: bool = Query(True),
     lang: str = Query("en", description="Language for translations (en, fr, ar)"),
     category_id: Optional[int] = Query(None, description="Filter brands by category"),
+    segment_id: Optional[int] = Query(None, description="Filter brands by segment"),
     session: Session = Depends(get_session),
 ) -> Any:
     """
-    Retrieve all brands, optionally filtered by category.
+    Retrieve all brands, optionally filtered by category and/or segment.
     """
     query = select(Brand)
 
     if active_only:
         query = query.where(Brand.is_active == True)
 
-    if category_id is not None:
+    if category_id is not None and segment_id is not None:
+        product_ids_in_segment = select(ProductSegment.product_id).where(
+            ProductSegment.segment_id == segment_id
+        )
+        brand_ids = select(Product.brand_id).where(
+            Product.category_id == category_id,
+            Product.is_active == True,
+            Product.brand_id != None,
+            Product.id.in_(product_ids_in_segment)
+        )
+        query = query.where(Brand.id.in_(brand_ids))
+    elif category_id is not None:
         brand_ids_in_category = select(Product.brand_id).where(
             Product.category_id == category_id,
             Product.is_active == True,
             Product.brand_id != None
         )
         query = query.where(Brand.id.in_(brand_ids_in_category))
+    elif segment_id is not None:
+        product_ids_in_segment = select(ProductSegment.product_id).where(
+            ProductSegment.segment_id == segment_id
+        )
+        brand_ids_in_segment = select(Product.brand_id).where(
+            Product.id.in_(product_ids_in_segment),
+            Product.is_active == True,
+            Product.brand_id != None
+        )
+        query = query.where(Brand.id.in_(brand_ids_in_segment))
 
     brands = session.exec(query).all()
 

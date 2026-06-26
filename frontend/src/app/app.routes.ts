@@ -345,6 +345,12 @@ export const routes: Routes = [
     canActivate: [adminGuard],
     data: { hideBottomNav: true }
   },
+  {
+    path: 'admin/segments',
+    loadComponent: () => import('./pages/admin/admin-segments/admin-segments.component').then(m => m.AdminSegmentsComponent),
+    canActivate: [adminGuard],
+    data: { hideBottomNav: true }
+  },
 
   // Graph Builder (public - for adding missing roads)
   {

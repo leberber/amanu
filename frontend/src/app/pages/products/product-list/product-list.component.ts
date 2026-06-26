@@ -72,11 +72,12 @@ export class ProductListComponent implements OnInit {
 
   products = signal<Product[]>([]);
   categories = signal<Category[]>([]);
+  private fullCategories = signal<Category[]>([]);  // unfiltered backup
   categoryBrands = signal<Brand[]>([]);
-  allBrands = signal<Brand[]>([]);
   activeCategoryId = signal<number | null>(null);
   activeBrandId = signal<number | null>(null);
-  filterMode = signal<'category' | 'brand'>('category');
+  filterMode = signal<'category' | 'brand' | 'segment'>('category');
+  activeSegmentId = signal<number | null>(null);
   loading = signal(true);
   filters = signal<ProductFilter>({
     active_only: true,
@@ -156,7 +157,12 @@ export class ProductListComponent implements OnInit {
     this.activeBrandId.set(null);
     this.filters.update(f => { const { brand_id, ...rest } = f; return rest; });
     this.updateUrlParams({ category: categoryId, brand: null });
-    this.loadBrandsForCategory(categoryId);
+    if (this.filterMode() === 'segment') {
+      const segmentId = this.activeSegmentId();
+      if (segmentId) this.loadBrandsForCategoryAndSegment(categoryId, segmentId);
+    } else {
+      this.loadBrandsForCategory(categoryId);
+    }
     this.reloadWithAnimation();
   }
 
@@ -289,10 +295,22 @@ export class ProductListComponent implements OnInit {
       : 'products.product.quantity_selector.pieces';
   }
 
-  private loadAllBrands(): void {
+  private loadAllBrandsIntoBar(): void {
     this.brandService.getBrands(true)
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(brands => this.allBrands.set(brands));
+      .subscribe(brands => this.categoryBrands.set(brands));
+  }
+
+  private loadBrandsForSegment(segmentId: number): void {
+    this.brandService.getBrandsBySegment(segmentId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(brands => this.categoryBrands.set(brands));
+  }
+
+  private loadBrandsForCategoryAndSegment(categoryId: number, segmentId: number): void {
+    this.brandService.getBrandsByCategoryAndSegment(categoryId, segmentId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(brands => this.categoryBrands.set(brands));
   }
 
   private loadBrandsForCategory(categoryId: number): void {
@@ -305,33 +323,70 @@ export class ProductListComponent implements OnInit {
     this.productService.getCategories(true).subscribe({
       next: (categories) => {
         this.categories.set(categories);
+        this.fullCategories.set(categories);
 
         this.updateCategoryCounts();
 
         this.route.queryParams.pipe(
           tap(params => {
-            if (params['category']) {
-              const categoryId = Number(params['category']);
-              this.activeCategoryId.set(categoryId);
-              this.filterMode.set('category');
+            if (params['segment_id']) {
+              const segmentId = Number(params['segment_id']);
+              this.filterMode.set('segment');
+              this.activeSegmentId.set(segmentId);
+              this.filters.update(f => ({ ...f, segment_id: segmentId }));
+
+              if (params['category']) {
+                const categoryId = Number(params['category']);
+                this.activeCategoryId.set(categoryId);
+                this.loadBrandsForCategoryAndSegment(categoryId, segmentId);
+              } else {
+                this.activeCategoryId.set(null);
+                this.filters.update(f => { const { category_id, ...rest } = f; return rest; });
+                this.loadBrandsForSegment(segmentId);
+              }
               if (params['brand']) {
+                this.activeBrandId.set(Number(params['brand']));
+                this.filters.update(f => ({ ...f, brand_id: Number(params['brand']) }));
+              } else {
+                this.activeBrandId.set(null);
+                this.filters.update(f => { const { brand_id, ...rest } = f; return rest; });
+              }
+            } else {
+              const wasInSegmentMode = this.filterMode() === 'segment';
+              // Clear segment state whenever segment_id is not in URL
+              this.activeSegmentId.set(null);
+              this.filters.update(f => { const { segment_id, ...rest } = f; return rest; });
+              if (wasInSegmentMode) {
+                this.categories.set(this.fullCategories());
+                this.categoryBrands.set([]);
+                this.activeCategoryId.set(null);
+                this.activeBrandId.set(null);
+              }
+
+              if (params['category']) {
+                const categoryId = Number(params['category']);
+                this.activeCategoryId.set(categoryId);
+                this.filterMode.set('category');
+                if (params['brand']) {
+                  const brandId = Number(params['brand']);
+                  this.activeBrandId.set(brandId);
+                  this.filters.update(f => ({ ...f, brand_id: brandId }));
+                }
+                this.loadBrandsForCategory(categoryId);
+              } else if (params['brand']) {
+                // Navigated from home via brand chip — auto brand mode
                 const brandId = Number(params['brand']);
+                this.filterMode.set('brand');
                 this.activeBrandId.set(brandId);
                 this.filters.update(f => ({ ...f, brand_id: brandId }));
+                this.loadAllBrandsIntoBar();
+              } else {
+                // Général — reset to category mode
+                this.filterMode.set('category');
+                if (!this.activeCategoryId() && categories.length > 0) {
+                  this.setDefaultCategory(categories);
+                }
               }
-              this.loadBrandsForCategory(categoryId);
-            } else if (params['brand']) {
-              // Navigated from home via brand chip — auto brand mode
-              const brandId = Number(params['brand']);
-              this.filterMode.set('brand');
-              this.activeBrandId.set(brandId);
-              this.filters.update(f => ({ ...f, brand_id: brandId }));
-              if (this.allBrands().length === 0) {
-                this.loadAllBrands();
-              }
-            } else if (!this.activeCategoryId() && categories.length > 0) {
-              this.filterMode.set('category');
-              this.setDefaultCategory(categories);
             }
 
             if (params['search']) {
@@ -365,6 +420,21 @@ export class ProductListComponent implements OnInit {
       // Search across everything — ignore active category/brand filters
       delete currentFilters.category_id;
       delete currentFilters.brand_id;
+      delete currentFilters.segment_id;
+    } else if (this.filterMode() === 'segment') {
+      // Segment mode: filter by segment; optionally sub-filter by category/brand
+      const categoryId = this.activeCategoryId();
+      if (categoryId) {
+        currentFilters.category_id = categoryId;
+      } else {
+        delete currentFilters.category_id;
+      }
+      const brandId = this.activeBrandId();
+      if (brandId) {
+        currentFilters.brand_id = brandId;
+      } else {
+        delete currentFilters.brand_id;
+      }
     } else if (this.filterMode() === 'brand') {
       // Brand mode: filter by selected brand only, no category constraint
       delete currentFilters.category_id;
@@ -399,6 +469,12 @@ export class ProductListComponent implements OnInit {
   private setProductsAndStopLoading(products: Product[]): void {
     this.products.set(products);
     this.loading.set(false);
+
+    if (this.filterMode() === 'segment' && !this.activeCategoryId()) {
+      // Derive visible categories from segment products
+      const catIds = new Set(products.map(p => p.category_id));
+      this.categories.set(this.fullCategories().filter(c => catIds.has(c.id)));
+    }
   }
 
   private handleAddToCart(product: Product, quantity: number): void {

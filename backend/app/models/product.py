@@ -160,6 +160,8 @@ class ProductUpdate(SQLModel):
     max_order_cartons: Optional[int] = Field(default=None)
     new_until: Optional[datetime] = Field(default=None)
 
+    segment_ids: Optional[List[int]] = Field(default=None)
+
 class ProductPromotion(SQLModel):
     """Promotion info attached to a product"""
     id: int
@@ -178,3 +180,4 @@ class ProductRead(ProductBase):
     promotion: Optional[ProductPromotion] = None  # Active promotion for this product
     group_discount: Optional[float] = None      # Best group discount amount for current user (DA)
     effective_price: Optional[float] = None     # price after group discount
+    segment_ids: List[int] = []                 # Segments this product belongs to

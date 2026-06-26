@@ -94,7 +94,8 @@ export const ROUTES = {
     SUPPLIER_DETAIL: '/admin/suppliers/:id',
     FACTURATION: '/admin/facturation',
     FACTURATION_NEW: '/admin/facturation/new',
-    COMPANY_SETTINGS: '/admin/company-settings'
+    COMPANY_SETTINGS: '/admin/company-settings',
+    SEGMENTS: '/admin/segments'
   }
 } as const;
 

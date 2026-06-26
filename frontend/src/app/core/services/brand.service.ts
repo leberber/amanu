@@ -49,6 +49,37 @@ export class BrandService {
   }
 
   /**
+   * Get brands that have active products in a given segment.
+   */
+  getBrandsBySegment(segmentId: number): Observable<Brand[]> {
+    const lang = this.translateService.currentLang || 'en';
+    const params = new HttpParams()
+      .set('active_only', 'true')
+      .set('lang', lang)
+      .set('segment_id', segmentId.toString());
+
+    return this.http.get<Brand[]>(this.apiUrl, { params }).pipe(
+      map(brands => brands.sort((a, b) => a.name.localeCompare(b.name)))
+    );
+  }
+
+  /**
+   * Get brands that have active products in both a given category and segment.
+   */
+  getBrandsByCategoryAndSegment(categoryId: number, segmentId: number): Observable<Brand[]> {
+    const lang = this.translateService.currentLang || 'en';
+    const params = new HttpParams()
+      .set('active_only', 'true')
+      .set('lang', lang)
+      .set('category_id', categoryId.toString())
+      .set('segment_id', segmentId.toString());
+
+    return this.http.get<Brand[]>(this.apiUrl, { params }).pipe(
+      map(brands => brands.sort((a, b) => a.name.localeCompare(b.name)))
+    );
+  }
+
+  /**
    * Get brand by ID - checks cache first, falls back to API
    */
   getBrand(id: number): Observable<Brand> {

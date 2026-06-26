@@ -38,6 +38,7 @@ from app.models.supplier import SupplierPayment, SupplierProductPrice  # Registe
 from app.models.product_purchase_lot import ProductPurchaseLot  # Register model for table creation
 from app.models.audit_log import AuditLog  # Register model for table creation
 from app.models.product_group_price import ProductGroupPrice  # Register model for table creation
+from app.models.segment import Segment, ProductSegment, UserSegment  # Register models for table creation
 from app.models.order_payments import OrderPayment, OrderAuditLog  # Register models for table creation
 
 app = FastAPI(

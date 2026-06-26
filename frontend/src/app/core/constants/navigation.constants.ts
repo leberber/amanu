@@ -100,6 +100,12 @@ export const ADMIN_NAV_ITEMS: AdminNavItem[] = [
     staffOnly: true
   },
   {
+    labelKey: 'admin.navigation.segments',
+    icon: 'pi pi-tag',
+    route: ROUTES.ADMIN.SEGMENTS,
+    staffOnly: true
+  },
+  {
     labelKey: 'admin.navigation.drivers',
     icon: 'pi pi-car',
     route: ROUTES.ADMIN.DRIVER_MANAGEMENT,

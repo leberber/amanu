@@ -10,12 +10,15 @@ import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { TextareaModule } from 'primeng/textarea';
 import { SelectModule } from 'primeng/select';
+import { MultiSelectModule } from 'primeng/multiselect';
 import { ToastModule } from 'primeng/toast';
 import { DatePickerModule } from 'primeng/datepicker';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { ProductService } from '../../../services/product.service';
 import { Product, ProductGroupPrice, ProductGroupPriceUpsert, GroupDiscountType } from '../../../models/product.model';
+import { SegmentService } from '../../../core/services/segment.service';
+import { Segment } from '../../../models/segment.model';
 import { UserGroupService } from '../../../core/services/user-group.service';
 import { UserGroup } from '../../../models/user-group.model';
 import { BrandService } from '../../../core/services/brand.service';
@@ -46,6 +49,7 @@ interface ProductWithTranslations extends Product {
     InputNumberModule,
     TextareaModule,
     SelectModule,
+    MultiSelectModule,
     ToastModule,
     DatePickerModule,
     TranslateModule,
@@ -68,6 +72,7 @@ export class AdminAddProductComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly http = inject(HttpClient);
   private readonly userGroupService = inject(UserGroupService);
+  private readonly segmentService = inject(SegmentService);
 
   productForm!: FormGroup;
 
@@ -138,6 +143,19 @@ export class AdminAddProductComponent implements OnInit {
   );
 
   readonly ROUTES = ROUTES;
+
+  // ── Segments ──────────────────────────────────────────────────────────────
+  allSegments = signal<Segment[]>([]);
+  selectedSegmentIds = signal<number[]>([]);
+  readonly segmentOptions = computed(() =>
+    this.allSegments().map(s => ({ label: s.label_fr, value: s.id }))
+  );
+
+  private loadSegments(): void {
+    this.segmentService.getSegments()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({ next: (segments) => this.allSegments.set(segments) });
+  }
 
   // ── Group Pricing ─────────────────────────────────────────────────────────
   // For 'fixed': discount_value stores the TARGET PRICE (what the group pays)
@@ -283,6 +301,7 @@ export class AdminAddProductComponent implements OnInit {
 
     this.loadCategories();
     this.loadBrands();
+    this.loadSegments();
     detectEditMode(
       this.route,
       this.destroyRef,
@@ -390,6 +409,7 @@ export class AdminAddProductComponent implements OnInit {
             max_order_cartons: product.max_order_cartons ?? null,
             new_until: product.new_until ? new Date(product.new_until) : null,
           });
+          this.selectedSegmentIds.set(product.segment_ids ?? []);
 
           this.packagingTypeValue.set(product.packaging_type || null);
           this.piecesPerBoxValue.set(product.pieces_per_box || null);
@@ -438,6 +458,7 @@ export class AdminAddProductComponent implements OnInit {
         tva_rate: formValues.tva_rate ?? 0,
         max_order_cartons: formValues.max_order_cartons || null,
         new_until: formValues.new_until ? (formValues.new_until as Date).toISOString() : null,
+        segment_ids: this.selectedSegmentIds(),
       }
     );
 

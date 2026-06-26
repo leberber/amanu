@@ -190,37 +190,51 @@
   <!-- ======================================================
        SEGMENT CARDS (2×2 square grid)
   ======================================================= -->
-  <section class="home-section reveal-section" appReveal="zoom">
-    <div class="section-header">
-      <h2 class="section-title">Quel type de commerce êtes-vous ?</h2>
-    </div>
-    <p class="section-sub">Trouvez les produits adaptés à votre activité</p>
-    <div class="segments-grid">
-      @for (segment of segments; track segment.label) {
+  @if (segments().length > 0) {
+    <section class="home-section reveal-section" appReveal="zoom">
+      <div class="section-header">
+        <h2 class="section-title">Quel type de commerce êtes-vous ?</h2>
+      </div>
+      <p class="section-sub">Trouvez les produits adaptés à votre activité</p>
+      <div class="segments-grid">
+        <!-- Général card — shows all products -->
         <a class="segment-card reveal-child" [routerLink]="ROUTES.PRODUCTS">
-          <div class="segment-card__icon" [style.background]="segment.lightBg">
-            @if (segment.emoji) {
-              <span class="segment-card__emoji">{{ segment.emoji }}</span>
-            } @else {
-              <i [class]="segment.icon" [style.color]="segment.iconColor"></i>
-            }
+          <div class="segment-card__icon" style="background:#f3e8ff">
+            <i class="pi pi-shopping-cart" style="color:#9333ea"></i>
           </div>
           <div class="segment-card__footer">
             <div>
-              <h3 class="segment-card__title">{{ segment.label }}</h3>
-              <p class="segment-card__desc">{{ segment.description }}</p>
+              <h3 class="segment-card__title">Général</h3>
+              <p class="segment-card__desc">Tous les produits disponibles</p>
             </div>
-            <div
-              class="segment-card__arrow"
-              [style.background]="'linear-gradient(135deg,' + segment.colorFrom + ',' + segment.colorTo + ')'"
-            >
+            <div class="segment-card__arrow" style="background:linear-gradient(135deg,#581c87,#a855f7)">
               <i class="pi pi-arrow-right"></i>
             </div>
           </div>
         </a>
-      }
-    </div>
-  </section>
+        @for (segment of segments(); track segment.id) {
+          <a class="segment-card reveal-child" [routerLink]="ROUTES.PRODUCTS" [queryParams]="{segment_id: segment.id}">
+            <div class="segment-card__icon" [style.background]="getSegmentVisuals(segment.name).lightBg">
+              @if (getSegmentVisuals(segment.name).emoji) {
+                <span class="segment-card__emoji">{{ getSegmentVisuals(segment.name).emoji }}</span>
+              } @else {
+                <i [class]="getSegmentVisuals(segment.name).icon" [style.color]="getSegmentVisuals(segment.name).iconColor"></i>
+              }
+            </div>
+            <div class="segment-card__footer">
+              <div>
+                <h3 class="segment-card__title">{{ segment.label_fr }}</h3>
+              </div>
+              <div class="segment-card__arrow"
+                [style.background]="'linear-gradient(135deg,' + getSegmentVisuals(segment.name).colorFrom + ',' + getSegmentVisuals(segment.name).colorTo + ')'">
+                <i class="pi pi-arrow-right"></i>
+              </div>
+            </div>
+          </a>
+        }
+      </div>
+    </section>
+  }
 
   <!-- ======================================================
        FEATURES

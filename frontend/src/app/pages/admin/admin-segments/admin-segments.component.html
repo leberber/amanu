@@ -1,0 +1,148 @@
+<app-agroclik-page-container>
+  <p-confirmDialog></p-confirmDialog>
+
+  <!-- Top Section -->
+  <div pageTop [class.initialized]="tableInitialized()">
+    <div class="admin-list-header animate-item" style="--item-delay: 0ms;">
+      <div class="header-title">
+        <div class="admin-icon-wrapper">
+          <div class="icon-bg"></div>
+          <div class="icon-circle">
+            <i class="pi pi-tag"></i>
+          </div>
+        </div>
+        <div class="title-text">
+          <h1>{{ 'admin.segments.title' | translate }}</h1>
+          <p>{{ 'admin.segments.subtitle' | translate }}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex align-items-center justify-content-end gap-3 mt-3 mb-4 animate-item" style="--item-delay: 50ms;">
+      <button class="btn-add" (click)="openCreateDialog()">
+        <i class="pi pi-plus"></i>
+        <span>{{ 'admin.segments.add_segment' | translate }}</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Main Section -->
+  <div pageMain>
+
+    <!-- Create Dialog -->
+    <p-dialog
+      [header]="'admin.segments.add_segment' | translate"
+      [visible]="showCreateDialog()"
+      (visibleChange)="showCreateDialog.set($event)"
+      [modal]="true"
+      [style]="{ width: '400px' }"
+      [draggable]="false">
+      <div class="flex flex-column gap-3 pt-2">
+        <div class="flex flex-column gap-1">
+          <label class="text-sm font-semibold">{{ 'admin.segments.form.name' | translate }}</label>
+          <input
+            pInputText
+            [(ngModel)]="newName"
+            [placeholder]="'admin.segments.form.name_placeholder' | translate"
+            class="w-full"
+          />
+          <small class="text-secondary">{{ 'admin.segments.form.name_hint' | translate }}</small>
+        </div>
+        <div class="flex flex-column gap-1">
+          <label class="text-sm font-semibold">🇫🇷 {{ 'admin.segments.form.label_fr' | translate }} <span style="color:red">*</span></label>
+          <input
+            pInputText
+            [(ngModel)]="newLabelFr"
+            [placeholder]="'admin.segments.form.label_fr_placeholder' | translate"
+            class="w-full"
+          />
+        </div>
+        <div class="flex flex-column gap-1">
+          <label class="text-sm font-semibold">🇬🇧 {{ 'admin.segments.form.label_en' | translate }}</label>
+          <input
+            pInputText
+            [(ngModel)]="newLabelEn"
+            [placeholder]="'admin.segments.form.label_en_placeholder' | translate"
+            class="w-full"
+          />
+        </div>
+        <div class="flex flex-column gap-1">
+          <label class="text-sm font-semibold">🇩🇿 {{ 'admin.segments.form.label_ar' | translate }}</label>
+          <input
+            pInputText
+            [(ngModel)]="newLabelAr"
+            [placeholder]="'admin.segments.form.label_ar_placeholder' | translate"
+            dir="rtl"
+            class="w-full"
+          />
+        </div>
+      </div>
+      <ng-template pTemplate="footer">
+        <p-button label="{{ 'common.cancel' | translate }}" severity="secondary" (click)="showCreateDialog.set(false)" />
+        <p-button
+          label="{{ 'common.save' | translate }}"
+          icon="pi pi-check"
+          [loading]="saving()"
+          [disabled]="!newName.trim() || !newLabelFr.trim()"
+          (click)="createSegment()"
+        />
+      </ng-template>
+    </p-dialog>
+
+    @if (loading()) {
+      <app-table-skeleton [columns]="skeletonColumns" [rows]="4" [actionCount]="1" />
+    } @else if (segments().length === 0) {
+      <div class="empty-state animate-item" style="--item-delay: 100ms;">
+        <div class="empty-state__icon">
+          <i class="pi pi-tag"></i>
+        </div>
+        <h3 class="empty-state__title">{{ 'admin.segments.empty.title' | translate }}</h3>
+        <p class="empty-state__description">{{ 'admin.segments.empty.description' | translate }}</p>
+        <button class="btn-add" (click)="openCreateDialog()">
+          <i class="pi pi-plus"></i>
+          {{ 'admin.segments.add_segment' | translate }}
+        </button>
+      </div>
+    } @else {
+      <div class="table-container animate-item" style="--item-delay: 100ms;">
+        <div class="table-wrapper">
+          <table class="table">
+            <thead>
+              <tr>
+                <th style="width: 10%" class="text-center">{{ 'admin.segments.table.id' | translate }}</th>
+                <th style="width: 35%">{{ 'admin.segments.table.name' | translate }}</th>
+                <th style="width: 40%">{{ 'admin.segments.table.label_fr' | translate }}</th>
+                <th style="width: 15%" class="text-center">{{ 'admin.segments.table.actions' | translate }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (segment of segments(); track segment.id; let i = $index) {
+                <tr class="table-row-animate" [style.--row-delay]="(i * 40) + 'ms'">
+                  <td class="text-center">
+                    <span class="id-badge">{{ segment.id }}</span>
+                  </td>
+                  <td>
+                    <span class="font-mono text-sm">{{ segment.name }}</span>
+                  </td>
+                  <td>
+                    <span class="font-medium">{{ segment.label_fr }}</span>
+                  </td>
+                  <td class="text-center">
+                    <div class="table-cell-actions justify-content-center">
+                      <button class="action-btn delete" (click)="confirmDelete(segment)" pTooltip="{{ 'common.delete' | translate }}" tooltipPosition="top">
+                        <i class="pi pi-trash"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        <div class="table-footer results-info">
+          <span>{{ segments().length }} {{ 'admin.segments.segments_count' | translate }}</span>
+        </div>
+      </div>
+    }
+  </div>
+</app-agroclik-page-container>

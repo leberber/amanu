@@ -1604,6 +1604,33 @@
       "table_options": "Options du Tableau",
       "visible_columns": "Colonnes Visibles"
     },
+    "segments": {
+      "title": "Segments Clients",
+      "subtitle": "Gérez les segments pour filtrer les produits par type de commerce",
+      "add_segment": "Ajouter un segment",
+      "segments_count": "segments",
+      "form": {
+        "name": "Identifiant (slug)",
+        "name_placeholder": "ex: cafeteria",
+        "name_hint": "Minuscules, sans espaces ni accents",
+        "label_fr": "Libellé (Français)",
+        "label_fr_placeholder": "ex: Cafétéria",
+        "label_en": "Libellé (Anglais)",
+        "label_en_placeholder": "e.g: Cafeteria",
+        "label_ar": "Libellé (Arabe)",
+        "label_ar_placeholder": "مثال: كافيتيريا"
+      },
+      "table": {
+        "id": "ID",
+        "name": "Identifiant",
+        "label_fr": "Libellé",
+        "actions": "Actions"
+      },
+      "empty": {
+        "title": "Aucun Segment",
+        "description": "Créez des segments pour cibler des types de commerce spécifiques (cafétéria, boulangerie, alimentation...)"
+      }
+    },
     "products": {
       "title": "Gestion des Produits",
       "subtitle": "Gérez le catalogue de produits",
@@ -1908,6 +1935,7 @@
       "promotions": "Promotions",
       "notifications": "Notifications",
       "user_groups": "Groupes d'utilisateurs",
+      "segments": "Segments clients",
       "reports": "Rapports",
       "settings": "Paramètres",
       "shipping": "Livraison",

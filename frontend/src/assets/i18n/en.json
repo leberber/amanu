@@ -1601,6 +1601,33 @@
       "table_options": "Table Options",
       "visible_columns": "Visible Columns"
     },
+    "segments": {
+      "title": "Customer Segments",
+      "subtitle": "Manage segments to filter products by business type",
+      "add_segment": "Add segment",
+      "segments_count": "segments",
+      "form": {
+        "name": "Identifier (slug)",
+        "name_placeholder": "e.g: cafeteria",
+        "name_hint": "Lowercase, no spaces or accents",
+        "label_fr": "Label (French)",
+        "label_fr_placeholder": "e.g: Cafétéria",
+        "label_en": "Label (English)",
+        "label_en_placeholder": "e.g: Cafeteria",
+        "label_ar": "Label (Arabic)",
+        "label_ar_placeholder": "e.g: كافيتيريا"
+      },
+      "table": {
+        "id": "ID",
+        "name": "Identifier",
+        "label_fr": "Label",
+        "actions": "Actions"
+      },
+      "empty": {
+        "title": "No Segments",
+        "description": "Create segments to target specific business types (cafeteria, bakery, grocery...)"
+      }
+    },
     "products": {
       "title": "Product Management",
       "subtitle": "Manage the product catalog",
@@ -1907,6 +1934,7 @@
       "promotions": "Promotions",
       "notifications": "Notifications",
       "user_groups": "User Groups",
+      "segments": "Customer Segments",
       "reports": "Reports",
       "settings": "Settings",
       "shipping": "Shipping",

@@ -428,6 +428,28 @@
                       </div>
                     </div>
 
+                    <div class="form-field mt-3">
+                      <div class="field-box" [class.filled]="selectedSegmentIds().length > 0">
+                        <div class="field-box__icon field-box__icon--primary">
+                          <i class="pi pi-tag"></i>
+                        </div>
+                        <div class="field-box__content">
+                          <label>Segments</label>
+                          <p-multiselect
+                            [options]="segmentOptions()"
+                            [ngModel]="selectedSegmentIds()"
+                            (ngModelChange)="selectedSegmentIds.set($event)"
+                            [ngModelOptions]="{standalone: true}"
+                            optionLabel="label"
+                            optionValue="value"
+                            placeholder="Sélectionner les segments..."
+                            styleClass="w-full"
+                            appendTo="body" />
+                        </div>
+                      </div>
+                      <span class="field-hint">Laissez vide pour que le produit apparaisse uniquement dans Général</span>
+                    </div>
+
                   </div>
                 </div>
               </div>
