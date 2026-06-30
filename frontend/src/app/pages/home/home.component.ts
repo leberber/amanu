@@ -42,14 +42,18 @@ export class HomeComponent implements OnInit, OnDestroy {
   readonly currentYear = new Date().getFullYear();
 
   private readonly segmentVisuals: Record<string, { emoji?: string; icon?: string; colorFrom: string; colorTo: string; lightBg: string; iconColor: string }> = {
-    cafeteria:    { emoji: '☕', colorFrom: '#92400e', colorTo: '#d97706', lightBg: '#fef3c7', iconColor: '#d97706' },
-    restaurant:   { emoji: '🍽️', colorFrom: '#991b1b', colorTo: '#ef4444', lightBg: '#fee2e2', iconColor: '#ef4444' },
-    fastfood:     { emoji: '🍔', colorFrom: '#c2410c', colorTo: '#f97316', lightBg: '#ffedd5', iconColor: '#f97316' },
-    boulangerie:  { emoji: '🥖', colorFrom: '#78350f', colorTo: '#f59e0b', lightBg: '#fef3c7', iconColor: '#f59e0b' },
-    patisserie:   { emoji: '🧁', colorFrom: '#9d174d', colorTo: '#ec4899', lightBg: '#fce7f3', iconColor: '#ec4899' },
-    alimentation: { icon: 'pi pi-shopping-bag', colorFrom: '#166534', colorTo: '#22c55e', lightBg: '#dcfce7', iconColor: '#16a34a' },
-    librairie:    { icon: 'pi pi-book', colorFrom: '#1e3a8a', colorTo: '#3b82f6', lightBg: '#dbeafe', iconColor: '#3b82f6' },
-    salle_fetes:  { emoji: '🎊', colorFrom: '#4c1d95', colorTo: '#8b5cf6', lightBg: '#ede9fe', iconColor: '#8b5cf6' },
+    cafeteria:              { emoji: '☕',  colorFrom: '#92400e', colorTo: '#d97706', lightBg: '#fef3c7', iconColor: '#d97706' },
+    restaurant:             { emoji: '🍽️', colorFrom: '#991b1b', colorTo: '#ef4444', lightBg: '#fee2e2', iconColor: '#ef4444' },
+    restauration:           { emoji: '🍽️', colorFrom: '#991b1b', colorTo: '#ef4444', lightBg: '#fee2e2', iconColor: '#ef4444' },
+    fastfood:               { emoji: '🍔', colorFrom: '#c2410c', colorTo: '#f97316', lightBg: '#ffedd5', iconColor: '#f97316' },
+    fast_food_restaurants:  { emoji: '🍔', colorFrom: '#c2410c', colorTo: '#f97316', lightBg: '#ffedd5', iconColor: '#f97316' },
+    boulangerie:            { emoji: '🥖', colorFrom: '#78350f', colorTo: '#f59e0b', lightBg: '#fef3c7', iconColor: '#f59e0b' },
+    boulangerie_patisserie: { emoji: '🥐', colorFrom: '#78350f', colorTo: '#f59e0b', lightBg: '#fef3c7', iconColor: '#f59e0b' },
+    patisserie:             { emoji: '🧁', colorFrom: '#9d174d', colorTo: '#ec4899', lightBg: '#fce7f3', iconColor: '#ec4899' },
+    alimentation:           { icon: 'pi pi-shopping-bag', colorFrom: '#166534', colorTo: '#22c55e', lightBg: '#dcfce7', iconColor: '#16a34a' },
+    librairie:              { icon: 'pi pi-book', colorFrom: '#1e3a8a', colorTo: '#3b82f6', lightBg: '#dbeafe', iconColor: '#3b82f6' },
+    salle_fetes:            { emoji: '🎊', colorFrom: '#4c1d95', colorTo: '#8b5cf6', lightBg: '#ede9fe', iconColor: '#8b5cf6' },
+    salle_des_fetes:        { emoji: '🎊', colorFrom: '#4c1d95', colorTo: '#8b5cf6', lightBg: '#ede9fe', iconColor: '#8b5cf6' },
   };
   private readonly defaultVisuals = { icon: 'pi pi-tag', colorFrom: '#581c87', colorTo: '#a855f7', lightBg: '#f3e8ff', iconColor: '#9333ea' };
 

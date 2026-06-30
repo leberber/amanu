@@ -470,8 +470,8 @@ export class ProductListComponent implements OnInit {
     this.products.set(products);
     this.loading.set(false);
 
-    if (this.filterMode() === 'segment' && !this.activeCategoryId()) {
-      // Derive visible categories from segment products
+    if (this.filterMode() === 'segment' && !this.activeCategoryId() && !this.activeBrandId()) {
+      // Derive visible categories from segment products (skip when brand filter is active)
       const catIds = new Set(products.map(p => p.category_id));
       this.categories.set(this.fullCategories().filter(c => catIds.has(c.id)));
     }
