@@ -77,6 +77,7 @@ export class LineChartComponent implements OnInit {
   tooltipLabels = input<string[]>([]);
   pointColors = input<string[]>([]);
   tickColors = input<string[]>([]);
+  yAxisLabel = input<string>('');
 
   // Services
   private translateService = inject(TranslateService);
@@ -131,6 +132,7 @@ export class LineChartComponent implements OnInit {
     const currencyService = this.currencyService;
     const tooltipLabelsArr = this.tooltipLabels();
     const tickColorsArr = this.tickColors();
+    const yLabel = this.yAxisLabel();
 
     return {
       responsive: true,
@@ -176,6 +178,7 @@ export class LineChartComponent implements OnInit {
         y: {
           beginAtZero: true,
           grid: { color: 'rgba(0, 0, 0, 0.05)' },
+          title: { display: !!yLabel, text: yLabel, font: { size: 11 }, color: 'rgba(100,100,100,0.8)' },
           ticks: {
             font: { size: 12 },
             callback: (value: number) => {

@@ -1,0 +1,193 @@
+<app-agroclik-page-container>
+
+  <!-- Header -->
+  <div pageTop>
+    <div class="admin-list-header animate-item" style="--item-delay: 0ms;">
+      <div class="header-title">
+        <div class="admin-icon-wrapper">
+          <div class="icon-bg"></div>
+          <div class="icon-circle">
+            <i class="pi pi-chart-bar"></i>
+          </div>
+        </div>
+        <div class="title-text">
+          @if (analytics(); as data) {
+            <h1>{{ data.user_name }}</h1>
+            <p>Analyse d'activité client</p>
+          } @else {
+            <h1>Analyse client</h1>
+          }
+        </div>
+      </div>
+      <div class="flex align-items-center gap-2">
+        <p-select
+          [options]="periodOptions"
+          optionLabel="label"
+          optionValue="value"
+          [ngModel]="selectedPeriod()"
+          (ngModelChange)="selectedPeriod.set($event); onPeriodChange()"
+          appendTo="body" />
+      </div>
+      <app-back-button [customHandler]="true" (buttonClick)="goBack()" />
+    </div>
+  </div>
+
+  <!-- Main -->
+  <div pageMain>
+
+    @if (loading()) {
+      <div @pageAnimation class="flex flex-column gap-4">
+        <div class="flex gap-3">
+          @for (i of [1,2,3,4,5]; track i) {
+            <div class="skeleton" style="height:100px;border-radius:12px;flex:1"></div>
+          }
+        </div>
+        <div class="skeleton" style="height:280px;border-radius:12px"></div>
+        <div class="skeleton" style="height:300px;border-radius:12px"></div>
+      </div>
+
+    } @else {
+      @if (analytics(); as data) {
+      <div @pageAnimation class="flex flex-column gap-4">
+
+        <!-- KPI Cards -->
+        <div class="kpi-grid animate-item" style="--item-delay: 50ms;">
+          <div class="kpi-card">
+            <div class="kpi-card__icon" style="background:rgba(99,102,241,.12)">
+              <i class="pi pi-receipt" style="color:#6366f1"></i>
+            </div>
+            <div class="kpi-card__body">
+              <span class="kpi-card__label">Total commandes</span>
+              <span class="kpi-card__value">{{ data.summary.total_orders }}</span>
+            </div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-card__icon" style="background:rgba(34,197,94,.12)">
+              <i class="pi pi-wallet" style="color:#22c55e"></i>
+            </div>
+            <div class="kpi-card__body">
+              <span class="kpi-card__label">Total dépensé</span>
+              <span class="kpi-card__value"><app-currency [value]="data.summary.total_spent" /></span>
+            </div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-card__icon" style="background:rgba(234,179,8,.12)">
+              <i class="pi pi-shopping-cart" style="color:#eab308"></i>
+            </div>
+            <div class="kpi-card__body">
+              <span class="kpi-card__label">Panier moyen</span>
+              <span class="kpi-card__value"><app-currency [value]="data.summary.avg_order_value" /></span>
+            </div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-card__icon" style="background:rgba(14,165,233,.12)">
+              <i class="pi pi-box" style="color:#0ea5e9"></i>
+            </div>
+            <div class="kpi-card__body">
+              <span class="kpi-card__label">Produits distincts</span>
+              <span class="kpi-card__value">{{ data.summary.unique_products }}</span>
+            </div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-card__icon" style="background:rgba(168,85,247,.12)">
+              <i class="pi pi-calendar" style="color:#a855f7"></i>
+            </div>
+            <div class="kpi-card__body">
+              <span class="kpi-card__label">Fréquence (jours)</span>
+              <span class="kpi-card__value">
+                @if (data.summary.avg_days_between_orders !== null) {
+                  {{ data.summary.avg_days_between_orders | number:'1.0-1' }} j
+                } @else {
+                  —
+                }
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Activity Chart -->
+        <div class="chart-card animate-item" style="--item-delay: 100ms;">
+          <div class="chart-card__title-row">
+            <h3 class="chart-card__title">
+              <i class="pi pi-chart-line"></i>
+              Activité dans le temps
+            </h3>
+            <div class="segment-control segment-control--glass" style="--segment-count:2">
+              <button class="segment-control__item" [class.active]="activeChart() === 'revenue'" (click)="activeChart.set('revenue')">CA</button>
+              <button class="segment-control__item" [class.active]="activeChart() === 'orders'" (click)="activeChart.set('orders')">Commandes</button>
+            </div>
+          </div>
+          <div class="chart-card__body" style="height:260px">
+            @if (activeChart() === 'revenue') {
+              <app-line-chart
+                [data]="dailyRevenueData()"
+                label="Chiffre d'affaires"
+                color="success"
+                [formatAsCurrency]="true"
+                [fill]="true"
+                [tension]="0.3"
+                yAxisLabel="DA"
+                emptyMessage="Aucune activité sur cette période" />
+            } @else {
+              <app-line-chart
+                [data]="dailyOrdersData()"
+                label="Commandes"
+                color="primary"
+                [formatAsCurrency]="false"
+                [fill]="true"
+                [tension]="0.3"
+                yAxisLabel="Commandes"
+                emptyMessage="Aucune activité sur cette période" />
+            }
+          </div>
+        </div>
+
+        <!-- Top Products Bar Chart -->
+        @if (sortedProducts().length > 0) {
+          <div class="chart-card animate-item" style="--item-delay: 150ms;">
+            <h3 class="chart-card__title">
+              <i class="pi pi-star"></i>
+              Produits les plus commandés
+            </h3>
+            @if (topProductsBarData(); as barData) {
+              <div class="chart-card__body" style="min-height:220px; height: 340px">
+                <p-chart type="bar" [data]="barData" [options]="topProductsBarOptions()" />
+              </div>
+            }
+          </div>
+
+          <!-- Products Table -->
+          <div class="chart-card animate-item" style="--item-delay: 200ms;">
+            <h3 class="chart-card__title">
+              <i class="pi pi-list"></i>
+              Détail par produit
+            </h3>
+            <div class="product-table">
+              <div class="product-table__header">
+                <span>Produit</span>
+                <span class="text-right">Qté</span>
+                <span class="text-right">CA</span>
+                <span class="text-right">Commandes</span>
+              </div>
+              @for (p of sortedProducts(); track p.product_id) {
+                <div class="product-table__row">
+                  <span class="product-table__name">{{ p.product_name }}</span>
+                  <span class="text-right font-semibold">
+                    {{ toPackagingQty(p.quantity, p) | number:'1.0-0' }}
+                    <span class="text-color-secondary text-sm"> {{ packagingLabel(p) }}</span>
+                  </span>
+                  <span class="text-right"><app-currency [value]="p.revenue" /></span>
+                  <span class="text-right text-color-secondary">{{ p.order_count }}</span>
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+      </div>
+      }
+    }
+
+  </div>
+
+</app-agroclik-page-container>

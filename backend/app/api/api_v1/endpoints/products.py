@@ -903,7 +903,7 @@ def get_product_analytics(
         .group_by(Order.user_id, User.full_name)
         .order_by(func.sum(OrderItem.quantity).desc())
     )
-    customer_rows = session.execute(customer_q).all()
+    customer_rows = sorted(session.execute(customer_q).all(), key=lambda r: float(r.quantity), reverse=True)
 
     # Summary
     summary_q = (

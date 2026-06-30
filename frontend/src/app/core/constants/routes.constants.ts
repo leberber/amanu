@@ -96,7 +96,8 @@ export const ROUTES = {
     FACTURATION_NEW: '/admin/facturation/new',
     COMPANY_SETTINGS: '/admin/company-settings',
     SEGMENTS: '/admin/segments',
-    PRODUCT_ANALYTICS: '/admin/products/:id/analytics'
+    PRODUCT_ANALYTICS: '/admin/products/:id/analytics',
+    USER_ANALYTICS: '/admin/users/:id/analytics'
   }
 } as const;
 
@@ -120,7 +121,8 @@ export const RouteHelpers = {
   adminSupplierDetail: (id: number | string) => `/admin/suppliers/${id}`,
   adminEditSupplier: (id: number | string) => `/admin/suppliers/${id}/edit`,
   adminFacturationDetail: (id: number | string) => `/admin/facturation/${id}`,
-  adminProductAnalytics: (id: number | string) => `/admin/products/${id}/analytics`
+  adminProductAnalytics: (id: number | string) => `/admin/products/${id}/analytics`,
+  adminUserAnalytics: (id: number | string) => `/admin/users/${id}/analytics`
 };
 
 /**

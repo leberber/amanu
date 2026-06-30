@@ -9,6 +9,7 @@ import { ADMIN_LIST_IMPORTS, ADMIN_DIALOG_IMPORTS } from '../../../shared/import
 import { TableSkeletonComponent, SkeletonColumn } from '../../../shared/components/table-skeleton/table-skeleton.component';
 import { AgroclikPageContainerComponent } from '../../../shared/components/agroclik-page-container/agroclik-page-container.component';
 import { ROUTES, PAGINATION } from '../../../core/constants';
+import { RouteHelpers } from '../../../core/constants/routes.constants';
 import { BreakpointService } from '../../../core/services/breakpoint.service';
 import { USER_ROLES } from '../../../core/constants/user.constants';
 import { onLanguageChange } from '../../../core/utils/language-change.util';
@@ -257,6 +258,11 @@ export class AdminUsersComponent extends BaseAdminListComponent implements OnIni
   // Navigation
   createNewUser(): void {
     this.baseRouter.navigate([ROUTES.ADMIN.ADD_USER]);
+  }
+
+  navigateToUserAnalytics(user: UserManage, event: Event): void {
+    event.stopPropagation();
+    this.baseRouter.navigate([RouteHelpers.adminUserAnalytics(user.id)]);
   }
 
   navigateToEditUser(user: UserManage): void {

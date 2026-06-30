@@ -9,7 +9,8 @@ from pydantic import BaseModel
 from app.database import get_session
 from app.models.user import User, UserUpdate, UserRead, UserRole, UserGroupsUpdate, UserGroupBasic
 from app.models.push_subscription import PushSubscription
-from app.models.order import OrderStatus
+from app.models.order import OrderStatus, OrderItem
+from app.models.product import Product
 from app.models.user_group import UserGroup, UserGroupLink
 from app.models.segment import UserSegment, SegmentRead
 from pydantic import BaseModel as PydanticBaseModel
@@ -482,6 +483,163 @@ def get_user_segments(
 ) -> Any:
     links = session.exec(select(UserSegment).where(UserSegment.user_id == user_id)).all()
     return [l.segment_id for l in links]
+
+
+class UserDailyActivity(BaseModel):
+    date: str
+    order_count: int
+    revenue: float
+
+
+class UserTopProduct(BaseModel):
+    product_id: int
+    product_name: str
+    pieces_per_box: Optional[int]
+    packaging_type: Optional[str]
+    quantity: float
+    revenue: float
+    order_count: int
+
+
+class UserAnalyticsSummary(BaseModel):
+    total_orders: int
+    total_spent: float
+    avg_order_value: float
+    unique_products: int
+    avg_days_between_orders: Optional[float]
+    first_order_date: Optional[str]
+    last_order_date: Optional[str]
+
+
+class UserAnalyticsResponse(BaseModel):
+    user_id: int
+    user_name: str
+    daily_activity: List[UserDailyActivity]
+    top_products: List[UserTopProduct]
+    summary: UserAnalyticsSummary
+
+
+@router.get("/{user_id}/analytics", response_model=UserAnalyticsResponse)
+def get_user_analytics(
+    user_id: int,
+    from_date: Optional[datetime] = Query(None, description="Start date (ISO 8601)"),
+    to_date: Optional[datetime] = Query(None, description="End date (ISO 8601)"),
+    session: Session = Depends(get_session),
+    current_user: User = Depends(get_current_staff_user),
+) -> Any:
+    """Purchase analytics for a specific user (staff only)."""
+    user = session.get(User, user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    conditions = [
+        Order.user_id == user_id,
+        Order.status != OrderStatus.CANCELLED,
+    ]
+    if from_date:
+        conditions.append(Order.created_at >= from_date)
+    if to_date:
+        conditions.append(Order.created_at <= to_date)
+
+    # Daily activity
+    daily_q = (
+        select(
+            func.date(Order.created_at).label('activity_date'),
+            func.count(Order.id.distinct()).label('order_count'),
+            func.sum(Order.total_amount).label('revenue'),
+        )
+        .where(*conditions)
+        .group_by(func.date(Order.created_at))
+        .order_by(func.date(Order.created_at))
+    )
+    daily_rows = session.execute(daily_q).all()
+
+    # Top products
+    item_conditions = [
+        Order.user_id == user_id,
+        Order.status != OrderStatus.CANCELLED,
+        OrderItem.order_id == Order.id,
+    ]
+    if from_date:
+        item_conditions.append(Order.created_at >= from_date)
+    if to_date:
+        item_conditions.append(Order.created_at <= to_date)
+
+    products_q = (
+        select(
+            OrderItem.product_id,
+            OrderItem.product_name,
+            Product.pieces_per_box,
+            Product.packaging_type,
+            func.sum(OrderItem.quantity).label('quantity'),
+            func.sum(OrderItem.quantity * OrderItem.unit_price).label('revenue'),
+            func.count(Order.id.distinct()).label('order_count'),
+        )
+        .select_from(OrderItem)
+        .join(Order, Order.id == OrderItem.order_id)
+        .outerjoin(Product, Product.id == OrderItem.product_id)
+        .where(*item_conditions)
+        .group_by(OrderItem.product_id, OrderItem.product_name, Product.pieces_per_box, Product.packaging_type)
+        .order_by(func.sum(OrderItem.quantity).desc())
+    )
+    product_rows = sorted(session.execute(products_q).all(), key=lambda r: float(r.quantity), reverse=True)
+
+    # Summary
+    summary_q = (
+        select(
+            func.count(Order.id.distinct()).label('total_orders'),
+            func.coalesce(func.sum(Order.total_amount), 0).label('total_spent'),
+            func.min(Order.created_at).label('first_order'),
+            func.max(Order.created_at).label('last_order'),
+        )
+        .where(*conditions)
+    )
+    summary_row = session.execute(summary_q).first()
+
+    total_orders = int(summary_row.total_orders) if summary_row else 0
+    total_spent = float(summary_row.total_spent) if summary_row else 0.0
+    avg_order_value = round(total_spent / total_orders, 2) if total_orders > 0 else 0.0
+    unique_products = len(set(r.product_id for r in product_rows))
+
+    # Average days between orders
+    avg_days = None
+    if total_orders > 1 and summary_row and summary_row.first_order and summary_row.last_order:
+        span = (summary_row.last_order - summary_row.first_order).days
+        avg_days = round(span / (total_orders - 1), 1)
+
+    return UserAnalyticsResponse(
+        user_id=user_id,
+        user_name=user.full_name or f"Client #{user_id}",
+        daily_activity=[
+            UserDailyActivity(
+                date=str(r.activity_date),
+                order_count=int(r.order_count),
+                revenue=float(r.revenue),
+            )
+            for r in daily_rows
+        ],
+        top_products=[
+            UserTopProduct(
+                product_id=r.product_id,
+                product_name=r.product_name,
+                pieces_per_box=r.pieces_per_box,
+                packaging_type=r.packaging_type,
+                quantity=float(r.quantity),
+                revenue=float(r.revenue),
+                order_count=int(r.order_count),
+            )
+            for r in product_rows
+        ],
+        summary=UserAnalyticsSummary(
+            total_orders=total_orders,
+            total_spent=total_spent,
+            avg_order_value=avg_order_value,
+            unique_products=unique_products,
+            avg_days_between_orders=avg_days,
+            first_order_date=str(summary_row.first_order.date()) if summary_row and summary_row.first_order else None,
+            last_order_date=str(summary_row.last_order.date()) if summary_row and summary_row.last_order else None,
+        ),
+    )
 
 
 @router.put("/{user_id}/segments", response_model=List[int])

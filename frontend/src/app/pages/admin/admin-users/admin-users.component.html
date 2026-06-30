@@ -420,6 +420,9 @@
                     @if (isColumnVisible('actions')) {
                       <td class="text-center" (click)="$event.stopPropagation()">
                         <div class="table-cell-actions justify-content-center">
+                          <button class="action-btn" (click)="navigateToUserAnalytics(user, $event)" pTooltip="Analyse" tooltipPosition="top">
+                            <i class="pi pi-chart-bar"></i>
+                          </button>
                           <button class="action-btn edit" (click)="navigateToEditUser(user)" [pTooltip]="'admin.users.actions.view_edit' | translate" tooltipPosition="top">
                             <i class="pi pi-pencil"></i>
                           </button>
