@@ -584,6 +584,11 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
     return this.stockEdit.isEditing(productId);
   }
 
+  navigateToProductAnalytics(product: Product, event: Event): void {
+    event.stopPropagation();
+    this.baseRouter.navigate([RouteHelpers.adminProductAnalytics(product.id)]);
+  }
+
   navigateToSupplierAnalytics(product: Product, event: Event): void {
     event.stopPropagation();
     this.supplierService.getProductPriceHistory(product.id)

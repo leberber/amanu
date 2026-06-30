@@ -1,0 +1,162 @@
+<app-agroclik-page-container>
+
+  <!-- Header -->
+  <div pageTop>
+    <div class="admin-list-header animate-item" style="--item-delay: 0ms;">
+      <div class="header-title">
+        <div class="admin-icon-wrapper">
+          <div class="icon-bg"></div>
+          <div class="icon-circle">
+            <i class="pi pi-chart-bar"></i>
+          </div>
+        </div>
+        <div class="title-text">
+          @if (analytics(); as data) {
+            <h1>{{ data.product_name }}</h1>
+            <p>Analyse des ventes</p>
+          } @else {
+            <h1>Analyse produit</h1>
+          }
+        </div>
+      </div>
+      <div class="flex align-items-center gap-2">
+        <p-select
+          [options]="periodOptions"
+          optionLabel="label"
+          optionValue="value"
+          [ngModel]="selectedPeriod()"
+          (ngModelChange)="selectedPeriod.set($event); onPeriodChange()"
+          appendTo="body" />
+      </div>
+      <app-back-button [customHandler]="true" (buttonClick)="goBack()" />
+    </div>
+  </div>
+
+  <!-- Main -->
+  <div pageMain>
+
+    @if (loading()) {
+      <!-- Skeleton -->
+      <div @pageAnimation class="flex flex-column gap-4">
+        <div class="flex gap-3">
+          @for (i of [1,2,3,4]; track i) {
+            <div class="skeleton" style="height:100px;border-radius:12px;flex:1"></div>
+          }
+        </div>
+        <div class="skeleton" style="height:280px;border-radius:12px"></div>
+        <div class="skeleton" style="height:260px;border-radius:12px"></div>
+      </div>
+
+    } @else {
+      @if (analytics(); as data) {
+      <div @pageAnimation class="flex flex-column gap-4">
+
+        <!-- KPI Cards -->
+        <div class="kpi-grid animate-item" style="--item-delay: 50ms;">
+          <div class="kpi-card">
+            <div class="kpi-card__icon" style="background:rgba(99,102,241,.12)">
+              <i class="pi pi-shopping-cart" style="color:#6366f1"></i>
+            </div>
+            <div class="kpi-card__body">
+              <span class="kpi-card__label">{{ packagingLabel(data) }} vendus</span>
+              <span class="kpi-card__value">{{ toPackagingQty(data.summary.total_units, data) | number:'1.0-0' }}</span>
+            </div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-card__icon" style="background:rgba(34,197,94,.12)">
+              <i class="pi pi-wallet" style="color:#22c55e"></i>
+            </div>
+            <div class="kpi-card__body">
+              <span class="kpi-card__label">Chiffre d'affaires</span>
+              <span class="kpi-card__value"><app-currency [value]="data.summary.total_revenue" /></span>
+            </div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-card__icon" style="background:rgba(234,179,8,.12)">
+              <i class="pi pi-users" style="color:#eab308"></i>
+            </div>
+            <div class="kpi-card__body">
+              <span class="kpi-card__label">Clients uniques</span>
+              <span class="kpi-card__value">{{ data.summary.unique_customers }}</span>
+            </div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-card__icon" style="background:rgba(14,165,233,.12)">
+              <i class="pi pi-receipt" style="color:#0ea5e9"></i>
+            </div>
+            <div class="kpi-card__body">
+              <span class="kpi-card__label">Commandes</span>
+              <span class="kpi-card__value">{{ data.summary.order_count }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Daily Sales Chart -->
+        <div class="chart-card animate-item" style="--item-delay: 100ms;">
+          <h3 class="chart-card__title">
+            <i class="pi pi-chart-line"></i>
+            Quantité vendue par jour
+          </h3>
+          <div class="chart-card__body" style="height:260px">
+            <app-line-chart
+              [data]="dailyChartData()"
+              label="Unités"
+              color="primary"
+              [formatAsCurrency]="false"
+              [fill]="true"
+              [tension]="0.3"
+              emptyMessage="Aucune vente sur cette période" />
+          </div>
+        </div>
+
+        <!-- Customer Breakdown Chart -->
+        <div class="chart-card animate-item" style="--item-delay: 150ms;">
+          <h3 class="chart-card__title">
+            <i class="pi pi-users"></i>
+            Ventes par client (top {{ data.customer_sales.length > 15 ? 15 : data.customer_sales.length }})
+          </h3>
+          @if (customerBarData(); as barData) {
+            <div class="chart-card__body" style="height:260px">
+              <p-chart type="bar" [data]="barData" [options]="customerBarOptions()" />
+            </div>
+          } @else {
+            <div class="empty-state empty-state--compact">
+              <i class="pi pi-users"></i>
+              <p>Aucune vente sur cette période</p>
+            </div>
+          }
+        </div>
+
+        <!-- Customer Table -->
+        @if (data.customer_sales.length > 0) {
+          <div class="chart-card animate-item" style="--item-delay: 200ms;">
+            <h3 class="chart-card__title">
+              <i class="pi pi-list"></i>
+              Détail par client
+            </h3>
+            <div class="customer-table">
+              <div class="customer-table__header">
+                <span>Client</span>
+                <span class="text-right">{{ packagingLabel(data) }}</span>
+                <span class="text-right">CA</span>
+                <span class="text-right">Commandes</span>
+              </div>
+              @for (c of data.customer_sales; track c.customer_id) {
+                <div class="customer-table__row">
+                  <span class="customer-table__name">{{ c.customer_name }}</span>
+                  <span class="text-right font-semibold">{{ toPackagingQty(c.quantity, data) | number:'1.0-0' }}</span>
+                  <span class="text-right"><app-currency [value]="c.revenue" /></span>
+                  <span class="text-right text-color-secondary">{{ c.order_count }}</span>
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+      </div>
+      }
+    }
+
+  </div>
+
+</app-agroclik-page-container>

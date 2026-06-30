@@ -9,6 +9,7 @@ from sqlalchemy import Text
 
 from app.database import get_session
 from app.models.segment import ProductSegment
+from app.models.order import Order, OrderItem, OrderStatus
 from app.models.product import Product, ProductCreate, ProductUpdate, ProductRead, ProductPromotion
 from app.models.product_group_price import ProductGroupPrice, ProductGroupPriceRead, ProductGroupPriceUpsert, GroupDiscountType
 from app.models.facturation import FacturationItem, Facturation
@@ -33,6 +34,38 @@ class PaginatedProductsResponse(BaseModel):
     inactive_count: int
     skip: int
     limit: int
+
+
+class ProductDailySale(BaseModel):
+    date: str
+    quantity: float
+    revenue: float
+
+
+class ProductCustomerSale(BaseModel):
+    customer_id: int
+    customer_name: str
+    quantity: float
+    revenue: float
+    order_count: int
+
+
+class ProductAnalyticsSummary(BaseModel):
+    total_units: float
+    total_revenue: float
+    unique_customers: int
+    order_count: int
+    avg_quantity_per_order: float
+
+
+class ProductAnalyticsResponse(BaseModel):
+    product_id: int
+    product_name: str
+    pieces_per_box: Optional[int]
+    packaging_type: Optional[str]
+    daily_sales: List[ProductDailySale]
+    customer_sales: List[ProductCustomerSale]
+    summary: ProductAnalyticsSummary
 
 
 def get_active_promotions(session: Session) -> List[Promotion]:
@@ -811,3 +844,114 @@ def set_product_group_prices(
         )
         for gp in new_prices
     ]
+
+
+# =============================================================================
+# PRODUCT ANALYTICS
+# =============================================================================
+
+@router.get("/{product_id}/analytics", response_model=ProductAnalyticsResponse)
+def get_product_analytics(
+    product_id: int,
+    from_date: Optional[datetime] = Query(None, description="Start date (ISO 8601)"),
+    to_date: Optional[datetime] = Query(None, description="End date (ISO 8601)"),
+    session: Session = Depends(get_session),
+    current_user: User = Depends(get_current_staff_user),
+) -> Any:
+    """Sales analytics for a product: daily sales, per-customer breakdown, summary (staff only)."""
+    product = session.get(Product, product_id)
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+
+    conditions = [
+        OrderItem.product_id == product_id,
+        Order.status != OrderStatus.CANCELLED,
+    ]
+    if from_date:
+        conditions.append(Order.created_at >= from_date)
+    if to_date:
+        conditions.append(Order.created_at <= to_date)
+
+    # Daily sales
+    daily_q = (
+        select(
+            func.date(Order.created_at).label('sale_date'),
+            func.sum(OrderItem.quantity).label('quantity'),
+            func.sum(OrderItem.quantity * OrderItem.unit_price).label('revenue'),
+        )
+        .select_from(OrderItem)
+        .join(Order, Order.id == OrderItem.order_id)
+        .where(*conditions)
+        .group_by(func.date(Order.created_at))
+        .order_by(func.date(Order.created_at))
+    )
+    daily_rows = session.execute(daily_q).all()
+
+    # Per-customer sales
+    customer_q = (
+        select(
+            Order.user_id,
+            User.full_name,
+            func.sum(OrderItem.quantity).label('quantity'),
+            func.sum(OrderItem.quantity * OrderItem.unit_price).label('revenue'),
+            func.count(Order.id.distinct()).label('order_count'),
+        )
+        .select_from(OrderItem)
+        .join(Order, Order.id == OrderItem.order_id)
+        .join(User, User.id == Order.user_id)
+        .where(*conditions)
+        .group_by(Order.user_id, User.full_name)
+        .order_by(func.sum(OrderItem.quantity).desc())
+    )
+    customer_rows = session.execute(customer_q).all()
+
+    # Summary
+    summary_q = (
+        select(
+            func.coalesce(func.sum(OrderItem.quantity), 0).label('total_units'),
+            func.coalesce(func.sum(OrderItem.quantity * OrderItem.unit_price), 0).label('total_revenue'),
+            func.count(Order.user_id.distinct()).label('unique_customers'),
+            func.count(Order.id.distinct()).label('order_count'),
+        )
+        .select_from(OrderItem)
+        .join(Order, Order.id == OrderItem.order_id)
+        .where(*conditions)
+    )
+    summary_row = session.execute(summary_q).first()
+
+    total_units = float(summary_row.total_units) if summary_row else 0.0
+    total_revenue = float(summary_row.total_revenue) if summary_row else 0.0
+    order_count = int(summary_row.order_count) if summary_row else 0
+    avg_qty = round(total_units / order_count, 2) if order_count > 0 else 0.0
+
+    return ProductAnalyticsResponse(
+        product_id=product_id,
+        product_name=product.name,
+        pieces_per_box=product.pieces_per_box,
+        packaging_type=product.packaging_type,
+        daily_sales=[
+            ProductDailySale(
+                date=str(r.sale_date),
+                quantity=float(r.quantity),
+                revenue=float(r.revenue),
+            )
+            for r in daily_rows
+        ],
+        customer_sales=[
+            ProductCustomerSale(
+                customer_id=r.user_id,
+                customer_name=r.full_name or f"Client #{r.user_id}",
+                quantity=float(r.quantity),
+                revenue=float(r.revenue),
+                order_count=int(r.order_count),
+            )
+            for r in customer_rows
+        ],
+        summary=ProductAnalyticsSummary(
+            total_units=total_units,
+            total_revenue=total_revenue,
+            unique_customers=int(summary_row.unique_customers) if summary_row else 0,
+            order_count=order_count,
+            avg_quantity_per_order=avg_qty,
+        ),
+    )
