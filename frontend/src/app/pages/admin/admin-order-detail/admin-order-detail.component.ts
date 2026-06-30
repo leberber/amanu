@@ -38,6 +38,7 @@ import { OrderPdfService } from '../../../services/order-pdf.service';
 import { PackagingTypeService } from '../../../core/services/packaging-type.service';
 import { DRIVER_STATUS } from '../../../core/constants/driver.constants';
 import { ORDER_STATUS } from '../../../core/constants/order.constants';
+import { ShippingService } from '../../../services/shipping.service';
 
 @Component({
   selector: 'app-admin-order-detail',
@@ -86,6 +87,7 @@ export class AdminOrderDetailComponent implements OnInit {
   private readonly orderPdf = inject(OrderPdfService);
   private readonly packagingTypeService = inject(PackagingTypeService);
   private readonly brandService = inject(BrandService);
+  private readonly shippingService = inject(ShippingService);
 
   // Route constant for back navigation
   readonly ROUTES = ROUTES;
@@ -150,6 +152,7 @@ export class AdminOrderDetailComponent implements OnInit {
   customerSearchResults = signal<UserManage[]>([]);
   customerSearchLoading = signal(false);
   creatingOrder = signal(false);
+  calculatingShipping = signal(false);
   selectedCustomer: UserManage | null = null;
   private customerSearch$ = new Subject<string>();
 
@@ -871,6 +874,37 @@ export class AdminOrderDetailComponent implements OnInit {
 
   onCustomerSelected(event: { value: UserManage }): void {
     this.createCustomer.set(event.value);
+    if (this.createDeliveryType() === 'delivery') {
+      this.autoCalculateShipping();
+    }
+  }
+
+  autoCalculateShipping(): void {
+    const customer = this.createCustomer();
+    if (!customer?.h3_index) return;
+
+    const weightKg = this.pendingNewItems().reduce(
+      (sum, { product, qty }) => sum + (product.weight ?? 0) * qty * (product.pieces_per_box || 1), 0
+    );
+    const orderTotal = this.previewTotal();
+
+    this.calculatingShipping.set(true);
+    this.shippingService.calculateCost({
+      h3_index: customer.h3_index,
+      weight_kg: weightKg,
+      volume_m3: 0,
+      order_total: orderTotal,
+    })
+    .pipe(takeUntilDestroyed(this.destroyRef))
+    .subscribe({
+      next: (res) => {
+        if (res.deliverable) {
+          this.createShippingCost.set(res.standard_price?.cost ?? res.shipping_cost);
+        }
+        this.calculatingShipping.set(false);
+      },
+      error: () => this.calculatingShipping.set(false),
+    });
   }
 
   clearCustomer(): void {

@@ -974,7 +974,7 @@
                 (onClick)="createDeliveryType.set('pickup'); createShippingCost.set(0)" />
               <p-button label="Livraison" icon="pi pi-truck" size="small"
                 [severity]="createDeliveryType() === 'delivery' ? 'primary' : 'secondary'"
-                (onClick)="createDeliveryType.set('delivery')" />
+                (onClick)="createDeliveryType.set('delivery'); autoCalculateShipping()" />
             </div>
           </div>
           <div class="panel__body">
@@ -1121,11 +1121,21 @@
             }
             @if (createDeliveryType() === 'delivery') {
               <div class="items-footer__row">
-                <span>Frais de livraison</span>
+                <span class="flex align-items-center gap-2">
+                  Frais de livraison
+                  @if (calculatingShipping()) {
+                    <i class="pi pi-spin pi-spinner" style="font-size:0.85rem;color:var(--primary-color)"></i>
+                  } @else if (createCustomer()?.h3_index) {
+                    <i class="pi pi-refresh" style="font-size:0.8rem;cursor:pointer;color:var(--primary-color)"
+                      pTooltip="Recalculer" tooltipPosition="top"
+                      (click)="autoCalculateShipping()"></i>
+                  }
+                </span>
                 <input type="number" min="0" step="100"
                   class="shipping-cost-field"
                   [value]="createShippingCost()"
                   (input)="createShippingCost.set(+$any($event.target).value || 0)"
+                  [disabled]="calculatingShipping()"
                   placeholder="0">
               </div>
             }
