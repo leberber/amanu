@@ -190,9 +190,11 @@ export class CartComponent implements OnInit {
   formatCartonCount(item: CartItem, count: number): string {
     if (Number.isInteger(count)) return count.toString();
     const ppb = item.pieces_per_box || 1;
-    const qty = item.quantity;
-    const g = this.gcd(qty, ppb);
-    return fractionLabel(qty / g, ppb / g);
+    const whole = Math.floor(count);
+    const remainderPieces = item.quantity - whole * ppb;
+    const g = this.gcd(remainderPieces, ppb);
+    const frac = fractionLabel(remainderPieces / g, ppb / g);
+    return whole > 0 ? `${whole} ${frac}` : frac;
   }
 
   private gcd(a: number, b: number): number {
