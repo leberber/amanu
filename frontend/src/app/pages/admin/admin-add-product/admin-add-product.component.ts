@@ -13,10 +13,12 @@ import { SelectModule } from 'primeng/select';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { ToastModule } from 'primeng/toast';
 import { DatePickerModule } from 'primeng/datepicker';
+import { ButtonModule } from 'primeng/button';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { ProductService } from '../../../services/product.service';
 import { Product, ProductGroupPrice, ProductGroupPriceUpsert, GroupDiscountType } from '../../../models/product.model';
+import { fractionLabel } from '../../../shared/utils/box-options.utils';
 import { SegmentService } from '../../../core/services/segment.service';
 import { Segment } from '../../../models/segment.model';
 import { UserGroupService } from '../../../core/services/user-group.service';
@@ -52,6 +54,7 @@ interface ProductWithTranslations extends Product {
     MultiSelectModule,
     ToastModule,
     DatePickerModule,
+    ButtonModule,
     TranslateModule,
     PageLayoutComponent
   ],
@@ -147,6 +150,34 @@ export class AdminAddProductComponent implements OnInit {
   // ── Segments ──────────────────────────────────────────────────────────────
   allSegments = signal<Segment[]>([]);
   selectedSegmentIds = signal<number[]>([]);
+
+  readonly fractionLabel = fractionLabel;
+
+  // ── Fraction Options ───────────────────────────────────────────────────────
+  fractionOptions = signal<{n: number; d: number}[]>([]);
+  newFractionN = signal<number>(1);
+  newFractionD = signal<number>(2);
+  fractionError = computed(() => {
+    const ppb = this.piecesPerBoxValue();
+    const d = this.newFractionD();
+    if (!ppb || !d) return null;
+    return ppb % d !== 0 ? `pieces_per_box (${ppb}) doit être divisible par ${d}` : null;
+  });
+
+  addFraction(): void {
+    const n = this.newFractionN();
+    const d = this.newFractionD();
+    if (!n || !d || d <= 0 || n <= 0 || n >= d) return;
+    if (this.fractionError()) return;
+    const exists = this.fractionOptions().some(f => f.n === n && f.d === d);
+    if (!exists) {
+      this.fractionOptions.update(list => [...list, {n, d}]);
+    }
+  }
+
+  removeFraction(index: number): void {
+    this.fractionOptions.update(list => list.filter((_, i) => i !== index));
+  }
   readonly segmentOptions = computed(() =>
     this.allSegments().map(s => ({ label: s.label_fr, value: s.id }))
   );
@@ -410,6 +441,7 @@ export class AdminAddProductComponent implements OnInit {
             new_until: product.new_until ? new Date(product.new_until) : null,
           });
           this.selectedSegmentIds.set(product.segment_ids ?? []);
+          this.fractionOptions.set(product.fraction_options ?? []);
 
           this.packagingTypeValue.set(product.packaging_type || null);
           this.piecesPerBoxValue.set(product.pieces_per_box || null);
@@ -459,6 +491,7 @@ export class AdminAddProductComponent implements OnInit {
         max_order_cartons: formValues.max_order_cartons || null,
         new_until: formValues.new_until ? (formValues.new_until as Date).toISOString() : null,
         segment_ids: this.selectedSegmentIds(),
+        fraction_options: this.fractionOptions().length > 0 ? this.fractionOptions() : null,
       }
     );
 

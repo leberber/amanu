@@ -141,7 +141,7 @@
                           </button>
                           @let totalCartons = getTotalCartonsWithFree(item);
                           <div class="quantity-display">
-                            <span class="quantity-display__primary">{{ totalCartons }} {{ getPackagingTypeForCount(item, totalCartons) }}</span>
+                            <span class="quantity-display__primary">{{ formatCartonCount(item, totalCartons) }} {{ getPackagingTypeForCount(item, totalCartons < 1 ? 1 : totalCartons) }}</span>
                             <span class="quantity-display__secondary">{{ productQuantities[item.id] }} {{ item.product_unit | appUnit }}</span>
                           </div>
                           <button
@@ -223,7 +223,7 @@
                       </button>
                       @let mobileTotalCartons = getTotalCartonsWithFree(item);
                       <div class="quantity-display">
-                        <span class="quantity-display__cartons">{{ mobileTotalCartons }} {{ getPackagingTypeForCount(item, mobileTotalCartons) }}</span>
+                        <span class="quantity-display__cartons">{{ formatCartonCount(item, mobileTotalCartons) }} {{ getPackagingTypeForCount(item, mobileTotalCartons < 1 ? 1 : mobileTotalCartons) }}</span>
                         <span class="quantity-display__pieces">{{ productQuantities[item.id] }} {{ item.product_unit | appUnit }}</span>
                       </div>
                       <button

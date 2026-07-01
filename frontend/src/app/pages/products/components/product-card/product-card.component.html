@@ -70,7 +70,7 @@
               (click)="openQuantitySelector($event)">
               <span class="quantity-selector-btn__text">
                 @if (selectedBoxOption()) {
-                  <span class="quantity-selector-btn__boxes">{{ selectedBoxOption()!.boxes }} {{ getPackagingTypeForCount(selectedBoxOption()!.boxes) }}</span>
+                  <span class="quantity-selector-btn__boxes">{{ selectedBoxOption()!.displayBoxes ?? selectedBoxOption()!.boxes }} {{ getPackagingTypeForCount(selectedBoxOption()!.boxes) }}</span>
                 } @else {
                   <span>{{ 'products.select_quantity' | translate }}</span>
                 }

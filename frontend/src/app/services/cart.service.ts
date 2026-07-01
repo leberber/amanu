@@ -23,6 +23,7 @@ export interface CartItem {
   weight?: number;  // in kg
   volume?: number;  // in liters
   max_order_cartons?: number | null;
+  fraction_options?: Array<{n: number; d: number}> | null;
 }
 
 /**
@@ -267,6 +268,7 @@ export class CartService {
       weight: product.weight,
       volume: product.volume,
       max_order_cartons: product.max_order_cartons,
+      fraction_options: product.fraction_options,
       quantity
     };
   }

@@ -218,6 +218,9 @@ def create_product(
             detail="Category not found",
         )
 
+    # Validate fraction options
+    validate_fraction_options(product_in.fraction_options, product_in.pieces_per_box)
+
     segment_ids = product_in.segment_ids or []
     product_data = product_in.model_dump(exclude={'segment_ids'})
     product = Product(**product_data)
@@ -486,6 +489,22 @@ def read_product(
 
     return product_data
 
+def validate_fraction_options(fraction_options, pieces_per_box):
+    """Validate that each fraction's denominator divides evenly into pieces_per_box."""
+    if not fraction_options:
+        return
+    for frac in fraction_options:
+        n = frac.get('n')
+        d = frac.get('d')
+        if not isinstance(n, int) or not isinstance(d, int) or d <= 0 or n <= 0 or n >= d:
+            raise HTTPException(status_code=400, detail=f"Fraction invalide: {n}/{d}")
+        if pieces_per_box and pieces_per_box % d != 0:
+            raise HTTPException(
+                status_code=400,
+                detail=f"pieces_per_box ({pieces_per_box}) doit être divisible par {d} pour la fraction {n}/{d}"
+            )
+
+
 @router.patch("/{product_id}", response_model=ProductRead)
 def update_product(
     product_id: int,
@@ -502,7 +521,11 @@ def update_product(
             status_code=404,
             detail="Product not found",
         )
-    
+
+    # Validate fraction options
+    ppb = product_in.pieces_per_box if product_in.pieces_per_box is not None else product.pieces_per_box
+    validate_fraction_options(product_in.fraction_options, ppb)
+
     # Check if category exists if being updated
     if product_in.category_id is not None:
         category = session.get(Category, product_in.category_id)

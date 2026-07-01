@@ -71,6 +71,7 @@ class ProductBase(SQLModel):
     image_url: Optional[str] = Field(default=None, max_length=255)
     max_order_cartons: Optional[int] = Field(default=None)  # Max cartons a customer can order; null = no limit
     new_until: Optional[datetime] = Field(default=None)  # Show "New" badge until this date
+    fraction_options: Optional[List[Dict]] = Field(default=None, sa_column=Column(JSON))  # e.g. [{"n":1,"d":2},{"n":1,"d":4}]
 
 class Product(SQLModel, table=True):
     """Database model for products"""
@@ -107,6 +108,7 @@ class Product(SQLModel, table=True):
     image_url: Optional[str] = Field(default=None, max_length=255)
     max_order_cartons: Optional[int] = Field(default=None)  # Max cartons a customer can order; null = no limit
     new_until: Optional[datetime] = Field(default=None)  # Show "New" badge until this date
+    fraction_options: Optional[List[Dict]] = Field(default=None, sa_column=Column(JSON))
 
     # Timestamps
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
@@ -159,6 +161,7 @@ class ProductUpdate(SQLModel):
     image_url: Optional[str] = Field(default=None, max_length=255)
     max_order_cartons: Optional[int] = Field(default=None)
     new_until: Optional[datetime] = Field(default=None)
+    fraction_options: Optional[List[Dict]] = Field(default=None)
 
     segment_ids: Optional[List[int]] = Field(default=None)
 

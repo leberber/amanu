@@ -264,7 +264,7 @@ export class DiscountOrchestrationService {
    */
   getItemTotalCartons(item: CartItem): number {
     const piecesPerBox = item.pieces_per_box || 1;
-    const orderedCartons = Math.floor(item.quantity / piecesPerBox);
+    const orderedCartons = item.quantity / piecesPerBox;
 
     const volume = this.cartService.getVolumeDiscountForProduct(item.product_id);
     if (volume && volume.discountType === 'free_units') {

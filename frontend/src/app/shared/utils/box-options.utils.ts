@@ -10,6 +10,7 @@ export interface BoxOption {
   pieces: number;
   price: number;
   label: string;
+  displayBoxes?: string;
 }
 
 export interface BoxProduct {
@@ -18,9 +19,20 @@ export interface BoxProduct {
   price: number;
   effective_price?: number;
   max_order_cartons?: number | null;
+  fraction_options?: Array<{n: number; d: number}> | null;
   promotion?: {
     discounted_price?: number;
   } | null;
+}
+
+const UNICODE_FRACTIONS: Record<string, string> = {
+  '1/2': '½', '1/3': '⅓', '2/3': '⅔', '1/4': '¼', '3/4': '¾',
+  '1/5': '⅕', '2/5': '⅖', '3/5': '⅗', '4/5': '⅘',
+  '1/6': '⅙', '5/6': '⅚', '1/8': '⅛', '3/8': '⅜', '5/8': '⅝', '7/8': '⅞',
+};
+
+export function fractionLabel(n: number, d: number): string {
+  return UNICODE_FRACTIONS[`${n}/${d}`] ?? `${n}/${d}`;
 }
 
 /**
@@ -62,6 +74,21 @@ export function generateBoxOptions(
   const max = product.max_order_cartons != null
     ? Math.min(maxBoxes, product.max_order_cartons)
     : maxBoxes;
+
+  if (product.fraction_options?.length) {
+    for (const frac of product.fraction_options) {
+      const display = fractionLabel(frac.n, frac.d);
+      const pieces = (frac.n / frac.d) * piecesPerBox;
+      const price = pieces * effectivePrice;
+      options.push({
+        boxes: frac.n / frac.d,
+        pieces,
+        price,
+        label: `${display} • ${pieces} pc • ${currencyService.formatCurrency(price)}`,
+        displayBoxes: display,
+      });
+    }
+  }
 
   for (let i = 1; i <= max; i++) {
     const pieces = i * piecesPerBox;

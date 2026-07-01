@@ -341,6 +341,52 @@
                       </div>
                     </div>
 
+                    <!-- Fraction Options -->
+                    @if (isPackagingConfigured()) {
+                      <div class="form-field mt-4">
+                        <div class="field-box" [class.filled]="fractionOptions().length > 0">
+                          <div class="field-box__icon field-box__icon--primary">
+                            <i class="pi pi-sliders-h"></i>
+                          </div>
+                          <div class="field-box__content">
+                            <label>Fractions de vente</label>
+                            <div class="flex gap-2 mt-1">
+                              <p-inputNumber
+                                [ngModel]="newFractionN()"
+                                (ngModelChange)="newFractionN.set($event)"
+                                [ngModelOptions]="{standalone: true}"
+                                [min]="1" [max]="99" placeholder="n" styleClass="w-full" />
+                              <span class="flex align-items-center font-bold">/</span>
+                              <p-inputNumber
+                                [ngModel]="newFractionD()"
+                                (ngModelChange)="newFractionD.set($event)"
+                                [ngModelOptions]="{standalone: true}"
+                                [min]="2" [max]="99" placeholder="d" styleClass="w-full" />
+                              <p-button
+                                icon="pi pi-plus"
+                                severity="success"
+                                size="small"
+                                [disabled]="!!fractionError()"
+                                (onClick)="addFraction()" />
+                            </div>
+                            @if (fractionError()) {
+                              <span class="field-error">{{ fractionError() }}</span>
+                            }
+                            @if (fractionOptions().length > 0) {
+                              <div class="flex flex-wrap gap-2 mt-2">
+                                @for (f of fractionOptions(); track $index) {
+                                  <span class="chip chip--primary flex align-items-center gap-1">
+                                    {{ fractionLabel(f.n, f.d) }}
+                                    <i class="pi pi-times" style="cursor:pointer;font-size:0.7rem" (click)="removeFraction($index)"></i>
+                                  </span>
+                                }
+                              </div>
+                            }
+                          </div>
+                        </div>
+                      </div>
+                    }
+
                     <div class="form-row mt-4">
                       <div class="form-field">
                         <div class="field-box" [class.filled]="productForm.get('volume')?.value">

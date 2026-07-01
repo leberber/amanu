@@ -24,6 +24,7 @@ import { PackagingTypeService } from '../../core/services/packaging-type.service
 import { CurrencyDisplayComponent } from '../../shared/components/currency-display/currency-display.component';
 import { UnitPipe } from '../../shared/pipes/unit.pipe';
 import { getCartonCount as calcCartonCount } from '../../shared/utils/quantity.utils';
+import { fractionLabel } from '../../shared/utils/box-options.utils';
 import { ImageFallbackDirective } from '../../shared/directives/image-fallback.directive';
 import { isOutOfStock as checkOutOfStock } from '../../shared/utils/stock.utils';
 
@@ -184,6 +185,18 @@ export class CartComponent implements OnInit {
 
   getCartonCount(item: CartItem): number {
     return calcCartonCount(item.quantity, item.pieces_per_box);
+  }
+
+  formatCartonCount(item: CartItem, count: number): string {
+    if (Number.isInteger(count)) return count.toString();
+    const ppb = item.pieces_per_box || 1;
+    const qty = item.quantity;
+    const g = this.gcd(qty, ppb);
+    return fractionLabel(qty / g, ppb / g);
+  }
+
+  private gcd(a: number, b: number): number {
+    return b === 0 ? a : this.gcd(b, a % b);
   }
 
   getQuantityStep(item: CartItem): number {

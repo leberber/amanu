@@ -75,11 +75,11 @@
             [class.quantity-option--selected]="selectedBoxOptions[product.id]?.boxes === option.boxes"
             (click)="selectBoxOption(option)">
             <div class="quantity-option__boxes">
-              <span class="quantity-option__count">{{ option.boxes }}</span>
+              <span class="quantity-option__count">{{ option.displayBoxes ?? option.boxes }}</span>
               <span class="quantity-option__label">{{ getPackagingTypeForCount(product, option.boxes) }}</span>
             </div>
             <span class="quantity-option__price"><app-currency [value]="option.price" /></span>
-            <span class="quantity-option__pieces">{{ option.pieces }} {{ getPiecesLabel(option.pieces) | translate }}</span>
+            <span class="quantity-option__pieces">{{ option.pieces }} {{ product.unit | appUnit }}</span>
             @if (selectedBoxOptions[product.id]?.boxes === option.boxes) {
               <i class="pi pi-check quantity-option__check"></i>
             }

@@ -135,9 +135,6 @@ export class ProductListItemComponent {
     return this.packagingTypeService.getPackagingTypeForCount(this.product().packaging_type || 'carton', count);
   }
 
-  getPiecesLabel(count: number): string {
-    return count === 1 ? 'products.product.quantity_selector.piece' : 'products.product.quantity_selector.pieces';
-  }
 
   addToCart(event: MouseEvent): void {
     const option = this.selectedBoxOption();

@@ -244,11 +244,13 @@ export class ProductListComponent implements OnInit {
     const options = this.getBoxOptions(product);
     if (options.length === 0) return;
 
+    const defaultOption = options.find(opt => opt.boxes >= 1) ?? options[0];
+
     if (cartQuantity > 0) {
       const matchingOption = options.find(opt => opt.pieces === cartQuantity);
-      this.selectedBoxOptions[product.id] = matchingOption || options[0];
+      this.selectedBoxOptions[product.id] = matchingOption || defaultOption;
     } else if (!this.selectedBoxOptions[product.id]) {
-      this.selectedBoxOptions[product.id] = options[0];
+      this.selectedBoxOptions[product.id] = defaultOption;
     }
   }
 
@@ -289,11 +291,7 @@ export class ProductListComponent implements OnInit {
     return product.image_url || DEFAULTS.PLACEHOLDER_IMAGE;
   }
 
-  getPiecesLabel(count: number): string {
-    return count === 1
-      ? 'products.product.quantity_selector.piece'
-      : 'products.product.quantity_selector.pieces';
-  }
+
 
   private loadAllBrandsIntoBar(): void {
     this.brandService.getBrands(true)
