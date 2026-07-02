@@ -433,24 +433,38 @@
                   }
                 </div>
                 <div class="item-row__qty">
-                  <button class="qty-btn qty-btn--danger" (click)="decrementNewItem(i)"><i class="pi pi-minus"></i></button>
-                  <div class="item-row__qty-display">
-                    @if (editingQtyNewIndex() === i) {
-                      <input class="qty-inline-input" type="number" min="1"
-                        [value]="entry.qty"
-                        (blur)="commitNewQty(i, $any($event.target).value); editingQtyNewIndex.set(null)"
-                        (keydown.enter)="$any($event.target).blur()"
-                        (keydown.escape)="editingQtyNewIndex.set(null)">
-                    } @else {
-                      @if ((entry.product.pieces_per_box || 1) > 1) {
-                        <span class="qty-main qty-main--editable" (click)="startEditingNewQty($event, i)">{{ entry.qty }} {{ getNewItemPackagingLabel(entry.product, entry.qty) }}</span>
-                        <span class="qty-sub">{{ entry.qty * (entry.product.pieces_per_box || 1) }} {{ entry.product.unit | appUnit }}</span>
+                  @if (entry.product.fraction_options?.length) {
+                    <p-select
+                      [options]="getNewItemBoxOptions(entry.product)"
+                      [ngModel]="entry.qty"
+                      (ngModelChange)="setNewItemQty(i, $event)"
+                      optionLabel="label"
+                      optionValue="value"
+                      [filter]="true"
+                      filterBy="label"
+                      appendTo="body"
+                      styleClass="w-full" />
+                    <span class="qty-sub">{{ entry.qty * (entry.product.pieces_per_box || 1) }} {{ entry.product.unit | appUnit }}</span>
+                  } @else {
+                    <button class="qty-btn qty-btn--danger" (click)="decrementNewItem(i)"><i class="pi pi-minus"></i></button>
+                    <div class="item-row__qty-display">
+                      @if (editingQtyNewIndex() === i) {
+                        <input class="qty-inline-input" type="number" min="1"
+                          [value]="entry.qty"
+                          (blur)="commitNewQty(i, $any($event.target).value); editingQtyNewIndex.set(null)"
+                          (keydown.enter)="$any($event.target).blur()"
+                          (keydown.escape)="editingQtyNewIndex.set(null)">
                       } @else {
-                        <span class="qty-main qty-main--editable" (click)="startEditingNewQty($event, i)">{{ entry.qty }} {{ entry.product.unit | appUnit }}</span>
+                        @if ((entry.product.pieces_per_box || 1) > 1) {
+                          <span class="qty-main qty-main--editable" (click)="startEditingNewQty($event, i)">{{ entry.qty }} {{ getNewItemPackagingLabel(entry.product, entry.qty) }}</span>
+                          <span class="qty-sub">{{ entry.qty * (entry.product.pieces_per_box || 1) }} {{ entry.product.unit | appUnit }}</span>
+                        } @else {
+                          <span class="qty-main qty-main--editable" (click)="startEditingNewQty($event, i)">{{ entry.qty }} {{ entry.product.unit | appUnit }}</span>
+                        }
                       }
-                    }
-                  </div>
-                  <button class="qty-btn" (click)="incrementNewItem(i)"><i class="pi pi-plus"></i></button>
+                    </div>
+                    <button class="qty-btn" (click)="incrementNewItem(i)"><i class="pi pi-plus"></i></button>
+                  }
                 </div>
                 <div class="item-row__price">
                   <span class="item-row__price-label">P.U.</span>
@@ -1058,24 +1072,38 @@
                   }
                 </div>
                 <div class="item-row__qty">
-                  <button class="qty-btn qty-btn--danger" (click)="decrementNewItem(i)"><i class="pi pi-minus"></i></button>
-                  <div class="item-row__qty-display">
-                    @if (editingQtyNewIndex() === i) {
-                      <input class="qty-inline-input" type="number" min="1"
-                        [value]="entry.qty"
-                        (blur)="commitNewQty(i, $any($event.target).value); editingQtyNewIndex.set(null)"
-                        (keydown.enter)="$any($event.target).blur()"
-                        (keydown.escape)="editingQtyNewIndex.set(null)">
-                    } @else {
-                      @if ((entry.product.pieces_per_box || 1) > 1) {
-                        <span class="qty-main qty-main--editable" (click)="startEditingNewQty($event, i)">{{ entry.qty }} {{ getNewItemPackagingLabel(entry.product, entry.qty) }}</span>
-                        <span class="qty-sub">{{ entry.qty * (entry.product.pieces_per_box || 1) }} {{ entry.product.unit | appUnit }}</span>
+                  @if (entry.product.fraction_options?.length) {
+                    <p-select
+                      [options]="getNewItemBoxOptions(entry.product)"
+                      [ngModel]="entry.qty"
+                      (ngModelChange)="setNewItemQty(i, $event)"
+                      optionLabel="label"
+                      optionValue="value"
+                      [filter]="true"
+                      filterBy="label"
+                      appendTo="body"
+                      styleClass="w-full" />
+                    <span class="qty-sub">{{ entry.qty * (entry.product.pieces_per_box || 1) }} {{ entry.product.unit | appUnit }}</span>
+                  } @else {
+                    <button class="qty-btn qty-btn--danger" (click)="decrementNewItem(i)"><i class="pi pi-minus"></i></button>
+                    <div class="item-row__qty-display">
+                      @if (editingQtyNewIndex() === i) {
+                        <input class="qty-inline-input" type="number" min="1"
+                          [value]="entry.qty"
+                          (blur)="commitNewQty(i, $any($event.target).value); editingQtyNewIndex.set(null)"
+                          (keydown.enter)="$any($event.target).blur()"
+                          (keydown.escape)="editingQtyNewIndex.set(null)">
                       } @else {
-                        <span class="qty-main qty-main--editable" (click)="startEditingNewQty($event, i)">{{ entry.qty }} {{ entry.product.unit | appUnit }}</span>
+                        @if ((entry.product.pieces_per_box || 1) > 1) {
+                          <span class="qty-main qty-main--editable" (click)="startEditingNewQty($event, i)">{{ entry.qty }} {{ getNewItemPackagingLabel(entry.product, entry.qty) }}</span>
+                          <span class="qty-sub">{{ entry.qty * (entry.product.pieces_per_box || 1) }} {{ entry.product.unit | appUnit }}</span>
+                        } @else {
+                          <span class="qty-main qty-main--editable" (click)="startEditingNewQty($event, i)">{{ entry.qty }} {{ entry.product.unit | appUnit }}</span>
+                        }
                       }
-                    }
-                  </div>
-                  <button class="qty-btn" (click)="incrementNewItem(i)"><i class="pi pi-plus"></i></button>
+                    </div>
+                    <button class="qty-btn" (click)="incrementNewItem(i)"><i class="pi pi-plus"></i></button>
+                  }
                 </div>
                 <div class="item-row__price">
                   <span class="item-row__price-label">P.U.</span>

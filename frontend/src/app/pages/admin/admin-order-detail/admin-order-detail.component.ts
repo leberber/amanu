@@ -40,6 +40,8 @@ import { DRIVER_STATUS } from '../../../core/constants/driver.constants';
 import { ORDER_STATUS } from '../../../core/constants/order.constants';
 import { ShippingService } from '../../../services/shipping.service';
 import { formatFractionalCartons } from '../../../shared/utils/quantity.utils';
+import { fractionLabel } from '../../../shared/utils/box-options.utils';
+import { CurrencyService } from '../../../core/services/currency.service';
 
 @Component({
   selector: 'app-admin-order-detail',
@@ -89,6 +91,7 @@ export class AdminOrderDetailComponent implements OnInit {
   private readonly packagingTypeService = inject(PackagingTypeService);
   private readonly brandService = inject(BrandService);
   private readonly shippingService = inject(ShippingService);
+  private readonly currencyService = inject(CurrencyService);
 
   // Route constant for back navigation
   readonly ROUTES = ROUTES;
@@ -617,7 +620,9 @@ export class AdminOrderDetailComponent implements OnInit {
         items.map((item, i) => i === idx ? { ...item, qty: item.qty + 1 } : item)
       );
     } else {
-      this.pendingNewItems.update(items => [...items, { product, qty: 1 }]);
+      const firstFrac = product.fraction_options?.[0];
+      const defaultQty = firstFrac ? firstFrac.n / firstFrac.d : 1;
+      this.pendingNewItems.update(items => [...items, { product, qty: defaultQty }]);
     }
   }
 
@@ -865,6 +870,47 @@ export class AdminOrderDetailComponent implements OnInit {
 
   getNewItemPackagingLabel(product: Product, qty: number): string {
     return this.packagingTypeService.getPackagingTypeForCount(product.packaging_type || 'carton', qty);
+  }
+
+  getNewItemBoxOptions(product: Product): { label: string; value: number }[] {
+    const ppb = product.pieces_per_box || 1;
+    const maxPieces = product.stock_quantity;
+    const fracs = product.fraction_options ?? [];
+    const maxBoxes = Math.max(Math.min(Math.floor(maxPieces / ppb), 20), 1);
+    const seen = new Set<number>();
+    const opts: { label: string; value: number }[] = [];
+
+    const add = (whole: number, frac: { n: number; d: number } | null) => {
+      const qty = whole + (frac ? frac.n / frac.d : 0);
+      if (qty * ppb > maxPieces + 0.001) return;
+      const key = Math.round(qty * 10000);
+      if (seen.has(key)) return;
+      seen.add(key);
+      const pieces = Math.round(qty * ppb * 100) / 100;
+      const packLabel = this.getNewItemPackagingLabel(product, qty < 1 ? 1 : Math.ceil(qty));
+      const qtyStr = whole > 0 && frac
+        ? `${whole} ${fractionLabel(frac.n, frac.d)}`
+        : frac ? fractionLabel(frac.n, frac.d) : `${whole}`;
+      opts.push({ label: `${qtyStr} ${packLabel} (${pieces} ${product.unit})`, value: qty });
+    };
+
+    // Pure fractions (< 1 carton)
+    for (const frac of fracs) add(0, frac);
+
+    // Whole cartons + combinations
+    for (let n = 1; n <= maxBoxes; n++) {
+      add(n, null);
+      for (const frac of fracs) add(n, frac);
+    }
+
+    opts.sort((a, b) => a.value - b.value);
+    return opts;
+  }
+
+  getNewItemQtyLabel(product: Product, qty: number): string {
+    const frac = (product.fraction_options ?? []).find(f => Math.abs(f.n / f.d - qty) < 0.001);
+    if (frac) return `${fractionLabel(frac.n, frac.d)} ${this.getNewItemPackagingLabel(product, 1)}`;
+    return `${qty} ${this.getNewItemPackagingLabel(product, qty)}`;
   }
 
   // ─── Create Mode ──────────────────────────────────────────────────────────────
