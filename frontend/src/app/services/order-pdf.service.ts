@@ -21,7 +21,7 @@ export class OrderPdfService {
     return int.replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + '.' + dec;
   }
 
-  private truncate(text: string, max = 28): string {
+  private truncate(text: string, max = 40): string {
     return text.length > max ? text.slice(0, max) + '…' : text;
   }
 
@@ -87,8 +87,10 @@ export class OrderPdfService {
       const brandHtml = (() => {
         const clr = item.brand_name ? brandColorMap.get(item.brand_name) : null;
         return clr
-          ? `<span style="display:inline-block;padding:2px 8px;border-radius:12px;background:${clr.bg};color:${clr.text};font-size:11px;font-weight:600;">${item.brand_name}</span>`
-          : '—';
+          ? `<span style="display:inline-block;padding:1px 6px;border-radius:10px;background:${clr.bg};color:${clr.text};font-size:9px;font-weight:600;">${item.brand_name}</span>`
+          : item.brand_name
+            ? `<span style="font-size:9px;color:#94a3b8;">${item.brand_name}</span>`
+            : '';
       })();
 
       const priceHtml = item.custom_unit_price != null
@@ -98,11 +100,12 @@ export class OrderPdfService {
       return `
         <tr>
           <td style="text-align:center;padding:6px 4px;">${imgHtml}</td>
-          <td style="text-align:left;">${this.truncate(item.product_name)}</td>
-          <td style="text-align:left;">${brandHtml}</td>
+          <td style="text-align:left;">${this.truncate(item.product_name)}${brandHtml ? `<br>${brandHtml}` : ''}</td>
+          <td></td>
           <td>${colisage}</td>
           <td>${item.quantity} ${item.product_unit}</td>
           <td>${priceHtml}</td>
+          <td>${this.money((item.custom_unit_price ?? item.unit_price) * (item.pieces_per_box || 1))} DA</td>
           <td>${hasItemDiscount
             ? `<span style="text-decoration:line-through;color:#f87171;font-size:11px;">${this.money(originalTotal)} DA</span><br><strong style="color:#16a34a;">${this.money(total)} DA</strong>`
             : `<strong>${this.money(total)} DA</strong>`
@@ -123,7 +126,9 @@ export class OrderPdfService {
   ): string {
     const date         = this.dateService.formatDate(order.created_at);
     const customerName = order.user?.full_name || `Client #${order.user_id}`;
-    const allItems     = order.items ?? [];
+    const allItems     = (order.items ?? []).slice().sort((a, b) =>
+      (a.category_name ?? '').localeCompare(b.category_name ?? '', 'fr')
+    );
     const items        = pageItems   ?? allItems;
     const imgUrls      = pageImgUrls ?? imageDataUrls;
 
@@ -247,8 +252,8 @@ export class OrderPdfService {
 
   .cards-table-gap { height: 16px; }
   table { width: calc(100% - 48px); margin: 0 24px; border-collapse: separate; border-spacing: 0; border-radius: 10px; font-size: 10.5px; box-shadow: 0 6px 18px rgba(6,59,136,0.08); overflow: hidden; }
-  th { background: #063b88; color: white; padding: 9px 7px; text-align: center; }
-  td { padding: 7px; border-bottom: 1px solid #e4ecf5; text-align: center; }
+  th { background: #063b88; color: white; padding: 6px 4px; text-align: center; }
+  td { padding: 5px 4px; border-bottom: 1px solid #e4ecf5; text-align: center; }
   td:nth-child(2) { text-align: left; }
   tr:last-child td { border-bottom: none; }
 
@@ -325,11 +330,12 @@ export class OrderPdfService {
     <thead>
       <tr>
         <th style="width:42px;"></th>
-        <th style="text-align:left;">Produit</th>
-        <th style="text-align:left;">Marque</th>
+        <th style="text-align:left;width:32%;min-width:180px;">Produit</th>
+        <th style="width:30px;"></th>
         <th>Qté</th>
         <th>Nombre d'unités</th>
         <th>Prix Unitaire</th>
+        <th>Prix/Colis</th>
         <th>Total</th>
       </tr>
     </thead>
@@ -409,8 +415,8 @@ export class OrderPdfService {
   body { font-family: Arial, sans-serif; color: #071b4d; background: white; }
   .invoice { width: 210mm; background: white; padding: 24px 0; }
   table { width: calc(100% - 48px); margin: 0 24px; border-collapse: separate; border-spacing: 0; border-radius: 10px; font-size: 10.5px; box-shadow: 0 6px 18px rgba(6,59,136,0.08); overflow: hidden; }
-  th { background: #063b88; color: white; padding: 9px 7px; text-align: center; }
-  td { padding: 7px; border-bottom: 1px solid #e4ecf5; text-align: center; }
+  th { background: #063b88; color: white; padding: 6px 4px; text-align: center; }
+  td { padding: 5px 4px; border-bottom: 1px solid #e4ecf5; text-align: center; }
   td:nth-child(2) { text-align: left; }
   tr:last-child td { border-bottom: none; }
 </style>
@@ -421,11 +427,12 @@ export class OrderPdfService {
     <thead>
       <tr>
         <th style="width:42px;"></th>
-        <th style="text-align:left;">Produit</th>
-        <th style="text-align:left;">Marque</th>
+        <th style="text-align:left;width:32%;min-width:180px;">Produit</th>
+        <th style="width:30px;"></th>
         <th>Qté</th>
         <th>Nombre d'unités</th>
         <th>Prix Unitaire</th>
+        <th>Prix/Colis</th>
         <th>Total</th>
       </tr>
     </thead>

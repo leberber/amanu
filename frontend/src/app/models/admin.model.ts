@@ -144,6 +144,7 @@ export interface DashboardStats {
     product_unit: string;
     image_url?: string;
     brand_name?: string;
+    category_name?: string;
     pieces_per_box?: number;
     packaging_type?: string;
     // Margin (admin only)

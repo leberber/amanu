@@ -266,6 +266,7 @@ class OrderItemRead(SQLModel):
     packaging_type: Optional[str] = None
     image_url: Optional[str] = None
     brand_name: Optional[str] = None
+    category_name: Optional[str] = None
     # Margin fields (admin only, null when no CMUP data)
     cmup: Optional[float] = None
     item_margin: Optional[float] = None

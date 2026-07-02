@@ -635,6 +635,7 @@ def read_order(
                 packaging_type=item.packaging_type,
                 image_url=item.product.image_url if item.product else None,
                 brand_name=item.product.brand.name if item.product and item.product.brand else None,
+                category_name=item.product.category.name if item.product and item.product.category else None,
                 cmup=item.cmup,
                 item_margin=item.item_margin,
                 item_margin_pct=item.item_margin_pct,
@@ -654,6 +655,7 @@ def read_order(
                 packaging_type=item.packaging_type,
                 image_url=item.product.image_url if item.product else None,
                 brand_name=item.product.brand.name if item.product and item.product.brand else None,
+                category_name=item.product.category.name if item.product and item.product.category else None,
             )
             for item in order.items
         ]
@@ -1344,6 +1346,7 @@ def _build_order_with_items(order: Order, session: Session) -> OrderWithItems:
                 packaging_type=i.packaging_type,
                 image_url=i.product.image_url if i.product else None,
                 brand_name=i.product.brand.name if i.product and i.product.brand else None,
+                category_name=i.product.category.name if i.product and i.product.category else None,
                 cmup=i.cmup,
                 item_margin=i.item_margin,
                 item_margin_pct=i.item_margin_pct,
