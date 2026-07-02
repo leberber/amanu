@@ -21,6 +21,10 @@ export class OrderPdfService {
     return int.replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + '.' + dec;
   }
 
+  private truncate(text: string, max = 28): string {
+    return text.length > max ? text.slice(0, max) + '…' : text;
+  }
+
 
   private getColisageLabel(packagingType: string, quantity: number): string {
     const t = (packagingType || 'carton').toLowerCase().trim();
@@ -94,7 +98,7 @@ export class OrderPdfService {
       return `
         <tr>
           <td style="text-align:center;padding:6px 4px;">${imgHtml}</td>
-          <td style="text-align:left;">${item.product_name}</td>
+          <td style="text-align:left;">${this.truncate(item.product_name)}</td>
           <td style="text-align:left;">${brandHtml}</td>
           <td>${colisage}</td>
           <td>${item.quantity} ${item.product_unit}</td>
@@ -187,14 +191,14 @@ export class OrderPdfService {
     display: flex; align-items: center; justify-content: space-between; gap: 32px;
     border-bottom: 1px solid #e4ecf8;
   }
-  .inv-doctype { font-size: 26px; font-weight: 900; color: #041f58; letter-spacing: 5px; flex: 1; }
+  .inv-doctype { font-size: 22px; font-weight: 900; color: #041f58; letter-spacing: 5px; flex: 1; }
   .inv-doctype-sub { font-size: 9px; color: #aab4c8; font-weight: 500; letter-spacing: 1px; margin-top: 4px; }
   .inv-logo-center { flex: 1; display: flex; justify-content: center; }
   .inv-logo { height: 50px; width: auto; display: block; }
   .inv-meta-group { flex: 1; display: flex; gap: 24px; align-items: flex-start; justify-content: flex-end; }
   .inv-meta-block { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
   .inv-meta-label { font-size: 7.5px; color: #aab4c8; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; }
-  .inv-meta-value { font-size: 13px; font-weight: 800; color: #041f58; }
+  .inv-meta-value { font-size: 11px; font-weight: 800; color: #041f58; }
 
   .inv-footer {
     margin-top: 20px; padding: 10px 36px;
@@ -231,8 +235,8 @@ export class OrderPdfService {
   .icon svg { width: 24px; height: 24px; }
   .card-title { font-size: 11px; font-weight: 800; color: #08275c; margin-bottom: 8px; text-transform: uppercase; letter-spacing: .5px; }
   .order .card-title { color: #0284c7; }
-  .card-name { font-size: 12px; font-weight: 800; color: #06183d; margin-bottom: 5px; }
-  .card-text { font-size: 11px; line-height: 1.7; color: #334155; }
+  .card-name { font-size: 11px; font-weight: 800; color: #06183d; margin-bottom: 5px; }
+  .card-text { font-size: 10px; line-height: 1.7; color: #334155; }
   .dots {
     position: absolute; width: 80px; height: 80px;
     display: grid; grid-template-columns: repeat(8, 10px);
@@ -242,7 +246,7 @@ export class OrderPdfService {
   .dot { width: 3px; height: 3px; border-radius: 50%; background: #2d74d6; margin: auto; }
 
   .cards-table-gap { height: 16px; }
-  table { width: calc(100% - 48px); margin: 0 24px; border-collapse: separate; border-spacing: 0; border-radius: 10px; font-size: 12px; box-shadow: 0 6px 18px rgba(6,59,136,0.08); overflow: hidden; }
+  table { width: calc(100% - 48px); margin: 0 24px; border-collapse: separate; border-spacing: 0; border-radius: 10px; font-size: 10.5px; box-shadow: 0 6px 18px rgba(6,59,136,0.08); overflow: hidden; }
   th { background: #063b88; color: white; padding: 9px 7px; text-align: center; }
   td { padding: 7px; border-bottom: 1px solid #e4ecf5; text-align: center; }
   td:nth-child(2) { text-align: left; }
@@ -253,12 +257,12 @@ export class OrderPdfService {
   .notes-box h5 { font-size: 10.5px; font-weight: 700; color: #063b88; margin-bottom: 4px; text-transform: uppercase; letter-spacing: .4px; }
   .notes-divider { border: none; border-top: 1px solid #e4ecf5; margin: 0; }
   .summary { border: 1px solid #dbe5f0; border-radius: 12px; padding: 14px; }
-  .summary-title { background: #063b88; color: white; padding: 7px 14px; border-radius: 8px; font-weight: bold; margin-bottom: 10px; font-size: 12px; }
-  .summary-row { display: flex; justify-content: space-between; border-bottom: 1px solid #e4ecf5; padding: 6px 0; font-size: 12px; }
+  .summary-title { background: #063b88; color: white; padding: 7px 14px; border-radius: 8px; font-weight: bold; margin-bottom: 10px; font-size: 10.5px; }
+  .summary-row { display: flex; justify-content: space-between; border-bottom: 1px solid #e4ecf5; padding: 6px 0; font-size: 10.5px; }
   .summary-row.red strong { color: #dc2626; }
   .summary-row.green strong { color: #16a34a; }
-  .total { margin-top: 10px; background: linear-gradient(90deg, #041f58, #1a5fc8); color: white; border-radius: 8px; padding: 11px 14px; display: flex; justify-content: space-between; font-size: 16px; font-weight: bold; }
-  .balance { margin-top: 6px; border: 1.5px solid #dc2626; border-radius: 8px; padding: 8px 14px; display: flex; justify-content: space-between; font-size: 13px; font-weight: bold; color: #dc2626; }
+  .total { margin-top: 10px; background: linear-gradient(90deg, #041f58, #1a5fc8); color: white; border-radius: 8px; padding: 11px 14px; display: flex; justify-content: space-between; font-size: 14px; font-weight: bold; }
+  .balance { margin-top: 6px; border: 1.5px solid #dc2626; border-radius: 8px; padding: 8px 14px; display: flex; justify-content: space-between; font-size: 11px; font-weight: bold; color: #dc2626; }
 </style>
 </head>
 <body>
@@ -323,8 +327,8 @@ export class OrderPdfService {
         <th style="width:42px;"></th>
         <th style="text-align:left;">Produit</th>
         <th style="text-align:left;">Marque</th>
-        <th>Colisage</th>
         <th>Qté</th>
+        <th>Nombre d'unités</th>
         <th>Prix Unitaire</th>
         <th>Total</th>
       </tr>
@@ -404,7 +408,7 @@ export class OrderPdfService {
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: Arial, sans-serif; color: #071b4d; background: white; }
   .invoice { width: 210mm; background: white; padding: 24px 0; }
-  table { width: calc(100% - 48px); margin: 0 24px; border-collapse: separate; border-spacing: 0; border-radius: 10px; font-size: 12px; box-shadow: 0 6px 18px rgba(6,59,136,0.08); overflow: hidden; }
+  table { width: calc(100% - 48px); margin: 0 24px; border-collapse: separate; border-spacing: 0; border-radius: 10px; font-size: 10.5px; box-shadow: 0 6px 18px rgba(6,59,136,0.08); overflow: hidden; }
   th { background: #063b88; color: white; padding: 9px 7px; text-align: center; }
   td { padding: 7px; border-bottom: 1px solid #e4ecf5; text-align: center; }
   td:nth-child(2) { text-align: left; }
@@ -419,8 +423,8 @@ export class OrderPdfService {
         <th style="width:42px;"></th>
         <th style="text-align:left;">Produit</th>
         <th style="text-align:left;">Marque</th>
-        <th>Colisage</th>
         <th>Qté</th>
+        <th>Nombre d'unités</th>
         <th>Prix Unitaire</th>
         <th>Total</th>
       </tr>
