@@ -47,7 +47,7 @@
         } @else {
           <span class="price-current"><app-currency [value]="effectivePrice()" /></span>
         }
-        <span class="price-unit">/ {{ product().unit }}</span>
+        <span class="price-unit">/ {{ product().unit | appUnit }}</span>
       } @else {
         <a [routerLink]="ROUTES.LOGIN" class="price-locked">
           <i class="pi pi-lock"></i>
