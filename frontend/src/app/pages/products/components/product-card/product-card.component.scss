@@ -24,6 +24,10 @@
     transition: opacity 0.2s ease;
   }
 
+  @media (min-width: 768px) {
+    &__image { max-height: none; }
+  }
+
   @media (min-width: 1024px) {
     &:hover {
       box-shadow: 0 8px 24px rgba(0,0,0,0.12);
@@ -39,8 +43,9 @@
     display: block;
     position: relative;
     aspect-ratio: 4/3;
+    max-height: 140px;
     overflow: hidden;
-    background: linear-gradient(135deg, var(--surface-ground) 0%, var(--surface-section, #f8fafc) 100%);
+    background: #ffffff;
 
     img {
       width: 100%;
