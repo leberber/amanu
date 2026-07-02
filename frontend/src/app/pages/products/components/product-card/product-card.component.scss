@@ -88,7 +88,7 @@
     line-height: 1.35;
 
     a {
-      color: var(--text-color);
+      color: #1e293b;
       text-decoration: none;
       display: -webkit-box;
       -webkit-line-clamp: 2;
@@ -112,7 +112,7 @@
     .price-current {
       font-size: 1.05rem;
       font-weight: 700;
-      color: var(--text-color);
+      color: var(--primary-color);
       letter-spacing: -0.01em;
 
       &--promo {
@@ -179,7 +179,7 @@
     padding-bottom: var(--space-1);
 
     &__total {
-      color: var(--text-color);
+      color: var(--primary-color);
       font-weight: var(--font-weight-semibold);
     }
   }
