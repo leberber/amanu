@@ -26,6 +26,18 @@ export class OrderPdfService {
   }
 
 
+  private translateUnit(unit: string): string {
+    const map: Record<string, string> = {
+      'piece': 'pièce', 'unit': 'unité', 'bottle': 'bouteille', 'can': 'cannette',
+      'jar': 'bocal', 'sachet': 'sachet', 'tray': 'plateau', 'pot': 'pot',
+      'tube': 'tube', 'box': 'boîte', 'portion': 'portion', 'slice': 'tranche',
+      'kg': 'kg', 'gram': 'g', 'l': 'L', 'ml': 'ml', 'cl': 'cl',
+      'bunch': 'botte', 'dozen': 'douzaine', 'pound': 'lb',
+      'carton': 'carton', 'crate': 'caisse', 'pack': 'paquet',
+    };
+    return map[unit?.toLowerCase()] ?? unit ?? '';
+  }
+
   private getColisageLabel(packagingType: string, quantity: number): string {
     const t = (packagingType || 'carton').toLowerCase().trim();
     const plural = quantity !== 1;
@@ -78,7 +90,7 @@ export class OrderPdfService {
       const cartonCount = ppb > 1 ? item.quantity / ppb : 0;
       const colisage = ppb > 1
         ? `${cartonDisplay} ${this.getColisageLabel(item.packaging_type || 'carton', cartonCount < 1 ? 1 : cartonCount)}`
-        : `${item.quantity} ${item.product_unit}`;
+        : `${item.quantity} ${this.translateUnit(item.product_unit)}`;
       const effectivePrice = item.custom_unit_price ?? item.unit_price;
       const total = effectivePrice * item.quantity;
       const originalTotal = item.unit_price * item.quantity;
@@ -103,7 +115,7 @@ export class OrderPdfService {
           <td style="text-align:left;">${this.truncate(item.product_name)}${brandHtml ? `<br>${brandHtml}` : ''}</td>
           <td></td>
           <td>${colisage}</td>
-          <td>${item.quantity} ${item.product_unit}</td>
+          <td>${item.quantity} ${this.translateUnit(item.product_unit)}</td>
           <td>${priceHtml}</td>
           <td>${this.money((item.custom_unit_price ?? item.unit_price) * (item.pieces_per_box || 1))} DA</td>
           <td>${hasItemDiscount
