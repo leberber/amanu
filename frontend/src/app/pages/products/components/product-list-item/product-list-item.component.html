@@ -53,10 +53,10 @@
     </div>
 
     @if ((isLoggedIn | async) && product().pieces_per_box) {
-      <span class="quantity-selector-hint" style="display:block; padding-bottom: 8px;">
+      <span class="quantity-selector-hint">
         {{ packagingHint() }}
         @if (selectedBoxOption(); as option) {
-          <span class="quantity-selector-hint__total">&nbsp;&nbsp;<app-currency [value]="option.price" /></span>
+          <span class="quantity-selector-hint__total"><app-currency [value]="option.price" [hideDecimals]="true" /></span>
         }
       </span>
     }

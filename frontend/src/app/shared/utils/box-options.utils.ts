@@ -79,7 +79,7 @@ export function generateBoxOptions(
     for (const frac of product.fraction_options) {
       const display = fractionLabel(frac.n, frac.d);
       const pieces = (frac.n / frac.d) * piecesPerBox;
-      const price = pieces * effectivePrice;
+      const price = Math.round(pieces * effectivePrice);
       options.push({
         boxes: frac.n / frac.d,
         pieces,

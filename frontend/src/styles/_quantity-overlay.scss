@@ -31,11 +31,11 @@
   flex: 1;
   min-width: 0;
   max-width: 220px;
-  gap: 10px;
-  padding: 10px 14px;
+  gap: 8px;
+  padding: 11px 12px;
   background: white;
   border: 2px solid #e2e8f0;
-  border-radius: 14px;
+  border-radius: 12px;
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
@@ -61,11 +61,12 @@
   &__boxes {
     background: var(--primary-gradient);
     color: white;
-    padding: 6px 10px !important;
-    border-radius: 10px;
-    font-size: 0.6rem !important;
+    padding: 7px 8px !important;
+    border-radius: 8px;
+    font-size: 0.75rem !important;
     font-weight: 700;
     box-shadow: 0 2px 6px rgba(var(--primary-rgb), 0.25);
+    white-space: nowrap;
   }
 
   &__pieces {
@@ -83,16 +84,22 @@
   }
 
   &--compact {
-    padding: 8px 12px;
+    padding: 10px 10px;
     gap: 6px;
+    border-radius: 10px;
 
     .quantity-selector-btn__text {
-      font-size: 0.8rem;
+      font-size: 0.78rem;
+      gap: 6px;
     }
 
     .quantity-selector-btn__boxes {
-      padding: 4px 10px;
-      font-size: 0.8rem;
+      padding: 3px 7px !important;
+      font-size: 0.72rem !important;
+    }
+
+    .quantity-selector-btn__icon {
+      font-size: 0.6rem;
     }
   }
 
@@ -269,10 +276,10 @@
   &__options {
     flex: 1;
     overflow-y: auto;
-    padding: 8px 24px 24px;
+    padding: 8px 20px 20px;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 8px;
   }
 
   &__footer {
@@ -354,11 +361,11 @@
 .quantity-option {
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 16px 18px;
+  gap: 12px;
+  padding: 10px 14px;
   background: linear-gradient(135deg, #fafbfc 0%, #f8fafc 100%);
   border: 2px solid transparent;
-  border-radius: 18px;
+  border-radius: 14px;
   position: relative;
   cursor: pointer;
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
@@ -397,17 +404,17 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    min-width: 56px;
+    min-width: 44px;
   }
 
   &__count {
-    font-size: 1.4rem;
+    font-size: 1.1rem;
     font-weight: 800;
     color: #1e293b;
     background: white;
-    width: 56px;
-    height: 56px;
-    border-radius: 16px;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -417,24 +424,24 @@
   }
 
   &__label {
-    font-size: 0.7rem;
+    font-size: 0.65rem;
     color: #64748b;
     text-transform: uppercase;
-    letter-spacing: 0.8px;
-    margin-top: 6px;
+    letter-spacing: 0.6px;
+    margin-top: 4px;
     font-weight: 700;
     transition: color 0.2s ease;
   }
 
   &__price {
     flex: 1;
-    font-size: 1.3rem;
+    font-size: 1.1rem;
     font-weight: 800;
     color: #1e293b;
     transition: all 0.2s ease;
     letter-spacing: -0.02em;
     text-align: center;
-    padding-right: 40px;
+    padding-right: 32px;
   }
 
   &__pieces {

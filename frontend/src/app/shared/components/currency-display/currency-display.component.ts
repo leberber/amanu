@@ -14,8 +14,13 @@ import { CurrencyService } from '../../../core/services/currency.service';
 })
 export class CurrencyDisplayComponent {
   value = input<number | null | undefined>(0);
+  hideDecimals = input<boolean>(false);
 
   private currencyService = inject(CurrencyService);
 
-  protected parts = computed(() => this.currencyService.formatCurrencyParts(this.value() ?? 0));
+  protected parts = computed(() => {
+    const p = this.currencyService.formatCurrencyParts(this.value() ?? 0);
+    if (this.hideDecimals()) return { ...p, decimal: '', separator: '' };
+    return p;
+  });
 }

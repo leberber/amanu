@@ -78,7 +78,7 @@
               <span class="quantity-option__count">{{ option.displayBoxes ?? option.boxes }}</span>
               <span class="quantity-option__label">{{ getPackagingTypeForCount(product, option.boxes) }}</span>
             </div>
-            <span class="quantity-option__price"><app-currency [value]="option.price" /></span>
+            <span class="quantity-option__price"><app-currency [value]="option.price" [hideDecimals]="true" /></span>
             <span class="quantity-option__pieces">{{ option.pieces }} {{ product.unit | appUnit }}</span>
             @if (selectedBoxOptions[product.id]?.boxes === option.boxes) {
               <i class="pi pi-check quantity-option__check"></i>
@@ -94,7 +94,7 @@
           (click)="confirmQuantitySelection()">
           <span>{{ 'common.confirm' | translate }}</span>
           @if (selectedBoxOptions[product.id]; as option) {
-            <span class="quantity-overlay__confirm-price"><app-currency [value]="option.price" /></span>
+            <span class="quantity-overlay__confirm-price"><app-currency [value]="option.price" [hideDecimals]="true" /></span>
           }
         </button>
       </div>
