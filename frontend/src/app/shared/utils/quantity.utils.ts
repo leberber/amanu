@@ -3,6 +3,21 @@
  */
 
 import { PRODUCT } from '../../core/constants/product.constants';
+import { fractionLabel } from './box-options.utils';
+
+function gcd(a: number, b: number): number {
+  return b === 0 ? a : gcd(b, a % b);
+}
+
+export function formatFractionalCartons(quantity: number, ppb: number): string {
+  const count = quantity / ppb;
+  if (Number.isInteger(count)) return count.toString();
+  const whole = Math.floor(count);
+  const remainderPieces = quantity - whole * ppb;
+  const g = gcd(remainderPieces, ppb);
+  const frac = fractionLabel(remainderPieces / g, ppb / g);
+  return whole > 0 ? `${whole} ${frac}` : frac;
+}
 
 /**
  * Gets the default quantity for a product.
@@ -52,11 +67,11 @@ export function getCartonDisplay(totalPieces: number, piecesPerBox?: number): st
  */
 export function getOrderCartonDisplay(totalPieces: number, piecesPerBox?: number, packagingLabel?: string, unitLabel?: string, compact = false): string {
   const pieces = piecesPerBox || 10;
-  const cartons = totalPieces / pieces;
+  const cartonStr = formatFractionalCartons(totalPieces, pieces);
   if (packagingLabel && unitLabel) {
     return compact
-      ? `${cartons}${packagingLabel[0].toLowerCase()} × ${pieces}${unitLabel[0].toLowerCase()}`
-      : `${cartons} ${packagingLabel} × ${pieces} ${unitLabel}`;
+      ? `${cartonStr}${packagingLabel[0].toLowerCase()} × ${pieces}${unitLabel[0].toLowerCase()}`
+      : `${cartonStr} ${packagingLabel} × ${pieces} ${unitLabel}`;
   }
-  return `${cartons}x${pieces}`;
+  return `${cartonStr}x${pieces}`;
 }

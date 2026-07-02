@@ -286,6 +286,50 @@ class NotificationService:
             session.commit()
 
     @classmethod
+    def notify_admins_new_user(
+        cls,
+        session: Session,
+        user_id: int,
+        full_name: str,
+        role: str,
+    ) -> None:
+        """Send push notification to all admin/staff users when a new account is created."""
+        admin_users = session.exec(
+            select(User).where(
+                User.role.in_([UserRole.ADMIN, UserRole.STAFF]),
+                User.is_active == True
+            )
+        ).all()
+
+        admin_user_ids = [u.id for u in admin_users]
+        if not admin_user_ids:
+            return
+
+        subscriptions = list(session.exec(
+            select(PushSubscription).where(
+                PushSubscription.user_id.in_(admin_user_ids)
+            )
+        ).all())
+
+        if not subscriptions:
+            return
+
+        title = "Nouveau compte créé"
+        body = f"{full_name} ({role})"
+        url = f"/admin/users/{user_id}"
+
+        result = PushService.send_to_all(subscriptions, title, body, url)
+
+        expired_ids = result.get("expired_ids", [])
+        if expired_ids:
+            expired_subs = session.exec(
+                select(PushSubscription).where(PushSubscription.id.in_(expired_ids))
+            ).all()
+            for sub in expired_subs:
+                session.delete(sub)
+            session.commit()
+
+    @classmethod
     def notify_order_modified(
         cls,
         session: Session,

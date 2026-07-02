@@ -85,7 +85,7 @@ export class AdminUsersComponent extends BaseAdminListComponent implements OnIni
   }
 
   // Sorting
-  sortField: 'id' | 'full_name' | 'remaining_balance' | 'created_at' | null = 'remaining_balance';
+  sortField: 'id' | 'full_name' | 'remaining_balance' | 'created_at' | null = 'created_at';
   sortDir: 'asc' | 'desc' = 'desc';
 
   get sortedUsers(): UserManage[] {

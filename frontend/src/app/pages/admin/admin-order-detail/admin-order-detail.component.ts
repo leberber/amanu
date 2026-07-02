@@ -39,6 +39,7 @@ import { PackagingTypeService } from '../../../core/services/packaging-type.serv
 import { DRIVER_STATUS } from '../../../core/constants/driver.constants';
 import { ORDER_STATUS } from '../../../core/constants/order.constants';
 import { ShippingService } from '../../../services/shipping.service';
+import { formatFractionalCartons } from '../../../shared/utils/quantity.utils';
 
 @Component({
   selector: 'app-admin-order-detail',
@@ -480,8 +481,8 @@ export class AdminOrderDetailComponent implements OnInit {
     });
   }
 
-  getEditedCartonCount(item: OrderItem): number {
-    return Math.floor(this.getEffectiveQty(item) / (item.pieces_per_box || 1));
+  getEditedCartonCount(item: OrderItem): string {
+    return formatFractionalCartons(this.getEffectiveQty(item), item.pieces_per_box || 1);
   }
 
   isItemDeleted(itemId: number): boolean {
@@ -854,12 +855,12 @@ export class AdminOrderDetailComponent implements OnInit {
   }
 
   getItemCartonCount(item: OrderItem): number {
-    return Math.floor(item.quantity / (item.pieces_per_box || 1));
+    return item.quantity / (item.pieces_per_box || 1);
   }
 
   getItemPackagingLabel(item: OrderItem): string {
     const count = this.getItemCartonCount(item);
-    return this.packagingTypeService.getPackagingTypeForCount(item.packaging_type || 'carton', count);
+    return this.packagingTypeService.getPackagingTypeForCount(item.packaging_type || 'carton', count < 1 ? 1 : count);
   }
 
   getNewItemPackagingLabel(product: Product, qty: number): string {

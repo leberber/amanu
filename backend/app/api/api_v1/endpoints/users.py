@@ -29,6 +29,7 @@ from app.core.security import (
 )
 from app.core.geo import lat_lng_to_h3
 from app.services.email import send_store_password_email
+from app.core.notification_service import NotificationService
 
 router = APIRouter()
 
@@ -241,6 +242,14 @@ def admin_create_user(
     session.add(new_user)
     session.commit()
     session.refresh(new_user)
+
+    NotificationService.notify_admins_new_user(
+        session=session,
+        user_id=new_user.id,
+        full_name=new_user.full_name or new_user.email,
+        role=new_user.role,
+    )
+
     return new_user
 
 

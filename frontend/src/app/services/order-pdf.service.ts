@@ -7,6 +7,7 @@ import { ToastMessageService } from '../core/services/toast-message.service';
 import { DateService } from '../core/services/date.service';
 import { BRAND_COLOR_PALETTE } from '../core/constants/order.constants';
 import { COMPANY_INFO } from '../core/constants/app.constants';
+import { formatFractionalCartons } from '../shared/utils/quantity.utils';
 
 @Injectable({
   providedIn: 'root'
@@ -19,6 +20,7 @@ export class OrderPdfService {
     const [int, dec] = (Math.round(value * 100) / 100).toFixed(2).split('.');
     return int.replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + '.' + dec;
   }
+
 
   private getColisageLabel(packagingType: string, quantity: number): string {
     const t = (packagingType || 'carton').toLowerCase().trim();
@@ -68,9 +70,10 @@ export class OrderPdfService {
         : '<div style="width:32px;height:32px;background:#f1f5f9;border-radius:6px;margin:auto;display:flex;align-items:center;justify-content:center;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m3 9 4-4 4 4 4-4 4 4"/><path d="M3 15h18"/></svg></div>';
 
       const ppb     = item.pieces_per_box || 1;
-      const cartons = ppb > 1 ? Math.floor(item.quantity / ppb) : 0;
+      const cartonDisplay = ppb > 1 ? formatFractionalCartons(item.quantity, ppb) : null;
+      const cartonCount = ppb > 1 ? item.quantity / ppb : 0;
       const colisage = ppb > 1
-        ? `${cartons} ${this.getColisageLabel(item.packaging_type || 'carton', cartons)}`
+        ? `${cartonDisplay} ${this.getColisageLabel(item.packaging_type || 'carton', cartonCount < 1 ? 1 : cartonCount)}`
         : `${item.quantity} ${item.product_unit}`;
       const effectivePrice = item.custom_unit_price ?? item.unit_price;
       const total = effectivePrice * item.quantity;

@@ -23,8 +23,7 @@ import { ToastMessageService } from '../../core/services/toast-message.service';
 import { PackagingTypeService } from '../../core/services/packaging-type.service';
 import { CurrencyDisplayComponent } from '../../shared/components/currency-display/currency-display.component';
 import { UnitPipe } from '../../shared/pipes/unit.pipe';
-import { getCartonCount as calcCartonCount } from '../../shared/utils/quantity.utils';
-import { fractionLabel } from '../../shared/utils/box-options.utils';
+import { getCartonCount as calcCartonCount, formatFractionalCartons } from '../../shared/utils/quantity.utils';
 import { ImageFallbackDirective } from '../../shared/directives/image-fallback.directive';
 import { isOutOfStock as checkOutOfStock } from '../../shared/utils/stock.utils';
 
@@ -189,16 +188,7 @@ export class CartComponent implements OnInit {
 
   formatCartonCount(item: CartItem, count: number): string {
     if (Number.isInteger(count)) return count.toString();
-    const ppb = item.pieces_per_box || 1;
-    const whole = Math.floor(count);
-    const remainderPieces = item.quantity - whole * ppb;
-    const g = this.gcd(remainderPieces, ppb);
-    const frac = fractionLabel(remainderPieces / g, ppb / g);
-    return whole > 0 ? `${whole} ${frac}` : frac;
-  }
-
-  private gcd(a: number, b: number): number {
-    return b === 0 ? a : this.gcd(b, a % b);
+    return formatFractionalCartons(item.quantity, item.pieces_per_box || 1);
   }
 
   getQuantityStep(item: CartItem): number {
