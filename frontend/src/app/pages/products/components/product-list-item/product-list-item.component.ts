@@ -26,6 +26,7 @@ import {
   BoxOption
 } from '../../../../shared/utils/box-options.utils';
 import { DEFAULTS } from '../../../../core/constants/app.constants';
+import { UnitsService } from '../../../../core/services/units.service';
 import { ImageFallbackDirective } from '../../../../shared/directives/image-fallback.directive';
 
 export interface AddToCartEvent {
@@ -70,6 +71,20 @@ export class ProductListItemComponent {
   private translateService = inject(TranslateService);
   private packagingTypeService = inject(PackagingTypeService);
   private authService = inject(AuthService);
+  private unitsService = inject(UnitsService);
+
+  unitHint(unit: string): string {
+    const display = this.unitsService.getUnitDisplay(unit, true);
+    return display.length > 4 ? 'u' : display;
+  }
+
+  packagingHint(): string {
+    const p = this.product();
+    if (!p.pieces_per_box) return '';
+    const unit = this.unitHint(p.unit);
+    const packaging = this.getPackagingTypeForCount(1);
+    return `${p.pieces_per_box} ${unit}/${packaging}`;
+  }
 
   readonly ROUTES = ROUTES;
 

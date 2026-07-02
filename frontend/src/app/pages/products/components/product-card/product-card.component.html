@@ -56,6 +56,15 @@
       }
     </div>
 
+    @if ((isLoggedIn | async) && product().pieces_per_box) {
+      <span class="product-card__pieces-hint" style="padding-bottom: 8px;">
+        {{ packagingHint() }}
+        @if (selectedBoxOption(); as option) {
+          <span class="product-card__pieces-hint__total">&nbsp;&nbsp;<app-currency [value]="option.price" /></span>
+        }
+      </span>
+    }
+
     <!-- Actions -->
     <div class="product-card__actions">
       @if (isLoggedIn | async) {
@@ -91,14 +100,6 @@
               (click)="addToCart($event)">
             </button>
           </div>
-          @if (product().pieces_per_box) {
-            <span class="product-card__pieces-hint">
-              {{ product().pieces_per_box }} {{ product().unit | appUnit }} / {{ getPackagingTypeForCount(1) }}
-              @if (selectedBoxOption(); as option) {
-                <span class="product-card__pieces-hint__total">&nbsp;&nbsp;<app-currency [value]="option.price" /></span>
-              }
-            </span>
-          }
         } @else {
           <!-- Out of Stock -->
           <span class="product-card__out-of-stock">

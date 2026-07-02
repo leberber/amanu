@@ -15,6 +15,7 @@ import { CartService } from '../../../../services/cart.service';
 import { VolumeDiscountService } from '../../../../services/volume-discount.service';
 import { CurrencyDisplayComponent } from '../../../../shared/components/currency-display/currency-display.component';
 import { UnitPipe } from '../../../../shared/pipes/unit.pipe';
+import { UnitsService } from '../../../../core/services/units.service';
 import { ImageFallbackDirective } from '../../../../shared/directives/image-fallback.directive';
 import {
   isOutOfStock as checkOutOfStock,
@@ -82,6 +83,20 @@ export class ProductCardComponent {
   private translateService = inject(TranslateService);
   private packagingTypeService = inject(PackagingTypeService);
   private volumeDiscountService = inject(VolumeDiscountService);
+  private unitsService = inject(UnitsService);
+
+  unitHint(unit: string): string {
+    const display = this.unitsService.getUnitDisplay(unit, true);
+    return display.length > 4 ? 'u' : display;
+  }
+
+  packagingHint(): string {
+    const p = this.product();
+    if (!p.pieces_per_box) return '';
+    const unit = this.unitHint(p.unit);
+    const packaging = this.getPackagingTypeForCount(1);
+    return `${p.pieces_per_box} ${unit}/${packaging}`;
+  }
 
   // Computed - cart
   isInCart = computed(() => {

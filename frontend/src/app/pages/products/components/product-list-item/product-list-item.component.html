@@ -52,6 +52,15 @@
       </div>
     </div>
 
+    @if ((isLoggedIn | async) && product().pieces_per_box) {
+      <span class="quantity-selector-hint" style="display:block; padding-bottom: 8px;">
+        {{ packagingHint() }}
+        @if (selectedBoxOption(); as option) {
+          <span class="quantity-selector-hint__total">&nbsp;&nbsp;<app-currency [value]="option.price" /></span>
+        }
+      </span>
+    }
+
     <!-- Actions -->
     @if (isLoggedIn | async) {
       @if (!isOutOfStock() && boxOptions().length > 0) {
@@ -80,14 +89,6 @@
                 </span>
                 <i class="pi pi-chevron-down quantity-selector-btn__icon"></i>
               </button>
-              @if (product().pieces_per_box) {
-                <span class="quantity-selector-hint">
-                  {{ product().pieces_per_box }} {{ product().unit | appUnit }} / {{ getPackagingTypeForCount(1) }}
-                  @if (selectedBoxOption(); as option) {
-                    <span class="quantity-selector-hint__total">&nbsp;&nbsp;<app-currency [value]="option.price" /></span>
-                  }
-                </span>
-              }
             </div>
             <button
               pButton
