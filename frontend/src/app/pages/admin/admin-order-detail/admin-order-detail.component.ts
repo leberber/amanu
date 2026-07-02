@@ -206,11 +206,11 @@ export class AdminOrderDetailComponent implements OnInit {
   // Selected driver for status change flow
   selectedStatusDriverId = signal<number | null>(null);
 
-  // Item editing only allowed for pending/confirmed (always true in create mode)
+  // Item editing allowed until delivered (always true in create mode)
   canEditItems = computed(() => {
     if (this.isCreateMode()) return true;
     const s = this.order()?.status;
-    return s === 'pending' || s === 'confirmed';
+    return s === 'pending' || s === 'confirmed' || s === 'ready';
   });
 
   // Payment balance

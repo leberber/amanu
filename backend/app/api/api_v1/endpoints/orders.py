@@ -903,7 +903,7 @@ def _update_driver_status_after_cancellation(driver_user_id: int, session: Sessi
 # HELPERS
 # =============================================================================
 
-EDITABLE_STATUSES = {OrderStatus.PENDING, OrderStatus.CONFIRMED}
+EDITABLE_STATUSES = {OrderStatus.PENDING, OrderStatus.CONFIRMED, OrderStatus.READY}
 
 
 def _write_audit(session: Session, order_id: int, user_id: int, action: AuditAction, details: dict) -> None:

@@ -14,6 +14,7 @@ from app.models.brand import Brand
 from app.models.order import Order, OrderStatus, OrderItem, DeliveryType
 from app.models.order_payments import OrderAuditLog, AuditAction
 from app.api.utils.common import format_price
+from app.api.api_v1.endpoints.orders import _recalculate_order_margin
 from app.core.security import get_current_admin_user, get_current_staff_user
 from app.core.logging_config import read_logs, get_log_stats
 from app.core.system_metrics import get_metrics
@@ -805,6 +806,9 @@ def admin_create_order(
         details={"created_by_admin": True, "admin_name": current_user.full_name or current_user.email},
     )
     session.add(audit)
+    session.flush()
+
+    _recalculate_order_margin(order, session)
 
     session.commit()
 
