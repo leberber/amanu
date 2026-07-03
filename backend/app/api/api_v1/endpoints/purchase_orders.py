@@ -123,7 +123,7 @@ async def list_purchase_orders(
     status: Optional[str] = Query(None, description="Filter by status"),
     supplier: Optional[str] = Query(None, description="Filter by supplier name"),
     skip: int = Query(0, ge=0),
-    limit: int = Query(50, ge=1, le=100),
+    limit: int = Query(500, ge=1, le=10000),
     session: Session = Depends(get_session)
 ):
     """List all purchase orders with optional filters"""

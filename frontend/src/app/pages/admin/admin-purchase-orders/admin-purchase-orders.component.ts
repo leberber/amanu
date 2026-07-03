@@ -98,7 +98,7 @@ export class AdminPurchaseOrdersComponent extends BaseAdminListComponent impleme
 
   loadOrders(): void {
     this.loading = true;
-    this.orderService.getOrders()
+    this.orderService.getOrders({ limit: 10000 })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
