@@ -10,7 +10,6 @@ from sqlmodel import Session, select
 from app.database import get_session
 from app.models.user import User
 from app.models.shipping import (
-    H3DeliveryZone,
     ShippingPriceConfig,
     ShippingPriceConfigCreate,
     ShippingPriceConfigUpdate,
@@ -19,6 +18,7 @@ from app.models.shipping import (
     ShippingCostResponse,
     DeliveryPricing,
 )
+from app.models.customer_route import CustomerRoute
 from app.core.security import get_current_active_user, get_current_admin_user, get_current_staff_user
 
 router = APIRouter()
@@ -108,20 +108,21 @@ def get_applicable_discount_tier(
 
 
 def calculate_shipping_cost(
-    delivery_zone: H3DeliveryZone,
+    distance_km: float,
+    duration_min: float,
     config: ShippingPriceConfig,
     weight_kg: float,
     volume_m3: float,
     order_total: float,
 ) -> ShippingCostResponse:
-    """Calculate shipping cost based on delivery zone and pricing config."""
+    """Calculate shipping cost based on customer route and pricing config."""
 
     # Calculate individual components
     base_cost = config.base_cost
-    distance_cost = delivery_zone.distance_km * config.price_per_km
-    weight_cost = weight_kg * config.price_per_kg
-    volume_cost = volume_m3 * config.price_per_m3
-    time_cost = delivery_zone.duration_min * config.price_per_min
+    distance_cost = distance_km * config.price_per_km
+    weight_cost = (weight_kg or 0.0) * config.price_per_kg
+    volume_cost = (volume_m3 or 0.0) * config.price_per_m3
+    time_cost = duration_min * config.price_per_min
 
     # Total cost before discount
     total_cost = base_cost + distance_cost + weight_cost + volume_cost + time_cost
@@ -179,8 +180,8 @@ def calculate_shipping_cost(
         deliverable=True,
         shipping_cost=round(final_cost, 2),
         original_cost=round(original_cost, 2),
-        distance_km=round(delivery_zone.distance_km, 2),
-        duration_min=round(delivery_zone.duration_min, 2),
+        distance_km=round(distance_km, 2),
+        duration_min=round(duration_min, 2),
         discount_applied=discount_percent > 0,
         discount_percent=discount_percent,
         free_shipping=free_shipping,
@@ -206,29 +207,14 @@ def calculate_shipping(
     session: Session = Depends(get_session),
 ) -> Any:
     """
-    Calculate shipping cost for a given H3 location.
+    Calculate shipping cost for a customer using their saved route.
     Public endpoint - no authentication required.
     """
-    delivery_zone = None
+    route = session.exec(
+        select(CustomerRoute).where(CustomerRoute.user_id == request.user_id)
+    ).first()
 
-    # If a specific warehouse is requested, try that first
-    if request.warehouse_id and request.warehouse_id != "default":
-        delivery_zone = session.exec(
-            select(H3DeliveryZone).where(
-                H3DeliveryZone.h3_index == request.h3_index,
-                H3DeliveryZone.warehouse_id == request.warehouse_id
-            )
-        ).first()
-
-    # If no specific warehouse or not found, find ANY warehouse that delivers here
-    if not delivery_zone:
-        delivery_zone = session.exec(
-            select(H3DeliveryZone).where(
-                H3DeliveryZone.h3_index == request.h3_index
-            ).order_by(H3DeliveryZone.distance_km)  # Prefer closest warehouse
-        ).first()
-
-    if not delivery_zone:
+    if not route:
         return ShippingCostResponse(
             deliverable=False,
             shipping_cost=0.0,
@@ -243,12 +229,11 @@ def calculate_shipping(
             message="Sorry, delivery is not available to your location."
         )
 
-    # Get pricing config for the warehouse that will fulfill this delivery
-    config = get_pricing_config(delivery_zone.warehouse_id, session)
+    config = get_pricing_config("default", session)
 
-    # Calculate and return shipping cost
     return calculate_shipping_cost(
-        delivery_zone=delivery_zone,
+        distance_km=route.distance_km,
+        duration_min=route.duration_min,
         config=config,
         weight_kg=request.weight_kg,
         volume_m3=request.volume_m3,

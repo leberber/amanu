@@ -928,7 +928,7 @@ export class AdminOrderDetailComponent implements OnInit {
 
   autoCalculateShipping(): void {
     const customer = this.createCustomer();
-    if (!customer?.h3_index) return;
+    if (!customer?.id) return;
 
     const weightKg = this.pendingNewItems().reduce(
       (sum, { product, qty }) => sum + (product.weight ?? 0) * qty * (product.pieces_per_box || 1), 0
@@ -937,7 +937,7 @@ export class AdminOrderDetailComponent implements OnInit {
 
     this.calculatingShipping.set(true);
     this.shippingService.calculateCost({
-      h3_index: customer.h3_index,
+      user_id: customer.id,
       weight_kg: weightKg,
       volume_m3: 0,
       order_total: orderTotal,

@@ -130,9 +130,9 @@ export class OrderSummaryComponent implements OnInit {
     return this.shippingResponse()?.shipping_cost ?? 0;
   });
 
-  // Check if user has location set
+  // Check if user has a saved route (deliverable=true will be returned from API if not)
   hasUserLocation = computed(() => {
-    return !!this.authService.currentUserValue?.h3_index;
+    return !!this.authService.currentUserValue?.id;
   });
 
   // Computed total discount (promo + cross-sell)
@@ -183,12 +183,6 @@ export class OrderSummaryComponent implements OnInit {
       return;
     }
 
-    // If user has no location set, show location message
-    if (!user.h3_index) {
-      this.shippingError.set('order_summary.no_location');
-      return;
-    }
-
     this.shippingLoading.set(true);
     this.shippingError.set(null);
 
@@ -196,7 +190,7 @@ export class OrderSummaryComponent implements OnInit {
     const volumeM3 = this.cartService.totalVolume() / 1000;
 
     this.shippingService.calculateCost({
-      h3_index: user.h3_index,
+      user_id: user.id,
       weight_kg: this.cartService.totalWeight(),
       volume_m3: volumeM3,
       order_total: this.discountedSubtotal()

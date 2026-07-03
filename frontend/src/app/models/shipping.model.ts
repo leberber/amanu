@@ -54,11 +54,10 @@ export interface ShippingPriceConfigUpdate {
 }
 
 export interface ShippingCostRequest {
-  h3_index: string;
+  user_id: number;
   weight_kg?: number;
   volume_m3?: number;
   order_total?: number;
-  warehouse_id?: string;
 }
 
 export interface DeliveryPricing {

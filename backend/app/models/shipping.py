@@ -137,11 +137,10 @@ class ShippingPriceConfigRead(SQLModel):
 # Request/Response models for shipping calculation
 class ShippingCostRequest(BaseModel):
     """Request model for calculating shipping cost"""
-    h3_index: str  # Customer's H3 index
+    user_id: int  # Customer's user ID (used to look up their saved route)
     weight_kg: float = 0.0  # Total weight of order
     volume_m3: float = 0.0  # Total volume of order
     order_total: float = 0.0  # Order subtotal (for free shipping check)
-    warehouse_id: str = "default"  # Which warehouse to ship from
 
 
 class DeliveryPricing(BaseModel):
