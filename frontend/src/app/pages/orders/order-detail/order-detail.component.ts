@@ -66,6 +66,7 @@ export class OrderDetailComponent implements OnInit {
   order = signal<Order | null>(null);
   loading = signal(true);
   error = signal(false);
+  saving = signal(false);
   orderStatuses = signal<TimelineStatus[]>([]);
   auditLog = signal<AuditLogEntry[]>([]);
 
@@ -103,6 +104,14 @@ export class OrderDetailComponent implements OnInit {
   grandTotal = computed(() => this.itemsSubtotal() - this.discountAmount() + this.shippingCost());
   showBreakdown = computed(() => this.discountAmount() > 0 || this.shippingCost() > 0);
   canCancelOrder = computed(() => this.order()?.status === ORDER_STATUS.PENDING);
+  canModifyOrder = computed(() => {
+    const order = this.order();
+    if (!order) return false;
+    if (order.status === ORDER_STATUS.CANCELLED || order.status === ORDER_STATUS.DELIVERED) return false;
+    const isPickup = !!order.pickup_date;
+    if (isPickup) return true;
+    return ([ORDER_STATUS.PENDING, ORDER_STATUS.CONFIRMED, ORDER_STATUS.ASSIGNED] as string[]).includes(order.status);
+  });
   totalPaid = computed(() =>
     (this.order()?.payments ?? []).reduce((sum, p) => sum + p.amount, 0)
   );
@@ -193,6 +202,32 @@ export class OrderDetailComponent implements OnInit {
       },
       error: (err) => this.toast.showApiError(err, 'orders.detail.cancel_error_message')
     });
+  }
+
+  updateItemQuantity(item: OrderItem, delta: number): void {
+    const newQty = item.quantity + delta;
+    if (newQty <= 0) return;
+    const order = this.order();
+    if (!order) return;
+    this.saving.set(true);
+    this.orderService.updateMyOrderItem(order.id, item.id, newQty)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (updatedOrder) => { this.order.set(updatedOrder); this.saving.set(false); },
+        error: (err) => { this.toast.showApiError(err, 'orders.detail.update_error'); this.saving.set(false); }
+      });
+  }
+
+  removeItem(item: OrderItem): void {
+    const order = this.order();
+    if (!order) return;
+    this.saving.set(true);
+    this.orderService.removeMyOrderItem(order.id, item.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (updatedOrder) => { this.order.set(updatedOrder); this.saving.set(false); },
+        error: (err) => { this.toast.showApiError(err, 'orders.detail.remove_error'); this.saving.set(false); }
+      });
   }
 
   goBack(): void {

@@ -56,6 +56,14 @@ export class OrderService {
     });
   }
 
+  updateMyOrderItem(orderId: number, itemId: number, quantity: number): Observable<Order> {
+    return this.apiService.patch<Order>(`/orders/${orderId}/my/items/${itemId}`, { quantity });
+  }
+
+  removeMyOrderItem(orderId: number, itemId: number): Observable<Order> {
+    return this.apiService.delete<Order>(`/orders/${orderId}/my/items/${itemId}`);
+  }
+
   // Helper method to convert cart items to order items
   cartItemsToOrderItems(cartItems: CartItem[]): OrderCreateItem[] {
     return cartItems.map(item => ({

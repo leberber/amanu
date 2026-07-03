@@ -906,6 +906,19 @@ def _update_driver_status_after_cancellation(driver_user_id: int, session: Sessi
 EDITABLE_STATUSES = {OrderStatus.PENDING, OrderStatus.CONFIRMED, OrderStatus.READY}
 
 
+def can_customer_modify_order(order: Order) -> bool:
+    """Check if a customer can still modify their order.
+    - Delivery orders: editable at PENDING, CONFIRMED, ASSIGNED
+    - Pickup orders: editable until DELIVERED
+    """
+    if order.status in {OrderStatus.CANCELLED, OrderStatus.DELIVERED}:
+        return False
+    is_pickup = order.pickup_date is not None
+    if is_pickup:
+        return True
+    return order.status in {OrderStatus.PENDING, OrderStatus.CONFIRMED, OrderStatus.ASSIGNED}
+
+
 def _write_audit(session: Session, order_id: int, user_id: int, action: AuditAction, details: dict) -> None:
     log = OrderAuditLog(order_id=order_id, user_id=user_id, action=action, details=details)
     session.add(log)
@@ -1354,3 +1367,90 @@ def _build_order_with_items(order: Order, session: Session) -> OrderWithItems:
             for i in items
         ],
     )
+
+
+# =============================================================================
+# CUSTOMER SELF-MODIFICATION ENDPOINTS
+# =============================================================================
+
+@router.patch("/{order_id}/my/items/{item_id}", response_model=OrderWithItems)
+def customer_update_order_item(
+    order_id: int,
+    item_id: int,
+    item_in: OrderItemUpdate,
+    current_user: User = Depends(get_current_active_user),
+    session: Session = Depends(get_session),
+) -> Any:
+    """Customer updates their own order item quantity."""
+    order = session.get(Order, order_id)
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+    if order.user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Not your order")
+    if not can_customer_modify_order(order):
+        raise HTTPException(status_code=400, detail="Order can no longer be modified")
+
+    item = session.get(OrderItem, item_id)
+    if not item or item.order_id != order_id:
+        raise HTTPException(status_code=404, detail="Item not found")
+
+    if item_in.quantity is not None:
+        if item_in.quantity <= 0:
+            raise HTTPException(status_code=400, detail="Quantity must be greater than 0")
+        old_qty = item.quantity
+        delta = item_in.quantity - old_qty
+        product = session.get(Product, item.product_id)
+        if delta > 0:
+            if product and product.stock_quantity < delta:
+                raise HTTPException(status_code=400, detail=f"Insufficient stock. Available: {product.stock_quantity}")
+            if product:
+                product.stock_quantity -= delta
+                session.add(product)
+        elif delta < 0 and product:
+            product.stock_quantity += abs(delta)
+            session.add(product)
+        item.quantity = item_in.quantity
+
+    session.add(item)
+    session.flush()
+    _recalculate_order_total(order, session)
+    session.commit()
+    return _build_order_with_items(order, session)
+
+
+@router.delete("/{order_id}/my/items/{item_id}", response_model=OrderWithItems)
+def customer_remove_order_item(
+    order_id: int,
+    item_id: int,
+    current_user: User = Depends(get_current_active_user),
+    session: Session = Depends(get_session),
+) -> Any:
+    """Customer removes an item from their own order."""
+    order = session.get(Order, order_id)
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+    if order.user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Not your order")
+    if not can_customer_modify_order(order):
+        raise HTTPException(status_code=400, detail="Order can no longer be modified")
+
+    item = session.get(OrderItem, item_id)
+    if not item or item.order_id != order_id:
+        raise HTTPException(status_code=404, detail="Item not found")
+
+    item_count = session.exec(
+        select(func.count(OrderItem.id)).where(OrderItem.order_id == order_id)
+    ).one()
+    if item_count <= 1:
+        raise HTTPException(status_code=400, detail="Order must contain at least one item")
+
+    product = session.get(Product, item.product_id)
+    if product:
+        product.stock_quantity += item.quantity
+        session.add(product)
+
+    session.delete(item)
+    session.flush()
+    _recalculate_order_total(order, session)
+    session.commit()
+    return _build_order_with_items(order, session)

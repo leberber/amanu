@@ -106,9 +106,10 @@
                    [class.order-item-card--added]="diffItem.kind === 'added'"
                    [class.order-item-card--removed]="diffItem.kind === 'removed'"
                    [class.order-item-card--changed]="diffItem.kind === 'changed'"
+                   [class.order-item-card--editable]="canModifyOrder() && diffItem.kind !== 'removed'"
                    [style.animation-delay]="(i * 50) + 'ms'"
-                   [class.clickable]="diffItem.item.product_image_url && diffItem.kind !== 'removed'"
-                   (click)="diffItem.kind !== 'removed' && openImage(diffItem.item)">
+                   [class.clickable]="diffItem.item.product_image_url && diffItem.kind !== 'removed' && !canModifyOrder()"
+                   (click)="!canModifyOrder() && diffItem.kind !== 'removed' && openImage(diffItem.item)">
                 <div class="order-item-card__icon">
                   @if (diffItem.item.product_image_url) {
                     <img [src]="diffItem.item.product_image_url" [alt]="diffItem.item.product_name" loading="lazy" appImageFallback>
@@ -158,6 +159,19 @@
                     <span class="order-item-card__total" [class.order-item-card__total--removed]="diffItem.kind === 'removed'">
                       <app-currency [value]="(diffItem.item.custom_unit_price ?? diffItem.item.unit_price) * diffItem.item.quantity" />
                     </span>
+                  }
+                  @if (canModifyOrder() && diffItem.kind !== 'removed') {
+                    <div class="item-edit-controls" (click)="$event.stopPropagation()">
+                      <button class="item-edit-btn" [disabled]="saving() || diffItem.item.quantity <= 1" (click)="updateItemQuantity(diffItem.item, -1)">
+                        <i class="pi pi-minus"></i>
+                      </button>
+                      <button class="item-edit-btn item-edit-btn--danger" [disabled]="saving()" (click)="removeItem(diffItem.item)">
+                        <i class="pi pi-trash"></i>
+                      </button>
+                      <button class="item-edit-btn" [disabled]="saving()" (click)="updateItemQuantity(diffItem.item, 1)">
+                        <i class="pi pi-plus"></i>
+                      </button>
+                    </div>
                   }
                 </div>
               </div>
