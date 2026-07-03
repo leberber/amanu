@@ -1529,7 +1529,12 @@
         "route_fetch_error": "فشل في حساب المسار",
         "route_save_error": "فشل في حفظ المسار",
         "route_delete_error": "فشل في حذف المسار",
-        "route_update_error": "فشل في تحديث المسار"
+        "route_update_error": "فشل في تحديث المسار",
+        "with_route": "لديه مسار",
+        "without_route_short": "بدون مسار",
+        "coverage": "التغطية",
+        "save_missing_routes": "المسارات المفقودة",
+        "search_placeholder": "بحث بالاسم، الهاتف، البلدية..."
       }
     },
     "user_groups": {

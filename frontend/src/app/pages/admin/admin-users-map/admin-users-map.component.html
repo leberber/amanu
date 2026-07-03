@@ -18,17 +18,33 @@
           <span class="stat-label">{{ 'admin.users.map.on_map' | translate }}</span>
         </div>
         <div class="stat-divider"></div>
-        <div class="stat-item stat-item--muted">
-          <span class="stat-value">{{ customersWithLocationCount() }}</span>
-          <span class="stat-label">{{ 'admin.users.map.with_location' | translate }}</span>
+        <div class="stat-item">
+          <span class="route-dot route-dot--green"></span>
+          <span class="stat-value">{{ customersWithRouteCount() }}</span>
+          <span class="stat-label">{{ 'admin.users.map.with_route' | translate }}</span>
+        </div>
+        <div class="stat-item">
+          <span class="route-dot route-dot--orange"></span>
+          <span class="stat-value">{{ customersWithoutRouteCount() }}</span>
+          <span class="stat-label">{{ 'admin.users.map.without_route_short' | translate }}</span>
         </div>
         <div class="stat-item stat-item--muted">
-          <span class="stat-value">{{ totalCustomersCount() - customersWithLocationCount() }}</span>
-          <span class="stat-label">{{ 'admin.users.map.without_location' | translate }}</span>
+          <span class="stat-value">{{ routeCoveragePercent() }}%</span>
+          <span class="stat-label">{{ 'admin.users.map.coverage' | translate }}</span>
         </div>
       </div>
 
       <div class="stats-right">
+        <button pButton
+          class="p-button-outlined p-button-warning p-button-sm"
+          icon="pi pi-cloud-download"
+          [label]="'admin.users.map.save_missing_routes' | translate"
+          [loading]="savingAllRoutes()"
+          [disabled]="customersWithoutRouteCount() === 0"
+          pTooltip="Calcule et enregistre les itinéraires manquants via Google"
+          tooltipPosition="bottom"
+          (click)="saveAllMissingRoutes()">
+        </button>
         <button pButton
           class="p-button-text p-button-sm"
           icon="pi pi-list"
@@ -60,6 +76,7 @@
           </button>
         </div>
       </div>
+
     </div>
 
     <!-- Map Container -->
@@ -71,6 +88,26 @@
         </div>
       }
       <div id="users-map" class="map-container"></div>
+
+      <!-- Floating Search -->
+      <div class="map-search-overlay">
+        <div class="table-search">
+          <div class="search-icon">
+            <i class="pi pi-search"></i>
+          </div>
+          <input
+            type="text"
+            [placeholder]="'admin.users.map.search_placeholder' | translate"
+            [value]="searchQuery()"
+            (input)="onSearchInput($event)">
+          @if (searchQuery()) {
+            <button class="clear-search" type="button" (click)="clearSearch()">
+              <i class="pi pi-times"></i>
+            </button>
+            <span class="search-count-badge">{{ filteredCustomersCount() }}</span>
+          }
+        </div>
+      </div>
 
       <!-- Mobile Filter Button -->
       <div class="mobile-filter">

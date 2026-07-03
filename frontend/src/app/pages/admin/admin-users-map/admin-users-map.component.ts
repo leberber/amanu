@@ -1,5 +1,6 @@
 import { Component, OnInit, OnDestroy, signal, inject, computed, DestroyRef, viewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { forkJoin, of } from 'rxjs';
@@ -24,18 +25,20 @@ import { ROUTES, PAGINATION, USER_ROLES } from '../../../core/constants';
 import { AdminService } from '../../../services/admin.service';
 import { RoadBuilderService, RouteResult } from '../../../services/road-builder.service';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
-import { UserManage, CustomerRoute } from '../../../models/admin.model';
+import { UserManage, CustomerRoute, CustomerRouteWithGeometry } from '../../../models/admin.model';
 import { PageLayoutComponent } from '../../../shared/components/page-layout/page-layout.component';
 
 // Marker colors
-const CUSTOMER_COLOR = '#22c55e'; // green
-const DEPOT_COLOR = '#3b82f6'; // blue
+const CUSTOMER_COLOR = '#22c55e'; // green - has route, no corridor
+const NO_ROUTE_COLOR = '#f97316'; // orange - no route
+const CORRIDOR_PALETTE = ['#3b82f6', '#8b5cf6', '#ec4899', '#14b8a6', '#6366f1', '#d97706', '#ef4444', '#10b981'];
 
 @Component({
   selector: 'app-admin-users-map',
   standalone: true,
   imports: [
     CommonModule,
+    FormsModule,
     ButtonModule,
     TooltipModule,
     BadgeModule,
@@ -83,6 +86,7 @@ export class AdminUsersMapComponent implements OnInit, OnDestroy {
   readonly allUsers = signal<UserManage[]>([]);
   readonly customerRouteUserIds = signal<Set<number>>(new Set());
   readonly customerRoutesMap = signal<Map<number, CustomerRoute>>(new Map());
+  readonly routeGeometryMap = signal<Map<number, [number, number][]>>(new Map());
   readonly selectedUser = signal<UserManage | null>(null);
   readonly popoverVisible = signal(false);
 
@@ -94,9 +98,11 @@ export class AdminUsersMapComponent implements OnInit, OnDestroy {
   readonly editingRoute = signal(false);
   readonly editCorridor = signal('');
   readonly savingCorridor = signal(false);
+  readonly savingAllRoutes = signal(false);
 
   // Filters
   readonly routeFilter = signal<'all' | 'without_route'>('all');
+  readonly searchQuery = signal('');
 
   // Computed - Check if selected user has a route
   readonly selectedUserHasRoute = computed(() => {
@@ -124,10 +130,18 @@ export class AdminUsersMapComponent implements OnInit, OnDestroy {
   readonly filteredCustomers = computed(() => {
     let users = this.customersWithLocation();
 
-    // Route filter
     if (this.routeFilter() === 'without_route') {
       const routeUserIds = this.customerRouteUserIds();
       users = users.filter(u => !routeUserIds.has(u.id));
+    }
+
+    const query = this.searchQuery().trim().toLowerCase();
+    if (query) {
+      users = users.filter(u =>
+        (u.full_name || '').toLowerCase().includes(query) ||
+        (u.phone || '').includes(query) ||
+        (u.commune || '').toLowerCase().includes(query)
+      );
     }
 
     return users;
@@ -147,6 +161,12 @@ export class AdminUsersMapComponent implements OnInit, OnDestroy {
     return this.customersWithLocation().filter(u => !routeUserIds.has(u.id)).length;
   });
 
+  readonly routeCoveragePercent = computed(() => {
+    const total = this.customersWithLocationCount();
+    if (total === 0) return 0;
+    return Math.round((this.customersWithRouteCount() / total) * 100);
+  });
+
   readonly ROUTES = ROUTES;
 
   ngOnInit(): void {
@@ -162,75 +182,65 @@ export class AdminUsersMapComponent implements OnInit, OnDestroy {
   private loadData(): void {
     this.loading.set(true);
 
-    // Fetch users and customer routes in parallel
-    // Routes request has catchError to not block users if routes fail
     forkJoin({
       users: this.adminService.getAllUsers(1, PAGINATION.FETCH_ALL_LIMIT),
-      routes: this.adminService.getCustomerRoutes().pipe(
-        catchError(() => of([])) // Return empty array if routes fail
-      )
+      routes: this.adminService.getCustomerRoutes().pipe(catchError(() => of([]))),
+      geometry: this.adminService.getCustomerRoutesWithGeometry().pipe(catchError(() => of([])))
     })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: ({ users, routes }) => {
+        next: ({ users, routes, geometry }) => {
           this.allUsers.set(users.users || []);
 
-          // Build set of user IDs that have routes
           const routeUserIds = new Set(routes.map(r => r.user_id));
           this.customerRouteUserIds.set(routeUserIds);
 
-          // Build map of user ID to route for quick lookup
           const routesMap = new Map<number, CustomerRoute>();
           routes.forEach(r => routesMap.set(r.user_id, r));
           this.customerRoutesMap.set(routesMap);
 
+          // Build geometry map: user_id -> [[lng, lat], ...]
+          const geoMap = new Map<number, [number, number][]>();
+          (geometry as CustomerRouteWithGeometry[]).forEach(r => {
+            if (r.coordinates?.length) {
+              geoMap.set(r.user_id, r.coordinates as [number, number][]);
+            }
+          });
+          this.routeGeometryMap.set(geoMap);
+
           this.loading.set(false);
-          // Initialize map after data is loaded
           setTimeout(() => this.initMap(), 100);
         },
         error: () => {
           this.loading.set(false);
-          // Still initialize the map even on error
           setTimeout(() => this.initMap(), 100);
         }
       });
   }
 
   private initMap(): void {
-    // Fix Leaflet default icon path
     L.Icon.Default.mergeOptions({
       iconUrl: LEAFLET_ASSETS.MARKER_ICON,
       iconRetinaUrl: LEAFLET_ASSETS.MARKER_ICON_RETINA,
       shadowUrl: LEAFLET_ASSETS.MARKER_SHADOW,
     });
 
-    // Create map
     this.map = L.map('users-map', {
       center: [MAP_DEFAULTS.LATITUDE, MAP_DEFAULTS.LONGITUDE],
       zoom: MAP_DEFAULTS.OVERVIEW_ZOOM,
       zoomControl: false
     });
 
-    // Add Google tile layer
     this.currentTileLayer = L.tileLayer(LEAFLET_TILES.GOOGLE.URL, {
       maxZoom: LEAFLET_TILES.GOOGLE.MAX_ZOOM,
       subdomains: LEAFLET_TILES.GOOGLE.SUBDOMAINS,
       attribution: LEAFLET_TILES.GOOGLE.ATTRIBUTION
     }).addTo(this.map);
 
-    // Add route layer (below markers)
     this.routeLayer.addTo(this.map);
-
-    // Add markers layer
     this.markersLayer.addTo(this.map);
-
-    // Add depot marker
     this.addDepotMarker();
-
-    // Render customer markers
     this.renderMarkers();
-
-    // Fit bounds to show all markers including depot
     this.fitBoundsToMarkers();
   }
 
@@ -243,19 +253,13 @@ export class AdminUsersMapComponent implements OnInit, OnDestroy {
     });
 
     this.depotMarker = L.marker([MAP_DEFAULTS.LATITUDE, MAP_DEFAULTS.LONGITUDE], { icon: depotIcon });
-    this.depotMarker.bindTooltip('Depot - Ouadhia', {
-      permanent: false,
-      direction: 'top',
-      offset: [0, -15]
-    });
+    this.depotMarker.bindTooltip('Depot - Ouadhia', { permanent: false, direction: 'top', offset: [0, -15] });
     this.depotMarker.addTo(this.map);
   }
 
   private renderMarkers(): void {
     this.markersLayer.clearLayers();
-
     const customers = this.filteredCustomers();
-
     customers.forEach(user => {
       if (user.latitude && user.longitude) {
         const marker = this.createUserMarker(user);
@@ -265,10 +269,19 @@ export class AdminUsersMapComponent implements OnInit, OnDestroy {
   }
 
   private createUserMarker(user: UserManage): L.Marker {
-    const color = CUSTOMER_COLOR;
+    const hasRoute = this.customerRouteUserIds().has(user.id);
+    const route = this.customerRoutesMap().get(user.id);
     const initials = this.getInitials(user.full_name);
 
-    // Create custom colored icon
+    let color: string;
+    if (!hasRoute) {
+      color = NO_ROUTE_COLOR;
+    } else if (route?.corridor) {
+      color = this.getCorridorColor(route.corridor);
+    } else {
+      color = CUSTOMER_COLOR;
+    }
+
     const icon = L.divIcon({
       className: 'user-marker',
       html: `
@@ -283,12 +296,10 @@ export class AdminUsersMapComponent implements OnInit, OnDestroy {
 
     const marker = L.marker([user.latitude!, user.longitude!], { icon });
 
-    // Add click event
     marker.on('click', (e: L.LeafletMouseEvent) => {
       this.selectUser(user, e.originalEvent);
     });
 
-    // Add tooltip with user name
     marker.bindTooltip(user.full_name || user.email, {
       permanent: false,
       direction: 'top',
@@ -300,11 +311,7 @@ export class AdminUsersMapComponent implements OnInit, OnDestroy {
 
   private fitBoundsToMarkers(): void {
     const customers = this.filteredCustomers();
-
-    // Start with depot location
     const points: L.LatLngTuple[] = [[MAP_DEFAULTS.LATITUDE, MAP_DEFAULTS.LONGITUDE]];
-
-    // Add customer locations
     customers
       .filter(u => u.latitude && u.longitude)
       .forEach(u => points.push([u.latitude!, u.longitude!]));
@@ -329,9 +336,19 @@ export class AdminUsersMapComponent implements OnInit, OnDestroy {
     this.setRouteFilter(newFilter);
   }
 
-  // User selection
+  onSearchInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.searchQuery.set(input.value);
+    this.renderMarkers();
+  }
+
+  clearSearch(): void {
+    this.searchQuery.set('');
+    this.renderMarkers();
+  }
+
+  // User selection - zooms to bounding box and auto-draws saved route
   selectUser(user: UserManage, event?: Event): void {
-    // Close any existing popover first
     const popover = this.userPopover();
     if (popover) {
       popover.hide();
@@ -341,12 +358,20 @@ export class AdminUsersMapComponent implements OnInit, OnDestroy {
     this.routePreview.set(null);
     this.clearRouteFromMap();
 
-    // Center map on user
     if (user.latitude && user.longitude) {
-      this.map.setView([user.latitude, user.longitude], 15);
+      // Zoom to bounding box: depot <-> customer
+      const bounds = L.latLngBounds([
+        [MAP_DEFAULTS.LATITUDE, MAP_DEFAULTS.LONGITUDE],
+        [user.latitude, user.longitude]
+      ]);
+      this.map.fitBounds(bounds, { padding: [80, 80] });
     }
 
-    // Show popover after a small delay to ensure map is centered
+    // Auto-draw saved route if geometry available
+    if (this.customerRouteUserIds().has(user.id)) {
+      this.drawSavedRouteOnMap(user.id);
+    }
+
     setTimeout(() => {
       const target = this.popoverTarget();
       if (popover && target) {
@@ -388,11 +413,10 @@ export class AdminUsersMapComponent implements OnInit, OnDestroy {
     this.clearRouteFromMap();
 
     try {
-      // Get route from depot to customer using Google Directions
       const route = await this.roadBuilderService.getRoute(
         [
-          { lat: MAP_DEFAULTS.LATITUDE, lng: MAP_DEFAULTS.LONGITUDE }, // Depot
-          { lat: user.latitude, lng: user.longitude } // Customer
+          { lat: MAP_DEFAULTS.LATITUDE, lng: MAP_DEFAULTS.LONGITUDE },
+          { lat: user.latitude, lng: user.longitude }
         ],
         'google'
       );
@@ -400,7 +424,6 @@ export class AdminUsersMapComponent implements OnInit, OnDestroy {
       this.routePreview.set(route);
       this.drawRouteOnMap(route.coordinates);
 
-      // Fit bounds to show the route
       const bounds = L.latLngBounds([
         [MAP_DEFAULTS.LATITUDE, MAP_DEFAULTS.LONGITUDE],
         [user.latitude, user.longitude]
@@ -425,7 +448,6 @@ export class AdminUsersMapComponent implements OnInit, OnDestroy {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (savedRoute) => {
-          // Update local state
           const routeUserIds = new Set(this.customerRouteUserIds());
           routeUserIds.add(user.id);
           this.customerRouteUserIds.set(routeUserIds);
@@ -434,6 +456,14 @@ export class AdminUsersMapComponent implements OnInit, OnDestroy {
           routesMap.set(user.id, savedRoute);
           this.customerRoutesMap.set(routesMap);
 
+          // Cache the preview coordinates as geometry
+          const preview = this.routePreview();
+          if (preview?.coordinates?.length) {
+            const geoMap = new Map(this.routeGeometryMap());
+            geoMap.set(user.id, preview.coordinates.map(c => [c.lng, c.lat] as [number, number]));
+            this.routeGeometryMap.set(geoMap);
+          }
+
           this.routePreview.set(null);
           this.savingRoute.set(false);
 
@@ -441,8 +471,8 @@ export class AdminUsersMapComponent implements OnInit, OnDestroy {
             this.translateService.instant('admin.users.map.route_saved')
           );
 
-          // Re-render markers to update counts
           this.renderMarkers();
+          this.drawSavedRouteOnMap(user.id);
         },
         error: () => {
           this.savingRoute.set(false);
@@ -457,10 +487,13 @@ export class AdminUsersMapComponent implements OnInit, OnDestroy {
     this.routePreview.set(null);
     this.clearRouteFromMap();
 
-    // Recenter on user
     const user = this.selectedUser();
     if (user?.latitude && user?.longitude) {
-      this.map.setView([user.latitude, user.longitude], 15);
+      const bounds = L.latLngBounds([
+        [MAP_DEFAULTS.LATITUDE, MAP_DEFAULTS.LONGITUDE],
+        [user.latitude, user.longitude]
+      ]);
+      this.map.fitBounds(bounds, { padding: [80, 80] });
     }
   }
 
@@ -484,7 +517,6 @@ export class AdminUsersMapComponent implements OnInit, OnDestroy {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
-          // Update local state
           const routeUserIds = new Set(this.customerRouteUserIds());
           routeUserIds.delete(user.id);
           this.customerRouteUserIds.set(routeUserIds);
@@ -493,6 +525,10 @@ export class AdminUsersMapComponent implements OnInit, OnDestroy {
           routesMap.delete(user.id);
           this.customerRoutesMap.set(routesMap);
 
+          const geoMap = new Map(this.routeGeometryMap());
+          geoMap.delete(user.id);
+          this.routeGeometryMap.set(geoMap);
+
           this.clearRouteFromMap();
           this.deletingRoute.set(false);
 
@@ -500,7 +536,6 @@ export class AdminUsersMapComponent implements OnInit, OnDestroy {
             this.translateService.instant('admin.users.map.route_deleted')
           );
 
-          // Re-render markers to update counts
           this.renderMarkers();
         },
         error: () => {
@@ -512,16 +547,43 @@ export class AdminUsersMapComponent implements OnInit, OnDestroy {
       });
   }
 
+  saveAllMissingRoutes(): void {
+    this.savingAllRoutes.set(true);
+
+    this.adminService.fetchAndSaveAllCustomerRoutes()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (result) => {
+          this.savingAllRoutes.set(false);
+          this.toastService.showSuccess(
+            `${result.fetched} routes enregistrés, ${result.skipped} ignorés, ${result.failed} échoués`
+          );
+          this.loadData();
+        },
+        error: () => {
+          this.savingAllRoutes.set(false);
+          this.toastService.showError(
+            this.translateService.instant('admin.users.map.route_save_error')
+          );
+        }
+      });
+  }
+
+  private drawSavedRouteOnMap(userId: number): void {
+    const coordinates = this.routeGeometryMap().get(userId);
+    if (!coordinates?.length) return;
+
+    this.routeLayer.clearLayers();
+    // Backend GeoJSON is [lng, lat], Leaflet needs [lat, lng]
+    const latLngs = coordinates.map(([lng, lat]) => L.latLng(lat, lng));
+    const polyline = L.polyline(latLngs, { color: '#3b82f6', weight: 5, opacity: 0.8 });
+    polyline.addTo(this.routeLayer);
+  }
+
   private drawRouteOnMap(coordinates: { lat: number; lng: number }[]): void {
     this.routeLayer.clearLayers();
-
     const latLngs = coordinates.map(c => L.latLng(c.lat, c.lng));
-    const polyline = L.polyline(latLngs, {
-      color: '#3b82f6',
-      weight: 5,
-      opacity: 0.8
-    });
-
+    const polyline = L.polyline(latLngs, { color: '#3b82f6', weight: 5, opacity: 0.8 });
     polyline.addTo(this.routeLayer);
   }
 
@@ -551,7 +613,6 @@ export class AdminUsersMapComponent implements OnInit, OnDestroy {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (updatedRoute) => {
-          // Update local state
           const routesMap = new Map(this.customerRoutesMap());
           routesMap.set(user.id, updatedRoute);
           this.customerRoutesMap.set(routesMap);
@@ -562,6 +623,8 @@ export class AdminUsersMapComponent implements OnInit, OnDestroy {
           this.toastService.showSuccess(
             this.translateService.instant('admin.users.map.route_updated')
           );
+
+          this.renderMarkers();
         },
         error: () => {
           this.savingCorridor.set(false);
@@ -587,18 +650,21 @@ export class AdminUsersMapComponent implements OnInit, OnDestroy {
     return isActive ? 'success' : 'danger';
   }
 
+  private getCorridorColor(corridor: string): string {
+    let hash = 0;
+    const lower = corridor.toLowerCase();
+    for (let i = 0; i < lower.length; i++) {
+      hash = (hash * 31 + lower.charCodeAt(i)) % CORRIDOR_PALETTE.length;
+    }
+    return CORRIDOR_PALETTE[Math.abs(hash) % CORRIDOR_PALETTE.length];
+  }
+
   private getInitials(fullName: string | undefined): string {
     if (!fullName) return '?';
-
     const parts = fullName.trim().split(/\s+/);
     if (parts.length === 1) {
-      // Single name: return first two letters
       return parts[0].substring(0, 2).toUpperCase();
     }
-
-    // Multiple names: first letter of first name + first letter of last name
-    const firstInitial = parts[0].charAt(0).toUpperCase();
-    const lastInitial = parts[parts.length - 1].charAt(0).toUpperCase();
-    return firstInitial + lastInitial;
+    return parts[0].charAt(0).toUpperCase() + parts[parts.length - 1].charAt(0).toUpperCase();
   }
 }

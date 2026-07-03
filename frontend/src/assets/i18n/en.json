@@ -1526,7 +1526,12 @@
         "route_fetch_error": "Failed to calculate route",
         "route_save_error": "Failed to save route",
         "route_delete_error": "Failed to delete route",
-        "route_update_error": "Failed to update route"
+        "route_update_error": "Failed to update route",
+        "with_route": "with route",
+        "without_route_short": "without route",
+        "coverage": "coverage",
+        "save_missing_routes": "Missing routes",
+        "search_placeholder": "Search by name, phone, commune..."
       }
     },
     "user_groups": {

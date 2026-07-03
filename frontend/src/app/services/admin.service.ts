@@ -17,6 +17,7 @@ import {
   SystemMetrics,
   SystemHealth,
   CustomerRoute,
+  CustomerRouteWithGeometry,
   SystemErrorsResponse,
   PurchaseOrder,
   PurchaseOrderCreate,
@@ -198,6 +199,14 @@ export class AdminService {
 
   updateCustomerRoute(userId: number, data: { corridor?: string }): Observable<CustomerRoute> {
     return this.apiService.patch<CustomerRoute>(`/admin/routes/${userId}`, data);
+  }
+
+  getCustomerRoutesWithGeometry(): Observable<CustomerRouteWithGeometry[]> {
+    return this.apiService.get<CustomerRouteWithGeometry[]>('/admin/routes/with-geometry');
+  }
+
+  fetchAndSaveAllCustomerRoutes(): Observable<{ total_customers: number; fetched: number; failed: number; skipped: number }> {
+    return this.apiService.post('/admin/routes/fetch-all', {});
   }
 
   // Driver management
