@@ -42,6 +42,10 @@ export class AdminPurchaseOrdersComponent extends BaseAdminListComponent impleme
 
   hasMore = computed(() => this.displayedOrders().length < this.orders().length);
 
+  // Sort state
+  sortField = signal<string>('date');
+  sortDirection = signal<'asc' | 'desc'>('desc');
+
   // Computed counts - single pass through orders
   private statusCounts = computed(() => {
     const counts = { draft: 0, sent: 0, delivered: 0 };
@@ -135,8 +139,40 @@ export class AdminPurchaseOrdersComponent extends BaseAdminListComponent impleme
       );
     }
 
-    this.orders.set(filtered);
-    this.displayedOrders.set(filtered.slice(0, this.BATCH_SIZE));
+    const sorted = this.applySorting(filtered);
+    this.orders.set(sorted);
+    this.displayedOrders.set(sorted.slice(0, this.BATCH_SIZE));
+  }
+
+  sortBy(field: string): void {
+    if (this.sortField() === field) {
+      this.sortDirection.set(this.sortDirection() === 'asc' ? 'desc' : 'asc');
+    } else {
+      this.sortField.set(field);
+      this.sortDirection.set('asc');
+    }
+    this.filterItems();
+  }
+
+  private applySorting(orders: PurchaseOrder[]): PurchaseOrder[] {
+    const field = this.sortField();
+    if (!field) return orders;
+    const dir = this.sortDirection() === 'asc' ? 1 : -1;
+    return [...orders].sort((a, b) => {
+      let aVal: string | number, bVal: string | number;
+      switch (field) {
+        case 'reference': aVal = a.reference; bVal = b.reference; break;
+        case 'supplier': aVal = a.supplier_name; bVal = b.supplier_name; break;
+        case 'status': aVal = a.status; bVal = b.status; break;
+        case 'total': aVal = a.total_amount; bVal = b.total_amount; break;
+        case 'items': aVal = a.item_count; bVal = b.item_count; break;
+        case 'date': aVal = new Date(a.created_at).getTime(); bVal = new Date(b.created_at).getTime(); break;
+        default: return 0;
+      }
+      if (aVal < bVal) return -1 * dir;
+      if (aVal > bVal) return 1 * dir;
+      return 0;
+    });
   }
 
   loadMoreOrders(): void {

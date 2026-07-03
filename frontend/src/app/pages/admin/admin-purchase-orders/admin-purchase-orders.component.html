@@ -118,12 +118,54 @@
             <table class="table">
               <thead>
                 <tr>
-                  @if (isColumnVisible('reference')) { <th style="width: 12%">{{ 'admin.purchase_orders.reference' | translate }}</th> }
-                  @if (isColumnVisible('supplier')) { <th style="width: 20%">{{ 'admin.purchase_orders.supplier' | translate }}</th> }
-                  @if (isColumnVisible('status')) { <th style="width: 12%" class="text-center">{{ 'admin.purchase_orders.status' | translate }}</th> }
-                  @if (isColumnVisible('total')) { <th style="width: 15%" class="text-right">{{ 'admin.purchase_orders.total' | translate }}</th> }
-                  @if (isColumnVisible('items')) { <th style="width: 12%" class="text-center">{{ 'admin.purchase_orders.items' | translate }}</th> }
-                  @if (isColumnVisible('date')) { <th style="width: 12%">{{ 'admin.purchase_orders.date' | translate }}</th> }
+                  @if (isColumnVisible('reference')) {
+                    <th style="width: 12%; cursor: pointer; user-select: none;" (click)="sortBy('reference')">
+                      <span class="flex align-items-center gap-1">
+                        {{ 'admin.purchase_orders.reference' | translate }}
+                        <i class="pi" [class.pi-sort-alt]="sortField() !== 'reference'" [class.pi-sort-amount-up-alt]="sortField() === 'reference' && sortDirection() === 'asc'" [class.pi-sort-amount-down]="sortField() === 'reference' && sortDirection() === 'desc'"></i>
+                      </span>
+                    </th>
+                  }
+                  @if (isColumnVisible('supplier')) {
+                    <th style="width: 20%; cursor: pointer; user-select: none;" (click)="sortBy('supplier')">
+                      <span class="flex align-items-center gap-1">
+                        {{ 'admin.purchase_orders.supplier' | translate }}
+                        <i class="pi" [class.pi-sort-alt]="sortField() !== 'supplier'" [class.pi-sort-amount-up-alt]="sortField() === 'supplier' && sortDirection() === 'asc'" [class.pi-sort-amount-down]="sortField() === 'supplier' && sortDirection() === 'desc'"></i>
+                      </span>
+                    </th>
+                  }
+                  @if (isColumnVisible('status')) {
+                    <th style="width: 12%; cursor: pointer; user-select: none;" class="text-center" (click)="sortBy('status')">
+                      <span class="flex align-items-center justify-content-center gap-1">
+                        {{ 'admin.purchase_orders.status' | translate }}
+                        <i class="pi" [class.pi-sort-alt]="sortField() !== 'status'" [class.pi-sort-amount-up-alt]="sortField() === 'status' && sortDirection() === 'asc'" [class.pi-sort-amount-down]="sortField() === 'status' && sortDirection() === 'desc'"></i>
+                      </span>
+                    </th>
+                  }
+                  @if (isColumnVisible('total')) {
+                    <th style="width: 15%; cursor: pointer; user-select: none;" class="text-right" (click)="sortBy('total')">
+                      <span class="flex align-items-center justify-content-end gap-1">
+                        {{ 'admin.purchase_orders.total' | translate }}
+                        <i class="pi" [class.pi-sort-alt]="sortField() !== 'total'" [class.pi-sort-amount-up-alt]="sortField() === 'total' && sortDirection() === 'asc'" [class.pi-sort-amount-down]="sortField() === 'total' && sortDirection() === 'desc'"></i>
+                      </span>
+                    </th>
+                  }
+                  @if (isColumnVisible('items')) {
+                    <th style="width: 12%; cursor: pointer; user-select: none;" class="text-center" (click)="sortBy('items')">
+                      <span class="flex align-items-center justify-content-center gap-1">
+                        {{ 'admin.purchase_orders.items' | translate }}
+                        <i class="pi" [class.pi-sort-alt]="sortField() !== 'items'" [class.pi-sort-amount-up-alt]="sortField() === 'items' && sortDirection() === 'asc'" [class.pi-sort-amount-down]="sortField() === 'items' && sortDirection() === 'desc'"></i>
+                      </span>
+                    </th>
+                  }
+                  @if (isColumnVisible('date')) {
+                    <th style="width: 12%; cursor: pointer; user-select: none;" (click)="sortBy('date')">
+                      <span class="flex align-items-center gap-1">
+                        {{ 'admin.purchase_orders.date' | translate }}
+                        <i class="pi" [class.pi-sort-alt]="sortField() !== 'date'" [class.pi-sort-amount-up-alt]="sortField() === 'date' && sortDirection() === 'asc'" [class.pi-sort-amount-down]="sortField() === 'date' && sortDirection() === 'desc'"></i>
+                      </span>
+                    </th>
+                  }
                   @if (isColumnVisible('actions')) { <th style="width: 17%" class="text-center">{{ 'admin.purchase_orders.actions' | translate }}</th> }
                 </tr>
               </thead>
