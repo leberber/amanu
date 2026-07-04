@@ -1,0 +1,135 @@
+.accounting-page {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+// ── Top bar ───────────────────────────────────────────────────────────────────
+
+.acc-top {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.acc-stats {
+  display: flex;
+  gap: 0.75rem;
+  margin-left: auto;
+}
+
+.stat-card {
+  background: var(--surface-card);
+  border: 1px solid var(--surface-border);
+  border-radius: 12px;
+  padding: 0.9rem 1.2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  min-width: 155px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+
+  &__icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    i { font-size: 0.9rem; }
+
+    &--blue   { background: rgba(59, 130, 246, 0.1);  i { color: #3b82f6; } }
+    &--purple { background: rgba(139, 92, 246, 0.1);  i { color: #8b5cf6; } }
+    &--green  { background: rgba(16, 185, 129, 0.1);  i { color: #10b981; } }
+  }
+
+  &__body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    min-width: 0;
+  }
+
+  &__label {
+    font-size: 0.69rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.055em;
+    color: var(--text-color-secondary);
+  }
+
+  &__value {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-color);
+    white-space: nowrap;
+  }
+}
+
+:host ::ng-deep .filter-select--glass {
+  width: 600px;
+  max-width: 100%;
+}
+
+
+// ── Table cells ───────────────────────────────────────────────────────────────
+
+.ref-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.client-name { font-weight: 500; }
+
+.payment-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.6rem;
+  border-radius: 20px;
+  font-size: 0.72rem;
+  font-weight: 600;
+
+  &--espece   { background: rgba(16, 185, 129, 0.1); color: #059669; }
+  &--cheque   { background: rgba(59, 130, 246, 0.1); color: #2563eb; }
+  &--virement { background: rgba(139, 92, 246, 0.1); color: #7c3aed; }
+}
+
+.pdf-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid var(--surface-border);
+  background: var(--surface-card);
+  color: var(--text-color-secondary);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+
+  &:hover:not(:disabled) {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    border-color: rgba(239, 68, 68, 0.3);
+  }
+
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  i { font-size: 0.9rem; }
+}
+
+// ── Empty state ───────────────────────────────────────────────────────────────
+
+.acc-empty {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: var(--text-color-secondary);
+
+  i { font-size: 2.5rem; margin-bottom: 1rem; display: block; opacity: 0.3; }
+  p { margin: 0.25rem 0; }
+}

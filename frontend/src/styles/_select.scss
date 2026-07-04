@@ -266,8 +266,68 @@
 }
 
 
+
 // =============================================================================
-// 8. FILTER SELECT (Glass-morphism style for admin filters)
+// 8. CLIENT SELECT PANEL (Accounting — glass style)
+// =============================================================================
+
+.client-select-panel {
+  background: var(--glass-bg) !important;
+  backdrop-filter: var(--glass-blur) !important;
+  -webkit-backdrop-filter: var(--glass-blur) !important;
+  border: var(--glass-border) !important;
+  border-radius: var(--radius-lg) !important;
+  box-shadow: var(--shadow-xl) !important;
+  overflow: hidden;
+
+  .p-select-header {
+    padding: var(--space-4) var(--space-4) var(--space-3);
+    border-bottom: 1px solid rgba(var(--primary-rgb), 0.1);
+    background: transparent;
+
+    .p-select-filter {
+      border-radius: var(--radius-md);
+      font-size: var(--font-size-sm);
+      background: rgba(var(--color-white-rgb), 0.6);
+      padding: var(--space-4) var(--space-5);
+      line-height: 1.8;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08), inset 0 1px 3px rgba(0, 0, 0, 0.04);
+
+      &:focus {
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08), inset 0 1px 3px rgba(0, 0, 0, 0.04), 0 0 0 3px rgba(var(--primary-rgb), 0.15);
+      }
+    }
+  }
+
+  .p-select-list {
+    padding: var(--space-3);
+    background: transparent;
+  }
+
+  .p-select-option {
+    border-radius: var(--radius-md);
+    margin: var(--space-1) 0;
+    padding: var(--space-4) var(--space-5);
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-medium);
+    transition: all var(--transition-fast);
+
+    &:not(.p-highlight):hover {
+      background: rgba(var(--primary-rgb), 0.08);
+    }
+
+    &.p-select-option-selected,
+    &.p-highlight {
+      background: var(--primary-gradient);
+      color: var(--color-white);
+      font-weight: var(--font-weight-semibold);
+    }
+  }
+}
+
+
+// =============================================================================
+// 9. FILTER SELECT (Glass-morphism style for admin filters)
 // =============================================================================
 
 .p-select.filter-select--glass {

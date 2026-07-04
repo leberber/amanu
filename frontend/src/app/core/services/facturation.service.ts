@@ -148,6 +148,18 @@ export interface FacturationListResponse {
   total: number;
 }
 
+export interface AccountingStats {
+  total_ht: number;
+  total_ttc: number;
+  total_count: number;
+  month_ht: number;
+  month_ttc: number;
+  month_count: number;
+  year_ht: number;
+  year_ttc: number;
+  year_count: number;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -176,9 +188,18 @@ export class FacturationService {
   }
 
   // ── Facturations ─────────────────────────────────────────────────────────────
-  getFacturations(skip = 0, limit = 50): Observable<FacturationListResponse> {
-    const params = new HttpParams().set('skip', skip).set('limit', limit);
+  getFacturations(skip = 0, limit = 50, clientId?: number, fromDate?: string, toDate?: string): Observable<FacturationListResponse> {
+    let params = new HttpParams().set('skip', skip).set('limit', limit);
+    if (clientId != null) params = params.set('client_id', clientId);
+    if (fromDate) params = params.set('from_date', fromDate);
+    if (toDate) params = params.set('to_date', toDate);
     return this.http.get<FacturationListResponse>(this.apiUrl, { params });
+  }
+
+  getAccountingStats(clientId?: number): Observable<AccountingStats> {
+    let params = new HttpParams();
+    if (clientId != null) params = params.set('client_id', clientId);
+    return this.http.get<AccountingStats>(`${this.apiUrl}/accounting-stats`, { params });
   }
 
   getFacturation(id: number): Observable<Facturation> {
