@@ -94,3 +94,13 @@ def get_current_staff_user(current_user: User = Depends(get_current_user)) -> Us
             detail="The user doesn't have enough privileges"
         )
     return current_user
+
+
+def get_current_accountant_user(current_user: User = Depends(get_current_user)) -> User:
+    """Get current accountant (or admin) user"""
+    if current_user.role not in [UserRole.ADMIN, UserRole.ACCOUNTANT]:
+        raise HTTPException(
+            status_code=403,
+            detail="The user doesn't have enough privileges"
+        )
+    return current_user

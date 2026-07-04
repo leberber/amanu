@@ -24,8 +24,9 @@ export interface AdminNavItem {
   labelKey: string;
   icon: string;
   route: string;
-  adminOnly?: boolean;  // Only visible to admin role
-  staffOnly?: boolean;  // Visible to admin and staff roles
+  adminOnly?: boolean;     // Only visible to admin role
+  staffOnly?: boolean;     // Visible to admin and staff roles
+  accountantOnly?: boolean; // Visible to accountant (and admin) role only
 }
 
 /**
@@ -170,5 +171,11 @@ export const ADMIN_NAV_ITEMS: AdminNavItem[] = [
     icon: 'pi pi-server',
     route: ROUTES.ADMIN.SYSTEM,
     staffOnly: true
+  },
+  {
+    labelKey: 'admin.navigation.accounting',
+    icon: 'pi pi-calculator',
+    route: ROUTES.ACCOUNTING,
+    accountantOnly: true
   }
 ];

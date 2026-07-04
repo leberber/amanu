@@ -10,6 +10,7 @@ import { authGuard } from './shared/auth.guard';
 import { CartComponent } from './pages/cart/cart.component';
 import { adminGuard } from './shared/admin.guard';
 import { adminOnlyGuard } from './shared/admin-only.guard';
+import { accountantGuard } from './shared/accountant.guard';
 import { AdminProductsComponent } from './pages/admin/admin-products/admin-products.component';
 import { AdminAddProductComponent } from './pages/admin/admin-add-product/admin-add-product.component';
 import { AdminAddCategoryComponent } from './pages/admin/admin-add-category/admin-add-category.component';
@@ -422,6 +423,14 @@ export const routes: Routes = [
   {
     path: 'example/maps',
     loadComponent: () => import('./examples/maps-navigation/maps-navigation.component').then(m => m.MapsNavigationExampleComponent),
+    data: { hideBottomNav: true }
+  },
+
+  // Accountant Routes
+  {
+    path: 'accounting',
+    loadComponent: () => import('./pages/accounting/accounting.component').then(m => m.AccountingComponent),
+    canActivate: [accountantGuard],
     data: { hideBottomNav: true }
   },
 

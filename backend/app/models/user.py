@@ -20,6 +20,7 @@ class UserRole(str, Enum):
     STAFF = "staff"
     ADMIN = "admin"
     DRIVER = "driver"
+    ACCOUNTANT = "accountant"
 
 
 class AuthProvider(str, Enum):

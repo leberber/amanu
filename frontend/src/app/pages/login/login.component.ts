@@ -101,6 +101,8 @@ export class LoginComponent implements OnInit {
       targetUrl = DefaultRedirects.ADMIN_DEFAULT;
     } else if (this.returnUrl() === ROUTES.HOME && user.role === UserRole.DRIVER) {
       targetUrl = DefaultRedirects.DRIVER_DEFAULT;
+    } else if (this.returnUrl() === ROUTES.HOME && user.role === UserRole.ACCOUNTANT) {
+      targetUrl = DefaultRedirects.ACCOUNTANT_DEFAULT;
     }
 
     setTimeout(() => {

@@ -1387,7 +1387,9 @@
       "roles": {
         "customer": "Customer",
         "staff": "Staff",
-        "admin": "Admin"
+        "admin": "Admin",
+        "driver": "Driver",
+        "accountant": "Accountant"
       },
       "clear_filters": "Clear Filters",
       "showing": "Showing {{shown}} of {{total}} users",
@@ -1950,7 +1952,8 @@
       "facturation": "Invoicing",
       "company_settings": "Company Settings",
       "logs": "Logs",
-      "system": "System"
+      "system": "System",
+      "accounting": "Accounting"
     },
     "purchase_orders": {
       "title": "Purchase Orders",
@@ -3029,5 +3032,9 @@
       "earnings": "Earnings",
       "profile": "Profile"
     }
+  },
+  "accounting": {
+    "title": "Accounting",
+    "subtitle": "Financial and accounting management"
   }
 }

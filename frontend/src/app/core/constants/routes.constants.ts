@@ -33,6 +33,9 @@ export const ROUTES = {
   NOTIFICATIONS: '/notifications',
   COMPLETE_PROFILE: '/complete-profile',
   
+  // Accountant routes
+  ACCOUNTING: '/accounting',
+
   // Driver routes
   DRIVER: {
     ROOT: '/driver',
@@ -161,5 +164,6 @@ export const DefaultRedirects = {
   NOT_FOUND: ROUTES.HOME,
   ADMIN_DEFAULT: ROUTES.ADMIN.DASHBOARD,
   STAFF_DEFAULT: ROUTES.ADMIN.ORDERS,
-  DRIVER_DEFAULT: ROUTES.DRIVER.DASHBOARD
+  DRIVER_DEFAULT: ROUTES.DRIVER.DASHBOARD,
+  ACCOUNTANT_DEFAULT: ROUTES.ACCOUNTING
 };

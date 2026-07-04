@@ -1390,7 +1390,9 @@
       "roles": {
         "customer": "عميل",
         "staff": "موظف",
-        "admin": "مدير"
+        "admin": "مدير",
+        "driver": "سائق",
+        "accountant": "محاسب"
       },
       "clear_filters": "مسح الفلاتر",
       "showing": "عرض {{shown}} من {{total}} مستخدم",
@@ -1937,7 +1939,8 @@
       "facturation": "الفوترة",
       "company_settings": "إعدادات الشركة",
       "logs": "السجلات",
-      "system": "النظام"
+      "system": "النظام",
+      "accounting": "المحاسبة"
     },
     "purchase_orders": {
       "title": "طلبات الشراء",
@@ -3062,5 +3065,9 @@
       "earnings": "الأرباح",
       "profile": "الملف"
     }
+  },
+  "accounting": {
+    "title": "المحاسبة",
+    "subtitle": "الإدارة المالية والمحاسبية"
   }
 }

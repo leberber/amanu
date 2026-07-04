@@ -1387,7 +1387,8 @@
         "customer": "Client",
         "staff": "Personnel",
         "admin": "Admin",
-        "driver": "Chauffeur"
+        "driver": "Chauffeur",
+        "accountant": "Comptable"
       },
       "clear_filters": "Effacer les Filtres",
       "showing": "Affichage de {{shown}} sur {{total}} utilisateurs",
@@ -1951,7 +1952,8 @@
       "facturation": "Facturation",
       "company_settings": "Paramètres Société",
       "logs": "Journaux",
-      "system": "Système"
+      "system": "Système",
+      "accounting": "Comptabilité"
     },
     "purchase_orders": {
       "title": "Bons de Commande",
@@ -3078,5 +3080,9 @@
       "earnings": "Gains",
       "profile": "Profil"
     }
+  },
+  "accounting": {
+    "title": "Comptabilité",
+    "subtitle": "Gestion comptable et financière"
   }
 }

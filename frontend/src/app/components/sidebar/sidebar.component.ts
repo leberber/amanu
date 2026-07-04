@@ -26,8 +26,10 @@ interface NavItem {
   badge?: number;
   adminOnly?: boolean;
   staffOnly?: boolean;
+  accountantOnly?: boolean;
   authRequired?: boolean;
   hideForAdmin?: boolean;
+  hideForAccountant?: boolean;
 }
 
 @Component({
@@ -75,6 +77,7 @@ export class SidebarComponent implements OnInit {
   // Computed
   isAdmin = computed(() => this.authService.isAdmin());
   isAdminOrStaff = computed(() => this.authService.isAdminOrStaff());
+  isAccountant = computed(() => this.authService.isAccountant());
   currentUser = this.currentUserSignal.asReadonly();
   userInitials = computed(() => getInitials(this.currentUser()?.full_name));
   // Route constants for template
@@ -126,30 +129,35 @@ export class SidebarComponent implements OnInit {
       {
         label: this.translateService.instant('common.products'),
         icon: 'pi pi-shopping-bag',
-        route: ROUTES.PRODUCTS
+        route: ROUTES.PRODUCTS,
+        hideForAccountant: true
       },
       {
         label: this.translateService.instant('promotions_page.title'),
         icon: 'pi pi-percentage',
-        route: ROUTES.PROMOTIONS
+        route: ROUTES.PROMOTIONS,
+        hideForAccountant: true
       },
       {
         label: this.translateService.instant('new_arrivals.title'),
         icon: 'pi pi-star',
-        route: ROUTES.NEW_ARRIVALS
+        route: ROUTES.NEW_ARRIVALS,
+        hideForAccountant: true
       },
       {
         label: this.translateService.instant('common.cart'),
         icon: 'pi pi-shopping-cart',
         route: ROUTES.CART,
-        hideForAdmin: true
+        hideForAdmin: true,
+        hideForAccountant: true
       },
       {
         label: this.translateService.instant('header.orders'),
         icon: 'pi pi-list',
         route: ROUTES.ORDERS,
         authRequired: true,
-        hideForAdmin: true
+        hideForAdmin: true,
+        hideForAccountant: true
       },
       {
         label: this.translateService.instant('notifications_page.title'),
@@ -178,7 +186,8 @@ export class SidebarComponent implements OnInit {
         icon: item.icon,
         route: item.route,
         adminOnly: item.adminOnly,
-        staffOnly: item.staffOnly
+        staffOnly: item.staffOnly,
+        accountantOnly: item.accountantOnly
       }))
     );
   }
@@ -188,14 +197,20 @@ export class SidebarComponent implements OnInit {
     return this.navItems().filter(item => {
       if (item.authRequired && !this.isLoggedIn()) return false;
       if (item.hideForAdmin && this.isAdminOrStaff()) return false;
+      if (item.hideForAccountant && this.isAccountant()) return false;
       return true;
     });
   });
 
   visibleAdminItems = computed(() => {
+    const isAdmin = this.isAdmin();
+    const isAdminOrStaff = this.isAdminOrStaff();
+    const isAccountant = this.isAccountant();
+
     return this.adminNavItems().filter(item => {
-      if (item.adminOnly && !this.isAdmin()) return false;
-      if (item.staffOnly && !this.isAdminOrStaff()) return false;
+      if (item.accountantOnly) return isAccountant || isAdmin;
+      if (item.adminOnly) return isAdmin;
+      if (item.staffOnly) return isAdminOrStaff;
       return true;
     });
   });

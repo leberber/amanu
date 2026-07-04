@@ -128,6 +128,11 @@ export class AuthService {
     return user?.role === UserRole.DRIVER;
   }
 
+  isAccountant(): boolean {
+    const user = this.currentUserValue;
+    return user?.role === UserRole.ACCOUNTANT;
+  }
+
   /**
    * Check if user is admin or staff
    * @returns boolean

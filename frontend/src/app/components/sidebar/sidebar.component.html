@@ -15,7 +15,7 @@
       <!-- Scrollable Navigation Area -->
       <div class="sidebar__scrollable">
         <!-- Admin Section (Top) -->
-        @if (isAdminOrStaff()) {
+        @if (isAdminOrStaff() || isAccountant()) {
           <div class="sidebar__section">
             <div class="section-header">
               <i class="pi pi-cog"></i>
@@ -39,7 +39,7 @@
 
         <!-- Customer Navigation (Bottom) -->
         <div class="sidebar__section">
-          @if (isAdminOrStaff()) {
+          @if (isAdminOrStaff() || isAccountant()) {
             <div class="section-header">
               <i class="pi pi-shopping-bag"></i>
               <span>{{ 'common.store' | translate }}</span>
@@ -175,7 +175,7 @@
       <!-- Scrollable Content -->
       <div class="mobile-menu__body">
         <!-- Admin Section -->
-        @if (isAdminOrStaff()) {
+        @if (isAdminOrStaff() || isAccountant()) {
           <div class="mobile-menu__section">
             <div class="mobile-menu__section-title">{{ 'header.admin' | translate }}</div>
             <div class="mobile-menu__card">
@@ -197,7 +197,7 @@
 
         <!-- Main Navigation -->
         <div class="mobile-menu__section">
-          @if (isAdminOrStaff()) {
+          @if (isAdminOrStaff() || isAccountant()) {
             <div class="mobile-menu__section-title">{{ 'common.store' | translate }}</div>
           }
           <div class="mobile-menu__card">

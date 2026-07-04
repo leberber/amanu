@@ -119,10 +119,12 @@ export class MobileAdminMenuComponent {
   visibleItems = computed(() => {
     const isAdmin = this.authService.isAdmin();
     const isAdminOrStaff = this.authService.isAdminOrStaff();
+    const isAccountant = this.authService.isAccountant();
 
     return ADMIN_NAV_ITEMS.filter(item => {
-      if (item.adminOnly && !isAdmin) return false;
-      if (item.staffOnly && !isAdminOrStaff) return false;
+      if (item.accountantOnly) return isAccountant || isAdmin;
+      if (item.adminOnly) return isAdmin;
+      if (item.staffOnly) return isAdminOrStaff;
       return true;
     });
   });

@@ -16,7 +16,8 @@ export class StatusSeverityService {
       { label: this.translateService.instant('admin.users.roles.customer'), value: USER_ROLES.CUSTOMER },
       { label: this.translateService.instant('admin.users.roles.driver'), value: USER_ROLES.DRIVER },
       { label: this.translateService.instant('admin.users.roles.staff'), value: USER_ROLES.STAFF },
-      { label: this.translateService.instant('admin.users.roles.admin'), value: USER_ROLES.ADMIN }
+      { label: this.translateService.instant('admin.users.roles.admin'), value: USER_ROLES.ADMIN },
+      { label: this.translateService.instant('admin.users.roles.accountant'), value: USER_ROLES.ACCOUNTANT }
     ];
   }
 
@@ -25,6 +26,7 @@ export class StatusSeverityService {
       case USER_ROLES.ADMIN: return 'danger';
       case USER_ROLES.STAFF: return 'warn';
       case USER_ROLES.CUSTOMER: return 'info';
+      case USER_ROLES.ACCOUNTANT: return 'success';
       default: return 'secondary';
     }
   }
