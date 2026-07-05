@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, signal, computed, DestroyRef } from '@angular/core';
 import { trigger, transition, style, animate } from '@angular/animations';
 import { FormsModule } from '@angular/forms';
+import { DecimalPipe } from '@angular/common';
 import { SelectModule } from 'primeng/select';
 import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
@@ -30,6 +31,7 @@ type Period = 'month' | 'year' | 'all' | 'pick';
   standalone: true,
   imports: [
     FormsModule,
+    DecimalPipe,
     SelectModule,
     TagModule,
     TooltipModule,
@@ -80,36 +82,42 @@ export class AccountingComponent implements OnInit {
 
   isFiltered = computed(() => this.selectedClientId() != null);
 
+  factures = computed(() => this.facturations().filter(f => f.document_type === 'facture'));
+
   availableYears = computed(() => {
-    const years = new Set(this.facturations().map(f => new Date(f.created_at).getFullYear()));
+    const years = new Set(this.factures().map(f => new Date(f.created_at).getFullYear()));
     return [...years].sort((a, b) => a - b);
   });
 
   monthsForYear = computed(() => {
-    const facts = this.facturations();
+    const facts = this.factures();
     const year = this.selectedYear();
     const now = new Date();
 
-    const withData = new Set(
-      facts.filter(f => new Date(f.created_at).getFullYear() === year)
-           .map(f => new Date(f.created_at).getMonth())
-    );
+    const countByMonth = new Map<number, number>();
+    facts.filter(f => new Date(f.created_at).getFullYear() === year)
+         .forEach(f => {
+           const m = new Date(f.created_at).getMonth();
+           countByMonth.set(m, (countByMonth.get(m) ?? 0) + 1);
+         });
 
     const lastMonth = year === now.getFullYear() ? now.getMonth() : 11;
-    const result: { month: number; year: number; label: string; hasFactures: boolean }[] = [];
+    const result: { month: number; year: number; label: string; hasFactures: boolean; count: number }[] = [];
     for (let month = 0; month <= lastMonth; month++) {
+      const count = countByMonth.get(month) ?? 0;
       result.push({
         month,
         year,
         label: new Date(year, month, 1).toLocaleDateString('fr-DZ', { month: 'short' }),
-        hasFactures: withData.has(month),
+        hasFactures: count > 0,
+        count,
       });
     }
     return result;
   });
 
   filteredFacturations = computed(() => {
-    const facts = this.facturations();
+    const facts = this.factures();
     const picked = this.pickedMonthYear();
     if (picked !== null) {
       return facts.filter(f => {
@@ -135,6 +143,19 @@ export class AccountingComponent implements OnInit {
       total_ttc: facts.reduce((s, f) => s + f.total_ttc, 0),
     };
   });
+
+  fiscalProgress = computed(() => {
+    const declared = this.selectedClient?.fiscal_info?.montant_declare;
+    if (!declared) return null;
+    const currentYear = new Date().getFullYear();
+    const used = this.factures()
+      .filter(f => new Date(f.created_at).getFullYear() === currentYear)
+      .reduce((s, f) => s + f.total_ttc, 0);
+    const pct = Math.min((used / declared) * 100, 100);
+    return { declared, used, remaining: Math.max(declared - used, 0), pct };
+  });
+
+  readonly currentYear = new Date().getFullYear();
 
   readonly paymentLabels: Record<string, string> = {
     espece: 'Espèces',

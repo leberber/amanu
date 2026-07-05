@@ -60,6 +60,9 @@
                 tooltipPosition="top"
                 (click)="pickMonth(m.month, m.year)">
                 {{ m.label }}
+                @if (m.count > 0) {
+                  <span class="month-pill__count">{{ m.count }}</span>
+                }
               </button>
             }
           </div>
@@ -206,6 +209,45 @@
 
     @if (isFiltered()) {
       <div class="acc-sidebar">
+
+        @if (fiscalProgress(); as fp) {
+          <div class="fiscal-progress-card">
+            <div class="fpc-top">
+              <span class="fpc-top__label">Montant déclaré</span>
+              <span class="fpc-declared-pill"><app-currency [value]="fp.declared" [hideDecimals]="true" /></span>
+            </div>
+            <div class="fpc-year">
+              <i class="pi pi-building-columns"></i>
+              Déclaration {{ currentYear }}
+            </div>
+            <div class="fpc-bar-wrap">
+              <div class="fiscal-progress-bar">
+                <div class="fiscal-progress-bar__fill"
+                  [style.width.%]="fp.pct"
+                  [class.warn]="fp.pct >= 70 && fp.pct < 90"
+                  [class.danger]="fp.pct >= 90">
+                </div>
+              </div>
+              <span class="fpc-pct"
+                [class.warn]="fp.pct >= 70 && fp.pct < 90"
+                [class.danger]="fp.pct >= 90">
+                {{ fp.pct | number:'1.0-0' }}%
+              </span>
+            </div>
+            <div class="fpc-row">
+              <span class="fpc-row__label">Montant facturé</span>
+              <span class="fpc-row__value"><app-currency [value]="fp.used" [hideDecimals]="true" /></span>
+            </div>
+            <div class="fpc-row">
+              <span class="fpc-row__label">Montant à facturer</span>
+              <span class="fpc-row__value fpc-row__value--remaining"
+                [class.danger]="fp.pct >= 90">
+                <app-currency [value]="fp.remaining" [hideDecimals]="true" />
+              </span>
+            </div>
+          </div>
+        }
+
         <div class="summary-panel">
           <div class="summary-row">
             <span class="summary-row__label">Factures</span>
