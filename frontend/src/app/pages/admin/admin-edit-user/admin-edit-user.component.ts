@@ -5,6 +5,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormsModule } 
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { InputTextModule } from 'primeng/inputtext';
+import { InputNumberModule } from 'primeng/inputnumber';
 import { SelectModule } from 'primeng/select';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { ToastModule } from 'primeng/toast';
@@ -34,6 +35,7 @@ import { PageLayoutComponent } from '../../../shared/components/page-layout/page
     ReactiveFormsModule,
     FormsModule,
     InputTextModule,
+    InputNumberModule,
     SelectModule,
     MultiSelectModule,
     ToastModule,
@@ -106,6 +108,7 @@ export class AdminEditUserComponent implements OnInit {
       fiscal_na: [''],
       fiscal_nif: [''],
       fiscal_nis: [''],
+      fiscal_montant_declare: [null as number | null],
       wilaya: [''],
       daira: [''],
       commune: [''],
@@ -194,6 +197,7 @@ export class AdminEditUserComponent implements OnInit {
           fiscal_na: user.fiscal_info?.na || '',
           fiscal_nif: user.fiscal_info?.nif || '',
           fiscal_nis: user.fiscal_info?.nis || '',
+          fiscal_montant_declare: user.fiscal_info?.montant_declare ?? null,
           wilaya: user.wilaya || '',
           daira: user.daira || '',
           commune: user.commune || '',
@@ -267,6 +271,7 @@ export class AdminEditUserComponent implements OnInit {
       na: formValues.fiscal_na || undefined,
       nif: formValues.fiscal_nif || undefined,
       nis: formValues.fiscal_nis || undefined,
+      montant_declare: formValues.fiscal_montant_declare ?? undefined,
     };
     const hasFiscal = Object.values(fiscalInfo).some(v => v !== undefined);
 

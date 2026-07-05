@@ -248,6 +248,26 @@
                         </div>
                       </div>
                     </div>
+
+                    <!-- Montant déclaré -->
+                    <div class="grid">
+                      <div class="col-12">
+                        <div class="form-field">
+                          <div class="field-box" [class.filled]="userForm.get('fiscal_montant_declare')?.value">
+                            <div class="field-box__icon field-box__icon--warning">
+                              <i class="pi pi-building-columns"></i>
+                            </div>
+                            <div class="field-box__content">
+                              <label>Montant déclaré (DA)</label>
+                              <p-inputNumber formControlName="fiscal_montant_declare"
+                                placeholder="Montant déclaré aux impôts"
+                                [min]="0" [useGrouping]="true" mode="decimal" locale="fr-DZ"
+                                styleClass="w-full" inputStyleClass="w-full" />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>

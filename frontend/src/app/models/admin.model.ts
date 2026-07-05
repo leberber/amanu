@@ -171,7 +171,7 @@ export interface DashboardStats {
     created_at: string;
     updated_at?: string;
     groups?: UserGroupBasic[];
-    fiscal_info?: { rc?: string; na?: string; nif?: string; nis?: string };
+    fiscal_info?: { rc?: string; na?: string; nif?: string; nis?: string; montant_declare?: number };
     remaining_balance?: number;
     has_push?: boolean;
     segment_ids?: number[];

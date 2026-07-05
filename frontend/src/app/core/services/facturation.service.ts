@@ -31,6 +31,7 @@ export interface FacturationClient {
     na?: string;
     nif?: string;
     nis?: string;
+    montant_declare?: number;
   };
 }
 
@@ -75,7 +76,7 @@ export interface FacturationItemCreate {
 export interface FacturationCreate {
   client_id: number;
   document_type: 'facture' | 'bon_de_livraison';
-  fiscal_info?: { rc?: string; na?: string; nif?: string; nis?: string };
+  fiscal_info?: { rc?: string; na?: string; nif?: string; nis?: string; montant_declare?: number };
   payment_mode: string;
   remise: number;
   timbre: number;
@@ -148,6 +149,14 @@ export interface FacturationListResponse {
   total: number;
 }
 
+export interface ClientTotal {
+  client_id: number;
+  client_name: string;
+  total_ht: number;
+  total_ttc: number;
+  facture_count: number;
+}
+
 export interface AccountingStats {
   total_ht: number;
   total_ttc: number;
@@ -178,6 +187,10 @@ export class FacturationService {
     return this.http.get<FacturationClient[]>(`${this.apiUrl}/clients`, { params });
   }
 
+  updateClientFiscalInfo(clientId: number, fiscalInfo: FacturationClient['fiscal_info']): Observable<FacturationClient> {
+    return this.http.patch<FacturationClient>(`${this.apiUrl}/clients/${clientId}/fiscal-info`, fiscalInfo);
+  }
+
   // ── Company settings ─────────────────────────────────────────────────────────
   getCompanySettings(): Observable<CompanySettings> {
     return this.http.get<CompanySettings>(`${this.apiUrl}/company-settings`);
@@ -194,6 +207,10 @@ export class FacturationService {
     if (fromDate) params = params.set('from_date', fromDate);
     if (toDate) params = params.set('to_date', toDate);
     return this.http.get<FacturationListResponse>(this.apiUrl, { params });
+  }
+
+  getClientTotals(): Observable<ClientTotal[]> {
+    return this.http.get<ClientTotal[]>(`${this.apiUrl}/client-totals`);
   }
 
   getAccountingStats(clientId?: number): Observable<AccountingStats> {

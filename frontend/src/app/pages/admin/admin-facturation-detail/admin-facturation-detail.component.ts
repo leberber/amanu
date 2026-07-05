@@ -45,6 +45,7 @@ interface FiscalInfo {
   na: string;
   nif: string;
   nis: string;
+  montant_declare?: number;
 }
 
 @Component({
@@ -98,7 +99,7 @@ export class AdminFacturationDetailComponent implements OnInit {
   selectedClient: FacturationClient | null = null;
 
   // Editable fiscal info (populated from selectedClient.fiscal_info, editable inline)
-  fiscal: FiscalInfo = { rc: '', na: '', nif: '', nis: '' };
+  fiscal: FiscalInfo = { rc: '', na: '', nif: '', nis: '', montant_declare: undefined };
 
   // ── Catalog ─────────────────────────────────────────────────────────────────
   private allProducts: FacturationCatalogItem[] = [];
@@ -198,7 +199,7 @@ export class AdminFacturationDetailComponent implements OnInit {
       if (!raw) return;
       const draft = JSON.parse(raw);
       this.selectedClient = draft.selectedClient ?? null;
-      this.fiscal = draft.fiscal ?? { rc: '', na: '', nif: '', nis: '' };
+      this.fiscal = draft.fiscal ?? { rc: '', na: '', nif: '', nis: '', montant_declare: undefined };
       this.documentType = draft.documentType ?? 'facture';
       this.paymentMode = draft.paymentMode ?? 'espece';
       this.marge = draft.marge ?? 0;
@@ -306,12 +307,13 @@ export class AdminFacturationDetailComponent implements OnInit {
       na: client.fiscal_info?.na ?? '',
       nif: client.fiscal_info?.nif ?? '',
       nis: client.fiscal_info?.nis ?? '',
+      montant_declare: client.fiscal_info?.montant_declare,
     };
   }
 
   clearClient(): void {
     this.selectedClient = null;
-    this.fiscal = { rc: '', na: '', nif: '', nis: '' };
+    this.fiscal = { rc: '', na: '', nif: '', nis: '', montant_declare: undefined };
   }
 
   // ── Marge ────────────────────────────────────────────────────────────────────
@@ -419,6 +421,7 @@ export class AdminFacturationDetailComponent implements OnInit {
       na: this.fiscal.na || undefined,
       nif: this.fiscal.nif || undefined,
       nis: this.fiscal.nis || undefined,
+      montant_declare: this.fiscal.montant_declare,
     };
 
     const payload: FacturationCreate = {

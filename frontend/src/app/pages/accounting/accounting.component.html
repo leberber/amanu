@@ -1,146 +1,229 @@
 <div @pageAnimation class="accounting-page">
 
-  <!-- ── Top bar: search · segment · stats ────────────────────────── -->
+  <!-- ── Top bar ────────────────────────────────────────────────────── -->
   <div class="acc-top">
-    <p-select
-      [options]="clients()"
-      [ngModel]="selectedClientId()"
-      (ngModelChange)="onClientChange($event)"
-      optionLabel="display_name"
-      optionValue="id"
-      [filter]="true"
-      filterBy="display_name"
-      placeholder="Tous les clients"
-      [showClear]="true"
-      appendTo="body"
-      styleClass="filter-select--glass"
-      panelStyleClass="client-select-panel"
-    />
+    <div class="acc-top__row">
+      <p-select
+        [options]="clients()"
+        [ngModel]="selectedClientId()"
+        (ngModelChange)="onClientChange($event)"
+        optionLabel="display_name"
+        optionValue="id"
+        [filter]="true"
+        filterBy="display_name"
+        placeholder="Tous les clients"
+        [showClear]="true"
+        appendTo="body"
+        styleClass="filter-select--glass"
+        panelStyleClass="client-select-panel"
+      />
 
-    <div class="segment-control segment-control--glass">
-      <button class="segment-control__item" [class.active]="period() === 'month'" (click)="setPeriod('month')">Ce mois</button>
-      <button class="segment-control__item" [class.active]="period() === 'year'" (click)="setPeriod('year')">Année</button>
-      <button class="segment-control__item" [class.active]="period() === 'all'" (click)="setPeriod('all')">Tout</button>
+      @if (isFiltered()) {
+        <button class="fiscal-btn" (click)="openFiscalDialog()">
+          <i class="pi pi-building-columns"></i>
+          <span>Modifier infos fiscales</span>
+        </button>
+      }
     </div>
 
-    <div class="acc-stats">
-      <div class="stat-card">
-        <div class="stat-card__icon stat-card__icon--blue"><i class="pi pi-file-edit"></i></div>
-        <div class="stat-card__body">
-          <span class="stat-card__label">Factures</span>
-          <span class="stat-card__value">{{ displayStats().count }}</span>
+    @if (isFiltered()) {
+      <div class="acc-top__row acc-top__row--filters">
+        <div class="segment-control segment-control--glass">
+          <button class="segment-control__item"
+            [class.active]="period() === 'month' && pickedMonthYear() === null"
+            (click)="setPeriod('month')">Ce mois</button>
+          <button class="segment-control__item"
+            [class.active]="period() === 'year' && pickedMonthYear() === null"
+            (click)="setPeriod('year')">Année</button>
+          <button class="segment-control__item"
+            [class.active]="period() === 'all' && pickedMonthYear() === null"
+            (click)="setPeriod('all')">Tout</button>
         </div>
+
+        @if (availableYears().length > 0) {
+          <div class="filter-divider"></div>
+          <div class="year-pills">
+            @for (y of availableYears(); track y) {
+              <button class="year-pill" [class.active]="selectedYear() === y" (click)="selectYear(y)">
+                {{ y }}
+              </button>
+            }
+          </div>
+          <div class="filter-divider"></div>
+          <div class="month-pills">
+            @for (m of monthsForYear(); track m.month) {
+              <button
+                class="month-pill"
+                [class.active]="isMonthPicked(m.month, m.year)"
+                [disabled]="!m.hasFactures"
+                [pTooltip]="!m.hasFactures ? 'Aucune facture' : ''"
+                tooltipPosition="top"
+                (click)="pickMonth(m.month, m.year)">
+                {{ m.label }}
+              </button>
+            }
+          </div>
+        }
       </div>
-      <div class="stat-card">
-        <div class="stat-card__icon stat-card__icon--purple"><i class="pi pi-money-bill"></i></div>
-        <div class="stat-card__body">
-          <span class="stat-card__label">Total HT</span>
-          <span class="stat-card__value"><app-currency [value]="displayStats().total_ht" /></span>
-        </div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-card__icon stat-card__icon--green"><i class="pi pi-wallet"></i></div>
-        <div class="stat-card__body">
-          <span class="stat-card__label">Total TTC</span>
-          <span class="stat-card__value"><app-currency [value]="displayStats().total_ttc" /></span>
-        </div>
-      </div>
-    </div>
+    }
   </div>
 
-  <!-- ── Table ──────────────────────────────────────────────────────── -->
-  @if (loading()) {
-    <div class="table-container">
-      <div class="table-wrapper">
-        <table class="table">
-          <thead>
-            <tr>
-              <th>Référence</th>
-              @if (!selectedClientId()) { <th>Client</th> }
-              <th>Date</th>
-              <th>Mode</th>
-              <th class="text-right">Total HT</th>
-              <th class="text-right">Total TTC</th>
-              <th class="text-center">PDF</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (i of [1,2,3,4,5,6]; track i) {
-              <tr>
-                <td><div class="skeleton skeleton-text short"></div></td>
-                @if (!selectedClientId()) { <td><div class="skeleton skeleton-text"></div></td> }
-                <td><div class="skeleton skeleton-text short"></div></td>
-                <td><div class="skeleton skeleton-text short"></div></td>
-                <td><div class="skeleton skeleton-text short" style="margin-left:auto"></div></td>
-                <td><div class="skeleton skeleton-text short" style="margin-left:auto"></div></td>
-                <td></td>
-              </tr>
-            }
-          </tbody>
-        </table>
+  <!-- ── Fiscal info dialog ──────────────────────────────────────────────── -->
+  <p-dialog
+    header="Informations fiscales"
+    [visible]="showFiscalDialog()"
+    (visibleChange)="showFiscalDialog.set($event)"
+    [modal]="true"
+    [style]="{ width: '420px' }"
+    [closable]="true">
+    <div class="flex flex-column gap-3 pt-1">
+      <div class="grid">
+        <div class="col-6">
+          <label class="text-xs text-500 font-medium block mb-1">RC</label>
+          <input pInputText [(ngModel)]="fiscalForm.rc" placeholder="Registre de Commerce" class="w-full" />
+        </div>
+        <div class="col-6">
+          <label class="text-xs text-500 font-medium block mb-1">N.A</label>
+          <input pInputText [(ngModel)]="fiscalForm.na" placeholder="Numéro d'Article" class="w-full" />
+        </div>
+      </div>
+      <div class="grid">
+        <div class="col-6">
+          <label class="text-xs text-500 font-medium block mb-1">NIF</label>
+          <input pInputText [(ngModel)]="fiscalForm.nif" placeholder="N° Identification Fiscale" class="w-full" />
+        </div>
+        <div class="col-6">
+          <label class="text-xs text-500 font-medium block mb-1">NIS</label>
+          <input pInputText [(ngModel)]="fiscalForm.nis" placeholder="N° Identification Statistique" class="w-full" />
+        </div>
+      </div>
+      <div>
+        <label class="text-xs text-500 font-medium block mb-1">Montant déclaré (DA)</label>
+        <p-inputNumber [(ngModel)]="fiscalForm.montant_declare"
+          placeholder="Montant déclaré aux impôts"
+          [min]="0" [useGrouping]="true" mode="decimal" locale="fr-DZ"
+          styleClass="w-full" inputStyleClass="w-full" />
       </div>
     </div>
+    <ng-template pTemplate="footer">
+      <p-button label="Annuler" severity="secondary" (onClick)="showFiscalDialog.set(false)" />
+      <p-button label="Enregistrer" icon="pi pi-check"
+        [loading]="savingFiscal()" (onClick)="saveFiscalInfo()" />
+    </ng-template>
+  </p-dialog>
 
-  } @else if (filteredFacturations().length === 0) {
-    <div class="acc-empty">
-      <i class="pi pi-file-edit"></i>
-      <p class="font-semibold">Aucune facture</p>
-      <p class="text-sm text-color-secondary">
-        @if (selectedClientId()) {
-          Aucune facture pour ce client sur la période sélectionnée.
-        } @else {
-          Aucune facture enregistrée sur cette période.
-        }
-      </p>
-    </div>
+  <!-- ── Body ───────────────────────────────────────────────────────── -->
+  <div class="acc-body">
 
-  } @else {
-    <div class="table-container">
-      <div class="table-wrapper">
-        <table class="table">
-          <thead>
-            <tr>
-              <th>Référence</th>
-              @if (!selectedClientId()) { <th>Client</th> }
-              <th>Date</th>
-              <th>Mode</th>
-              <th class="text-right">Total HT</th>
-              <th class="text-right">Total TTC</th>
-              <th class="text-center">PDF</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (f of filteredFacturations(); track f.id; let i = $index) {
-              <tr class="table-row-animate" [style.--row-delay]="(i * 30) + 'ms'">
-                <td>
-                  <div class="ref-cell">
-                    <p-tag [value]="docTypeLabel(f.document_type)" [severity]="docTypeSeverity(f.document_type)" styleClass="text-xs" />
-                    <span class="font-semibold">{{ f.reference }}</span>
-                  </div>
-                </td>
-                @if (!selectedClientId()) {
-                  <td class="client-name">{{ f.client_name }}</td>
+    <div class="acc-main">
+      @if (loading() && isFiltered()) {
+        <div class="table-container">
+          <div class="table-wrapper">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Référence</th><th>Date</th><th>Mode</th>
+                  <th class="text-right">Total HT</th>
+                  <th class="text-right">Total TTC</th>
+                  <th class="text-center">PDF</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (i of [1,2,3,4,5]; track i) {
+                  <tr>
+                    <td><div class="skeleton skeleton-text short"></div></td>
+                    <td><div class="skeleton skeleton-text short"></div></td>
+                    <td><div class="skeleton skeleton-text short"></div></td>
+                    <td><div class="skeleton skeleton-text short" style="margin-left:auto"></div></td>
+                    <td><div class="skeleton skeleton-text short" style="margin-left:auto"></div></td>
+                    <td></td>
+                  </tr>
                 }
-                <td class="text-color-secondary">{{ f.created_at | appDate }}</td>
-                <td>
-                  <span class="payment-badge payment-badge--{{ f.payment_mode }}">
-                    {{ paymentLabels[f.payment_mode] ?? f.payment_mode }}
-                  </span>
-                </td>
-                <td class="text-right text-color-secondary"><app-currency [value]="f.total_ht" /></td>
-                <td class="text-right font-semibold"><app-currency [value]="f.total_ttc" /></td>
-                <td class="text-center">
-                  <button class="pdf-btn" (click)="downloadPdf(f)" [disabled]="loadingPdf() === f.id"
-                    pTooltip="Télécharger PDF" tooltipPosition="left">
-                    <i [class]="loadingPdf() === f.id ? 'pi pi-spin pi-spinner' : 'pi pi-file-pdf'"></i>
-                  </button>
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      } @else if (!isFiltered()) {
+        <div class="acc-empty">
+          <i class="pi pi-users"></i>
+          <p class="font-semibold">Sélectionnez un client</p>
+          <p class="text-sm text-color-secondary">Choisissez un client pour afficher ses factures.</p>
+        </div>
+
+      } @else if (filteredFacturations().length === 0) {
+        <div class="acc-empty">
+          <i class="pi pi-file-edit"></i>
+          <p class="font-semibold">Aucune facture</p>
+          <p class="text-sm text-color-secondary">Aucune facture pour cette période.</p>
+        </div>
+
+      } @else {
+        <div class="table-container">
+          <div class="table-wrapper">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Référence</th>
+                  <th>Date</th>
+                  <th>Mode</th>
+                  <th class="text-right">Total HT</th>
+                  <th class="text-right">Total TTC</th>
+                  <th class="text-center">PDF</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (f of filteredFacturations(); track f.id; let i = $index) {
+                  <tr class="table-row-animate" [style.--row-delay]="(i * 30) + 'ms'">
+                    <td>
+                      <div class="ref-cell">
+                        <p-tag [value]="docTypeLabel(f.document_type)" [severity]="docTypeSeverity(f.document_type)" styleClass="text-xs" />
+                        <span class="font-semibold">{{ f.reference }}</span>
+                      </div>
+                    </td>
+                    <td class="text-color-secondary">{{ f.created_at | appDate }}</td>
+                    <td>
+                      <span class="payment-badge payment-badge--{{ f.payment_mode }}">
+                        {{ paymentLabels[f.payment_mode] ?? f.payment_mode }}
+                      </span>
+                    </td>
+                    <td class="text-right text-color-secondary"><app-currency [value]="f.total_ht" /></td>
+                    <td class="text-right font-semibold"><app-currency [value]="f.total_ttc" /></td>
+                    <td class="text-center">
+                      <button class="pdf-btn" (click)="downloadPdf(f)" [disabled]="loadingPdf() === f.id"
+                        pTooltip="Télécharger PDF" tooltipPosition="left">
+                        <i [class]="loadingPdf() === f.id ? 'pi pi-spin pi-spinner' : 'pi pi-file-pdf'"></i>
+                      </button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      }
     </div>
-  }
+
+    @if (isFiltered()) {
+      <div class="acc-sidebar">
+        <div class="summary-panel">
+          <div class="summary-row">
+            <span class="summary-row__label">Factures</span>
+            <span class="summary-row__value">{{ clientStats().count }}</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-row__label">Total HT</span>
+            <span class="summary-row__value"><app-currency [value]="clientStats().total_ht" /></span>
+          </div>
+          <div class="summary-sep"></div>
+          <div class="summary-row summary-row--total">
+            <span class="summary-row__label">Total TTC</span>
+            <span class="summary-row__value"><app-currency [value]="clientStats().total_ttc" /></span>
+          </div>
+        </div>
+      </div>
+    }
+
+  </div>
 
 </div>

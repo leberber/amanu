@@ -209,6 +209,33 @@ async def list_invoice_clients(
     return [user_to_client_view(u) for u in users]
 
 
+class FiscalInfoUpdate(PydanticBaseModel):
+    rc: Optional[str] = None
+    na: Optional[str] = None
+    nif: Optional[str] = None
+    nis: Optional[str] = None
+    montant_declare: Optional[float] = None
+
+
+@router.patch("/clients/{client_id}/fiscal-info", response_model=FacturationClientView)
+async def update_client_fiscal_info(
+    client_id: int,
+    data: FiscalInfoUpdate,
+    session: Session = Depends(get_session),
+):
+    """Update a client's fiscal info (accessible to accountants)."""
+    user = session.get(User, client_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="Client introuvable")
+    existing = user.fiscal_info or {}
+    updated = {**existing, **data.model_dump(exclude_none=True)}
+    user.fiscal_info = updated
+    session.add(user)
+    session.commit()
+    session.refresh(user)
+    return user_to_client_view(user)
+
+
 # =============================================================================
 # Catalog — products that have been received with supplier invoice
 # =============================================================================
@@ -300,6 +327,40 @@ async def get_facturation_catalog(session: Session = Depends(get_session)):
 # =============================================================================
 # Facturations
 # =============================================================================
+
+class ClientTotalResponse(PydanticBaseModel):
+    client_id: int
+    client_name: str
+    total_ht: float
+    total_ttc: float
+    facture_count: int
+
+
+@router.get("/client-totals", response_model=List[ClientTotalResponse])
+async def get_client_totals(session: Session = Depends(get_session)):
+    """Per-client facturation totals, sorted by total TTC descending."""
+    rows = session.exec(
+        select(
+            Facturation.client_id,
+            Facturation.client_name,
+            func.sum(Facturation.total_ht).label("total_ht"),
+            func.sum(Facturation.total_ttc).label("total_ttc"),
+            func.count(Facturation.id).label("facture_count"),
+        )
+        .group_by(Facturation.client_id, Facturation.client_name)
+        .order_by(func.sum(Facturation.total_ttc).desc())
+    ).all()
+    return [
+        ClientTotalResponse(
+            client_id=row[0],
+            client_name=row[1],
+            total_ht=round(float(row[2] or 0), 2),
+            total_ttc=round(float(row[3] or 0), 2),
+            facture_count=int(row[4] or 0),
+        )
+        for row in rows
+    ]
+
 
 class AccountingStatsResponse(PydanticBaseModel):
     total_ht: float
