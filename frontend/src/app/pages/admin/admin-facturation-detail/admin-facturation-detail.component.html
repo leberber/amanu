@@ -149,16 +149,17 @@
           <span class="text-xs text-400">DA</span>
         </div>
 
-        <!-- Dot -->
-        <span class="flex-shrink-0 border-round-xl" style="width:4px;height:4px;background:var(--surface-border)"></span>
+        @if (paymentMode === 'espece') {
+          <!-- Dot -->
+          <span class="flex-shrink-0 border-round-xl" style="width:4px;height:4px;background:var(--surface-border)"></span>
 
-        <!-- Timbre -->
-        <div class="flex align-items-center gap-1">
-          <span class="text-xs text-400 white-space-nowrap">Timbre</span>
-          <p-inputNumber [(ngModel)]="timbre" [minFractionDigits]="2" [min]="0"
-                         [inputStyle]="{ width:'64px', padding:'.28rem .4rem', fontSize:'.78rem' }" />
-          <span class="text-xs text-400">DA</span>
-        </div>
+          <!-- Timbre (auto-computed, read-only) -->
+          <div class="flex align-items-center gap-1">
+            <span class="text-xs text-400 white-space-nowrap">Timbre</span>
+            <span class="text-xs font-semibold text-700">{{ timbre.toFixed(2) }} DA</span>
+            <span class="text-xs text-400" style="font-style:italic">(auto)</span>
+          </div>
+        }
 
         <!-- Dot -->
         <span class="flex-shrink-0 border-round-xl" style="width:4px;height:4px;background:var(--surface-border)"></span>
@@ -477,6 +478,20 @@
               <span class="text-xs text-400">Total HT</span>
               <span class="text-xs font-semibold text-700">{{ totalHt.toFixed(2) }} DA</span>
             </div>
+            @if (montantImpose > 0) {
+              <div class="flex-shrink-0" style="width:1px;height:14px;background:var(--surface-border)"></div>
+              <div class="flex align-items-center gap-2">
+                <span class="text-xs text-400">Montant imposé</span>
+                <span class="text-xs text-400">{{ montantImpose.toFixed(2) }} DA</span>
+              </div>
+            }
+            @if (montantExo > 0) {
+              <div class="flex-shrink-0" style="width:1px;height:14px;background:var(--surface-border)"></div>
+              <div class="flex align-items-center gap-2">
+                <span class="text-xs text-400">Montant exonéré</span>
+                <span class="text-xs text-400">{{ montantExo.toFixed(2) }} DA</span>
+              </div>
+            }
             <div class="flex-shrink-0" style="width:1px;height:14px;background:var(--surface-border)"></div>
             <div class="flex align-items-center gap-2">
               <span class="text-xs text-400">TVA</span>
@@ -673,6 +688,20 @@
             <span class="text-xs text-400">Total HT</span>
             <span class="text-xs font-semibold text-700">{{ facture()!.total_ht | number:'1.2-2' }} DA</span>
           </div>
+          @if (factureImpose() > 0) {
+            <div class="flex-shrink-0" style="width:1px;height:14px;background:var(--surface-border)"></div>
+            <div class="flex align-items-center gap-2">
+              <span class="text-xs text-400">Montant imposé</span>
+              <span class="text-xs text-400">{{ factureImpose() | number:'1.2-2' }} DA</span>
+            </div>
+          }
+          @if (factureExo() > 0) {
+            <div class="flex-shrink-0" style="width:1px;height:14px;background:var(--surface-border)"></div>
+            <div class="flex align-items-center gap-2">
+              <span class="text-xs text-400">Montant exonéré</span>
+              <span class="text-xs text-400">{{ factureExo() | number:'1.2-2' }} DA</span>
+            </div>
+          }
           <div class="flex-shrink-0" style="width:1px;height:14px;background:var(--surface-border)"></div>
           <div class="flex align-items-center gap-2">
             <span class="text-xs text-400">TVA</span>

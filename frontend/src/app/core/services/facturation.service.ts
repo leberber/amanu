@@ -35,6 +35,11 @@ export interface FacturationClient {
   };
 }
 
+export interface TimbreTier {
+  max: number | null;  // null = unbounded (last tier)
+  rate: number;        // percentage, e.g. 1 = 1%, 1.5 = 1.5%
+}
+
 export interface CompanySettings {
   id: number;
   name: string;
@@ -46,6 +51,7 @@ export interface CompanySettings {
   nif?: string;
   nis?: string;
   email?: string;
+  timbre_tiers?: TimbreTier[];
 }
 
 export interface CompanySettingsUpdate {
@@ -58,6 +64,7 @@ export interface CompanySettingsUpdate {
   nif?: string;
   nis?: string;
   email?: string;
+  timbre_tiers?: TimbreTier[];
 }
 
 export interface FacturationItemCreate {

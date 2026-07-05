@@ -1,4 +1,5 @@
 from sqlmodel import SQLModel, Field, Relationship
+from sqlalchemy import Column, JSON
 from typing import Optional, List, Dict, Any
 from datetime import datetime, timezone
 from pydantic import BaseModel
@@ -21,6 +22,9 @@ class CompanySettings(SQLModel, table=True):
     nif: Optional[str] = Field(default=None)
     nis: Optional[str] = Field(default=None)
     email: Optional[str] = Field(default=None)
+    # timbre_tiers: [{ "max": 30000, "rate": 1 }, { "max": 100000, "rate": 1.5 }, { "max": null, "rate": 2 }]
+    # rate is in percent (1 = 1%), max is null for the last (unbounded) tier
+    timbre_tiers: Optional[List[Dict[str, Any]]] = Field(default=None, sa_column=Column(JSON))
 
 
 class CompanySettingsUpdate(BaseModel):
@@ -33,6 +37,7 @@ class CompanySettingsUpdate(BaseModel):
     nif: Optional[str] = None
     nis: Optional[str] = None
     email: Optional[str] = None
+    timbre_tiers: Optional[List[Dict[str, Any]]] = None
 
 
 class CompanySettingsResponse(BaseModel):
@@ -46,6 +51,7 @@ class CompanySettingsResponse(BaseModel):
     nif: Optional[str]
     nis: Optional[str]
     email: Optional[str]
+    timbre_tiers: Optional[List[Dict[str, Any]]] = None
 
 
 # =============================================================================

@@ -138,7 +138,14 @@ export class FacturationPdfService {
     const remiseLine = facture.remise > 0
       ? `<div class="summary-row"><span>REMISE</span><strong>- ${this.money(facture.remise)}</strong></div>` : '';
     const timbreLine = facture.timbre > 0
-      ? `<div class="summary-row"><span>TIMBRE</span><strong>${this.money(facture.timbre)}</strong></div>` : '';
+      ? `<div class="summary-row timbre-row"><span>TIMBRE</span><strong>${this.money(facture.timbre)}</strong></div>` : '';
+
+    const montantImpose = facture.items.filter(i => i.tva_rate > 0).reduce((s, i) => s + i.total_ht, 0);
+    const montantExo    = facture.items.filter(i => i.tva_rate === 0).reduce((s, i) => s + i.total_ht, 0);
+    const imposeLine = montantImpose > 0
+      ? `<div class="summary-row dimmed"><span>MONTANT IMPOSÉ</span><strong>${this.money(montantImpose)}</strong></div>` : '';
+    const exoLine = montantExo > 0
+      ? `<div class="summary-row dimmed"><span>MONTANT EXONÉRÉ</span><strong>${this.money(montantExo)}</strong></div>` : '';
 
     const invoiceStyle = fixedPage1
       ? 'style="height:297mm;display:flex;flex-direction:column;overflow:hidden;padding-bottom:20px;"'
@@ -264,12 +271,19 @@ export class FacturationPdfService {
 
   .bottom { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 18px 24px 0; }
   .amount-box, .summary { border: 1px solid #dbe5f0; border-radius: 12px; padding: 16px; }
+  .amount-box { display: flex; flex-direction: column; }
   .amount-box p { font-size: 11px; color: #555; margin-bottom: 8px; }
   .amount-box h4 { color: #063b88; font-size: 15px; margin: 0 0 16px; }
   .stamp { margin-top: 16px; display: inline-block; border: 2px solid #b71c1c; color: #b71c1c; padding: 8px 18px; transform: rotate(-3deg); text-align: center; font-weight: bold; font-size: 10px; line-height: 1.6; }
   .summary-title { background: #063b88; color: white; padding: 8px 14px; border-radius: 8px; font-weight: bold; margin-bottom: 10px; font-size: 13px; }
   .summary-row { display: flex; justify-content: space-between; border-bottom: 1px solid #e4ecf5; padding: 7px 0; font-size: 13px; }
   .green { color: #063b88; }
+  .dimmed { color: #9aabbf; font-size: 12px; }
+  .dimmed strong { color: #9aabbf; font-weight: 500; }
+  .tva-row { color: #c0392b; }
+  .tva-row strong { color: #c0392b; }
+  .timbre-row { color: #7c5caa; }
+  .timbre-row strong { color: #7c5caa; }
   .total { margin-top: 10px; background: linear-gradient(90deg, #041f58, #1a5fc8); color: white; border-radius: 8px; padding: 12px; display: flex; justify-content: space-between; font-size: 17px; font-weight: bold; }
   .payment { margin-top: 10px; background: #edf8eb; border-radius: 8px; padding: 9px 12px; display: flex; justify-content: space-between; font-size: 13px; }
 
@@ -383,16 +397,17 @@ export class FacturationPdfService {
         HAMDIS Med Amokrane Ouadhias<br />
         T-O R.C n° : 15/02-5241701/A/25
       </div>
+      <div class="payment" style="margin-top:auto"><strong>MODE DE PAIEMENT</strong><strong>${modeLabel}</strong></div>
     </div>
 
     <div class="summary">
       <div class="summary-title">RECAPITULATIF</div>
       <div class="summary-row"><span>TOTAL HT</span><strong>${this.money(facture.total_ht)}</strong></div>
+      ${imposeLine}${exoLine}
       ${remiseLine}
-      <div class="summary-row green"><span>TVA</span><strong>${this.money(facture.total_tva)}</strong></div>
+      <div class="summary-row tva-row"><span>TVA</span><strong>${this.money(facture.total_tva)}</strong></div>
       ${timbreLine}
       <div class="total"><span>TOTAL TTC</span><span>${this.money(facture.total_ttc)}</span></div>
-      <div class="payment"><strong>MODE DE PAIEMENT</strong><strong>${modeLabel}</strong></div>
     </div>
   </div>
 

@@ -6,9 +6,10 @@ import { trigger, transition, style, animate } from '@angular/animations';
 import { ADMIN_CORE_IMPORTS } from '../../../shared/imports/admin-shared.imports';
 import { AgroclikPageContainerComponent } from '../../../shared/components/agroclik-page-container/agroclik-page-container.component';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
-import { FacturationService, CompanySettings } from '../../../core/services/facturation.service';
+import { FacturationService, CompanySettings, TimbreTier } from '../../../core/services/facturation.service';
 
 import { InputTextModule } from 'primeng/inputtext';
+import { InputNumberModule } from 'primeng/inputnumber';
 import { CardModule } from 'primeng/card';
 import { DividerModule } from 'primeng/divider';
 import { TextareaModule } from 'primeng/textarea';
@@ -23,6 +24,7 @@ import { ButtonModule } from 'primeng/button';
     FormsModule,
     AgroclikPageContainerComponent,
     InputTextModule,
+    InputNumberModule,
     CardModule,
     DividerModule,
     TextareaModule,
@@ -48,6 +50,12 @@ export class AdminCompanySettingsComponent implements OnInit {
   loading = signal(false);
   saving = signal(false);
 
+  readonly DEFAULT_TIMBRE_TIERS: TimbreTier[] = [
+    { max: 30000,  rate: 1   },
+    { max: 100000, rate: 1.5 },
+    { max: null,   rate: 2   },
+  ];
+
   // Form fields
   name = '';
   activity = '';
@@ -57,6 +65,7 @@ export class AdminCompanySettingsComponent implements OnInit {
   na = '';
   nif = '';
   nis = '';
+  timbreTiers: TimbreTier[] = this.DEFAULT_TIMBRE_TIERS.map(t => ({ ...t }));
 
   ngOnInit(): void {
     this.loadSettings();
@@ -68,14 +77,17 @@ export class AdminCompanySettingsComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (s) => {
-          this.name     = s.name ?? '';
-          this.activity = s.activity ?? '';
-          this.address  = s.address ?? '';
-          this.phone    = s.phone ?? '';
-          this.rc       = s.rc ?? '';
-          this.na       = s.na ?? '';
-          this.nif      = s.nif ?? '';
-          this.nis      = s.nis ?? '';
+          this.name        = s.name ?? '';
+          this.activity    = s.activity ?? '';
+          this.address     = s.address ?? '';
+          this.phone       = s.phone ?? '';
+          this.rc          = s.rc ?? '';
+          this.na          = s.na ?? '';
+          this.nif         = s.nif ?? '';
+          this.nis         = s.nis ?? '';
+          this.timbreTiers = s.timbre_tiers?.length
+            ? s.timbre_tiers.map(t => ({ ...t }))
+            : this.DEFAULT_TIMBRE_TIERS.map(t => ({ ...t }));
           this.loading.set(false);
         },
         error: () => {
@@ -93,14 +105,15 @@ export class AdminCompanySettingsComponent implements OnInit {
 
     this.saving.set(true);
     this.facturationService.updateCompanySettings({
-      name:     this.name,
-      activity: this.activity || undefined,
-      address:  this.address || undefined,
-      phone:    this.phone || undefined,
-      rc:       this.rc || undefined,
-      na:       this.na || undefined,
-      nif:      this.nif || undefined,
-      nis:      this.nis || undefined,
+      name:         this.name,
+      activity:     this.activity || undefined,
+      address:      this.address || undefined,
+      phone:        this.phone || undefined,
+      rc:           this.rc || undefined,
+      na:           this.na || undefined,
+      nif:          this.nif || undefined,
+      nis:          this.nis || undefined,
+      timbre_tiers: this.timbreTiers,
     }).pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {

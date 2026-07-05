@@ -13,7 +13,8 @@ import { ConfirmationDialogService } from '../../../core/services/confirmation-d
 import { ToastMessageService } from '../../../core/services/toast-message.service';
 import {
   FacturationService, Facturation, FacturationCreate, FacturationItemCreate,
-  CompanySettings, FacturationClient, FacturationCatalogItem, FacturationDraft
+  CompanySettings, FacturationClient, FacturationCatalogItem, FacturationDraft,
+  TimbreTier,
 } from '../../../core/services/facturation.service';
 import { FacturationPdfService } from '../../../services/facturation-pdf.service';
 import { BrandService } from '../../../core/services/brand.service';
@@ -118,8 +119,13 @@ export class AdminFacturationDetailComponent implements OnInit {
   paymentMode = 'espece';
   marge = 0;
   remise = 0;
-  timbre = 0;
   notes = '';
+
+  private static readonly DEFAULT_TIMBRE_TIERS: TimbreTier[] = [
+    { max: 30000,  rate: 1   },
+    { max: 100000, rate: 1.5 },
+    { max: null,   rate: 2   },
+  ];
   sourceBdlReference: string | null = null;
   showSaveConfirm = signal(false);
   items: InvoiceItem[] = [];
@@ -136,8 +142,44 @@ export class AdminFacturationDetailComponent implements OnInit {
   get totalTva(): number {
     return this.items.reduce((sum, item) => sum + (this.pCtnTtc(item) - this.pCtnHt(item)) * item.quantity, 0);
   }
+  get timbre(): number {
+    if (this.paymentMode !== 'espece') return 0;
+    const base = this.totalHt + this.totalTva - this.remise;
+    return this.computeTimbre(base);
+  }
+
+  private computeTimbre(base: number): number {
+    if (base <= 0) return 0;
+    const tiers = this.company()?.timbre_tiers?.length
+      ? this.company()!.timbre_tiers!
+      : AdminFacturationDetailComponent.DEFAULT_TIMBRE_TIERS;
+    for (const tier of tiers) {
+      if (tier.max === null || base <= tier.max) {
+        return base * tier.rate / 100;
+      }
+    }
+    return 0;
+  }
+
   get totalTtc(): number {
     return this.totalHt + this.totalTva - this.remise + this.timbre;
+  }
+  get montantImpose(): number {
+    return this.items.filter(i => i.tva_rate > 0)
+      .reduce((sum, i) => sum + this.pCtnHt(i) * i.quantity, 0);
+  }
+  get montantExo(): number {
+    return this.items.filter(i => i.tva_rate === 0)
+      .reduce((sum, i) => sum + this.pCtnHt(i) * i.quantity, 0);
+  }
+
+  factureImpose(): number {
+    return this.facture()?.items.filter(i => i.tva_rate > 0)
+      .reduce((sum, i) => sum + i.total_ht, 0) ?? 0;
+  }
+  factureExo(): number {
+    return this.facture()?.items.filter(i => i.tva_rate === 0)
+      .reduce((sum, i) => sum + i.total_ht, 0) ?? 0;
   }
 
   readonly tvaRates = [0, 9, 19];
@@ -185,7 +227,6 @@ export class AdminFacturationDetailComponent implements OnInit {
         paymentMode: this.paymentMode,
         marge: this.marge,
         remise: this.remise,
-        timbre: this.timbre,
         notes: this.notes,
         items: this.items,
         sourceBdlReference: this.sourceBdlReference,
@@ -204,7 +245,6 @@ export class AdminFacturationDetailComponent implements OnInit {
       this.paymentMode = draft.paymentMode ?? 'espece';
       this.marge = draft.marge ?? 0;
       this.remise = draft.remise ?? 0;
-      this.timbre = draft.timbre ?? 0;
       this.notes = draft.notes ?? '';
       this.items = draft.items ?? [];
       this.sourceBdlReference = draft.sourceBdlReference ?? null;

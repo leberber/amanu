@@ -165,7 +165,7 @@ async def get_company_settings(session: Session = Depends(get_session)):
         id=settings.id, name=settings.name, activity=settings.activity,
         address=settings.address, phone=settings.phone,
         rc=settings.rc, na=settings.na, nif=settings.nif, nis=settings.nis,
-        email=settings.email,
+        email=settings.email, timbre_tiers=settings.timbre_tiers,
     )
 
 
@@ -185,7 +185,7 @@ async def update_company_settings(data: CompanySettingsUpdate, session: Session 
         id=settings.id, name=settings.name, activity=settings.activity,
         address=settings.address, phone=settings.phone,
         rc=settings.rc, na=settings.na, nif=settings.nif, nis=settings.nis,
-        email=settings.email,
+        email=settings.email, timbre_tiers=settings.timbre_tiers,
     )
 
 

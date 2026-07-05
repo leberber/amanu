@@ -75,6 +75,44 @@
           </div>
         </div>
 
+        <!-- Timbre tiers -->
+        <div class="col-12">
+          <div class="surface-card border-round p-4">
+            <h3 class="text-base font-bold text-700 m-0 mb-1">Droits de timbre (espèces)</h3>
+            <p class="text-sm text-500 m-0 mb-4">Appliqués automatiquement aux factures réglées en espèces. Le taux est calculé sur le montant TTC.</p>
+            <div class="flex flex-column gap-2">
+              @for (tier of timbreTiers; track $index; let i = $index; let last = $last) {
+                <div class="flex align-items-center gap-3 border-round-lg p-3" style="background:var(--surface-50)">
+                  <span class="text-sm text-500" style="min-width:160px;white-space:nowrap">
+                    @if (i === 0) {
+                      De 0 DA
+                    } @else {
+                      Au-dessus de {{ timbreTiers[i - 1].max | number:'1.0-0' }} DA
+                    }
+                  </span>
+                  <span class="text-sm text-400">à</span>
+                  @if (!last) {
+                    <p-inputNumber
+                      [(ngModel)]="tier.max"
+                      [min]="1" [useGrouping]="true"
+                      [inputStyle]="{ width:'130px' }"
+                      suffix=" DA" />
+                  } @else {
+                    <span class="text-sm font-semibold text-700" style="min-width:130px">Au-delà</span>
+                  }
+                  <i class="pi pi-arrow-right text-400 text-xs"></i>
+                  <p-inputNumber
+                    [(ngModel)]="tier.rate"
+                    [min]="0" [max]="100" [minFractionDigits]="1" [maxFractionDigits]="3"
+                    [inputStyle]="{ width:'80px' }"
+                    suffix="%" />
+                  <span class="text-sm text-400">du TTC</span>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+
       </div>
     }
   </div>
