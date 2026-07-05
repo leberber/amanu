@@ -12,6 +12,7 @@ import { DateService } from '../core/services/date.service';
 export class FacturationPdfService {
   private toast = inject(ToastMessageService);
   private dateService = inject(DateService);
+  private logoCache: string | null | undefined = undefined; // undefined = not yet fetched
 
   private cleanAddress(address: string | null | undefined): string {
     if (!address) return '';
@@ -482,6 +483,89 @@ export class FacturationPdfService {
 </html>`;
   }
 
+  private showPdfOverlay(): { overlay: HTMLElement; style: HTMLStyleElement } {
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes pdf-shimmer {
+        0%   { background-position: -600px 0; }
+        100% { background-position:  600px 0; }
+      }
+      .ps { background: linear-gradient(90deg, #eef2ff 25%, #dde6ff 50%, #eef2ff 75%);
+            background-size: 1200px 100%;
+            animation: pdf-shimmer 1.4s infinite linear;
+            border-radius: 5px; }
+      .ps-warm { background: linear-gradient(90deg, #fffbf0 25%, #ffefc0 50%, #fffbf0 75%);
+                 background-size: 1200px 100%;
+                 animation: pdf-shimmer 1.4s 0.15s infinite linear;
+                 border-radius: 10px; }
+    `;
+    document.head.appendChild(style);
+
+    const rows = [100, 82, 94, 76, 88]
+      .map((w, i) => `<div class="ps" style="width:${w}%;height:10px;animation-delay:${i * 0.08}s"></div>`)
+      .join('');
+
+    const overlay = document.createElement('div');
+    overlay.style.cssText = [
+      'position:fixed', 'inset:0', 'z-index:99999',
+      'background:rgba(4,16,45,0.6)', 'backdrop-filter:blur(8px)',
+      'display:flex', 'align-items:center', 'justify-content:center',
+      'transition:opacity .2s ease',
+    ].join(';');
+
+    overlay.innerHTML = `
+      <div style="width:460px;background:#fff;border-radius:20px;padding:26px 28px 22px;
+                  box-shadow:0 32px 80px rgba(0,0,0,0.4);font-family:Arial,sans-serif">
+
+        <!-- Header row -->
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
+          <div class="ps" style="width:110px;height:20px"></div>
+          <div class="ps" style="width:56px;height:56px;border-radius:50%"></div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+            <div class="ps" style="width:72px;height:12px"></div>
+            <div class="ps" style="width:56px;height:12px;animation-delay:.1s"></div>
+          </div>
+        </div>
+
+        <!-- Blue bar -->
+        <div class="ps" style="width:100%;height:22px;border-radius:6px;margin-bottom:16px"></div>
+
+        <!-- Two info cards -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px">
+          <div class="ps" style="height:82px;border-radius:12px"></div>
+          <div class="ps-warm" style="height:82px"></div>
+        </div>
+
+        <!-- Table header -->
+        <div class="ps" style="width:100%;height:26px;border-radius:7px;margin-bottom:10px"></div>
+
+        <!-- Table rows -->
+        <div style="display:flex;flex-direction:column;gap:7px;margin-bottom:18px">${rows}</div>
+
+        <!-- Bottom: amount + summary -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div class="ps" style="height:66px;border-radius:10px"></div>
+          <div class="ps" style="height:66px;border-radius:10px;animation-delay:.2s"></div>
+        </div>
+
+        <!-- Label -->
+        <div style="text-align:center;margin-top:20px;color:#8a99b8;font-size:12px;letter-spacing:.4px">
+          Génération du PDF en cours…
+        </div>
+      </div>`;
+
+    document.body.appendChild(overlay);
+    return { overlay, style };
+  }
+
+  private hidePdfOverlay({ overlay, style }: { overlay: HTMLElement; style: HTMLStyleElement }): void {
+    overlay.style.opacity = '0';
+    setTimeout(() => {
+      overlay.parentNode?.removeChild(overlay);
+      style.parentNode?.removeChild(style);
+    }, 200);
+  }
+
   private makeIframe(width: number, height = 1): HTMLIFrameElement {
     const f = document.createElement('iframe');
     f.style.cssText = `position:fixed;top:0;left:-9999px;width:${width}px;height:${height}px;border:none;`;
@@ -491,16 +575,20 @@ export class FacturationPdfService {
 
   private async canvasFromIframe(f: HTMLIFrameElement, width: number): Promise<HTMLCanvasElement> {
     const el = f.contentDocument!.querySelector('.invoice') as HTMLElement;
-    return html2canvas(el, { scale: 2, useCORS: true, allowTaint: true, backgroundColor: '#ffffff', windowWidth: width });
+    return html2canvas(el, { scale: 1.5, useCORS: true, allowTaint: true, backgroundColor: '#ffffff', windowWidth: width });
   }
 
   async generateFacturePdf(facture: Facturation, company: CompanySettings, mode: 'download' | 'print' | 'preview' = 'print'): Promise<void> {
+    const overlayRef = this.showPdfOverlay();
     try {
+      if (this.logoCache === undefined) {
+        this.logoCache = await this.loadImageAsDataUrl('/logo.png');
+      }
       const [imageDataUrls, logoDataUrl] = await Promise.all([
         Promise.all(facture.items.map(item =>
           item.image_url ? this.loadImageAsDataUrl(item.image_url) : Promise.resolve(null)
         )),
-        this.loadImageAsDataUrl('/logo.png'),
+        Promise.resolve(this.logoCache),
       ]);
 
       const W = 794;
@@ -511,7 +599,7 @@ export class FacturationPdfService {
       mf.contentDocument!.open();
       mf.contentDocument!.write(this.buildHtml(facture, company, imageDataUrls, logoDataUrl));
       mf.contentDocument!.close();
-      await new Promise(r => setTimeout(r, 300));
+      await new Promise(r => setTimeout(r, 150));
 
       const md   = mf.contentDocument!;
       const inv  = md.querySelector('.invoice') as HTMLElement;
@@ -555,7 +643,7 @@ export class FacturationPdfService {
       p1f.contentDocument!.open();
       p1f.contentDocument!.write(this.buildHtml(facture, company, p1Imgs, logoDataUrl, p1Items, p1Imgs, hasOverflow, 1, totalPages));
       p1f.contentDocument!.close();
-      await new Promise(r => setTimeout(r, 300));
+      await new Promise(r => setTimeout(r, 150));
 
       if (!hasOverflow) {
         const el = p1f.contentDocument!.querySelector('.invoice') as HTMLElement;
@@ -578,7 +666,7 @@ export class FacturationPdfService {
         exf.contentDocument!.open();
         exf.contentDocument!.write(this.buildContinuationHtml(exImgs, exItems));
         exf.contentDocument!.close();
-        await new Promise(r => setTimeout(r, 300));
+        await new Promise(r => setTimeout(r, 150));
 
         const exEl = exf.contentDocument!.querySelector('.invoice') as HTMLElement;
         exf.style.height = exEl.scrollHeight + 'px';
@@ -629,6 +717,8 @@ export class FacturationPdfService {
       }
     } catch (err: any) {
       this.toast.showError('PDF error: ' + (err?.message ?? String(err)));
+    } finally {
+      this.hidePdfOverlay(overlayRef);
     }
   }
 }
