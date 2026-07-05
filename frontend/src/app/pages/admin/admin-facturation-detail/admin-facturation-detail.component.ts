@@ -496,7 +496,7 @@ export class AdminFacturationDetailComponent implements OnInit {
           this.clearDraft();
           this.toast.showSuccess(`Facture ${created.reference} créée`);
           const company = this.company();
-          if (company) this.pdfService.generateFacturePdf(created, company, false);
+          if (company) this.pdfService.generateFacturePdf(created, company, 'print');
           this.router.navigate([RouteHelpers.adminFacturationDetail(created.id)]);
         },
         error: () => {
@@ -581,8 +581,8 @@ export class AdminFacturationDetailComponent implements OnInit {
   }
 
   // ── View mode actions ─────────────────────────────────────────────────────────
-  print(): void    { this.generatePdf(false); }
-  download(): void { this.generatePdf(true); }
+  print(): void    { this.generatePdf('print'); }
+  download(): void { this.generatePdf('download'); }
 
   convertToFacture(): void {
     const f = this.facture();
@@ -607,7 +607,7 @@ export class AdminFacturationDetailComponent implements OnInit {
           this.converting.set(false);
           this.toast.showSuccess(`Facture ${created.reference} créée`);
           const company = this.company();
-          if (company) this.pdfService.generateFacturePdf(created, company, false);
+          if (company) this.pdfService.generateFacturePdf(created, company, 'print');
           this.router.navigate([RouteHelpers.adminFacturationDetail(created.id)]);
         },
         error: () => {
@@ -617,10 +617,10 @@ export class AdminFacturationDetailComponent implements OnInit {
       });
   }
 
-  private generatePdf(download: boolean): void {
+  private generatePdf(mode: 'download' | 'print' | 'preview'): void {
     const f = this.facture(); const company = this.company();
     if (!f || !company) return;
-    this.pdfService.generateFacturePdf(f, company, download);
+    this.pdfService.generateFacturePdf(f, company, mode);
   }
 
   confirmDelete(): void {

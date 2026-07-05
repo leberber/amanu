@@ -204,22 +204,19 @@
                 @for (f of filteredFacturations(); track f.id; let i = $index) {
                   <tr class="table-row-animate" [style.--row-delay]="(i * 30) + 'ms'">
                     <td>
-                      <div class="ref-cell">
-                        <p-tag [value]="docTypeLabel(f.document_type)" [severity]="docTypeSeverity(f.document_type)" styleClass="text-xs" />
-                        <span class="font-semibold">{{ f.reference }}</span>
-                      </div>
+                      <span class="font-semibold">{{ f.reference }}</span>
                     </td>
                     <td class="text-color-secondary">{{ f.created_at | appDate }}</td>
                     <td>
                       <span class="payment-badge payment-badge--{{ f.payment_mode }}">
-                        {{ paymentLabels[f.payment_mode] ?? f.payment_mode }}
+                        {{ paymentLabels[f.payment_mode] || f.payment_mode }}
                       </span>
                     </td>
                     <td class="text-right text-color-secondary"><app-currency [value]="f.total_ht" /></td>
                     <td class="text-right font-semibold"><app-currency [value]="f.total_ttc" /></td>
                     <td class="text-center">
-                      <button class="pdf-btn" (click)="downloadPdf(f)" [disabled]="loadingPdf() === f.id"
-                        pTooltip="Télécharger PDF" tooltipPosition="left">
+                      <button class="pdf-btn" (click)="previewPdf(f)" [disabled]="loadingPdf() === f.id"
+                        pTooltip="Aperçu PDF" tooltipPosition="left">
                         <i [class]="loadingPdf() === f.id ? 'pi pi-spin pi-spinner' : 'pi pi-file-pdf'"></i>
                       </button>
                     </td>

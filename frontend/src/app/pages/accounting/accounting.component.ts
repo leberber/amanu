@@ -3,7 +3,6 @@ import { trigger, transition, style, animate } from '@angular/animations';
 import { FormsModule } from '@angular/forms';
 import { DecimalPipe } from '@angular/common';
 import { SelectModule } from 'primeng/select';
-import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
 import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
@@ -34,7 +33,6 @@ type Period = 'month' | 'year' | 'all' | 'pick';
     FormsModule,
     DecimalPipe,
     SelectModule,
-    TagModule,
     TooltipModule,
     DialogModule,
     ButtonModule,
@@ -227,23 +225,15 @@ export class AccountingComponent implements OnInit {
     return p !== null && p.month === month && p.year === year;
   }
 
-  async downloadPdf(facture: Facturation) {
+  async previewPdf(facture: Facturation) {
     const company = this.companySettings();
     if (!company) return;
     this.loadingPdf.set(facture.id);
     try {
-      await this.pdfService.generateFacturePdf(facture, company, true);
+      await this.pdfService.generateFacturePdf(facture, company, 'preview');
     } finally {
       this.loadingPdf.set(null);
     }
-  }
-
-  docTypeLabel(type: string): string {
-    return type === 'bon_de_livraison' ? 'BL' : 'Facture';
-  }
-
-  docTypeSeverity(type: string): 'info' | 'success' {
-    return type === 'bon_de_livraison' ? 'info' : 'success';
   }
 
   openFiscalDialog(): void {

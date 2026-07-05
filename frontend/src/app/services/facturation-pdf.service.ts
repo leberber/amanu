@@ -494,7 +494,7 @@ export class FacturationPdfService {
     return html2canvas(el, { scale: 2, useCORS: true, allowTaint: true, backgroundColor: '#ffffff', windowWidth: width });
   }
 
-  async generateFacturePdf(facture: Facturation, company: CompanySettings, download = false): Promise<void> {
+  async generateFacturePdf(facture: Facturation, company: CompanySettings, mode: 'download' | 'print' | 'preview' = 'print'): Promise<void> {
     try {
       const [imageDataUrls, logoDataUrl] = await Promise.all([
         Promise.all(facture.items.map(item =>
@@ -607,9 +607,14 @@ export class FacturationPdfService {
       }
 
       // ── Step 5: Output ──────────────────────────────────────
-      if (download) {
+      if (mode === 'download') {
         pdf.save(`facture-${facture.reference}.pdf`);
         this.toast.showSuccess('Facture téléchargée');
+      } else if (mode === 'preview') {
+        const blob = pdf.output('blob');
+        const url  = URL.createObjectURL(blob);
+        window.open(url, '_blank');
+        setTimeout(() => URL.revokeObjectURL(url), 60000);
       } else {
         const blob = pdf.output('blob');
         const url  = URL.createObjectURL(blob);

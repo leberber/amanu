@@ -91,24 +91,24 @@ export class AdminFacturationComponent implements OnInit {
 
   printFacture(event: Event, facture: Facturation): void {
     event.stopPropagation();
-    this.generatePdfForFacture(facture, false);
+    this.generatePdfForFacture(facture, 'print');
   }
 
   downloadFacture(event: Event, facture: Facturation): void {
     event.stopPropagation();
-    this.generatePdfForFacture(facture, true);
+    this.generatePdfForFacture(facture, 'download');
   }
 
-  private generatePdfForFacture(facture: Facturation, download: boolean): void {
+  private generatePdfForFacture(facture: Facturation, mode: 'download' | 'print' | 'preview'): void {
     const company = this.company();
     if (company) {
-      this.pdfService.generateFacturePdf(facture, company, download);
+      this.pdfService.generateFacturePdf(facture, company, mode);
       return;
     }
     this.facturationService.getCompanySettings()
       .pipe(take(1))
       .subscribe({
-        next: (c) => { this.company.set(c); this.pdfService.generateFacturePdf(facture, c, download); },
+        next: (c) => { this.company.set(c); this.pdfService.generateFacturePdf(facture, c, mode); },
         error: () => this.toast.showError('Paramètres société introuvables')
       });
   }
