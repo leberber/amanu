@@ -18,6 +18,7 @@ import {
   Facturation,
   CompanySettings,
   FacturationClient,
+  ClientTotal,
 } from '../../core/services/facturation.service';
 import { FacturationPdfService } from '../../services/facturation-pdf.service';
 import { ToastMessageService } from '../../core/services/toast-message.service';
@@ -61,6 +62,10 @@ export class AccountingComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
 
   clients = signal<FacturationClient[]>([]);
+  clientTotals = signal<ClientTotal[]>([]);
+  clientTotalMap = computed(() =>
+    new Map(this.clientTotals().map(t => [t.client_id, t]))
+  );
   selectedClientId = signal<number | null>(null);
   facturations = signal<Facturation[]>([]);
   companySettings = signal<CompanySettings | null>(null);
@@ -169,11 +174,13 @@ export class AccountingComponent implements OnInit {
     forkJoin({
       clients: this.facturationService.getClients(),
       company: this.facturationService.getCompanySettings(),
+      totals: this.facturationService.getClientTotals(),
     }).pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: ({ clients, company }) => {
+        next: ({ clients, company, totals }) => {
           this.clients.set(clients);
           this.companySettings.set(company);
+          this.clientTotals.set(totals);
           this.loading.set(false);
         },
         error: () => this.loading.set(false),

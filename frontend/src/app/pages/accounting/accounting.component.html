@@ -15,8 +15,33 @@
         [showClear]="true"
         appendTo="body"
         styleClass="filter-select--glass"
-        panelStyleClass="client-select-panel"
-      />
+        panelStyleClass="client-select-panel">
+        <ng-template pTemplate="item" let-client>
+          <div class="client-option">
+            <div class="client-option__identity">
+              <span class="client-option__name">{{ client.full_name }}</span>
+              @if (client.store_name) {
+                <span class="client-option__store">{{ client.store_name }}</span>
+              }
+            </div>
+            <span class="client-option__right">
+              @let total = (clientTotalMap().get(client.id)?.total_ttc ?? 0);
+              <span class="client-option__amount">
+                <app-currency [value]="total" [hideDecimals]="true" />
+              </span>
+              @if (client.fiscal_info?.montant_declare; as declared) {
+                @let pct = (total / declared * 100);
+                <span class="client-option__pct"
+                  [class.ok]="pct < 70"
+                  [class.warn]="pct >= 70 && pct < 90"
+                  [class.danger]="pct >= 90">
+                  {{ pct | number:'1.0-0' }}%
+                </span>
+              }
+            </span>
+          </div>
+        </ng-template>
+      </p-select>
 
       @if (isFiltered()) {
         <button class="fiscal-btn" (click)="openFiscalDialog()">
