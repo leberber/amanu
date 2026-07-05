@@ -59,21 +59,21 @@
             (click)="setPeriod('month')">Ce mois</button>
           <button class="segment-control__item"
             [class.active]="period() === 'year' && pickedMonthYear() === null"
-            (click)="setPeriod('year')">Année</button>
-          <button class="segment-control__item"
-            [class.active]="period() === 'all' && pickedMonthYear() === null"
-            (click)="setPeriod('all')">Tout</button>
+            (click)="setPeriod('year')">Toute l'année</button>
         </div>
 
         @if (availableYears().length > 0) {
           <div class="filter-divider"></div>
-          <div class="year-pills">
-            @for (y of availableYears(); track y) {
-              <button class="year-pill" [class.active]="selectedYear() === y" (click)="selectYear(y)">
-                {{ y }}
-              </button>
-            }
-          </div>
+          <p-select
+            [options]="availableYears()"
+            [ngModel]="selectedYear()"
+            (ngModelChange)="selectYear($event)"
+            appendTo="body"
+            styleClass="year-select">
+            <ng-template pTemplate="selectedItem" let-y>
+              <span class="year-select__label"><i class="pi pi-calendar"></i> {{ y }}</span>
+            </ng-template>
+          </p-select>
           <div class="filter-divider"></div>
           <div class="month-pills">
             @for (m of monthsForYear(); track m.month) {
@@ -151,7 +151,10 @@
               <thead>
                 <tr>
                   <th>Référence</th><th>Date</th><th>Mode</th>
-                  <th class="text-right">Total HT</th>
+                  <th class="text-right">Montant imposé</th>
+                  <th class="text-right">Montant exonéré</th>
+                  <th class="text-right">TVA</th>
+                  <th class="text-right">Timbre</th>
                   <th class="text-right">Total TTC</th>
                   <th class="text-center">PDF</th>
                 </tr>
@@ -164,6 +167,9 @@
                     <td><div class="skeleton skeleton-text short"></div></td>
                     <td><div class="skeleton skeleton-text short" style="margin-left:auto"></div></td>
                     <td><div class="skeleton skeleton-text short" style="margin-left:auto"></div></td>
+                    <td><div class="skeleton skeleton-text short" style="margin-left:auto"></div></td>
+                    <td><div class="skeleton skeleton-text short" style="margin-left:auto"></div></td>
+                    <td></td>
                     <td></td>
                   </tr>
                 }
@@ -195,34 +201,95 @@
                   <th>Référence</th>
                   <th>Date</th>
                   <th>Mode</th>
-                  <th class="text-right">Total HT</th>
+                  <th class="text-right">Montant imposé</th>
+                  <th class="text-right">Montant exonéré</th>
+                  <th class="text-right">TVA</th>
+                  <th class="text-right">Timbre</th>
                   <th class="text-right">Total TTC</th>
-                  <th class="text-center">PDF</th>
+                  <th class="text-center">Actions</th>
                 </tr>
               </thead>
               <tbody>
-                @for (f of filteredFacturations(); track f.id; let i = $index) {
-                  <tr class="table-row-animate" [style.--row-delay]="(i * 30) + 'ms'">
-                    <td>
-                      <span class="font-semibold">{{ f.reference }}</span>
+                @for (group of facturationsGrouped(); track group.label) {
+                  <tr class="month-break-row">
+                    <td colspan="9" class="month-break-cell">
+                      <span class="month-break-pill">{{ group.label }}</span>
                     </td>
-                    <td class="text-color-secondary">{{ f.created_at | appDate }}</td>
-                    <td>
-                      <span class="payment-badge payment-badge--{{ f.payment_mode }}">
-                        {{ paymentLabels[f.payment_mode] || f.payment_mode }}
-                      </span>
+                  </tr>
+                  @for (f of group.factures; track f.id; let i = $index) {
+                    <tr class="table-row-animate" [style.--row-delay]="(i * 30) + 'ms'">
+                      <td>
+                        <span class="acc-ref">{{ f.reference }}</span>
+                      </td>
+                      <td class="text-color-secondary text-sm">{{ f.created_at | appDate:'dateOnly' }}</td>
+                      <td>
+                        <span class="payment-badge payment-badge--{{ f.payment_mode }}">
+                          {{ paymentLabels[f.payment_mode] || f.payment_mode }}
+                        </span>
+                      </td>
+                      <td class="text-right text-color-secondary text-sm"><app-currency [value]="getImpose(f)" /></td>
+                      <td class="text-right text-color-secondary text-sm"><app-currency [value]="getExonere(f)" /></td>
+                      <td class="text-right text-color-secondary text-sm">
+                        @if (f.total_tva > 0) { <app-currency [value]="f.total_tva" /> } @else { — }
+                      </td>
+                      <td class="text-right text-color-secondary text-sm">
+                        @if (f.payment_mode === 'espece' && f.timbre > 0) { <app-currency [value]="f.timbre" /> } @else { — }
+                      </td>
+                      <td class="text-right">
+                        <span class="acc-ttc"><app-currency [value]="f.total_ttc" /></span>
+                      </td>
+                      <td class="text-center">
+                        <button class="pdf-btn" (click)="previewPdf(f)" [disabled]="loadingPdf() === f.id"
+                          pTooltip="Aperçu PDF" tooltipPosition="left">
+                          <i [class]="loadingPdf() === f.id ? 'pi pi-spin pi-spinner' : 'pi pi-file-pdf'"></i>
+                        </button>
+                      </td>
+                    </tr>
+                  }
+                  <tr class="month-subtotal-row">
+                    <td colspan="3" class="month-subtotal-label">Cumul {{ group.label }}</td>
+                    <td class="text-right"><span class="summary-pill summary-pill--impose"><app-currency [value]="group.cumulative.impose" /></span></td>
+                    <td class="text-right"><span class="summary-pill summary-pill--exonere"><app-currency [value]="group.cumulative.exonere" /></span></td>
+                    <td class="text-right"><span class="summary-pill summary-pill--tva"><app-currency [value]="group.cumulative.total_tva" /></span></td>
+                    <td class="text-right">
+                      @if (group.cumulative.total_timbre > 0) {
+                        <span class="summary-pill summary-pill--timbre"><app-currency [value]="group.cumulative.total_timbre" /></span>
+                      } @else {
+                        <span class="text-color-secondary">—</span>
+                      }
                     </td>
-                    <td class="text-right text-color-secondary"><app-currency [value]="f.total_ht" /></td>
-                    <td class="text-right font-semibold"><app-currency [value]="f.total_ttc" /></td>
-                    <td class="text-center">
-                      <button class="pdf-btn" (click)="previewPdf(f)" [disabled]="loadingPdf() === f.id"
-                        pTooltip="Aperçu PDF" tooltipPosition="left">
-                        <i [class]="loadingPdf() === f.id ? 'pi pi-spin pi-spinner' : 'pi pi-file-pdf'"></i>
-                      </button>
-                    </td>
+                    <td class="text-right"><span class="acc-ttc"><app-currency [value]="group.cumulative.total_ttc" /></span></td>
+                    <td></td>
                   </tr>
                 }
               </tbody>
+              <tfoot>
+                <tr class="table-footer-row">
+                  <td colspan="3" class="table-footer-label">
+                    Total — {{ clientStats().count }} facture{{ clientStats().count > 1 ? 's' : '' }}
+                  </td>
+                  <td class="text-right">
+                    <span class="summary-pill summary-pill--impose"><app-currency [value]="clientStats().impose" /></span>
+                  </td>
+                  <td class="text-right">
+                    <span class="summary-pill summary-pill--exonere"><app-currency [value]="clientStats().exonere" /></span>
+                  </td>
+                  <td class="text-right">
+                    <span class="summary-pill summary-pill--tva"><app-currency [value]="clientStats().total_tva" /></span>
+                  </td>
+                  <td class="text-right">
+                    @if (clientStats().total_timbre > 0) {
+                      <span class="summary-pill summary-pill--timbre"><app-currency [value]="clientStats().total_timbre" /></span>
+                    } @else {
+                      <span class="text-color-secondary">—</span>
+                    }
+                  </td>
+                  <td class="text-right">
+                    <span class="acc-ttc"><app-currency [value]="clientStats().total_ttc" /></span>
+                  </td>
+                  <td></td>
+                </tr>
+              </tfoot>
             </table>
           </div>
         </div>
@@ -275,10 +342,25 @@
             <span class="summary-row__label">Factures</span>
             <span class="summary-row__value">{{ clientStats().count }}</span>
           </div>
+          <div class="summary-sep"></div>
           <div class="summary-row">
-            <span class="summary-row__label">Total HT</span>
-            <span class="summary-row__value"><app-currency [value]="clientStats().total_ht" /></span>
+            <span class="summary-row__label">Montant imposé</span>
+            <span class="summary-pill summary-pill--impose"><app-currency [value]="clientStats().impose" /></span>
           </div>
+          <div class="summary-row">
+            <span class="summary-row__label">Montant exonéré</span>
+            <span class="summary-pill summary-pill--exonere"><app-currency [value]="clientStats().exonere" /></span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-row__label">TVA</span>
+            <span class="summary-pill summary-pill--tva"><app-currency [value]="clientStats().total_tva" /></span>
+          </div>
+          @if (clientStats().total_timbre > 0) {
+            <div class="summary-row">
+              <span class="summary-row__label">Timbre</span>
+              <span class="summary-pill summary-pill--timbre"><app-currency [value]="clientStats().total_timbre" /></span>
+            </div>
+          }
           <div class="summary-sep"></div>
           <div class="summary-row summary-row--total">
             <span class="summary-row__label">Total TTC</span>

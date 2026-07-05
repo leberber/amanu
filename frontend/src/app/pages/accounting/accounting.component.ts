@@ -24,7 +24,7 @@ import { ToastMessageService } from '../../core/services/toast-message.service';
 import { DateFormatPipe } from '../../shared/pipes/date-format.pipe';
 import { CurrencyDisplayComponent } from '../../shared/components/currency-display/currency-display.component';
 
-type Period = 'month' | 'year' | 'all' | 'pick';
+type Period = 'month' | 'year' | 'pick';
 
 @Component({
   selector: 'app-accounting',
@@ -67,7 +67,7 @@ export class AccountingComponent implements OnInit {
   selectedClientId = signal<number | null>(null);
   facturations = signal<Facturation[]>([]);
   companySettings = signal<CompanySettings | null>(null);
-  period = signal<Period>('month');
+  period = signal<Period>('year');
   pickedMonthYear = signal<{ month: number; year: number } | null>(null);
   selectedYear = signal<number>(new Date().getFullYear());
   loading = signal(false);
@@ -119,6 +119,40 @@ export class AccountingComponent implements OnInit {
     return result;
   });
 
+  facturationsGrouped = computed(() => {
+    // Sort ascending so we can accumulate oldest → newest
+    const sorted = [...this.filteredFacturations()].sort(
+      (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+    );
+    const groups: { label: string; factures: typeof sorted; cumulative: { impose: number; exonere: number; total_tva: number; total_timbre: number; total_ttc: number } }[] = [];
+    let cumImpose = 0, cumExonere = 0, cumTva = 0, cumTimbre = 0, cumTtc = 0;
+
+    for (const f of sorted) {
+      const d = new Date(f.created_at);
+      const label = d.toLocaleDateString('fr-DZ', { month: 'long', year: 'numeric' });
+      const last = groups[groups.length - 1];
+      if (!last || last.label !== label) {
+        groups.push({ label, factures: [f], cumulative: { impose: 0, exonere: 0, total_tva: 0, total_timbre: 0, total_ttc: 0 } });
+      } else {
+        last.factures.push(f);
+      }
+    }
+
+    // Compute cumulative totals group by group (oldest first)
+    for (const g of groups) {
+      for (const f of g.factures) {
+        cumImpose  += this.getImpose(f);
+        cumExonere += this.getExonere(f);
+        cumTva     += f.total_tva;
+        cumTimbre  += f.payment_mode === 'espece' ? (f.timbre ?? 0) : 0;
+        cumTtc     += f.total_ttc;
+      }
+      g.cumulative = { impose: cumImpose, exonere: cumExonere, total_tva: cumTva, total_timbre: cumTimbre, total_ttc: cumTtc };
+    }
+
+    return groups;
+  });
+
   filteredFacturations = computed(() => {
     const facts = this.factures();
     const picked = this.pickedMonthYear();
@@ -129,21 +163,24 @@ export class AccountingComponent implements OnInit {
       });
     }
     const p = this.period();
-    if (p === 'all') return facts;
+    const year = this.selectedYear();
     const now = new Date();
     return facts.filter(f => {
       const d = new Date(f.created_at);
-      if (p === 'month') return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
-      return d.getFullYear() === now.getFullYear();
+      if (p === 'month') return d.getFullYear() === year && d.getMonth() === now.getMonth();
+      return d.getFullYear() === year; // 'year' mode
     });
   });
 
   clientStats = computed(() => {
     const facts = this.filteredFacturations();
     return {
-      count: facts.length,
-      total_ht: facts.reduce((s, f) => s + f.total_ht, 0),
-      total_ttc: facts.reduce((s, f) => s + f.total_ttc, 0),
+      count:        facts.length,
+      impose:       facts.reduce((s, f) => s + this.getImpose(f), 0),
+      exonere:      facts.reduce((s, f) => s + this.getExonere(f), 0),
+      total_tva:    facts.reduce((s, f) => s + f.total_tva, 0),
+      total_timbre: facts.reduce((s, f) => s + (f.payment_mode === 'espece' ? (f.timbre ?? 0) : 0), 0),
+      total_ttc:    facts.reduce((s, f) => s + f.total_ttc, 0),
     };
   });
 
@@ -223,6 +260,14 @@ export class AccountingComponent implements OnInit {
   isMonthPicked(month: number, year: number): boolean {
     const p = this.pickedMonthYear();
     return p !== null && p.month === month && p.year === year;
+  }
+
+  getImpose(f: Facturation): number {
+    return (f.items ?? []).filter(i => i.tva_rate > 0).reduce((s, i) => s + i.total_ht, 0);
+  }
+
+  getExonere(f: Facturation): number {
+    return (f.items ?? []).filter(i => i.tva_rate === 0).reduce((s, i) => s + i.total_ht, 0);
   }
 
   async previewPdf(facture: Facturation) {

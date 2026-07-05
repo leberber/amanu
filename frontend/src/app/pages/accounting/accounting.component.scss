@@ -121,32 +121,30 @@
   flex-shrink: 0;
 }
 
-.year-pills {
-  display: flex;
-  gap: 0.2rem;
-  align-items: center;
-  flex-shrink: 0;
+:host ::ng-deep .year-select {
+  width: 120px;
+
+  .p-select {
+    width: 120px;
+    height: 2rem;
+    border-radius: 8px;
+    border-color: transparent;
+    background: var(--surface-ground);
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 0 0.5rem;
+  }
 }
 
-.year-pill {
-  padding: 0.2rem 0.55rem;
-  border-radius: 6px;
-  border: 1px solid transparent;
-  background: transparent;
-  color: var(--text-color-secondary);
-  font-size: 0.75rem;
+.year-select__label {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.8rem;
   font-weight: 700;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  white-space: nowrap;
+  color: var(--text-color);
 
-  &:hover { background: rgba(59, 130, 246, 0.08); color: #3b82f6; }
-
-  &.active {
-    background: var(--surface-ground);
-    color: var(--text-color);
-    border-color: var(--surface-border);
-  }
+  i { font-size: 0.75rem; color: var(--text-color-secondary); }
 }
 
 .month-pill {
@@ -193,7 +191,6 @@
   }
 }
 
-
 .fiscal-btn {
   display: inline-flex;
   align-items: center;
@@ -219,7 +216,7 @@
 
 .acc-body {
   display: grid;
-  grid-template-columns: 10fr 2fr;
+  grid-template-columns: 9fr 3fr;
   gap: 1rem;
   flex: 1;
   min-height: 0;
@@ -228,6 +225,10 @@
 
 .acc-main {
   min-width: 0;
+
+  .table-wrapper {
+    max-height: calc(100vh - 200px);
+  }
 }
 
 .acc-sidebar {
@@ -240,17 +241,12 @@
 
 // ── Table cells ───────────────────────────────────────────────────────────────
 
-.ref-cell {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
 .payment-badge {
   display: inline-flex;
   align-items: center;
-  padding: 0.2rem 0.6rem;
+  padding: 0.3rem 0.8rem;
   border-radius: 20px;
+  border: none;
   font-size: 0.72rem;
   font-weight: 600;
 
@@ -305,21 +301,6 @@
   flex-direction: column;
   gap: 0.6rem;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
-
-  &__header {
-    display: flex;
-    align-items: center;
-    gap: 0.45rem;
-    font-size: 0.78rem;
-    font-weight: 600;
-    color: var(--text-color);
-
-    i { font-size: 0.8rem; color: var(--text-color-secondary); }
-
-    span:nth-child(2) { flex: 1; }
-  }
-
-
 
 }
 
@@ -416,6 +397,73 @@
   }
 }
 
+// ── Month break & footer rows ─────────────────────────────────────────────────
+
+.month-break-row {
+  background: transparent !important;
+  border-bottom: none !important;
+  pointer-events: none;
+}
+
+.month-break-cell {
+  padding: 1.8rem 1rem 0.5rem !important;
+}
+
+.month-break-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.3rem 0.9rem;
+  border-radius: 99px;
+  background: rgba(202, 155, 35, 0.15);
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: capitalize;
+  letter-spacing: 0.01em;
+  color: #b8860b;
+}
+
+.month-subtotal-row {
+  background: rgba(202, 155, 35, 0.08) !important;
+  border-top: 1px solid var(--surface-border) !important;
+  border-bottom: 2px solid var(--surface-border) !important;
+  pointer-events: none;
+}
+
+.month-subtotal-label {
+  padding: 0.6rem 1rem !important;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-color-secondary);
+}
+
+:host ::ng-deep .table-footer-row td {
+  background: #dbeafe !important;
+  border-top: 2px solid var(--primary-color) !important;
+}
+
+.table-footer-label {
+  padding: 0.8rem 1rem !important;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-color);
+}
+
+// ── Table cell helpers ─────────────────────────────────────────────────────────
+
+.acc-ref {
+  font-weight: 600;
+  font-family: var(--font-family-mono, monospace);
+  font-size: 0.82rem;
+  color: var(--primary-color);
+  letter-spacing: 0.02em;
+}
+
+.acc-ttc {
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--primary-color);
+}
+
 // ── Summary panel (sidebar) ───────────────────────────────────────────────────
 
 .summary-panel {
@@ -459,6 +507,23 @@
       color: var(--primary-color);
     }
   }
+
+}
+
+.summary-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.3rem 0.75rem;
+  border-radius: 99px;
+  border: none;
+  font-size: 0.78rem;
+  font-weight: 600;
+  white-space: nowrap;
+
+  &--impose  { background: rgba(37, 99, 235, 0.1);   color: #2563eb; }
+  &--exonere { background: rgba(5, 150, 105, 0.1);   color: #059669; }
+  &--tva     { background: rgba(192, 57, 43, 0.1);   color: #c0392b; }
+  &--timbre  { background: rgba(124, 92, 170, 0.1);  color: #7c5caa; }
 }
 
 .summary-sep {
