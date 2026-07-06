@@ -388,36 +388,36 @@
           </div>
 
           <!-- Progress bar -->
-          <div class="fpc-bar-wrap">
-            <div class="fiscal-progress-bar">
-              <div class="fiscal-progress-bar__fill"
-                [style.width.%]="liveStats().pct"
-                [class.warn]="liveStats().pct >= 70 && liveStats().pct < 90"
-                [class.danger]="liveStats().pct >= 90">
-              </div>
-            </div>
-            <span class="fpc-pct"
+          <div class="fiscal-progress-bar">
+            <div class="fiscal-progress-bar__fill"
+              [style.width.%]="liveStats().pct"
               [class.warn]="liveStats().pct >= 70 && liveStats().pct < 90"
               [class.danger]="liveStats().pct >= 90">
-              {{ liveStats().pct | number:'1.0-0' }}%
-            </span>
+            </div>
           </div>
-          <!-- Reste (prominent) -->
+          <!-- Reste forfait -->
           <div class="ff-remaining" [class.ff-remaining--danger]="liveStats().remaining === 0">
-            <div>
-              <div class="ff-remaining__label">Reste forfait</div>
-              <div style="font-size:0.65rem;color:var(--text-color-secondary);margin-top:1px;">
-                {{ liveStats().totalTax | number:'1.0-0' }} / 30 000 DA utilisé
-              </div>
+            <div class="ff-remaining__top">
+              <span class="ff-remaining__label">Reste forfait</span>
+              <span class="ff-remaining__pct" [class.danger]="liveStats().remaining === 0">
+                {{ liveStats().pct | number:'1.0-0' }}%
+              </span>
             </div>
             <span class="ff-remaining__value">
               <app-currency [value]="liveStats().remaining" [hideDecimals]="true" />
             </span>
+            <div class="ff-remaining__sub">
+              {{ liveStats().totalTax | number:'1.0-0' }} / 30 000 DA utilisé
+            </div>
           </div>
 
           <div class="summary-sep"></div>
 
           <!-- Planning sliders -->
+          <div class="ff-plan__section-label">
+            <i class="pi pi-sliders-h"></i> Simulation
+          </div>
+
           <div class="ff-plan">
             <div class="ff-plan__header">
               <span class="fpc-row__label"><i class="pi pi-cart-arrow-down" style="font-size:0.6rem;margin-right:0.25rem;opacity:0.5;"></i>Achat subv. planifié</span>
@@ -426,7 +426,7 @@
               </span>
             </div>
             <!-- Split track: gray locked zone + interactive range -->
-            <div class="ff-split-track">
+            <div class="ff-split-track ff-split-track--orange">
               <div class="ff-split-track__locked" [style.flex]="planningStats().caSubv"></div>
               <div class="ff-split-track__active" [style.flex]="planningStats().maxSubvAdd">
                 <input type="range" class="ff-range ff-range--orange"
@@ -455,7 +455,7 @@
                 <app-currency [value]="planningStats().caImposable + planningStats().imposableAdd" [hideDecimals]="true" />
               </span>
             </div>
-            <div class="ff-split-track">
+            <div class="ff-split-track ff-split-track--teal">
               <div class="ff-split-track__locked" [style.flex]="planningStats().caImposable"></div>
               <div class="ff-split-track__active" [style.flex]="planningStats().maxImposableAdd">
                 <input type="range" class="ff-range ff-range--teal"
