@@ -425,13 +425,19 @@
                 <app-currency [value]="planningStats().caSubv + planningStats().subvAdd" [hideDecimals]="true" />
               </span>
             </div>
-            <input type="range" class="ff-range ff-range--orange"
-              [value]="planningStats().caSubv + planningStats().subvAdd"
-              (input)="onSubvPlannedChange(+$any($event.target).value)"
-              min="0"
-              [max]="planningStats().subvMax"
-              step="1000"
-              [style.--track-fill]="subvPlanGradient()" />
+            <!-- Split track: gray locked zone + interactive range -->
+            <div class="ff-split-track">
+              <div class="ff-split-track__locked" [style.flex]="planningStats().caSubv"></div>
+              <div class="ff-split-track__active" [style.flex]="planningStats().maxSubvAdd">
+                <input type="range" class="ff-range ff-range--orange"
+                  [value]="planningStats().subvAdd"
+                  (input)="onSubvPlannedChange(+$any($event.target).value)"
+                  min="0"
+                  [max]="planningStats().maxSubvAdd"
+                  step="1000"
+                  [style.--track-fill]="subvPlanGradient()" />
+              </div>
+            </div>
             <div class="ff-plan__sub">
               <span>Actuel: <app-currency [value]="planningStats().caSubv" [hideDecimals]="true" /></span>
               @if (planningStats().subvAdd > 0) {
@@ -449,13 +455,18 @@
                 <app-currency [value]="planningStats().caImposable + planningStats().imposableAdd" [hideDecimals]="true" />
               </span>
             </div>
-            <input type="range" class="ff-range ff-range--teal"
-              [value]="planningStats().caImposable + planningStats().imposableAdd"
-              (input)="onImposablePlannedChange(+$any($event.target).value)"
-              min="0"
-              [max]="planningStats().imposableMax"
-              step="1000"
-              [style.--track-fill]="imposablePlanGradient()" />
+            <div class="ff-split-track">
+              <div class="ff-split-track__locked" [style.flex]="planningStats().caImposable"></div>
+              <div class="ff-split-track__active" [style.flex]="planningStats().maxImposableAdd">
+                <input type="range" class="ff-range ff-range--teal"
+                  [value]="planningStats().imposableAdd"
+                  (input)="onImposablePlannedChange(+$any($event.target).value)"
+                  min="0"
+                  [max]="planningStats().maxImposableAdd"
+                  step="1000"
+                  [style.--track-fill]="imposablePlanGradient()" />
+              </div>
+            </div>
             <div class="ff-plan__sub">
               <span>Actuel: <app-currency [value]="planningStats().caImposable" [hideDecimals]="true" /></span>
               @if (planningStats().imposableAdd > 0) {

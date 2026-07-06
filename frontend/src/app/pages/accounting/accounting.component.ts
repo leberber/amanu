@@ -218,17 +218,18 @@ export class AccountingComponent implements OnInit {
     };
   });
 
+  // Gradient is relative to the ACTIVE (additional) portion only
   subvPlanGradient = computed(() => {
-    const { caSubv, subvAdd, subvMax } = this.planningStats();
-    if (subvMax === 0) return 'rgba(0,0,0,0.08)';
-    const pct = ((caSubv + subvAdd) / subvMax) * 100;
+    const { subvAdd, maxSubvAdd } = this.planningStats();
+    if (maxSubvAdd === 0) return '#d97706';
+    const pct = (subvAdd / maxSubvAdd) * 100;
     return `linear-gradient(to right, #d97706 ${pct}%, rgba(0,0,0,0.08) ${pct}%)`;
   });
 
   imposablePlanGradient = computed(() => {
-    const { caImposable, imposableAdd, imposableMax } = this.planningStats();
-    if (imposableMax === 0) return 'rgba(0,0,0,0.08)';
-    const pct = ((caImposable + imposableAdd) / imposableMax) * 100;
+    const { imposableAdd, maxImposableAdd } = this.planningStats();
+    if (maxImposableAdd === 0) return '#0891b2';
+    const pct = (imposableAdd / maxImposableAdd) * 100;
     return `linear-gradient(to right, #0891b2 ${pct}%, rgba(0,0,0,0.08) ${pct}%)`;
   });
 
@@ -245,27 +246,20 @@ export class AccountingComponent implements OnInit {
     return { ...base, taxSubv, taxImposable, totalTax, remaining, pct };
   });
 
-  onSubvPlannedChange(val: number): void {
+  onSubvPlannedChange(add: number): void {
+    // add = additional amount only (0 to maxSubvAdd) — slider min=0 handles the floor
+    this.subvAdditional.set(add);
     const marge = this.margeSubv() / 100;
     const { remaining } = this.forfaitStats();
-    const { caSubv } = this.planningStats();
-    // Clamp: can't go below already-purchased amount
-    const clamped = Math.max(caSubv, val);
-    const add = clamped - caSubv;
-    this.subvAdditional.set(add);
     const taxFromSubvAdd = marge > 0 ? add * 0.05 * marge / (1 + marge) : 0;
     const maxImposableAdd = Math.max(remaining - taxFromSubvAdd, 0) / 0.05;
     if (this.imposableAdditional() > maxImposableAdd) this.imposableAdditional.set(Math.round(maxImposableAdd));
   }
 
-  onImposablePlannedChange(val: number): void {
+  onImposablePlannedChange(add: number): void {
+    this.imposableAdditional.set(add);
     const marge = this.margeSubv() / 100;
     const { remaining } = this.forfaitStats();
-    const { caImposable } = this.planningStats();
-    // Clamp: can't go below already-purchased amount
-    const clamped = Math.max(caImposable, val);
-    const add = clamped - caImposable;
-    this.imposableAdditional.set(add);
     const taxFromImposableAdd = add * 0.05;
     const maxSubvAdd = marge > 0 ? Math.max(remaining - taxFromImposableAdd, 0) * (1 + marge) / (0.05 * marge) : 0;
     if (this.subvAdditional() > maxSubvAdd) this.subvAdditional.set(Math.round(maxSubvAdd));

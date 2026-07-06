@@ -735,6 +735,39 @@
   }
 }
 
+// Split track: locked gray bar + interactive range input side by side
+.ff-split-track {
+  display: flex;
+  align-items: center;
+  height: 22px; // match thumb height
+
+  &__locked {
+    height: 5px;
+    background: #94a3b8;
+    border-radius: 99px 0 0 99px;
+    min-width: 3px;
+    flex-shrink: 0;
+  }
+
+  &__active {
+    min-width: 0;
+    flex-shrink: 1;
+
+    .ff-range {
+      display: block;
+      width: 100%;
+
+      &::-webkit-slider-runnable-track {
+        border-radius: 0 99px 99px 0;
+      }
+
+      &::-moz-range-track {
+        border-radius: 0 99px 99px 0;
+      }
+    }
+  }
+}
+
 .ff-plan {
   display: flex;
   flex-direction: column;
