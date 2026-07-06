@@ -149,7 +149,7 @@ export class FacturationPdfService {
     const montantImpose = facture.items.filter(i => i.tva_rate > 0).reduce((s, i) => s + i.total_ht * (1 + i.tva_rate / 100), 0);
     const montantExo    = facture.items.filter(i => i.tva_rate === 0).reduce((s, i) => s + i.total_ht, 0);
     const imposeLine = montantImpose > 0
-      ? `<div class="summary-row dimmed"><span>MONTANT IMPOSÉ</span><strong>${this.money(montantImpose)}</strong></div>` : '';
+      ? `<div class="summary-row dimmed"><span>MONTANT IMPOSABLE</span><strong>${this.money(montantImpose)}</strong></div>` : '';
     const exoLine = montantExo > 0
       ? `<div class="summary-row dimmed"><span>MONTANT EXONÉRÉ</span><strong>${this.money(montantExo)}</strong></div>` : '';
 

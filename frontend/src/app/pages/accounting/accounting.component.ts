@@ -271,7 +271,8 @@ export class AccountingComponent implements OnInit {
 
     const caSubv = facts.reduce((s, f) =>
       s + (f.items ?? []).filter(i => i.tva_rate === 0).reduce((ss, i) => ss + i.total_ttc, 0), 0);
-    const taxSubv = marge > 0 ? caSubv * marge / (1 + marge) * 0.05 : 0;
+    const profitSubv = marge > 0 ? caSubv * marge / (1 + marge) : 0;
+    const taxSubv = profitSubv * 0.05;
 
     const caImposable = facts.reduce((s, f) =>
       s + (f.items ?? []).filter(i => i.tva_rate > 0).reduce((ss, i) => ss + i.total_ttc, 0), 0);
@@ -282,7 +283,7 @@ export class AccountingComponent implements OnInit {
     const remaining = Math.max(forfait - totalTax, 0);
     const pct = Math.min((totalTax / forfait) * 100, 100);
 
-    return { caSubv, taxSubv, caImposable, taxImposable, totalTax, forfait, remaining, pct };
+    return { caSubv, profitSubv, taxSubv, caImposable, taxImposable, totalTax, forfait, remaining, pct };
   });
 
   readonly paymentLabels: Record<string, string> = {

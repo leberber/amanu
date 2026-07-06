@@ -44,16 +44,16 @@
       </p-select>
 
       @if (isFiltered()) {
-        <p-button
-          label="Infos fiscales"
-          icon="pi pi-building-columns"
-          severity="secondary"
-          (onClick)="openFiscalDialog()" />
-        <p-button
-          label="Imprimer"
-          [icon]="printingList() ? 'pi pi-spin pi-spinner' : 'pi pi-print'"
-          [loading]="printingList()"
-          (onClick)="printList()" />
+        <div class="acc-top__actions" style="margin-left:auto">
+          <button class="acc-action-btn acc-action-btn--ghost" (click)="openFiscalDialog()">
+            <i class="pi pi-building-columns"></i>
+            <span>Infos fiscales</span>
+          </button>
+          <button class="acc-action-btn acc-action-btn--primary" (click)="printList()" [disabled]="printingList()">
+            <i [class]="printingList() ? 'pi pi-spin pi-spinner' : 'pi pi-print'"></i>
+            <span>Imprimer</span>
+          </button>
+        </div>
       }
     </div>
 
@@ -375,15 +375,21 @@
 
           <!-- Two-column tax mini-stats -->
           <div class="ff-two-col">
-            <div class="acc-stat-card acc-stat-card--orange">
-              <div class="acc-stat-card__icon"><i class="pi pi-shopping-cart"></i></div>
-              <span class="acc-stat-card__label">Impôt subv.</span>
+            <div class="acc-stat-card acc-stat-card--orange ff-tax-card">
+              <div class="ff-tax-card__header">
+                <div class="acc-stat-card__icon"><i class="pi pi-shopping-cart"></i></div>
+                <span class="acc-stat-card__label">Impôt subv.</span>
+              </div>
               <span class="acc-stat-card__value"><app-currency [value]="liveStats().taxSubv" [hideDecimals]="true" /></span>
+              <span class="acc-stat-card__base">Profit <app-currency [value]="liveStats().profitSubv" [hideDecimals]="true" /> × 5%</span>
             </div>
-            <div class="acc-stat-card acc-stat-card--teal">
-              <div class="acc-stat-card__icon"><i class="pi pi-receipt"></i></div>
-              <span class="acc-stat-card__label">Impôt imposable</span>
+            <div class="acc-stat-card acc-stat-card--teal ff-tax-card">
+              <div class="ff-tax-card__header">
+                <div class="acc-stat-card__icon"><i class="pi pi-receipt"></i></div>
+                <span class="acc-stat-card__label">Impôt imposable</span>
+              </div>
               <span class="acc-stat-card__value"><app-currency [value]="liveStats().taxImposable" [hideDecimals]="true" /></span>
+              <span class="acc-stat-card__base">CA <app-currency [value]="liveStats().caImposable" [hideDecimals]="true" /> × 5%</span>
             </div>
           </div>
 

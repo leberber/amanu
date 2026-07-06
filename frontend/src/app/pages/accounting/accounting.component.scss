@@ -191,6 +191,59 @@
   }
 }
 
+.acc-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  height: 2.5rem;
+  padding: 0 1.1rem;
+  border-radius: 99px;
+  border: none;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.18s ease;
+  letter-spacing: 0.01em;
+
+  i { font-size: 0.8rem; }
+
+  &--ghost {
+    background: transparent;
+    color: var(--text-color-secondary);
+    border: 1.5px solid var(--surface-border);
+
+    &:hover {
+      background: var(--surface-card);
+      color: var(--text-color);
+      border-color: var(--surface-border);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    }
+  }
+
+  &--primary {
+    background: #111827;
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+
+    &:hover {
+      background: #1f2937;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.28);
+      transform: translateY(-1px);
+    }
+
+    &:active { transform: translateY(0); }
+    &:disabled { opacity: 0.45; cursor: not-allowed; transform: none; box-shadow: none; }
+  }
+}
+
+.acc-top__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
 .fiscal-btn {
   display: inline-flex;
   align-items: center;
@@ -583,6 +636,15 @@
     color: var(--text-color-secondary);
   }
 
+  &__base {
+    font-size: 0.75rem;
+    color: var(--acc-card-color, var(--text-color-secondary));
+    opacity: 0.85;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
   &__value {
     font-size: 0.88rem;
     font-weight: 700;
@@ -880,6 +942,19 @@
     .ff-remaining__label,
     .ff-remaining__value,
     .ff-remaining__sub { color: #dc2626; }
+  }
+}
+
+.ff-tax-card {
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+
+    .acc-stat-card__icon {
+      margin-bottom: 0;
+      flex-shrink: 0;
+    }
   }
 }
 
