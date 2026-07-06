@@ -44,14 +44,16 @@
       </p-select>
 
       @if (isFiltered()) {
-        <button class="fiscal-btn" (click)="openFiscalDialog()">
-          <i class="pi pi-building-columns"></i>
-          <span>Modifier infos fiscales</span>
-        </button>
-        <button class="fiscal-btn fiscal-btn--print" (click)="printList()" [disabled]="printingList()">
-          <i [class]="printingList() ? 'pi pi-spin pi-spinner' : 'pi pi-print'"></i>
-          <span>Imprimer</span>
-        </button>
+        <p-button
+          label="Infos fiscales"
+          icon="pi pi-building-columns"
+          severity="secondary"
+          (onClick)="openFiscalDialog()" />
+        <p-button
+          label="Imprimer"
+          [icon]="printingList() ? 'pi pi-spin pi-spinner' : 'pi pi-print'"
+          [loading]="printingList()"
+          (onClick)="printList()" />
       }
     </div>
 
@@ -106,7 +108,7 @@
     [visible]="showFiscalDialog()"
     (visibleChange)="showFiscalDialog.set($event)"
     [modal]="true"
-    [style]="{ width: '420px' }"
+    [style]="{ width: '520px' }"
     [closable]="true">
     <div class="flex flex-column gap-3 pt-1">
       <div class="grid">
@@ -136,6 +138,13 @@
           [min]="0" [useGrouping]="true" mode="decimal" locale="fr-DZ"
           styleClass="w-full" inputStyleClass="w-full" />
       </div>
+      <div>
+        <div class="flex align-items-center justify-content-between mb-1">
+          <label class="text-xs text-500 font-medium">Marge subventionnée</label>
+          <span class="text-xs font-bold text-primary">{{ fiscalForm.marge_subv ?? 8 }}%</span>
+        </div>
+        <p-slider [(ngModel)]="fiscalForm.marge_subv" [min]="1" [max]="50" [step]="0.5" styleClass="w-full" />
+      </div>
     </div>
     <ng-template pTemplate="footer">
       <p-button label="Annuler" severity="secondary" (onClick)="showFiscalDialog.set(false)" />
@@ -155,8 +164,8 @@
               <thead>
                 <tr>
                   <th>Référence</th><th>Date</th><th>Mode</th>
-                  <th class="text-right">Montant imposé</th>
-                  <th class="text-right">Montant exonéré</th>
+                  <th class="text-right">Mt. Imposé</th>
+                  <th class="text-right">Mt. Exonéré</th>
                   <th class="text-right">Total HT</th>
                   <th class="text-right">TVA</th>
                   <th class="text-right">Timbre</th>
@@ -206,8 +215,8 @@
                   <th>Référence</th>
                   <th>Date</th>
                   <th>Mode</th>
-                  <th class="text-right">Montant imposé</th>
-                  <th class="text-right">Montant exonéré</th>
+                  <th class="text-right">Mt. Imposé</th>
+                  <th class="text-right">Mt. Exonéré</th>
                   <th class="text-right">Total HT</th>
                   <th class="text-right">TVA</th>
                   <th class="text-right">Timbre</th>
@@ -310,77 +319,154 @@
     @if (isFiltered()) {
       <div class="acc-sidebar">
 
-        @if (fiscalProgress(); as fp) {
-          <div class="fiscal-progress-card">
-            <div class="fpc-top">
-              <span class="fpc-top__label">Montant déclaré</span>
-              <span class="fpc-declared-pill"><app-currency [value]="fp.declared" [hideDecimals]="true" /></span>
+        <!-- ── Stat cards ── -->
+        @if (filteredFacturations().length > 0) {
+          <div class="acc-stats-row">
+            <div class="acc-stat-card acc-stat-card--blue">
+              <div class="acc-stat-card__icon"><i class="pi pi-wallet"></i></div>
+              <span class="acc-stat-card__label">Total TTC</span>
+              <span class="acc-stat-card__value"><app-currency [value]="clientStats().total_ttc" [hideDecimals]="true" /></span>
             </div>
-            <div class="fpc-year">
-              <i class="pi pi-building-columns"></i>
-              Déclaration {{ currentYear }}
+            <div class="acc-stat-card acc-stat-card--red">
+              <div class="acc-stat-card__icon"><i class="pi pi-percentage"></i></div>
+              <span class="acc-stat-card__label">TVA</span>
+              <span class="acc-stat-card__value"><app-currency [value]="clientStats().total_tva" [hideDecimals]="true" /></span>
             </div>
-            <div class="fpc-bar-wrap">
-              <div class="fiscal-progress-bar">
-                <div class="fiscal-progress-bar__fill"
-                  [style.width.%]="fp.pct"
-                  [class.warn]="fp.pct >= 70 && fp.pct < 90"
-                  [class.danger]="fp.pct >= 90">
-                </div>
+            <div class="acc-stat-card acc-stat-card--green">
+              <div class="acc-stat-card__icon"><i class="pi pi-file-check"></i></div>
+              <span class="acc-stat-card__label">Factures</span>
+              <span class="acc-stat-card__value">{{ clientStats().count }}</span>
+            </div>
+            @if (clientStats().total_timbre > 0) {
+              <div class="acc-stat-card acc-stat-card--purple">
+                <div class="acc-stat-card__icon"><i class="pi pi-tag"></i></div>
+                <span class="acc-stat-card__label">Timbre</span>
+                <span class="acc-stat-card__value"><app-currency [value]="clientStats().total_timbre" [hideDecimals]="true" /></span>
               </div>
-              <span class="fpc-pct"
-                [class.warn]="fp.pct >= 70 && fp.pct < 90"
-                [class.danger]="fp.pct >= 90">
-                {{ fp.pct | number:'1.0-0' }}%
-              </span>
-            </div>
-            <div class="fpc-row">
-              <span class="fpc-row__label">Montant facturé</span>
-              <span class="fpc-row__value"><app-currency [value]="fp.used" [hideDecimals]="true" /></span>
-            </div>
-            <div class="fpc-row">
-              <span class="fpc-row__label">Montant à facturer</span>
-              <span class="fpc-row__value fpc-row__value--remaining"
-                [class.danger]="fp.pct >= 90">
-                <app-currency [value]="fp.remaining" [hideDecimals]="true" />
-              </span>
-            </div>
+            }
           </div>
         }
 
-        <div class="summary-panel">
-          <div class="summary-row">
-            <span class="summary-row__label">Factures</span>
-            <span class="summary-row__value">{{ clientStats().count }}</span>
+        <!-- ── Forfait card ── -->
+        <div class="fiscal-progress-card">
+
+          <!-- Header -->
+          <div class="fpc-top">
+            <span class="fpc-top__label">Analyse forfaitaire</span>
+            <span class="fpc-declared-pill">Forfait 30 000 DA</span>
           </div>
-          <div class="summary-sep"></div>
-          <div class="summary-row">
-            <span class="summary-row__label">Total HT</span>
-            <span class="summary-row__value"><app-currency [value]="clientStats().impose + clientStats().exonere" /></span>
-          </div>
-          <div class="summary-row">
-            <span class="summary-row__label">Montant imposé</span>
-            <span class="summary-pill summary-pill--impose"><app-currency [value]="clientStats().impose" /></span>
-          </div>
-          <div class="summary-row">
-            <span class="summary-row__label">Montant exonéré</span>
-            <span class="summary-pill summary-pill--exonere"><app-currency [value]="clientStats().exonere" /></span>
-          </div>
-          <div class="summary-row">
-            <span class="summary-row__label">TVA</span>
-            <span class="summary-pill summary-pill--tva"><app-currency [value]="clientStats().total_tva" /></span>
-          </div>
-          @if (clientStats().total_timbre > 0) {
-            <div class="summary-row">
-              <span class="summary-row__label">Timbre</span>
-              <span class="summary-pill summary-pill--timbre"><app-currency [value]="clientStats().total_timbre" /></span>
+
+          <!-- Marge slider -->
+          <div class="ff-slider-wrap">
+            <div class="ff-slider-header">
+              <span class="fpc-row__label">Marge subventionnée</span>
+              <span class="ff-pct-badge">{{ margeSubv() }}%</span>
             </div>
-          }
-          <div class="summary-sep"></div>
-          <div class="summary-row summary-row--total">
-            <span class="summary-row__label">Total TTC</span>
-            <span class="summary-row__value"><app-currency [value]="clientStats().total_ttc" /></span>
+            <input type="range" class="ff-range"
+              [value]="margeSubv()"
+              (input)="margeSubv.set(+$any($event.target).value)"
+              min="1" max="50" step="0.5"
+              [style.--track-pct]="margeSliderPct()" />
+            <div class="ff-slider-ticks">
+              <span>1%</span>
+              <span>50%</span>
+            </div>
           </div>
+
+          <!-- Two-column tax mini-stats -->
+          <div class="ff-two-col">
+            <div class="acc-stat-card acc-stat-card--orange">
+              <div class="acc-stat-card__icon"><i class="pi pi-shopping-cart"></i></div>
+              <span class="acc-stat-card__label">Impôt subv.</span>
+              <span class="acc-stat-card__value"><app-currency [value]="liveStats().taxSubv" [hideDecimals]="true" /></span>
+            </div>
+            <div class="acc-stat-card acc-stat-card--teal">
+              <div class="acc-stat-card__icon"><i class="pi pi-receipt"></i></div>
+              <span class="acc-stat-card__label">Impôt imposable</span>
+              <span class="acc-stat-card__value"><app-currency [value]="liveStats().taxImposable" [hideDecimals]="true" /></span>
+            </div>
+          </div>
+
+          <!-- Progress bar -->
+          <div class="fpc-bar-wrap">
+            <div class="fiscal-progress-bar">
+              <div class="fiscal-progress-bar__fill"
+                [style.width.%]="liveStats().pct"
+                [class.warn]="liveStats().pct >= 70 && liveStats().pct < 90"
+                [class.danger]="liveStats().pct >= 90">
+              </div>
+            </div>
+            <span class="fpc-pct"
+              [class.warn]="liveStats().pct >= 70 && liveStats().pct < 90"
+              [class.danger]="liveStats().pct >= 90">
+              {{ liveStats().pct | number:'1.0-0' }}%
+            </span>
+          </div>
+          <!-- Reste (prominent) -->
+          <div class="ff-remaining" [class.ff-remaining--danger]="liveStats().remaining === 0">
+            <div>
+              <div class="ff-remaining__label">Reste forfait</div>
+              <div style="font-size:0.65rem;color:var(--text-color-secondary);margin-top:1px;">
+                {{ liveStats().totalTax | number:'1.0-0' }} / 30 000 DA utilisé
+              </div>
+            </div>
+            <span class="ff-remaining__value">
+              <app-currency [value]="liveStats().remaining" [hideDecimals]="true" />
+            </span>
+          </div>
+
+          <div class="summary-sep"></div>
+
+          <!-- Planning sliders -->
+          <div class="ff-plan">
+            <div class="ff-plan__header">
+              <span class="fpc-row__label"><i class="pi pi-cart-arrow-down" style="font-size:0.6rem;margin-right:0.25rem;opacity:0.5;"></i>Achat subv. planifié</span>
+              <span class="ff-plan__badge ff-plan__badge--orange">
+                <app-currency [value]="planningStats().caSubv + planningStats().subvAdd" [hideDecimals]="true" />
+              </span>
+            </div>
+            <input type="range" class="ff-range ff-range--orange"
+              [value]="planningStats().caSubv + planningStats().subvAdd"
+              (input)="onSubvPlannedChange(+$any($event.target).value)"
+              min="0"
+              [max]="planningStats().subvMax"
+              step="1000"
+              [style.--track-fill]="subvPlanGradient()" />
+            <div class="ff-plan__sub">
+              <span>Actuel: <app-currency [value]="planningStats().caSubv" [hideDecimals]="true" /></span>
+              @if (planningStats().subvAdd > 0) {
+                <span>+<app-currency [value]="planningStats().subvAdd" [hideDecimals]="true" /> → impôt <strong><app-currency [value]="planningStats().taxFromSubvAdd" [hideDecimals]="true" /></strong></span>
+              } @else {
+                <span style="opacity:0.5">Glisser →</span>
+              }
+            </div>
+          </div>
+
+          <div class="ff-plan">
+            <div class="ff-plan__header">
+              <span class="fpc-row__label"><i class="pi pi-chart-bar" style="font-size:0.6rem;margin-right:0.25rem;opacity:0.5;"></i>CA imposable planifié</span>
+              <span class="ff-plan__badge ff-plan__badge--teal">
+                <app-currency [value]="planningStats().caImposable + planningStats().imposableAdd" [hideDecimals]="true" />
+              </span>
+            </div>
+            <input type="range" class="ff-range ff-range--teal"
+              [value]="planningStats().caImposable + planningStats().imposableAdd"
+              (input)="onImposablePlannedChange(+$any($event.target).value)"
+              min="0"
+              [max]="planningStats().imposableMax"
+              step="1000"
+              [style.--track-fill]="imposablePlanGradient()" />
+            <div class="ff-plan__sub">
+              <span>Actuel: <app-currency [value]="planningStats().caImposable" [hideDecimals]="true" /></span>
+              @if (planningStats().imposableAdd > 0) {
+                <span>+<app-currency [value]="planningStats().imposableAdd" [hideDecimals]="true" /> → impôt <strong><app-currency [value]="planningStats().taxFromImposableAdd" [hideDecimals]="true" /></strong></span>
+              } @else {
+                <span style="opacity:0.5">Glisser →</span>
+              }
+            </div>
+          </div>
+
+
         </div>
       </div>
     }

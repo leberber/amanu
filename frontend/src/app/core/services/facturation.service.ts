@@ -32,6 +32,7 @@ export interface FacturationClient {
     nif?: string;
     nis?: string;
     montant_declare?: number;
+    marge_subv?: number;
   };
 }
 

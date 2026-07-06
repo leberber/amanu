@@ -3,6 +3,7 @@ import { trigger, transition, style, animate } from '@angular/animations';
 import { FormsModule } from '@angular/forms';
 import { DecimalPipe } from '@angular/common';
 import { SelectModule } from 'primeng/select';
+import { SliderModule } from 'primeng/slider';
 import { TooltipModule } from 'primeng/tooltip';
 import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
@@ -38,6 +39,7 @@ type Period = 'month' | 'year' | 'pick';
     ButtonModule,
     InputNumberModule,
     InputTextModule,
+    SliderModule,
     DateFormatPipe,
     CurrencyDisplayComponent,
   ],
@@ -77,7 +79,7 @@ export class AccountingComponent implements OnInit {
   // ── Fiscal info dialog ────────────────────────────────────────────────────
   showFiscalDialog = signal(false);
   savingFiscal = signal(false);
-  fiscalForm = { rc: '', na: '', nif: '', nis: '', montant_declare: null as number | null };
+  fiscalForm = { rc: '', na: '', nif: '', nis: '', montant_declare: null as number | null, marge_subv: 8 as number };
 
   get selectedClient(): FacturationClient | null {
     const id = this.selectedClientId();
@@ -126,7 +128,6 @@ export class AccountingComponent implements OnInit {
       (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
     );
     const groups: { label: string; factures: typeof sorted; cumulative: { impose: number; exonere: number; total_tva: number; total_timbre: number; total_ttc: number } }[] = [];
-    let cumImpose = 0, cumExonere = 0, cumTva = 0, cumTimbre = 0, cumTtc = 0;
 
     for (const f of sorted) {
       const d = new Date(f.created_at);
@@ -186,18 +187,109 @@ export class AccountingComponent implements OnInit {
     };
   });
 
-  fiscalProgress = computed(() => {
-    const declared = this.selectedClient?.fiscal_info?.montant_declare;
-    if (!declared) return null;
-    const currentYear = new Date().getFullYear();
-    const used = this.factures()
-      .filter(f => new Date(f.created_at).getFullYear() === currentYear)
-      .reduce((s, f) => s + f.total_ttc, 0);
-    const pct = Math.min((used / declared) * 100, 100);
-    return { declared, used, remaining: Math.max(declared - used, 0), pct };
+  margeSubv = signal<number>(8);
+  margeSliderPct = computed(() => ((this.margeSubv() - 1) / 49 * 100).toFixed(1) + '%');
+
+  // Extra planned purchases on top of what's already in factures
+  subvAdditional = signal<number>(0);
+  imposableAdditional = signal<number>(0);
+
+  planningStats = computed(() => {
+    const marge = this.margeSubv() / 100;
+    const { remaining, caSubv, caImposable } = this.forfaitStats();
+    const subvAdd = this.subvAdditional();
+    const imposableAdd = this.imposableAdditional();
+
+    const taxFromSubvAdd      = marge > 0 ? subvAdd      * 0.05 * marge / (1 + marge) : 0;
+    const taxFromImposableAdd = imposableAdd * 0.05;
+
+    // Max additional each can absorb given the other's current allocation
+    const maxSubvAdd      = marge > 0 ? Math.max(remaining - taxFromImposableAdd, 0) * (1 + marge) / (0.05 * marge) : 0;
+    const maxImposableAdd = Math.max(remaining - taxFromSubvAdd, 0) / 0.05;
+
+    // Absolute max (current + additional capacity) — used as slider [max]
+    const subvMax      = caSubv + maxSubvAdd;
+    const imposableMax = caImposable + maxImposableAdd;
+
+    return {
+      caSubv, caImposable, subvAdd, imposableAdd,
+      taxFromSubvAdd, taxFromImposableAdd,
+      maxSubvAdd, maxImposableAdd, subvMax, imposableMax,
+    };
   });
 
-  readonly currentYear = new Date().getFullYear();
+  subvPlanGradient = computed(() => {
+    const { caSubv, subvAdd, subvMax } = this.planningStats();
+    if (subvMax === 0) return 'rgba(0,0,0,0.08)';
+    const pct = ((caSubv + subvAdd) / subvMax) * 100;
+    return `linear-gradient(to right, #d97706 ${pct}%, rgba(0,0,0,0.08) ${pct}%)`;
+  });
+
+  imposablePlanGradient = computed(() => {
+    const { caImposable, imposableAdd, imposableMax } = this.planningStats();
+    if (imposableMax === 0) return 'rgba(0,0,0,0.08)';
+    const pct = ((caImposable + imposableAdd) / imposableMax) * 100;
+    return `linear-gradient(to right, #0891b2 ${pct}%, rgba(0,0,0,0.08) ${pct}%)`;
+  });
+
+  // Combined view: base factures + whatever is planned on the sliders
+  liveStats = computed(() => {
+    const base = this.forfaitStats();
+    const plan = this.planningStats();
+    const taxSubv      = base.taxSubv      + plan.taxFromSubvAdd;
+    const taxImposable = base.taxImposable + plan.taxFromImposableAdd;
+    const totalTax     = taxSubv + taxImposable;
+    const forfait      = 30_000;
+    const remaining    = Math.max(forfait - totalTax, 0);
+    const pct          = Math.min((totalTax / forfait) * 100, 100);
+    return { ...base, taxSubv, taxImposable, totalTax, remaining, pct };
+  });
+
+  onSubvPlannedChange(val: number): void {
+    const marge = this.margeSubv() / 100;
+    const { remaining } = this.forfaitStats();
+    const { caSubv } = this.planningStats();
+    // Clamp: can't go below already-purchased amount
+    const clamped = Math.max(caSubv, val);
+    const add = clamped - caSubv;
+    this.subvAdditional.set(add);
+    const taxFromSubvAdd = marge > 0 ? add * 0.05 * marge / (1 + marge) : 0;
+    const maxImposableAdd = Math.max(remaining - taxFromSubvAdd, 0) / 0.05;
+    if (this.imposableAdditional() > maxImposableAdd) this.imposableAdditional.set(Math.round(maxImposableAdd));
+  }
+
+  onImposablePlannedChange(val: number): void {
+    const marge = this.margeSubv() / 100;
+    const { remaining } = this.forfaitStats();
+    const { caImposable } = this.planningStats();
+    // Clamp: can't go below already-purchased amount
+    const clamped = Math.max(caImposable, val);
+    const add = clamped - caImposable;
+    this.imposableAdditional.set(add);
+    const taxFromImposableAdd = add * 0.05;
+    const maxSubvAdd = marge > 0 ? Math.max(remaining - taxFromImposableAdd, 0) * (1 + marge) / (0.05 * marge) : 0;
+    if (this.subvAdditional() > maxSubvAdd) this.subvAdditional.set(Math.round(maxSubvAdd));
+  }
+
+  forfaitStats = computed(() => {
+    const facts = this.filteredFacturations();
+    const marge = this.margeSubv() / 100;
+
+    const caSubv = facts.reduce((s, f) =>
+      s + (f.items ?? []).filter(i => i.tva_rate === 0).reduce((ss, i) => ss + i.total_ttc, 0), 0);
+    const taxSubv = marge > 0 ? caSubv * marge / (1 + marge) * 0.05 : 0;
+
+    const caImposable = facts.reduce((s, f) =>
+      s + (f.items ?? []).filter(i => i.tva_rate > 0).reduce((ss, i) => ss + i.total_ttc, 0), 0);
+    const taxImposable = caImposable * 0.05;
+
+    const forfait = 30_000;
+    const totalTax = taxSubv + taxImposable;
+    const remaining = Math.max(forfait - totalTax, 0);
+    const pct = Math.min((totalTax / forfait) * 100, 100);
+
+    return { caSubv, taxSubv, caImposable, taxImposable, totalTax, forfait, remaining, pct };
+  });
 
   readonly paymentLabels: Record<string, string> = {
     espece: 'Espèces',
@@ -228,6 +320,10 @@ export class AccountingComponent implements OnInit {
     this.selectedClientId.set(clientId);
     this.selectedYear.set(new Date().getFullYear());
     this.pickedMonthYear.set(null);
+    const client = clientId != null ? this.clients().find(c => c.id === clientId) ?? null : null;
+    this.margeSubv.set(client?.fiscal_info?.marge_subv ?? 8);
+    this.subvAdditional.set(0);
+    this.imposableAdditional.set(0);
     if (clientId == null) {
       this.facturations.set([]);
       return;
@@ -292,6 +388,7 @@ export class AccountingComponent implements OnInit {
       nif: client.fiscal_info?.nif ?? '',
       nis: client.fiscal_info?.nis ?? '',
       montant_declare: client.fiscal_info?.montant_declare ?? null,
+      marge_subv: client.fiscal_info?.marge_subv ?? 8,
     };
     this.showFiscalDialog.set(true);
   }
@@ -321,12 +418,14 @@ export class AccountingComponent implements OnInit {
       nif: this.fiscalForm.nif || undefined,
       nis: this.fiscalForm.nis || undefined,
       montant_declare: this.fiscalForm.montant_declare ?? undefined,
+      marge_subv: this.fiscalForm.marge_subv,
     };
     this.facturationService.updateClientFiscalInfo(client.id, payload)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (updated) => {
           this.clients.update(list => list.map(c => c.id === updated.id ? { ...c, fiscal_info: updated.fiscal_info } : c));
+          this.margeSubv.set(updated.fiscal_info?.marge_subv ?? 8);
           this.savingFiscal.set(false);
           this.showFiscalDialog.set(false);
           this.toast.showSuccess('Infos fiscales mises à jour');
