@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
-import { CompanySettings, Facturation } from '../core/services/facturation.service';
+import { CompanySettings, Facturation, FacturationClient } from '../core/services/facturation.service';
 import { ToastMessageService } from '../core/services/toast-message.service';
 import { DateService } from '../core/services/date.service';
 
@@ -12,7 +12,8 @@ import { DateService } from '../core/services/date.service';
 export class FacturationPdfService {
   private toast = inject(ToastMessageService);
   private dateService = inject(DateService);
-  private logoCache: string | null | undefined = undefined; // undefined = not yet fetched
+  private logoCache: string | null | undefined = undefined;
+  private stampCache: string | null | undefined = undefined;
 
   private cleanAddress(address: string | null | undefined): string {
     if (!address) return '';
@@ -93,7 +94,8 @@ export class FacturationPdfService {
     pageImgUrls?: (string | null)[],
     fixedPage1 = false,
     pageNum = 1,
-    totalPages = 1
+    totalPages = 1,
+    stampDataUrl: string | null = null,
   ): string {
     const formatPhone = (p: string): string => {
       const digits = p.replace(/\D/g, '');
@@ -121,15 +123,18 @@ export class FacturationPdfService {
       const totalPcs = item.quantity * item.pieces_per_box;
       const prixUnite = totalPcs > 0 ? item.total_ht / totalPcs : 0;
       const tvaClass = item.tva_rate === 19 ? 'tva-19' : item.tva_rate === 0 ? 'tva-0' : '';
+      const brandBadge = item.brand_name
+        ? `<br><span style="display:inline-block;margin-top:2px;padding:1px 6px;border-radius:999px;background:#e8f0fe;color:#1a56db;font-size:9px;font-weight:600;">${item.brand_name}</span>`
+        : '';
       return `
         <tr>
           <td style="text-align:center;padding:6px 4px;">${imgHtml}</td>
-          <td>${item.product_name}</td>
-          <td>${item.brand_name ?? ''}</td>
-          <td>${item.pieces_per_box} Pcs X ${item.unit}</td>
+          <td style="text-align:left;">${item.product_name}${brandBadge}</td>
+          <td>${item.pieces_per_box} Pcs</td>
           <td>${this.money(prixUnite)}</td>
           <td><span class="tva-pill ${tvaClass}">${item.tva_rate}%</span></td>
           <td>${item.quantity}</td>
+          <td>${this.money(item.total_ht)}</td>
           <td><strong>${this.money(item.total_ttc)}</strong></td>
         </tr>`;
     }).join('');
@@ -141,7 +146,7 @@ export class FacturationPdfService {
     const timbreLine = facture.timbre > 0
       ? `<div class="summary-row timbre-row"><span>TIMBRE</span><strong>${this.money(facture.timbre)}</strong></div>` : '';
 
-    const montantImpose = facture.items.filter(i => i.tva_rate > 0).reduce((s, i) => s + i.total_ht, 0);
+    const montantImpose = facture.items.filter(i => i.tva_rate > 0).reduce((s, i) => s + i.total_ht * (1 + i.tva_rate / 100), 0);
     const montantExo    = facture.items.filter(i => i.tva_rate === 0).reduce((s, i) => s + i.total_ht, 0);
     const imposeLine = montantImpose > 0
       ? `<div class="summary-row dimmed"><span>MONTANT IMPOSÉ</span><strong>${this.money(montantImpose)}</strong></div>` : '';
@@ -262,7 +267,7 @@ export class FacturationPdfService {
   table { width: calc(100% - 48px); margin: 0 24px; border-collapse: separate; border-spacing: 0; border-radius: 10px; font-size: 12px; box-shadow: 0 6px 18px rgba(6,59,136,0.08); overflow: hidden; }
   th { background: #063b88; color: white; padding: 10px 7px; text-align: center; }
   td { padding: 8px 7px; border-bottom: 1px solid #e4ecf5; text-align: center; }
-  td:nth-child(2), td:nth-child(3) { text-align: left; }
+  td:nth-child(2) { text-align: left; }
   tr:last-child td { border-bottom: none; }
 
   .tva-pill { display: inline-block; padding: 3px 10px; border-radius: 999px; font-weight: bold; background: #e8f7e5; color: #168a2f; font-size: 11px; }
@@ -375,11 +380,11 @@ export class FacturationPdfService {
       <tr>
         <th style="width:42px;"></th>
         <th style="text-align:left;">Article</th>
-        <th style="text-align:left;">Marque</th>
         <th>Colisage</th>
         <th>Prix Unite</th>
         <th>TVA</th>
         <th>Qte</th>
+        <th>Total HT</th>
         <th>Total TTC</th>
       </tr>
     </thead>
@@ -391,13 +396,10 @@ export class FacturationPdfService {
     <div class="amount-box">
       <p>&#8220; Arrêtée la présente facture à la somme de :</p>
       <h4>${amountWords}</h4>
-      <div class="stamp">
-        AGROCLIK<br />
-        MEKHTОUB Yazid<br />
-        Locaux N°01-02-03-04 Rue<br />
-        HAMDIS Med Amokrane Ouadhias<br />
-        T-O R.C n° : 15/02-5241701/A/25
-      </div>
+      ${stampDataUrl
+        ? `<img src="${stampDataUrl}" style="width:180px;height:auto;margin-top:12px;" alt="Stamp" />`
+        : `<div class="stamp">AGROCLIK<br/>MEKHTОUB Yazid<br/>Locaux N°01-02-03-04 Rue<br/>HAMDIS Med Amokrane Ouadhias<br/>T-O R.C n° : 15/02-5241701/A/25</div>`
+      }
       <div class="payment" style="margin-top:auto"><strong>MODE DE PAIEMENT</strong><strong>${modeLabel}</strong></div>
     </div>
 
@@ -430,15 +432,18 @@ export class FacturationPdfService {
       const totalPcs = item.quantity * item.pieces_per_box;
       const prixUnite = totalPcs > 0 ? item.total_ht / totalPcs : 0;
       const tvaClass = item.tva_rate === 19 ? 'tva-19' : item.tva_rate === 0 ? 'tva-0' : '';
+      const brandBadge = item.brand_name
+        ? `<br><span style="display:inline-block;margin-top:2px;padding:1px 6px;border-radius:999px;background:#e8f0fe;color:#1a56db;font-size:9px;font-weight:600;">${item.brand_name}</span>`
+        : '';
       return `
         <tr>
           <td style="text-align:center;padding:6px 4px;">${imgHtml}</td>
-          <td>${item.product_name}</td>
-          <td>${item.brand_name ?? ''}</td>
-          <td>${item.pieces_per_box} Pcs X ${item.unit}</td>
+          <td style="text-align:left;">${item.product_name}${brandBadge}</td>
+          <td>${item.pieces_per_box} Pcs</td>
           <td>${this.money(prixUnite)}</td>
           <td><span class="tva-pill ${tvaClass}">${item.tva_rate}%</span></td>
           <td>${item.quantity}</td>
+          <td>${this.money(item.total_ht)}</td>
           <td><strong>${this.money(item.total_ttc)}</strong></td>
         </tr>`;
     }).join('');
@@ -454,7 +459,7 @@ export class FacturationPdfService {
   table { width: calc(100% - 48px); margin: 0 24px; border-collapse: separate; border-spacing: 0; border-radius: 10px; font-size: 12px; box-shadow: 0 6px 18px rgba(6,59,136,0.08); overflow: hidden; }
   th { background: #063b88; color: white; padding: 10px 7px; text-align: center; }
   td { padding: 8px 7px; border-bottom: 1px solid #e4ecf5; text-align: center; }
-  td:nth-child(2), td:nth-child(3) { text-align: left; }
+  td:nth-child(2) { text-align: left; }
   tr:last-child td { border-bottom: none; }
   .tva-pill { display: inline-block; padding: 3px 10px; border-radius: 999px; font-weight: bold; background: #e8f7e5; color: #168a2f; font-size: 11px; }
   .tva-19 { background: #fff0dd; color: #d16600; }
@@ -468,11 +473,11 @@ export class FacturationPdfService {
       <tr>
         <th style="width:42px;"></th>
         <th style="text-align:left;">Article</th>
-        <th style="text-align:left;">Marque</th>
         <th>Colisage</th>
         <th>Prix Unite</th>
         <th>TVA</th>
         <th>Qte</th>
+        <th>Total HT</th>
         <th>Total TTC</th>
       </tr>
     </thead>
@@ -584,12 +589,16 @@ export class FacturationPdfService {
       if (this.logoCache === undefined) {
         this.logoCache = await this.loadImageAsDataUrl('/logo.png');
       }
+      if (this.stampCache === undefined) {
+        this.stampCache = await this.loadImageAsDataUrl('/stamp.png');
+      }
       const [imageDataUrls, logoDataUrl] = await Promise.all([
         Promise.all(facture.items.map(item =>
           item.image_url ? this.loadImageAsDataUrl(item.image_url) : Promise.resolve(null)
         )),
         Promise.resolve(this.logoCache),
       ]);
+      const stampDataUrl = this.stampCache;
 
       const W = 794;
       const A4_PX = Math.round(W * 297 / 210); // ≈ 1123 CSS px
@@ -597,7 +606,7 @@ export class FacturationPdfService {
       // ── Step 1: Render full doc to measure section heights ──
       const mf = this.makeIframe(W);
       mf.contentDocument!.open();
-      mf.contentDocument!.write(this.buildHtml(facture, company, imageDataUrls, logoDataUrl));
+      mf.contentDocument!.write(this.buildHtml(facture, company, imageDataUrls, logoDataUrl, undefined, undefined, false, 1, 1, stampDataUrl));
       mf.contentDocument!.close();
       await new Promise(r => setTimeout(r, 150));
 
@@ -641,7 +650,7 @@ export class FacturationPdfService {
 
       const p1f = this.makeIframe(W, hasOverflow ? A4_PX : 1);
       p1f.contentDocument!.open();
-      p1f.contentDocument!.write(this.buildHtml(facture, company, p1Imgs, logoDataUrl, p1Items, p1Imgs, hasOverflow, 1, totalPages));
+      p1f.contentDocument!.write(this.buildHtml(facture, company, p1Imgs, logoDataUrl, p1Items, p1Imgs, hasOverflow, 1, totalPages, stampDataUrl));
       p1f.contentDocument!.close();
       await new Promise(r => setTimeout(r, 150));
 
@@ -717,6 +726,274 @@ export class FacturationPdfService {
       }
     } catch (err: any) {
       this.toast.showError('PDF error: ' + (err?.message ?? String(err)));
+    } finally {
+      this.hidePdfOverlay(overlayRef);
+    }
+  }
+
+  // ── Accounting list PDF ───────────────────────────────────────────────────
+
+  private buildAccountingListHtml(
+    client: FacturationClient,
+    company: CompanySettings,
+    year: number,
+    groups: { label: string; factures: Facturation[]; cumulative: { impose: number; exonere: number; total_tva: number; total_timbre: number; total_ttc: number } }[],
+    stats: { count: number; impose: number; exonere: number; total_tva: number; total_timbre: number; total_ttc: number },
+    logoDataUrl: string | null,
+    stampDataUrl: string | null = null,
+  ): string {
+    const payLabels: Record<string, string> = { espece: 'Espèces', cheque: 'Chèque', virement: 'Virement' };
+    const fmt = (v: number) =>
+      v === 0 ? '—' : new Intl.NumberFormat('fr-DZ', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v) + ' DA';
+    const getImpose  = (f: Facturation) => f.items.filter(i => i.tva_rate > 0).reduce((s, i) => s + i.total_ht * (1 + i.tva_rate / 100), 0);
+    const getExonere = (f: Facturation) => f.items.filter(i => i.tva_rate === 0).reduce((s, i) => s + i.total_ht, 0);
+    const today = this.dateService.formatDateOnly(new Date().toISOString());
+
+    const dots = Array(49).fill('<div class="dot"></div>').join('');
+
+    const bodyRows = groups.map(g => {
+      const factureRows = g.factures.map(f => {
+        const impose  = getImpose(f);
+        const exonere = getExonere(f);
+        const mode    = payLabels[f.payment_mode] || f.payment_mode;
+        const modeClass = f.payment_mode === 'espece' ? 'badge-espece' : f.payment_mode === 'cheque' ? 'badge-cheque' : 'badge-virement';
+        return `<tr>
+          <td class="ref-cell">${f.reference}</td>
+          <td>${this.dateService.formatDateOnly(f.created_at)}</td>
+          <td><span class="badge ${modeClass}">${mode}</span></td>
+          <td class="r">${fmt(impose)}</td>
+          <td class="r">${fmt(exonere)}</td>
+          <td class="r tva">${f.total_tva > 0 ? fmt(f.total_tva) : '—'}</td>
+          <td class="r timbre">${f.payment_mode === 'espece' && f.timbre > 0 ? fmt(f.timbre) : '—'}</td>
+          <td class="r ttc">${fmt(f.total_ttc)}</td>
+        </tr>`;
+      }).join('');
+
+      return `<tr class="month-sep"><td colspan="8"><span class="month-pill">${g.label}</span></td></tr>${factureRows}`;
+    }).join('');
+
+    const logoHtml = logoDataUrl ? `<img src="${logoDataUrl}" style="height:36px;width:auto;display:block;" alt="Logo" />` : '';
+    const nif  = client.fiscal_info?.nif  ? `<p class="card-text">NIF : ${client.fiscal_info.nif}</p>` : '';
+    const rc   = client.fiscal_info?.rc   ? `<p class="card-text">RC : ${client.fiscal_info.rc}</p>` : '';
+    const addr = client.address ? `<p class="card-text">${client.address}</p>` : '';
+
+    return `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"/>
+<style>
+  * { box-sizing:border-box; margin:0; padding:0; background-repeat:no-repeat !important; }
+  body { font-family:Arial,sans-serif; color:#071b4d; background:white; }
+  .report { width:794px; background:white; overflow:hidden; padding:0 28px; }
+
+  /* ── Header ── */
+  .inv-top-row { padding:14px 24px 12px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid #e4ecf8; gap:20px; }
+  .inv-doctype { font-size:16px; font-weight:900; color:#041f58; letter-spacing:3px; line-height:1; flex:1; }
+  .inv-doctype-sub { font-size:7px; color:#aab4c8; font-weight:500; letter-spacing:2px; text-transform:uppercase; margin-top:4px; }
+  .inv-logo-center { flex:1; display:flex; justify-content:center; align-items:center; }
+  .inv-meta-group { flex:1; display:flex; gap:14px; align-items:flex-start; justify-content:flex-end; }
+  .inv-meta-block { display:flex; flex-direction:column; align-items:flex-end; gap:2px; }
+  .inv-meta-label { font-size:6.5px; color:#aab4c8; font-weight:700; text-transform:uppercase; letter-spacing:.5px; }
+  .inv-meta-value { font-size:9px; font-weight:800; color:#041f58; }
+  .inv-meta-value.green { color:#168a2f; }
+  .inv-bot-row { padding:6px 24px; background:#f4f7ff; display:flex; align-items:center; gap:6px; }
+  .inv-co-name { font-size:9px; font-weight:700; color:#041f58; }
+  .inv-co-sep { width:2px; height:2px; border-radius:50%; background:#b0bdd8; }
+  .inv-co-sub { font-size:7.5px; color:#8a99b8; }
+
+  /* ── Client card ── */
+  .card-wrap { margin:12px 16px 10px; }
+  .info-card { position:relative; min-height:68px; padding:12px 14px 10px 72px; border-radius:10px; overflow:hidden;
+    background:linear-gradient(135deg,#ffffff,#fffaf2); border:1px solid #f4d8a8; box-shadow:0 6px 18px rgba(9,35,80,.06); }
+  .icon { position:absolute; left:14px; top:12px; width:40px; height:40px; border-radius:50%; display:grid; place-items:center;
+    color:white; background:linear-gradient(135deg,#f8be3b,#d98200); box-shadow:0 6px 14px rgba(217,130,0,.22); }
+  .icon svg { width:18px; height:18px; }
+  .dots { position:absolute; right:0; top:24px; width:70px; height:70px; display:grid;
+    grid-template-columns:repeat(7,10px); grid-template-rows:repeat(7,10px); opacity:.15; }
+  .dot { width:3px; height:3px; border-radius:50%; background:#f2a320; margin:auto; }
+  .card-title { margin:0 0 5px; font-size:9px; font-weight:800; color:#e18a00; }
+  .card-name { margin:0 0 3px; font-size:10px; font-weight:800; color:#06183d; }
+  .card-text { margin:0; font-size:8px; line-height:1.7; font-weight:500; color:#203050; }
+
+  /* ── Table ── */
+  table { width:calc(100% - 32px); margin:0 16px 16px; border-collapse:separate; border-spacing:0;
+    border-radius:8px; font-size:10px; box-shadow:0 4px 14px rgba(6,59,136,0.08); overflow:hidden;
+    table-layout:fixed; }
+  col.c-ref   { width:12%; }
+  col.c-date  { width:10%; }
+  col.c-mode  { width:10%; }
+  col.c-imp   { width:16%; }
+  col.c-exo   { width:16%; }
+  col.c-tva   { width:12%; }
+  col.c-tim   { width:11%; }
+  col.c-ttc   { width:13%; }
+  thead th { background:#063b88; color:white; padding:8px 7px; text-align:left; font-weight:700; font-size:8.5px; text-transform:uppercase; letter-spacing:.3px; overflow:hidden; }
+  thead th.r { text-align:right; }
+  tbody td { padding:7px 7px; border-bottom:1px solid #e4ecf5; vertical-align:middle; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  tbody tr:last-child td { border-bottom:none; }
+  tfoot td { padding:7px 7px; background:linear-gradient(90deg,#041f58,#1a5fc8) !important;
+    color:white !important; font-weight:700; font-size:9px; border-top:none; overflow:hidden; }
+  tfoot td.r { text-align:right; }
+
+  .ref-cell { font-family:monospace; font-weight:700; color:#063b88; font-size:7.5px; }
+  td.r { text-align:right; }
+  td.tva { color:#c0392b; }
+  td.timbre { color:#7c5caa; }
+  td.ttc { font-weight:700; color:#063b88; font-size:9px; }
+
+  .badge { display:inline-block; padding:1px 6px; border-radius:99px; font-size:7px; font-weight:600; }
+  .badge-espece   { background:rgba(16,185,129,.12); color:#059669; }
+  .badge-cheque   { background:rgba(59,130,246,.12); color:#2563eb; }
+  .badge-virement { background:rgba(139,92,246,.12); color:#7c3aed; }
+
+  .month-sep td { background:white !important; padding:10px 7px 4px !important; border:none !important; }
+  .month-pill { display:inline-block; background:rgba(202,155,35,.18); color:#8b650a;
+    padding:2px 10px; border-radius:99px; font-size:7.5px; font-weight:700; text-transform:capitalize; }
+
+  /* ── Summary bottom ── */
+  .bottom { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:14px 16px 18px; }
+  .stamp-wrap { display:flex; align-items:center; justify-content:center; }
+  .stamp { display:inline-block; border:2px solid #b71c1c; color:#b71c1c; padding:10px 16px; transform:rotate(-3deg); text-align:center; font-weight:700; font-size:8px; line-height:2; letter-spacing:.3px; }
+  .summary { border:1px solid #dbe5f0; border-radius:10px; padding:12px 14px; }
+  .summary-title { background:#063b88; color:white; padding:6px 10px; border-radius:6px; font-weight:700; margin-bottom:8px; font-size:9px; }
+  .summary-row { display:flex; justify-content:space-between; border-bottom:1px solid #e4ecf5; padding:5px 0; font-size:8.5px; color:#203050; }
+  .summary-row strong { font-weight:600; }
+  .dimmed { color:#9aabbf; }
+  .dimmed strong { color:#9aabbf; font-weight:500; }
+  .tva-row { color:#c0392b; } .tva-row strong { color:#c0392b; }
+  .timbre-row { color:#7c5caa; } .timbre-row strong { color:#7c5caa; }
+  .total { margin-top:8px; background:linear-gradient(90deg,#041f58,#1a5fc8); color:white; border-radius:7px; padding:9px 12px; display:flex; justify-content:space-between; font-size:11px; font-weight:bold; }
+</style></head><body>
+<div class="report">
+  <div class="inv-top-row">
+    <div class="inv-doctype">ÉTAT DE FACTURATION<div class="inv-doctype-sub">exercice ${year}</div></div>
+    <div class="inv-logo-center">${logoHtml}</div>
+    <div class="inv-meta-group">
+      <div class="inv-meta-block">
+        <span class="inv-meta-label">Client</span>
+        <span class="inv-meta-value">${client.full_name}</span>
+      </div>
+      <div class="inv-meta-block">
+        <span class="inv-meta-label">Factures</span>
+        <span class="inv-meta-value">${stats.count}</span>
+      </div>
+      <div class="inv-meta-block">
+        <span class="inv-meta-label">Imprimé le</span>
+        <span class="inv-meta-value green">${today}</span>
+      </div>
+    </div>
+  </div>
+  <div class="inv-bot-row">
+    <span class="inv-co-name">${company.name || ''}</span>
+    ${company.activity ? `<div class="inv-co-sep"></div><span class="inv-co-sub">${company.activity}</span>` : ''}
+    ${company.phone    ? `<div class="inv-co-sep"></div><span class="inv-co-sub">${company.phone}</span>` : ''}
+    ${company.address  ? `<div class="inv-co-sep"></div><span class="inv-co-sub">${company.address}</span>` : ''}
+  </div>
+  <div class="card-wrap">
+    <div class="info-card">
+      <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+      <div class="dots">${dots}</div>
+      <p class="card-title">Client</p>
+      <p class="card-name">${client.full_name}${client.store_name ? ' — ' + client.store_name : ''}</p>
+      ${addr}${nif}${rc}
+    </div>
+  </div>
+  <table>
+    <colgroup>
+      <col class="c-ref"/><col class="c-date"/><col class="c-mode"/>
+      <col class="c-imp"/><col class="c-exo"/>
+      <col class="c-tva"/><col class="c-tim"/><col class="c-ttc"/>
+    </colgroup>
+    <thead><tr>
+      <th>Référence</th><th>Date</th><th>Mode</th>
+      <th class="r">Montant imposé</th><th class="r">Montant exonéré</th>
+      <th class="r">TVA</th><th class="r">Timbre</th><th class="r">Total TTC</th>
+    </tr></thead>
+    <tbody>${bodyRows}</tbody>
+  </table>
+
+  <div class="bottom">
+    <div class="stamp-wrap">
+      ${stampDataUrl
+        ? `<img src="${stampDataUrl}" style="width:165px;height:auto;" alt="Stamp" />`
+        : `<div class="stamp">AGROCLIK<br/>MEKHTОUB Yazid<br/>Locaux N°01-02-03-04 Rue<br/>HAMDIS Med Amokrane Ouadhias<br/>T-O R.C n° : 15/02-5241701/A/25</div>`
+      }
+    </div>
+    <div class="summary">
+      <div class="summary-title">RÉCAPITULATIF</div>
+      <div class="summary-row"><span>TOTAL HT</span><strong>${fmt(stats.impose + stats.exonere)}</strong></div>
+      ${stats.impose  > 0 ? `<div class="summary-row dimmed"><span>MONTANT IMPOSÉ</span><strong>${fmt(stats.impose)}</strong></div>`   : ''}
+      ${stats.exonere > 0 ? `<div class="summary-row dimmed"><span>MONTANT EXONÉRÉ</span><strong>${fmt(stats.exonere)}</strong></div>` : ''}
+      <div class="summary-row tva-row"><span>TVA</span><strong>${fmt(stats.total_tva)}</strong></div>
+      ${stats.total_timbre > 0 ? `<div class="summary-row timbre-row"><span>TIMBRE</span><strong>${fmt(stats.total_timbre)}</strong></div>` : ''}
+      <div class="total"><span>TOTAL TTC</span><span>${fmt(stats.total_ttc)}</span></div>
+    </div>
+  </div>
+</div>
+</body></html>`;
+  }
+
+  async generateAccountingListPdf(
+    client: FacturationClient,
+    company: CompanySettings,
+    year: number,
+    groups: { label: string; factures: Facturation[]; cumulative: { impose: number; exonere: number; total_tva: number; total_timbre: number; total_ttc: number } }[],
+    stats: { count: number; impose: number; exonere: number; total_tva: number; total_timbre: number; total_ttc: number },
+  ): Promise<void> {
+    const overlayRef = this.showPdfOverlay();
+    try {
+      if (this.logoCache === undefined) {
+        this.logoCache = await this.loadImageAsDataUrl('/logo.png');
+      }
+      if (this.stampCache === undefined) {
+        this.stampCache = await this.loadImageAsDataUrl('/stamp.png');
+      }
+      const html = this.buildAccountingListHtml(client, company, year, groups, stats, this.logoCache, this.stampCache);
+
+      // Same pattern as generateFacturePdf: portrait A4, W=794px
+      const W = 794;
+      const iframe = this.makeIframe(W);
+      iframe.contentDocument!.open();
+      iframe.contentDocument!.write(html);
+      iframe.contentDocument!.close();
+      await new Promise(r => setTimeout(r, 200));
+
+      const el = iframe.contentDocument!.querySelector('.report') as HTMLElement;
+      iframe.style.height = el.scrollHeight + 'px';
+      await new Promise(r => setTimeout(r, 100));
+
+      const canvas = await html2canvas(el, {
+        scale: 1.5, useCORS: true, allowTaint: true,
+        backgroundColor: '#ffffff', windowWidth: W,
+      });
+      document.body.removeChild(iframe);
+
+      // Portrait A4: 210mm wide × 297mm tall — identical approach to generateFacturePdf
+      const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+      const pageHpx = Math.round(canvas.width * 297 / 210);
+      const totalPages = Math.ceil(canvas.height / pageHpx);
+      let off = 0, pageIdx = 1;
+
+      while (off < canvas.height) {
+        const sliceH = Math.min(pageHpx, canvas.height - off);
+        const sc = document.createElement('canvas');
+        sc.width = canvas.width; sc.height = sliceH;
+        sc.getContext('2d')!.drawImage(canvas, 0, -off);
+
+        if (pageIdx > 1) pdf.addPage();
+        pdf.addImage(sc.toDataURL('image/jpeg', 0.92), 'JPEG', 0, 0, 210, sliceH * 210 / canvas.width);
+
+        pdf.setFontSize(7).setTextColor(150);
+        pdf.text(`Page ${pageIdx} / ${totalPages}`, 203, 290, { align: 'right' });
+
+        off += pageHpx;
+        pageIdx++;
+      }
+
+      const blob = pdf.output('blob');
+      const url  = URL.createObjectURL(blob);
+      window.open(url, '_blank');
+      setTimeout(() => URL.revokeObjectURL(url), 60000);
+
+    } catch (err: any) {
+      this.toast.showError('Erreur génération PDF: ' + (err?.message ?? String(err)));
     } finally {
       this.hidePdfOverlay(overlayRef);
     }

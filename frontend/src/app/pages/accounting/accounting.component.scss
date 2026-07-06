@@ -210,6 +210,15 @@
   i { font-size: 0.85rem; }
 
   &:hover { opacity: 0.88; }
+
+  &--print {
+    background: var(--surface-card);
+    color: var(--text-color);
+    border: 1px solid var(--surface-border);
+
+    &:hover { opacity: 1; background: var(--surface-hover); }
+    &:disabled { opacity: 0.5; cursor: not-allowed; }
+  }
 }
 
 // ── Body layout ───────────────────────────────────────────────────────────────
@@ -423,7 +432,7 @@
 }
 
 .month-subtotal-row {
-  background: rgba(202, 155, 35, 0.08) !important;
+  background: rgba(0, 0, 0, 0.015) !important;
   border-top: 1px solid var(--surface-border) !important;
   border-bottom: 2px solid var(--surface-border) !important;
   pointer-events: none;

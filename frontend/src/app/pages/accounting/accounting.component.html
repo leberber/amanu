@@ -48,6 +48,10 @@
           <i class="pi pi-building-columns"></i>
           <span>Modifier infos fiscales</span>
         </button>
+        <button class="fiscal-btn fiscal-btn--print" (click)="printList()" [disabled]="printingList()">
+          <i [class]="printingList() ? 'pi pi-spin pi-spinner' : 'pi pi-print'"></i>
+          <span>Imprimer</span>
+        </button>
       }
     </div>
 
@@ -153,6 +157,7 @@
                   <th>Référence</th><th>Date</th><th>Mode</th>
                   <th class="text-right">Montant imposé</th>
                   <th class="text-right">Montant exonéré</th>
+                  <th class="text-right">Total HT</th>
                   <th class="text-right">TVA</th>
                   <th class="text-right">Timbre</th>
                   <th class="text-right">Total TTC</th>
@@ -203,6 +208,7 @@
                   <th>Mode</th>
                   <th class="text-right">Montant imposé</th>
                   <th class="text-right">Montant exonéré</th>
+                  <th class="text-right">Total HT</th>
                   <th class="text-right">TVA</th>
                   <th class="text-right">Timbre</th>
                   <th class="text-right">Total TTC</th>
@@ -212,7 +218,7 @@
               <tbody>
                 @for (group of facturationsGrouped(); track group.label) {
                   <tr class="month-break-row">
-                    <td colspan="9" class="month-break-cell">
+                    <td colspan="10" class="month-break-cell">
                       <span class="month-break-pill">{{ group.label }}</span>
                     </td>
                   </tr>
@@ -229,6 +235,7 @@
                       </td>
                       <td class="text-right text-color-secondary text-sm"><app-currency [value]="getImpose(f)" /></td>
                       <td class="text-right text-color-secondary text-sm"><app-currency [value]="getExonere(f)" /></td>
+                      <td class="text-right text-color-secondary text-sm"><app-currency [value]="getImpose(f) + getExonere(f)" /></td>
                       <td class="text-right text-color-secondary text-sm">
                         @if (f.total_tva > 0) { <app-currency [value]="f.total_tva" /> } @else { — }
                       </td>
@@ -247,9 +254,10 @@
                     </tr>
                   }
                   <tr class="month-subtotal-row">
-                    <td colspan="3" class="month-subtotal-label">Cumul {{ group.label }}</td>
+                    <td colspan="3" class="month-subtotal-label">Sous-total {{ group.label }}</td>
                     <td class="text-right"><span class="summary-pill summary-pill--impose"><app-currency [value]="group.cumulative.impose" /></span></td>
                     <td class="text-right"><span class="summary-pill summary-pill--exonere"><app-currency [value]="group.cumulative.exonere" /></span></td>
+                    <td class="text-right"><span class="summary-pill summary-pill--impose"><app-currency [value]="group.cumulative.impose + group.cumulative.exonere" /></span></td>
                     <td class="text-right"><span class="summary-pill summary-pill--tva"><app-currency [value]="group.cumulative.total_tva" /></span></td>
                     <td class="text-right">
                       @if (group.cumulative.total_timbre > 0) {
@@ -273,6 +281,9 @@
                   </td>
                   <td class="text-right">
                     <span class="summary-pill summary-pill--exonere"><app-currency [value]="clientStats().exonere" /></span>
+                  </td>
+                  <td class="text-right">
+                    <span class="summary-pill summary-pill--impose"><app-currency [value]="clientStats().impose + clientStats().exonere" /></span>
                   </td>
                   <td class="text-right">
                     <span class="summary-pill summary-pill--tva"><app-currency [value]="clientStats().total_tva" /></span>
@@ -343,6 +354,10 @@
             <span class="summary-row__value">{{ clientStats().count }}</span>
           </div>
           <div class="summary-sep"></div>
+          <div class="summary-row">
+            <span class="summary-row__label">Total HT</span>
+            <span class="summary-row__value"><app-currency [value]="clientStats().impose + clientStats().exonere" /></span>
+          </div>
           <div class="summary-row">
             <span class="summary-row__label">Montant imposé</span>
             <span class="summary-pill summary-pill--impose"><app-currency [value]="clientStats().impose" /></span>

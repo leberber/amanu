@@ -72,6 +72,7 @@ export class AccountingComponent implements OnInit {
   selectedYear = signal<number>(new Date().getFullYear());
   loading = signal(false);
   loadingPdf = signal<number | null>(null);
+  printingList = signal(false);
 
   // ── Fiscal info dialog ────────────────────────────────────────────────────
   showFiscalDialog = signal(false);
@@ -138,16 +139,17 @@ export class AccountingComponent implements OnInit {
       }
     }
 
-    // Compute cumulative totals group by group (oldest first)
+    // Compute per-month totals (not cumulative)
     for (const g of groups) {
+      let mImpose = 0, mExonere = 0, mTva = 0, mTimbre = 0, mTtc = 0;
       for (const f of g.factures) {
-        cumImpose  += this.getImpose(f);
-        cumExonere += this.getExonere(f);
-        cumTva     += f.total_tva;
-        cumTimbre  += f.payment_mode === 'espece' ? (f.timbre ?? 0) : 0;
-        cumTtc     += f.total_ttc;
+        mImpose  += this.getImpose(f);
+        mExonere += this.getExonere(f);
+        mTva     += f.total_tva;
+        mTimbre  += f.payment_mode === 'espece' ? (f.timbre ?? 0) : 0;
+        mTtc     += f.total_ttc;
       }
-      g.cumulative = { impose: cumImpose, exonere: cumExonere, total_tva: cumTva, total_timbre: cumTimbre, total_ttc: cumTtc };
+      g.cumulative = { impose: mImpose, exonere: mExonere, total_tva: mTva, total_timbre: mTimbre, total_ttc: mTtc };
     }
 
     return groups;
@@ -263,7 +265,7 @@ export class AccountingComponent implements OnInit {
   }
 
   getImpose(f: Facturation): number {
-    return (f.items ?? []).filter(i => i.tva_rate > 0).reduce((s, i) => s + i.total_ht, 0);
+    return (f.items ?? []).filter(i => i.tva_rate > 0).reduce((s, i) => s + i.total_ht * (1 + i.tva_rate / 100), 0);
   }
 
   getExonere(f: Facturation): number {
@@ -292,6 +294,21 @@ export class AccountingComponent implements OnInit {
       montant_declare: client.fiscal_info?.montant_declare ?? null,
     };
     this.showFiscalDialog.set(true);
+  }
+
+  async printList(): Promise<void> {
+    const client = this.selectedClient;
+    const company = this.companySettings();
+    if (!client || !company) return;
+    this.printingList.set(true);
+    try {
+      await this.pdfService.generateAccountingListPdf(
+        client, company, this.selectedYear(),
+        this.facturationsGrouped(), this.clientStats()
+      );
+    } finally {
+      this.printingList.set(false);
+    }
   }
 
   saveFiscalInfo(): void {
