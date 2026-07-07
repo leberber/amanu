@@ -19,6 +19,7 @@ import {
   CompanySettings,
   FacturationClient,
   ClientTotal,
+  ExternalFactureCreate,
 } from '../../core/services/facturation.service';
 import { FacturationPdfService } from '../../services/facturation-pdf.service';
 import { ToastMessageService } from '../../core/services/toast-message.service';
@@ -76,6 +77,12 @@ export class AccountingComponent implements OnInit {
   loadingPdf = signal<number | null>(null);
   printingList = signal(false);
 
+  // ── External facture inline editing ───────────────────────────────────────
+  activeInlineGroup = signal<string | null>(null);
+  inlineRowData = { merchantName: '', paymentMode: 'espece', extImpose: 0, extExonere: 0, totalTva: 0, timbre: 0 };
+  savingInline = signal(false);
+  deletingExternal = signal<number | null>(null);
+
   // ── Fiscal info dialog ────────────────────────────────────────────────────
   showFiscalDialog = signal(false);
   savingFiscal = signal(false);
@@ -127,14 +134,14 @@ export class AccountingComponent implements OnInit {
     const sorted = [...this.filteredFacturations()].sort(
       (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
     );
-    const groups: { label: string; factures: typeof sorted; cumulative: { impose: number; exonere: number; total_tva: number; total_timbre: number; total_ttc: number } }[] = [];
+    const groups: { label: string; month: number; year: number; factures: typeof sorted; cumulative: { impose: number; exonere: number; total_tva: number; total_timbre: number; total_ttc: number } }[] = [];
 
     for (const f of sorted) {
       const d = new Date(f.created_at);
       const label = d.toLocaleDateString('fr-DZ', { month: 'long', year: 'numeric' });
       const last = groups[groups.length - 1];
       if (!last || last.label !== label) {
-        groups.push({ label, factures: [f], cumulative: { impose: 0, exonere: 0, total_tva: 0, total_timbre: 0, total_ttc: 0 } });
+        groups.push({ label, month: d.getMonth(), year: d.getFullYear(), factures: [f], cumulative: { impose: 0, exonere: 0, total_tva: 0, total_timbre: 0, total_ttc: 0 } });
       } else {
         last.factures.push(f);
       }
@@ -270,12 +277,16 @@ export class AccountingComponent implements OnInit {
     const marge = this.margeSubv() / 100;
 
     const caSubv = facts.reduce((s, f) =>
-      s + (f.items ?? []).filter(i => i.tva_rate === 0).reduce((ss, i) => ss + i.total_ttc, 0), 0);
+      s + (f.is_external
+        ? (f.ext_exonere ?? 0)
+        : (f.items ?? []).filter(i => i.tva_rate === 0).reduce((ss, i) => ss + i.total_ttc, 0)), 0);
     const profitSubv = marge > 0 ? caSubv * marge / (1 + marge) : 0;
     const taxSubv = profitSubv * 0.05;
 
     const caImposable = facts.reduce((s, f) =>
-      s + (f.items ?? []).filter(i => i.tva_rate > 0).reduce((ss, i) => ss + i.total_ttc, 0), 0);
+      s + (f.is_external
+        ? (f.ext_impose ?? 0)
+        : (f.items ?? []).filter(i => i.tva_rate > 0).reduce((ss, i) => ss + i.total_ttc, 0)), 0);
     const taxImposable = caImposable * 0.05;
 
     const forfait = 30_000;
@@ -356,10 +367,12 @@ export class AccountingComponent implements OnInit {
   }
 
   getImpose(f: Facturation): number {
+    if (f.is_external) return f.ext_impose ?? 0;
     return (f.items ?? []).filter(i => i.tva_rate > 0).reduce((s, i) => s + i.total_ht * (1 + i.tva_rate / 100), 0);
   }
 
   getExonere(f: Facturation): number {
+    if (f.is_external) return f.ext_exonere ?? 0;
     return (f.items ?? []).filter(i => i.tva_rate === 0).reduce((s, i) => s + i.total_ht, 0);
   }
 
@@ -401,6 +414,63 @@ export class AccountingComponent implements OnInit {
     } finally {
       this.printingList.set(false);
     }
+  }
+
+  addExternalRow(group: { label: string; month: number; year: number }): void {
+    this.inlineRowData = { merchantName: '', paymentMode: 'espece', extImpose: 0, extExonere: 0, totalTva: 0, timbre: 0 };
+    this.activeInlineGroup.set(group.label);
+  }
+
+  cancelInlineRow(): void {
+    this.activeInlineGroup.set(null);
+  }
+
+  saveInlineRow(group: { label: string; month: number; year: number }): void {
+    const clientId = this.selectedClientId();
+    if (!clientId || !this.inlineRowData.merchantName) return;
+    this.savingInline.set(true);
+    const d = this.inlineRowData;
+    const payload: ExternalFactureCreate = {
+      client_id: clientId,
+      merchant_name: d.merchantName,
+      payment_mode: d.paymentMode,
+      ext_impose: d.extImpose,
+      ext_exonere: d.extExonere,
+      total_tva: d.totalTva,
+      timbre: d.timbre,
+      month: group.month,
+      year: group.year,
+    };
+    this.facturationService.createExternalFacturation(payload)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (f) => {
+          this.facturations.update(list => [f, ...list]);
+          this.activeInlineGroup.set(null);
+          this.savingInline.set(false);
+          this.toast.showSuccess('Facture externe ajoutée');
+        },
+        error: () => {
+          this.savingInline.set(false);
+          this.toast.showError('Erreur lors de l\'ajout');
+        }
+      });
+  }
+
+  deleteExternal(f: Facturation): void {
+    this.deletingExternal.set(f.id);
+    this.facturationService.deleteFacturation(f.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.facturations.update(list => list.filter(x => x.id !== f.id));
+          this.deletingExternal.set(null);
+        },
+        error: () => {
+          this.deletingExternal.set(null);
+          this.toast.showError('Erreur lors de la suppression');
+        }
+      });
   }
 
   saveFiscalInfo(): void {

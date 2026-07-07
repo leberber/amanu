@@ -109,6 +109,18 @@ export interface FacturationItem {
   image_url?: string;
 }
 
+export interface ExternalFactureCreate {
+  client_id: number;
+  merchant_name: string;
+  payment_mode: string;
+  ext_impose: number;
+  ext_exonere: number;
+  total_tva: number;
+  timbre: number;
+  month: number;  // 0-11
+  year: number;
+}
+
 export interface Facturation {
   id: number;
   reference: string;
@@ -130,6 +142,10 @@ export interface Facturation {
   timbre: number;
   total_ttc: number;
   notes?: string;
+  is_external?: boolean;
+  merchant_name?: string;
+  ext_impose?: number;
+  ext_exonere?: number;
   created_at: string;
   items: FacturationItem[];
 }
@@ -237,6 +253,10 @@ export class FacturationService {
 
   createFacturation(data: FacturationCreate): Observable<Facturation> {
     return this.http.post<Facturation>(this.apiUrl, data);
+  }
+
+  createExternalFacturation(data: ExternalFactureCreate): Observable<Facturation> {
+    return this.http.post<Facturation>(`${this.apiUrl}/external`, data);
   }
 
   convertToFacture(id: number): Observable<Facturation> {

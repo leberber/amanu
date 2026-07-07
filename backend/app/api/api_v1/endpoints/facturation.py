@@ -16,7 +16,8 @@ from app.models.order import Order
 from app.models.facturation import (
     CompanySettings, CompanySettingsUpdate, CompanySettingsResponse,
     Facturation, FacturationItem,
-    FacturationCreate, FacturationResponse, FacturationItemResponse,
+    FacturationCreate, ExternalFactureCreate,
+    FacturationResponse, FacturationItemResponse,
     FacturationListResponse, FacturationClientView
 )
 
@@ -74,6 +75,15 @@ def generate_reference(session: Session, document_type: str = "facture") -> str:
     return f"{prefix}-{year}-{(count + 1):03d}"
 
 
+def generate_ext_reference(session: Session, year: int) -> str:
+    count = session.exec(
+        select(func.count(Facturation.id)).where(
+            Facturation.reference.like(f"EXT-{year}-%")
+        )
+    ).one()
+    return f"EXT-{year}-{(count + 1):03d}"
+
+
 def calc_ht(unit_price: float, quantity: int, tva_rate: int) -> float:
     total_ttc = unit_price * quantity
     if tva_rate == 0:
@@ -127,6 +137,10 @@ def facturation_to_response(
         timbre=f.timbre,
         total_ttc=f.total_ttc,
         notes=f.notes,
+        is_external=f.is_external,
+        merchant_name=f.merchant_name,
+        ext_impose=f.ext_impose,
+        ext_exonere=f.ext_exonere,
         created_at=f.created_at,
         items=[
             FacturationItemResponse(
@@ -519,6 +533,47 @@ async def list_facturations(
         facturations=[facturation_to_response(f, converted_ref_map=converted_ref_map) for f in facturations],
         total=total
     )
+
+
+@router.post("/external", response_model=FacturationResponse)
+async def create_external_facturation(data: ExternalFactureCreate, session: Session = Depends(get_session)):
+    """Add an external (other-merchant) facture entry for forfait calculations."""
+    user = session.get(User, data.client_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="Client not found")
+
+    # Place at the 1st of the specified month so grouping works correctly
+    created_at = datetime(data.year, data.month + 1, 1, tzinfo=timezone.utc)
+
+    total_ht = round((data.ext_impose - data.total_tva) + data.ext_exonere, 2)
+    total_ttc = round(data.ext_impose + data.ext_exonere + data.timbre, 2)
+    reference = generate_ext_reference(session, data.year)
+
+    f = Facturation(
+        reference=reference,
+        document_type="facture",
+        is_external=True,
+        merchant_name=data.merchant_name,
+        client_id=user.id,
+        client_name=user.store_name or user.full_name,
+        client_address=user.address,
+        payment_mode=data.payment_mode,
+        ext_impose=round(data.ext_impose, 2),
+        ext_exonere=round(data.ext_exonere, 2),
+        total_ht=total_ht,
+        total_tva=round(data.total_tva, 2),
+        timbre=data.timbre,
+        total_ttc=total_ttc,
+        created_at=created_at,
+    )
+    session.add(f)
+    try:
+        session.commit()
+        session.refresh(f)
+        return facturation_to_response(f, session)
+    except Exception as e:
+        session.rollback()
+        raise HTTPException(status_code=422, detail=str(e))
 
 
 @router.get("/{facturation_id}", response_model=FacturationResponse)

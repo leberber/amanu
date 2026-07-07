@@ -118,6 +118,12 @@ class Facturation(SQLModel, table=True):
 
     notes: Optional[str] = None
 
+    # External (other merchant) facture fields — used for forfait calculations
+    is_external: bool = Field(default=False)
+    merchant_name: Optional[str] = Field(default=None)
+    ext_impose: float = Field(default=0.0)    # TTC of imposable items (from external invoice)
+    ext_exonere: float = Field(default=0.0)   # exonerated amount (from external invoice)
+
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
     items: List[FacturationItem] = Relationship(
@@ -192,6 +198,10 @@ class FacturationResponse(BaseModel):
     timbre: float
     total_ttc: float
     notes: Optional[str]
+    is_external: bool = False
+    merchant_name: Optional[str] = None
+    ext_impose: float = 0.0
+    ext_exonere: float = 0.0
     created_at: datetime
     items: List[FacturationItemResponse] = []
 
@@ -199,6 +209,19 @@ class FacturationResponse(BaseModel):
 class FacturationListResponse(BaseModel):
     facturations: List[FacturationResponse]
     total: int
+
+
+class ExternalFactureCreate(BaseModel):
+    """Simplified payload for adding an external (other-merchant) facture for forfait calculations."""
+    client_id: int
+    merchant_name: str
+    payment_mode: str = "espece"
+    ext_impose: float = 0.0    # TTC imposable from their invoice
+    ext_exonere: float = 0.0   # Exonerated amount from their invoice
+    total_tva: float = 0.0     # TVA amount from their invoice
+    timbre: float = 0.0
+    month: int                  # 0-11
+    year: int
 
 
 # Client selection response (lightweight user view for invoice creation)

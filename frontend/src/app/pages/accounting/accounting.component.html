@@ -229,12 +229,56 @@
                   <tr class="month-break-row">
                     <td colspan="10" class="month-break-cell">
                       <span class="month-break-pill">{{ group.label }}</span>
+                      <button class="add-ext-btn" (click)="addExternalRow(group)"
+                        [disabled]="savingInline()"
+                        pTooltip="Ajouter une facture externe" tooltipPosition="right">
+                        <i class="pi pi-plus"></i>
+                      </button>
                     </td>
                   </tr>
-                  @for (f of group.factures; track f.id; let i = $index) {
-                    <tr class="table-row-animate" [style.--row-delay]="(i * 30) + 'ms'">
+
+                  @if (activeInlineGroup() === group.label) {
+                    <tr class="ext-row-inline">
+                      <td><input class="inline-input" [(ngModel)]="inlineRowData.merchantName" placeholder="Marchand *" /></td>
+                      <td class="text-color-secondary text-xs" style="white-space:nowrap">{{ group.month + 1 }}/{{ group.year }}</td>
                       <td>
-                        <span class="acc-ref">{{ f.reference }}</span>
+                        <select class="inline-select" [(ngModel)]="inlineRowData.paymentMode">
+                          <option value="espece">Espèces</option>
+                          <option value="cheque">Chèque</option>
+                          <option value="virement">Virement</option>
+                        </select>
+                      </td>
+                      <td class="text-right"><input class="inline-input inline-input--num" type="number" [(ngModel)]="inlineRowData.extImpose" min="0" placeholder="0" /></td>
+                      <td class="text-right"><input class="inline-input inline-input--num" type="number" [(ngModel)]="inlineRowData.extExonere" min="0" placeholder="0" /></td>
+                      <td class="text-right text-color-secondary text-sm">{{ inlineRowData.extImpose - inlineRowData.totalTva + inlineRowData.extExonere | number:'1.0-0' }}</td>
+                      <td class="text-right"><input class="inline-input inline-input--num" type="number" [(ngModel)]="inlineRowData.totalTva" min="0" placeholder="0" /></td>
+                      <td class="text-right"><input class="inline-input inline-input--num" type="number" [(ngModel)]="inlineRowData.timbre" min="0" placeholder="0" /></td>
+                      <td class="text-right text-sm font-semibold">{{ inlineRowData.extImpose + inlineRowData.extExonere + inlineRowData.timbre | number:'1.0-0' }}</td>
+                      <td class="text-center" style="white-space:nowrap">
+                        <button class="pdf-btn" (click)="saveInlineRow(group)"
+                          [disabled]="savingInline() || !inlineRowData.merchantName"
+                          pTooltip="Enregistrer" tooltipPosition="left">
+                          @if (savingInline()) {
+                            <i class="pi pi-spin pi-spinner"></i>
+                          } @else {
+                            <i class="pi pi-check" style="color:#22c55e"></i>
+                          }
+                        </button>
+                        <button class="pdf-btn" (click)="cancelInlineRow()" pTooltip="Annuler" tooltipPosition="left">
+                          <i class="pi pi-times" style="color:#f87171"></i>
+                        </button>
+                      </td>
+                    </tr>
+                  }
+
+                  @for (f of group.factures; track f.id; let i = $index) {
+                    <tr class="table-row-animate" [class.ext-row]="f.is_external" [style.--row-delay]="(i * 30) + 'ms'">
+                      <td>
+                        @if (f.is_external) {
+                          <span class="ext-merchant-pill">{{ f.merchant_name }}</span>
+                        } @else {
+                          <span class="acc-ref">{{ f.reference }}</span>
+                        }
                       </td>
                       <td class="text-color-secondary text-sm">{{ f.created_at | appDate:'dateOnly' }}</td>
                       <td>
@@ -254,11 +298,20 @@
                       <td class="text-right">
                         <span class="acc-ttc"><app-currency [value]="f.total_ttc" /></span>
                       </td>
-                      <td class="text-center">
-                        <button class="pdf-btn" (click)="previewPdf(f)" [disabled]="loadingPdf() === f.id"
-                          pTooltip="Aperçu PDF" tooltipPosition="left">
-                          <i [class]="loadingPdf() === f.id ? 'pi pi-spin pi-spinner' : 'pi pi-file-pdf'"></i>
-                        </button>
+                      <td class="text-center" [class.ext-action-cell]="f.is_external" style="white-space:nowrap">
+                        @if (f.is_external) {
+                          <span class="ext-badge">EXT</span>
+                          <button class="pdf-btn" (click)="deleteExternal(f)"
+                            [disabled]="deletingExternal() === f.id"
+                            pTooltip="Supprimer" tooltipPosition="left">
+                            <i [class]="deletingExternal() === f.id ? 'pi pi-spin pi-spinner' : 'pi pi-trash'" style="color:#f87171"></i>
+                          </button>
+                        } @else {
+                          <button class="pdf-btn" (click)="previewPdf(f)" [disabled]="loadingPdf() === f.id"
+                            pTooltip="Aperçu PDF" tooltipPosition="left">
+                            <i [class]="loadingPdf() === f.id ? 'pi pi-spin pi-spinner' : 'pi pi-file-pdf'"></i>
+                          </button>
+                        }
                       </td>
                     </tr>
                   }

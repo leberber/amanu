@@ -465,11 +465,11 @@
 .month-break-row {
   background: transparent !important;
   border-bottom: none !important;
-  pointer-events: none;
 }
 
 .month-break-cell {
   padding: 1.8rem 1rem 0.5rem !important;
+  pointer-events: auto;
 }
 
 .month-break-pill {
@@ -483,6 +483,111 @@
   text-transform: capitalize;
   letter-spacing: 0.01em;
   color: #b8860b;
+}
+
+.add-ext-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 1.5px solid var(--surface-border);
+  background: var(--surface-card);
+  color: var(--text-color-secondary);
+  cursor: pointer;
+  margin-left: 0.5rem;
+  vertical-align: middle;
+  transition: all 0.15s ease;
+
+  i { font-size: 0.6rem; }
+
+  &:hover:not(:disabled) {
+    border-color: #d97706;
+    color: #d97706;
+    background: rgba(217,119,6,0.08);
+  }
+
+  &:disabled { opacity: 0.4; cursor: not-allowed; }
+}
+
+// ── External facture rows ─────────────────────────────────────────────────────
+
+.ext-merchant-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.7rem;
+  border-radius: 99px;
+  background: rgba(239, 68, 68, 0.1);
+  color: #dc2626;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.ext-action-cell {
+  position: relative;
+}
+
+.ext-badge {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  padding: 0.08rem 0.35rem;
+  border-radius: 4px;
+  background: rgba(239, 68, 68, 0.14);
+  color: #dc2626;
+  font-size: 0.56rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  line-height: 1.4;
+}
+
+.ext-row {
+  background: rgba(239, 68, 68, 0.06) !important;
+}
+
+.ext-row-inline {
+  background: rgba(59, 130, 246, 0.04) !important;
+  border-top: 1.5px dashed rgba(59,130,246,0.25) !important;
+  border-bottom: 1.5px dashed rgba(59,130,246,0.25) !important;
+
+  td { padding: 0.4rem 0.5rem !important; vertical-align: middle; }
+}
+
+.inline-input {
+  width: 100%;
+  min-width: 80px;
+  height: 28px;
+  padding: 0 0.5rem;
+  border: 1px solid var(--surface-border);
+  border-radius: 6px;
+  background: var(--surface-card);
+  color: var(--text-color);
+  font-size: 0.78rem;
+  outline: none;
+  transition: border-color 0.15s ease;
+
+  &:focus { border-color: var(--primary-color); }
+
+  &--num {
+    width: 80px;
+    min-width: 60px;
+    text-align: right;
+  }
+}
+
+.inline-select {
+  height: 28px;
+  padding: 0 0.4rem;
+  border: 1px solid var(--surface-border);
+  border-radius: 6px;
+  background: var(--surface-card);
+  color: var(--text-color);
+  font-size: 0.75rem;
+  outline: none;
+  cursor: pointer;
+  width: 100%;
 }
 
 .month-subtotal-row {
