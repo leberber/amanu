@@ -116,7 +116,125 @@
         </div>
 
       } @else {
-        <div class="table-container">
+
+        <!-- ── Mobile card list (hidden on desktop) ── -->
+        <div class="mobile-cards">
+          @for (group of facturationsGrouped(); track group.label) {
+            <div class="mc-group-header">
+              <span class="month-break-pill">{{ group.label }}</span>
+              <button class="add-ext-btn" (click)="addExternalRow(group)"
+                [disabled]="savingInline()"
+                pTooltip="Ajouter une facture externe" tooltipPosition="right">
+                <i class="pi pi-plus"></i>
+              </button>
+            </div>
+
+            @for (f of group.factures; track f.id) {
+              <div class="mc-card" [class.mc-card--ext]="f.is_external">
+                <div class="mc-card__top">
+                  <div class="mc-card__ref">
+                    @if (f.is_external) {
+                      <span class="ext-merchant-pill">{{ f.merchant_name }}</span>
+                      <span class="ext-badge">EXT</span>
+                    } @else {
+                      <span class="acc-ref">{{ f.reference }}</span>
+                    }
+                  </div>
+                  <div class="mc-card__top-right">
+                    <span class="mc-card__date">{{ f.created_at | appDate:'dateOnly' }}</span>
+                    @if (f.is_external) {
+                      <button class="mc-icon-btn mc-icon-btn--danger" (click)="deleteExternal(f)" [disabled]="deletingExternal() === f.id">
+                        <i [class]="deletingExternal() === f.id ? 'pi pi-spin pi-spinner' : 'pi pi-trash'"></i>
+                      </button>
+                    } @else {
+                      <button class="mc-icon-btn" (click)="previewPdf(f)" [disabled]="loadingPdf() === f.id">
+                        <i [class]="loadingPdf() === f.id ? 'pi pi-spin pi-spinner' : 'pi pi-file-pdf'"></i>
+                      </button>
+                    }
+                  </div>
+                </div>
+                <div class="mc-card__middle">
+                  <div class="mc-card__badges">
+                    <span class="payment-badge payment-badge--{{ f.payment_mode }}">
+                      {{ paymentLabels[f.payment_mode] || f.payment_mode }}
+                    </span>
+                    @if (f.total_tva > 0) {
+                      <span class="mc-mini-pill mc-mini-pill--tva">TVA <app-currency [value]="f.total_tva" [hideDecimals]="true" /></span>
+                    }
+                    @if (f.payment_mode === 'espece' && f.timbre > 0) {
+                      <span class="mc-mini-pill mc-mini-pill--timbre">Timbre <app-currency [value]="f.timbre" [hideDecimals]="true" /></span>
+                    }
+                  </div>
+                </div>
+                <div class="mc-card__bottom">
+                  <div class="mc-card__stat">
+                    <span class="mc-card__stat-label">Mt. Imposé</span>
+                    <span class="mc-card__stat-val"><app-currency [value]="getImpose(f)" [hideDecimals]="true" [hideSymbol]="true" /></span>
+                  </div>
+                  <div class="mc-card__stat">
+                    <span class="mc-card__stat-label">Mt. Exonéré</span>
+                    <span class="mc-card__stat-val"><app-currency [value]="getExonere(f)" [hideDecimals]="true" [hideSymbol]="true" /></span>
+                  </div>
+                  <div class="mc-card__stat">
+                    <span class="mc-card__stat-label">Total HT</span>
+                    <span class="mc-card__stat-val"><app-currency [value]="getImpose(f) + getExonere(f)" [hideDecimals]="true" [hideSymbol]="true" /></span>
+                  </div>
+                  <div class="mc-card__stat">
+                    <span class="mc-card__stat-label">TTC</span>
+                    <span class="mc-card__stat-val mc-card__stat-val--ttc"><app-currency [value]="f.total_ttc" [hideDecimals]="true" [hideSymbol]="true" /></span>
+                  </div>
+                </div>
+              </div>
+            }
+
+            <div class="mc-subtotal">
+              <div class="mc-subtotal__label">Sous-total {{ group.label }}</div>
+              <div class="mc-subtotal__grid">
+                <div class="mc-subtotal__col">
+                  <span class="mc-subtotal__col-label">Mt. Imposé</span>
+                  <span class="mc-subtotal__col-val"><app-currency [value]="group.cumulative.impose" [hideDecimals]="true" [hideSymbol]="true" /></span>
+                </div>
+                <div class="mc-subtotal__col">
+                  <span class="mc-subtotal__col-label">Mt. Exonéré</span>
+                  <span class="mc-subtotal__col-val"><app-currency [value]="group.cumulative.exonere" [hideDecimals]="true" [hideSymbol]="true" /></span>
+                </div>
+                <div class="mc-subtotal__col">
+                  <span class="mc-subtotal__col-label">Total HT</span>
+                  <span class="mc-subtotal__col-val"><app-currency [value]="group.cumulative.impose + group.cumulative.exonere" [hideDecimals]="true" [hideSymbol]="true" /></span>
+                </div>
+                <div class="mc-subtotal__col mc-subtotal__col--ttc">
+                  <span class="mc-subtotal__col-label">TTC</span>
+                  <span class="mc-subtotal__col-val"><app-currency [value]="group.cumulative.total_ttc" [hideDecimals]="true" [hideSymbol]="true" /></span>
+                </div>
+              </div>
+            </div>
+          }
+
+          <div class="mc-footer">
+            <div class="mc-footer__label">Total — {{ clientStats().count }} facture{{ clientStats().count > 1 ? 's' : '' }}</div>
+            <div class="mc-footer__grid">
+              <div class="mc-footer__col">
+                <span class="mc-footer__col-label">Mt. Imposé</span>
+                <span class="mc-footer__col-val"><app-currency [value]="clientStats().impose" [hideDecimals]="true" [hideSymbol]="true" /></span>
+              </div>
+              <div class="mc-footer__col">
+                <span class="mc-footer__col-label">Mt. Exonéré</span>
+                <span class="mc-footer__col-val"><app-currency [value]="clientStats().exonere" [hideDecimals]="true" [hideSymbol]="true" /></span>
+              </div>
+              <div class="mc-footer__col">
+                <span class="mc-footer__col-label">Total HT</span>
+                <span class="mc-footer__col-val"><app-currency [value]="clientStats().impose + clientStats().exonere" [hideDecimals]="true" [hideSymbol]="true" /></span>
+              </div>
+              <div class="mc-footer__col mc-footer__col--ttc">
+                <span class="mc-footer__col-label">TTC</span>
+                <span class="mc-footer__col-val"><app-currency [value]="clientStats().total_ttc" [hideDecimals]="true" [hideSymbol]="true" /></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Desktop table (hidden on mobile) ── -->
+        <div class="table-container desktop-only">
           <div class="table-wrapper">
             <table class="table">
               <thead>
@@ -205,7 +323,7 @@
                         @if (f.payment_mode === 'espece' && f.timbre > 0) { <app-currency [value]="f.timbre" /> } @else { — }
                       </td>
                       <td class="text-right">
-                        <span class="acc-ttc"><app-currency [value]="f.total_ttc" /></span>
+                        <span class="acc-ttc"><app-currency [value]="f.total_ttc" [hideDecimals]="true" /></span>
                       </td>
                       <td class="text-center" [class.ext-action-cell]="f.is_external" style="white-space:nowrap">
                         @if (f.is_external) {
