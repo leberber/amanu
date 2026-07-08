@@ -75,7 +75,7 @@ export class AccountingComponent implements OnInit {
   selectedYear = signal<number>(new Date().getFullYear());
   loading = signal(false);
   loadingPdf = signal<number | null>(null);
-  printingList = signal(false);
+  printingPdf = signal<'all' | 'agro' | null>(null);
 
   // ── External facture inline editing ───────────────────────────────────────
   activeInlineGroup = signal<string | null>(null);
@@ -401,18 +401,46 @@ export class AccountingComponent implements OnInit {
     this.showFiscalDialog.set(true);
   }
 
-  async printList(): Promise<void> {
+  async printList(mode: 'all' | 'agro'): Promise<void> {
     const client = this.selectedClient;
     const company = this.companySettings();
     if (!client || !company) return;
-    this.printingList.set(true);
+    this.printingPdf.set(mode);
     try {
+      let groups = this.facturationsGrouped();
+      let stats = this.clientStats();
+
+      if (mode === 'agro') {
+        groups = groups
+          .map(g => ({ ...g, factures: g.factures.filter(f => !f.is_external) }))
+          .filter(g => g.factures.length > 0);
+        for (const g of groups) {
+          let mImpose = 0, mExonere = 0, mTva = 0, mTimbre = 0, mTtc = 0;
+          for (const f of g.factures) {
+            mImpose  += this.getImpose(f);
+            mExonere += this.getExonere(f);
+            mTva     += f.total_tva;
+            mTimbre  += f.payment_mode === 'espece' ? (f.timbre ?? 0) : 0;
+            mTtc     += f.total_ttc;
+          }
+          g.cumulative = { impose: mImpose, exonere: mExonere, total_tva: mTva, total_timbre: mTimbre, total_ttc: mTtc };
+        }
+        const facts = groups.flatMap(g => g.factures);
+        stats = {
+          count: facts.length,
+          impose: facts.reduce((s, f) => s + this.getImpose(f), 0),
+          exonere: facts.reduce((s, f) => s + this.getExonere(f), 0),
+          total_tva: facts.reduce((s, f) => s + f.total_tva, 0),
+          total_timbre: facts.reduce((s, f) => s + (f.payment_mode === 'espece' ? (f.timbre ?? 0) : 0), 0),
+          total_ttc: facts.reduce((s, f) => s + f.total_ttc, 0),
+        };
+      }
+
       await this.pdfService.generateAccountingListPdf(
-        client, company, this.selectedYear(),
-        this.facturationsGrouped(), this.clientStats()
+        client, company, this.selectedYear(), groups, stats, mode === 'agro'
       );
     } finally {
-      this.printingList.set(false);
+      this.printingPdf.set(null);
     }
   }
 

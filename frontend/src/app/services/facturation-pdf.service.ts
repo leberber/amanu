@@ -741,12 +741,13 @@ export class FacturationPdfService {
     stats: { count: number; impose: number; exonere: number; total_tva: number; total_timbre: number; total_ttc: number },
     logoDataUrl: string | null,
     stampDataUrl: string | null = null,
+    showBranding = true,
   ): string {
     const payLabels: Record<string, string> = { espece: 'Espèces', cheque: 'Chèque', virement: 'Virement' };
     const fmt = (v: number) =>
       v === 0 ? '—' : new Intl.NumberFormat('fr-DZ', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v) + ' DA';
-    const getImpose  = (f: Facturation) => f.items.filter(i => i.tva_rate > 0).reduce((s, i) => s + i.total_ht * (1 + i.tva_rate / 100), 0);
-    const getExonere = (f: Facturation) => f.items.filter(i => i.tva_rate === 0).reduce((s, i) => s + i.total_ht, 0);
+    const getImpose  = (f: Facturation) => f.is_external ? (f.ext_impose ?? 0) : f.items.filter(i => i.tva_rate > 0).reduce((s, i) => s + i.total_ht * (1 + i.tva_rate / 100), 0);
+    const getExonere = (f: Facturation) => f.is_external ? (f.ext_exonere ?? 0) : f.items.filter(i => i.tva_rate === 0).reduce((s, i) => s + i.total_ht, 0);
     const today = this.dateService.formatDateOnly(new Date().toISOString());
 
     const dots = Array(49).fill('<div class="dot"></div>').join('');
@@ -757,8 +758,11 @@ export class FacturationPdfService {
         const exonere = getExonere(f);
         const mode    = payLabels[f.payment_mode] || f.payment_mode;
         const modeClass = f.payment_mode === 'espece' ? 'badge-espece' : f.payment_mode === 'cheque' ? 'badge-cheque' : 'badge-virement';
-        return `<tr>
-          <td class="ref-cell">${f.reference}</td>
+        const refCell = f.is_external
+          ? `<span class="ext-tag">EXT</span> ${f.merchant_name ?? ''}`
+          : f.reference;
+        return `<tr${f.is_external ? ' class="ext-row"' : ''}>
+          <td class="ref-cell">${refCell}</td>
           <td>${this.dateService.formatDateOnly(f.created_at)}</td>
           <td><span class="badge ${modeClass}">${mode}</span></td>
           <td class="r">${fmt(impose)}</td>
@@ -849,9 +853,12 @@ export class FacturationPdfService {
 
   /* ── Summary bottom ── */
   .bottom { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:14px 16px 18px; }
+  .bottom.no-stamp { grid-template-columns:1fr; }
   .stamp-wrap { display:flex; align-items:center; justify-content:center; }
   .stamp { display:inline-block; border:2px solid #b71c1c; color:#b71c1c; padding:10px 16px; transform:rotate(-3deg); text-align:center; font-weight:700; font-size:8px; line-height:2; letter-spacing:.3px; }
   .summary { border:1px solid #dbe5f0; border-radius:10px; padding:12px 14px; }
+  .ext-tag { display:inline-block; background:rgba(239,68,68,.12); color:#dc2626; padding:1px 4px; border-radius:3px; font-size:6.5px; font-weight:800; letter-spacing:.04em; }
+  .ext-row td { background:rgba(239,68,68,.04) !important; }
   .summary-title { background:#063b88; color:white; padding:6px 10px; border-radius:6px; font-weight:700; margin-bottom:8px; font-size:9px; }
   .summary-row { display:flex; justify-content:space-between; border-bottom:1px solid #e4ecf5; padding:5px 0; font-size:8.5px; color:#203050; }
   .summary-row strong { font-weight:600; }
@@ -909,13 +916,13 @@ export class FacturationPdfService {
     <tbody>${bodyRows}</tbody>
   </table>
 
-  <div class="bottom">
-    <div class="stamp-wrap">
+  <div class="bottom${showBranding ? '' : ' no-stamp'}">
+    ${showBranding ? `<div class="stamp-wrap">
       ${stampDataUrl
         ? `<img src="${stampDataUrl}" style="width:165px;height:auto;" alt="Stamp" />`
         : `<div class="stamp">AGROCLIK<br/>MEKHTОUB Yazid<br/>Locaux N°01-02-03-04 Rue<br/>HAMDIS Med Amokrane Ouadhias<br/>T-O R.C n° : 15/02-5241701/A/25</div>`
       }
-    </div>
+    </div>` : ''}
     <div class="summary">
       <div class="summary-title">RÉCAPITULATIF</div>
       <div class="summary-row"><span>TOTAL HT</span><strong>${fmt(stats.impose + stats.exonere)}</strong></div>
@@ -936,6 +943,7 @@ export class FacturationPdfService {
     year: number,
     groups: { label: string; factures: Facturation[]; cumulative: { impose: number; exonere: number; total_tva: number; total_timbre: number; total_ttc: number } }[],
     stats: { count: number; impose: number; exonere: number; total_tva: number; total_timbre: number; total_ttc: number },
+    showBranding = true,
   ): Promise<void> {
     const overlayRef = this.showPdfOverlay();
     try {
@@ -945,7 +953,7 @@ export class FacturationPdfService {
       if (this.stampCache === undefined) {
         this.stampCache = await this.loadImageAsDataUrl('/stamp.png');
       }
-      const html = this.buildAccountingListHtml(client, company, year, groups, stats, this.logoCache, this.stampCache);
+      const html = this.buildAccountingListHtml(client, company, year, groups, stats, this.logoCache, this.stampCache, showBranding);
 
       // Same pattern as generateFacturePdf: portrait A4, W=794px
       const W = 794;

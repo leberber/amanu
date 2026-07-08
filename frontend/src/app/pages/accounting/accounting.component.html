@@ -49,9 +49,13 @@
             <i class="pi pi-building-columns"></i>
             <span>Infos fiscales</span>
           </button>
-          <button class="acc-action-btn acc-action-btn--primary" (click)="printList()" [disabled]="printingList()">
-            <i [class]="printingList() ? 'pi pi-spin pi-spinner' : 'pi pi-print'"></i>
-            <span>Imprimer</span>
+          <button class="acc-action-btn acc-action-btn--ghost" (click)="printList('agro')" [disabled]="printingPdf() !== null">
+            <i [class]="printingPdf() === 'agro' ? 'pi pi-spin pi-spinner' : 'pi pi-print'"></i>
+            <span>AgroClik</span>
+          </button>
+          <button class="acc-action-btn acc-action-btn--primary" (click)="printList('all')" [disabled]="printingPdf() !== null">
+            <i [class]="printingPdf() === 'all' ? 'pi pi-spin pi-spinner' : 'pi pi-print'"></i>
+            <span>Imprimer tout</span>
           </button>
         </div>
       }
