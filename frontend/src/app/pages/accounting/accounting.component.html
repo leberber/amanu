@@ -273,14 +273,16 @@
                           <option value="espece">Espèces</option>
                           <option value="cheque">Chèque</option>
                           <option value="virement">Virement</option>
+                          <option value="versement">Versement</option>
                         </select>
                       </td>
-                      <td class="text-right"><input class="inline-input inline-input--num" type="number" [(ngModel)]="inlineRowData.extImpose" min="0" placeholder="0" /></td>
-                      <td class="text-right"><input class="inline-input inline-input--num" type="number" [(ngModel)]="inlineRowData.extExonere" min="0" placeholder="0" /></td>
-                      <td class="text-right text-color-secondary text-sm">{{ inlineRowData.extImpose - inlineRowData.totalTva + inlineRowData.extExonere | number:'1.0-0' }}</td>
-                      <td class="text-right"><input class="inline-input inline-input--num" type="number" [(ngModel)]="inlineRowData.totalTva" min="0" placeholder="0" /></td>
-                      <td class="text-right"><input class="inline-input inline-input--num" type="number" [(ngModel)]="inlineRowData.timbre" min="0" placeholder="0" /></td>
-                      <td class="text-right text-sm font-semibold">{{ inlineRowData.extImpose + inlineRowData.extExonere + inlineRowData.timbre | number:'1.0-0' }}</td>
+                      <td class="text-right"><input class="inline-input inline-input--num" type="number" [(ngModel)]="inlineRowData.ht9" min="0" placeholder="9%" /></td>
+                      <td class="text-right"><input class="inline-input inline-input--num" type="number" [(ngModel)]="inlineRowData.ht19" min="0" placeholder="19%" /></td>
+                      <td class="text-right"><input class="inline-input inline-input--num" type="number" [(ngModel)]="inlineRowData.ht0" min="0" placeholder="0%" /></td>
+                      <td class="text-right text-color-secondary text-sm">{{ drawerTotalHt | number:'1.0-2' }}</td>
+                      <td class="text-right text-color-secondary text-sm">{{ drawerTva | number:'1.0-2' }}</td>
+                      <td class="text-right text-color-secondary text-sm">{{ drawerTimbre | number:'1.0-2' }}</td>
+                      <td class="text-right text-sm font-semibold">{{ drawerTotalTtc | number:'1.0-2' }}</td>
                       <td class="text-center" style="white-space:nowrap">
                         <button class="pdf-btn" (click)="saveInlineRow(group)"
                           [disabled]="savingInline() || !inlineRowData.merchantName"
@@ -792,72 +794,102 @@
       </div>
 
       <div class="emd-body">
+
+        <!-- ── Merchant & payment ── -->
         <div class="emd-field">
-          <label class="emd-label">Marchand <span style="color: #ef4444">*</span></label>
+          <label class="emd-label">Marchand <span style="color:#ef4444">*</span></label>
           <input pInputText class="emd-input" [(ngModel)]="inlineRowData.merchantName" placeholder="Nom du marchand" />
         </div>
 
         <div class="emd-field">
-          <label class="emd-label">Mode de paiement <span style="color: #ef4444">*</span></label>
+          <label class="emd-label">
+            Mode de paiement <span style="color:#ef4444">*</span>
+            <i class="pi pi-info-circle emd-info"
+              pTooltip="Le timbre fiscal est automatiquement calculé pour les paiements en espèces."
+              tooltipPosition="top"></i>
+          </label>
           <div class="emd-mode-group">
-            @for (mode of [{val:'espece',label:'Espèces'},{val:'cheque',label:'Chèque'},{val:'virement',label:'Virement'}]; track mode.val) {
+            @for (mode of [{val:'espece',label:'Espèces',icon:'pi-money-bill'},{val:'cheque',label:'Chèque',icon:'pi-file'},{val:'virement',label:'Virement',icon:'pi-arrow-right-arrow-left'},{val:'versement',label:'Versement',icon:'pi-building-columns'}]; track mode.val) {
               <button class="emd-mode-btn" [class.active]="inlineRowData.paymentMode === mode.val"
-                (click)="inlineRowData.paymentMode = mode.val; recomputeDrawerTotals()">
+                (click)="inlineRowData.paymentMode = mode.val">
+                <i class="pi {{ mode.icon }}"></i>
                 {{ mode.label }}
               </button>
             }
           </div>
         </div>
 
-        <div class="emd-row">
-          <div class="emd-field">
-            <label class="emd-label">Mt. Imposé</label>
-            <input pInputText type="number" class="emd-input" [ngModel]="inlineRowData.extImpose"
-              (ngModelChange)="inlineRowData.extImpose = $event; recomputeDrawerTotals()" min="0" placeholder="0" />
+        <!-- ── HT amounts by TVA rate ── -->
+        <div class="emd-section">
+          <div class="emd-section__title">
+            <i class="pi pi-calculator"></i>
+            Montants HT par taux de TVA
           </div>
-          <div class="emd-field">
-            <label class="emd-label">Mt. Exonéré</label>
-            <input pInputText type="number" class="emd-input" [ngModel]="inlineRowData.extExonere"
-              (ngModelChange)="inlineRowData.extExonere = $event; recomputeDrawerTotals()" min="0" placeholder="0" />
-          </div>
-        </div>
 
-        <div class="emd-row">
-          <div class="emd-field">
-            <label class="emd-label">TVA <span style="color: #ef4444">*</span></label>
-            <input pInputText type="number" class="emd-input" [ngModel]="inlineRowData.totalTva"
-              (ngModelChange)="inlineRowData.totalTva = $event; recomputeDrawerTotals()" min="0" placeholder="0" />
-          </div>
-          @if (inlineRowData.paymentMode === 'espece') {
+          <div class="emd-row">
             <div class="emd-field">
-              <label class="emd-label">Timbre <span style="color: #ef4444">*</span></label>
-              <input pInputText type="number" class="emd-input" [ngModel]="inlineRowData.timbre"
-                (ngModelChange)="inlineRowData.timbre = $event; recomputeDrawerTotals()" min="0" placeholder="0" />
+              <label class="emd-label">
+                TVA 9%
+                <i class="pi pi-info-circle emd-info"
+                  pTooltip="Montant hors taxes des produits soumis à la TVA de 9%."
+                  tooltipPosition="top"></i>
+              </label>
+              <input pInputText type="number" class="emd-input" [(ngModel)]="inlineRowData.ht9" min="0" placeholder="0.00" />
+              @if (inlineRowData.ht9 > 0) {
+                <span class="emd-hint">TVA → <app-currency [value]="inlineRowData.ht9 * 0.09" [hideDecimals]="true" /></span>
+              }
             </div>
-          }
+            <div class="emd-field">
+              <label class="emd-label">
+                TVA 19%
+                <i class="pi pi-info-circle emd-info"
+                  pTooltip="Montant hors taxes des produits soumis à la TVA de 19%."
+                  tooltipPosition="top"></i>
+              </label>
+              <input pInputText type="number" class="emd-input" [(ngModel)]="inlineRowData.ht19" min="0" placeholder="0.00" />
+              @if (inlineRowData.ht19 > 0) {
+                <span class="emd-hint">TVA → <app-currency [value]="inlineRowData.ht19 * 0.19" [hideDecimals]="true" /></span>
+              }
+            </div>
+          </div>
+
+          <div class="emd-field">
+            <label class="emd-label">
+              Exonérés 0%
+              <i class="pi pi-info-circle emd-info"
+                pTooltip="Montant hors taxes des produits exonérés de TVA. Le montant HT est identique au TTC."
+                tooltipPosition="top"></i>
+            </label>
+            <input pInputText type="number" class="emd-input" [(ngModel)]="inlineRowData.ht0" min="0" placeholder="0.00" />
+          </div>
         </div>
 
-        <div class="emd-row">
-          <div class="emd-field">
-            <label class="emd-label">Total HT <span style="color: #ef4444">*</span></label>
-            <input pInputText type="number" class="emd-input" [ngModel]="inlineRowData.totalHt"
-              (ngModelChange)="inlineRowData.totalHt = $event; inlineRowData.totalsOverridden = true" min="0" placeholder="0" />
+        <!-- ── Total strip ── -->
+        <div class="emd-total-strip">
+          <div class="emd-total-strip__breakdown">
+            <span class="emd-total-strip__item">
+              HT&nbsp;<strong><app-currency [value]="drawerTotalHt" [hideDecimals]="true" /></strong>
+            </span>
+            <span class="emd-total-strip__sep">+</span>
+            <span class="emd-total-strip__item"
+              pTooltip="TVA 9% + TVA 19%, calculée automatiquement." tooltipPosition="top">
+              TVA&nbsp;<strong><app-currency [value]="drawerTva" [hideDecimals]="true" /></strong>
+            </span>
+            @if (inlineRowData.paymentMode === 'espece' && drawerTimbre > 0) {
+              <span class="emd-total-strip__sep">+</span>
+              <span class="emd-total-strip__item"
+                pTooltip="Timbre fiscal calculé automatiquement selon vos paliers." tooltipPosition="top">
+                Timbre&nbsp;<strong><app-currency [value]="drawerTimbre" [hideDecimals]="true" /></strong>
+              </span>
+            }
           </div>
-          <div class="emd-field">
-            <label class="emd-label">Total TTC <span style="color: #ef4444">*</span></label>
-            <input pInputText type="number" class="emd-input" [ngModel]="inlineRowData.totalTtc"
-              (ngModelChange)="inlineRowData.totalTtc = $event; inlineRowData.totalsOverridden = true" min="0" placeholder="0" />
+          <div class="emd-total-strip__ttc">
+            <span class="emd-total-strip__ttc-label">TTC</span>
+            <span class="emd-total-strip__ttc-value"><app-currency [value]="drawerTotalTtc" /></span>
           </div>
         </div>
+
       </div>
-
-      @if (drawerErrors.length > 0) {
-        <div class="emd-errors">
-          @for (err of drawerErrors; track err) {
-            <div class="emd-error"><i class="pi pi-exclamation-triangle"></i> {{ err }}</div>
-          }
-        </div>
-      }
 
       <div class="emd-footer">
         <button class="emd-btn emd-btn--cancel" (click)="closeMobileExtDrawer()">Annuler</button>

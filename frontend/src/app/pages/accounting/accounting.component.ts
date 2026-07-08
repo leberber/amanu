@@ -23,6 +23,7 @@ import {
   FacturationClient,
   ClientTotal,
   ExternalFactureCreate,
+  TimbreTier,
 } from '../../core/services/facturation.service';
 import { FacturationPdfService } from '../../services/facturation-pdf.service';
 import { ToastMessageService } from '../../core/services/toast-message.service';
@@ -90,7 +91,7 @@ export class AccountingComponent implements OnInit {
 
   // ── External facture inline editing ───────────────────────────────────────
   activeInlineGroup = signal<string | null>(null);
-  inlineRowData = { merchantName: '', paymentMode: 'espece', extImpose: 0, extExonere: 0, totalTva: 0, timbre: 0, totalHt: 0, totalTtc: 0, totalsOverridden: false };
+  inlineRowData = { merchantName: '', paymentMode: 'espece', ht9: 0, ht19: 0, ht0: 0 };
   savingInline = signal(false);
   deletingExternal = signal<number | null>(null);
 
@@ -519,40 +520,58 @@ export class AccountingComponent implements OnInit {
   }
 
   addExternalRow(group: { label: string; month: number; year: number }): void {
-    this.inlineRowData = { merchantName: '', paymentMode: 'espece', extImpose: 0, extExonere: 0, totalTva: 0, timbre: 0, totalHt: 0, totalTtc: 0, totalsOverridden: false };
+    this.inlineRowData = { merchantName: '', paymentMode: 'espece', ht9: 0, ht19: 0, ht0: 0 };
     this.activeInlineGroup.set(group.label);
   }
 
-  recomputeDrawerTotals(): void {
-    if (this.inlineRowData.totalsOverridden) return;
-    const d = this.inlineRowData;
-    d.totalHt = d.extImpose + d.extExonere;
-    d.totalTtc = d.totalHt + d.totalTva + (d.paymentMode === 'espece' ? d.timbre : 0);
+  private static readonly DEFAULT_TIMBRE_TIERS: TimbreTier[] = [
+    { max: 30000,  rate: 1   },
+    { max: 100000, rate: 1.5 },
+    { max: null,   rate: 2   },
+  ];
+
+  private computeTimbreAmount(base: number): number {
+    if (base <= 0) return 0;
+    const tiers: TimbreTier[] = this.companySettings()?.timbre_tiers?.length
+      ? this.companySettings()!.timbre_tiers!
+      : AccountingComponent.DEFAULT_TIMBRE_TIERS;
+    for (const tier of tiers) {
+      if (tier.max === null || base <= tier.max) return base * tier.rate / 100;
+    }
+    return 0;
+  }
+
+  get drawerTva(): number {
+    return this.inlineRowData.ht9 * 0.09 + this.inlineRowData.ht19 * 0.19;
+  }
+
+  get drawerTotalHt(): number {
+    return this.inlineRowData.ht9 + this.inlineRowData.ht19 + this.inlineRowData.ht0;
+  }
+
+  get drawerTimbre(): number {
+    if (this.inlineRowData.paymentMode !== 'espece') return 0;
+    return this.computeTimbreAmount(this.drawerTotalHt + this.drawerTva);
+  }
+
+  get drawerTotalTtc(): number {
+    return this.drawerTotalHt + this.drawerTva + this.drawerTimbre;
   }
 
   get drawerErrors(): string[] {
     const d = this.inlineRowData;
     const errors: string[] = [];
-    const timbre = d.paymentMode === 'espece' ? d.timbre : 0;
-
-    if (d.extImpose < 0 || d.extExonere < 0 || d.totalTva < 0 || d.timbre < 0 || d.totalHt < 0 || d.totalTtc < 0)
+    if (d.ht9 < 0 || d.ht19 < 0 || d.ht0 < 0)
       errors.push('Les montants ne peuvent pas être négatifs');
-    if (d.extImpose === 0 && d.extExonere === 0)
-      errors.push('Au moins un montant (Imposé ou Exonéré) est requis');
-    if (d.totalTtc <= 0)
+    if (d.ht9 === 0 && d.ht19 === 0 && d.ht0 === 0)
+      errors.push('Au moins un montant est requis');
+    if (this.drawerTotalTtc <= 0)
       errors.push('Le Total TTC doit être supérieur à 0');
-    const expectedHt = d.extImpose + d.extExonere;
-    if (d.totalHt !== 0 && Math.abs(d.totalHt - expectedHt) > 0.01)
-      errors.push(`Total HT (${d.totalHt}) ≠ Mt. Imposé + Mt. Exonéré (${expectedHt})`);
-    const expectedTtc = d.totalHt + d.totalTva + timbre;
-    if (d.totalTtc !== 0 && Math.abs(d.totalTtc - expectedTtc) > 0.01)
-      errors.push(`Total TTC (${d.totalTtc}) ≠ Total HT + TVA + Timbre (${expectedTtc})`);
-
     return errors;
   }
 
   openMobileExtDrawer(group: { label: string; month: number; year: number }): void {
-    this.inlineRowData = { merchantName: '', paymentMode: 'espece', extImpose: 0, extExonere: 0, totalTva: 0, timbre: 0, totalHt: 0, totalTtc: 0, totalsOverridden: false };
+    this.inlineRowData = { merchantName: '', paymentMode: 'espece', ht9: 0, ht19: 0, ht0: 0 };
     this.mobileExtDrawerGroup.set(group);
     this.mobileExtDrawerOpen.set(true);
   }
@@ -583,10 +602,10 @@ export class AccountingComponent implements OnInit {
       client_id: clientId,
       merchant_name: d.merchantName,
       payment_mode: d.paymentMode,
-      ext_impose: d.extImpose,
-      ext_exonere: d.extExonere,
-      total_tva: d.totalTva,
-      timbre: d.timbre,
+      ext_impose: d.ht9 + d.ht19,
+      ext_exonere: d.ht0,
+      total_tva: this.drawerTva,
+      timbre: this.drawerTimbre,
       month: group.month,
       year: group.year,
     };
