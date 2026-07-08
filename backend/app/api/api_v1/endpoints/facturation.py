@@ -8,6 +8,7 @@ from pydantic import BaseModel
 import httpx
 
 from app.database import get_session
+from app.core.security import get_current_user
 from app.models.user import User
 from app.models.product import Product
 from app.models.brand import Brand
@@ -496,6 +497,40 @@ async def get_facturation_draft_from_order(order_id: int, session: Session = Dep
         ))
 
     return FacturationDraft(client=user_to_client_view(user), items=draft_items)
+
+
+# =============================================================================
+# My facturations — authenticated client endpoints
+# =============================================================================
+
+@router.get("/my/profile", response_model=FacturationClientView)
+async def get_my_profile(
+    current_user: User = Depends(get_current_user),
+    session: Session = Depends(get_session),
+):
+    """Return the current user's profile for the client accounting page."""
+    user = session.get(User, current_user.id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return user_to_client_view(user)
+
+
+@router.get("/my", response_model=FacturationListResponse)
+async def list_my_facturations(
+    current_user: User = Depends(get_current_user),
+    session: Session = Depends(get_session),
+):
+    """Return all facturations for the currently authenticated user."""
+    facturations = session.exec(
+        select(Facturation)
+        .where(Facturation.client_id == current_user.id)
+        .order_by(Facturation.created_at.desc())
+    ).all()
+    total = len(facturations)
+    return FacturationListResponse(
+        facturations=[facturation_to_response(f, session) for f in facturations],
+        total=total,
+    )
 
 
 @router.get("", response_model=FacturationListResponse)

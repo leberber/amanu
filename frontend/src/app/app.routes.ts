@@ -433,6 +433,12 @@ export const routes: Routes = [
     canActivate: [accountantGuard],
     data: { hideBottomNav: true }
   },
+  {
+    path: 'mes-factures',
+    loadComponent: () => import('./pages/accounting/accounting.component').then(m => m.AccountingComponent),
+    canActivate: [authGuard],
+    data: { hideBottomNav: true, adminMode: false }
+  },
 
   // Driver Routes (separate module for future extraction)
   {

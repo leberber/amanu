@@ -35,6 +35,7 @@ export const ROUTES = {
   
   // Accountant routes
   ACCOUNTING: '/accounting',
+  MES_FACTURES: '/mes-factures',
 
   // Driver routes
   DRIVER: {

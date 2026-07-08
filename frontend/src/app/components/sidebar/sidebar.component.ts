@@ -160,6 +160,14 @@ export class SidebarComponent implements OnInit {
         hideForAccountant: true
       },
       {
+        label: 'Mes factures',
+        icon: 'pi pi-receipt',
+        route: ROUTES.MES_FACTURES,
+        authRequired: true,
+        hideForAdmin: true,
+        hideForAccountant: true
+      },
+      {
         label: this.translateService.instant('notifications_page.title'),
         icon: 'pi pi-bell',
         route: ROUTES.NOTIFICATIONS,

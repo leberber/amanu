@@ -259,6 +259,14 @@ export class FacturationService {
     return this.http.post<Facturation>(`${this.apiUrl}/external`, data);
   }
 
+  getMyProfile(): Observable<FacturationClient> {
+    return this.http.get<FacturationClient>(`${this.apiUrl}/my/profile`);
+  }
+
+  getMyFacturations(): Observable<FacturationListResponse> {
+    return this.http.get<FacturationListResponse>(`${this.apiUrl}/my`);
+  }
+
   convertToFacture(id: number): Observable<Facturation> {
     return this.http.post<Facturation>(`${this.apiUrl}/${id}/convert`, {});
   }

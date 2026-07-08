@@ -1,166 +1,69 @@
-<div @pageAnimation class="accounting-page">
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- Shared templates                                                        -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
 
-  <!-- ── Top bar ────────────────────────────────────────────────────── -->
-  <div class="acc-top">
-    <div class="acc-top__row">
-      <p-select
-        [options]="clients()"
-        [ngModel]="selectedClientId()"
-        (ngModelChange)="onClientChange($event)"
-        optionLabel="display_name"
-        optionValue="id"
-        [filter]="true"
-        filterBy="full_name,store_name"
-        placeholder="Tous les clients"
-        [showClear]="true"
-        appendTo="body"
-        styleClass="filter-select--glass"
-        panelStyleClass="client-select-panel">
-        <ng-template pTemplate="item" let-client>
-          <div class="client-option">
-            <div class="client-option__identity">
-              <span class="client-option__name">{{ client.full_name }}</span>
-              @if (client.store_name) {
-                <span class="client-option__store">{{ client.store_name }}</span>
-              }
-            </div>
-            <span class="client-option__right">
-              @let total = (clientTotalMap().get(client.id)?.total_ttc ?? 0);
-              <span class="client-option__amount">
-                <app-currency [value]="total" [hideDecimals]="true" />
-              </span>
-              @if (client.fiscal_info?.montant_declare; as declared) {
-                @let pct = (total / declared * 100);
-                <span class="client-option__pct"
-                  [class.ok]="pct < 70"
-                  [class.warn]="pct >= 70 && pct < 90"
-                  [class.danger]="pct >= 90">
-                  {{ pct | number:'1.0-0' }}%
-                </span>
-              }
-            </span>
-          </div>
-        </ng-template>
-      </p-select>
+<ng-template #filtersStrip>
+  @if (isFiltered()) {
+    <div class="month-filter-card">
 
-      @if (isFiltered()) {
-        <div class="acc-top__actions" style="margin-left:auto">
-          <button class="acc-action-btn acc-action-btn--ghost" (click)="openFiscalDialog()">
-            <i class="pi pi-building-columns"></i>
-            <span>Infos fiscales</span>
-          </button>
-          <button class="acc-action-btn acc-action-btn--ghost" (click)="printList('agro')" [disabled]="printingPdf() !== null">
-            <i [class]="printingPdf() === 'agro' ? 'pi pi-spin pi-spinner' : 'pi pi-print'"></i>
-            <span>AgroClik</span>
-          </button>
-          <button class="acc-action-btn acc-action-btn--primary" (click)="printList('all')" [disabled]="printingPdf() !== null">
-            <i [class]="printingPdf() === 'all' ? 'pi pi-spin pi-spinner' : 'pi pi-print'"></i>
-            <span>Imprimer tout</span>
-          </button>
-        </div>
-      }
-    </div>
-
-    @if (isFiltered()) {
-      <div class="acc-top__row acc-top__row--filters">
-        <div class="segment-control segment-control--glass">
-          <button class="segment-control__item"
+      <!-- ── Top row: period shortcuts + year navigation ── -->
+      <div class="mfc-top">
+        <div class="mfc-period-toggle">
+          <button class="mfc-period-btn"
             [class.active]="period() === 'month' && pickedMonthYear() === null"
-            (click)="setPeriod('month')">Ce mois</button>
-          <button class="segment-control__item"
+            (click)="setPeriod('month')">
+            <i class="pi pi-clock"></i>
+            Ce mois
+          </button>
+          <button class="mfc-period-btn"
             [class.active]="period() === 'year' && pickedMonthYear() === null"
-            (click)="setPeriod('year')">Toute l'année</button>
+            (click)="setPeriod('year')">
+            <i class="pi pi-calendar"></i>
+            Toute l'année
+          </button>
         </div>
 
         @if (availableYears().length > 0) {
-          <div class="filter-divider"></div>
-          <p-select
-            [options]="availableYears()"
-            [ngModel]="selectedYear()"
-            (ngModelChange)="selectYear($event)"
-            appendTo="body"
-            styleClass="year-select">
-            <ng-template pTemplate="selectedItem" let-y>
-              <span class="year-select__label"><i class="pi pi-calendar"></i> {{ y }}</span>
-            </ng-template>
-          </p-select>
-          <div class="filter-divider"></div>
-          <div class="month-pills">
-            @for (m of monthsForYear(); track m.month) {
-              <button
-                class="month-pill"
-                [class.active]="isMonthPicked(m.month, m.year)"
-                [disabled]="!m.hasFactures"
-                [pTooltip]="!m.hasFactures ? 'Aucune facture' : ''"
-                tooltipPosition="top"
-                (click)="pickMonth(m.month, m.year)">
-                {{ m.label }}
-                @if (m.count > 0) {
-                  <span class="month-pill__count">{{ m.count }}</span>
-                }
-              </button>
-            }
+          <div class="mfc-year-nav">
+            <button class="mfc-year-chevron" (click)="prevYear()" [disabled]="!canGoPrevYear()">
+              <i class="pi pi-chevron-left"></i>
+            </button>
+            <span class="mfc-year-label">{{ selectedYear() }}</span>
+            <button class="mfc-year-chevron" (click)="nextYear()" [disabled]="!canGoNextYear()">
+              <i class="pi pi-chevron-right"></i>
+            </button>
           </div>
         }
       </div>
-    }
-  </div>
 
-  <!-- ── Fiscal info dialog ──────────────────────────────────────────────── -->
-  <p-dialog
-    header="Informations fiscales"
-    [visible]="showFiscalDialog()"
-    (visibleChange)="showFiscalDialog.set($event)"
-    [modal]="true"
-    [style]="{ width: '520px' }"
-    [closable]="true">
-    <div class="flex flex-column gap-3 pt-1">
-      <div class="grid">
-        <div class="col-6">
-          <label class="text-xs text-500 font-medium block mb-1">RC</label>
-          <input pInputText [(ngModel)]="fiscalForm.rc" placeholder="Registre de Commerce" class="w-full" />
+      <!-- ── Month grid ── -->
+      @if (availableYears().length > 0) {
+        <div class="mfc-months">
+          @for (m of monthsForYear(); track m.month) {
+            <button
+              class="mfc-month"
+              [class.active]="isMonthPicked(m.month, m.year)"
+              [class.is-today]="m.month === currentMonth && m.year === currentYear"
+              [class.is-future]="m.isFuture"
+              [disabled]="!m.hasFactures"
+              (click)="pickMonth(m.month, m.year)">
+              <span class="mfc-month__label">{{ m.label }}</span>
+              @if (m.count > 0) {
+                <span class="mfc-month__count">{{ m.count }}</span>
+              }
+            </button>
+          }
         </div>
-        <div class="col-6">
-          <label class="text-xs text-500 font-medium block mb-1">N.A</label>
-          <input pInputText [(ngModel)]="fiscalForm.na" placeholder="Numéro d'Article" class="w-full" />
-        </div>
-      </div>
-      <div class="grid">
-        <div class="col-6">
-          <label class="text-xs text-500 font-medium block mb-1">NIF</label>
-          <input pInputText [(ngModel)]="fiscalForm.nif" placeholder="N° Identification Fiscale" class="w-full" />
-        </div>
-        <div class="col-6">
-          <label class="text-xs text-500 font-medium block mb-1">NIS</label>
-          <input pInputText [(ngModel)]="fiscalForm.nis" placeholder="N° Identification Statistique" class="w-full" />
-        </div>
-      </div>
-      <div>
-        <label class="text-xs text-500 font-medium block mb-1">Montant déclaré (DA)</label>
-        <p-inputNumber [(ngModel)]="fiscalForm.montant_declare"
-          placeholder="Montant déclaré aux impôts"
-          [min]="0" [useGrouping]="true" mode="decimal" locale="fr-DZ"
-          styleClass="w-full" inputStyleClass="w-full" />
-      </div>
-      <div>
-        <div class="flex align-items-center justify-content-between mb-1">
-          <label class="text-xs text-500 font-medium">Marge subventionnée</label>
-          <span class="text-xs font-bold text-primary">{{ fiscalForm.marge_subv ?? 8 }}%</span>
-        </div>
-        <p-slider [(ngModel)]="fiscalForm.marge_subv" [min]="1" [max]="50" [step]="0.5" styleClass="w-full" />
-      </div>
+      }
+
     </div>
-    <ng-template pTemplate="footer">
-      <p-button label="Annuler" severity="secondary" (onClick)="showFiscalDialog.set(false)" />
-      <p-button label="Enregistrer" icon="pi pi-check"
-        [loading]="savingFiscal()" (onClick)="saveFiscalInfo()" />
-    </ng-template>
-  </p-dialog>
+  }
+</ng-template>
 
-  <!-- ── Body ───────────────────────────────────────────────────────── -->
+<ng-template #bodyPanels>
   <div class="acc-body">
 
-    <div class="acc-main">
+    <div class="acc-main" [class.mobile-hidden]="isFiltered() && mobileView() === 'sidebar'">
       @if (loading() && isFiltered()) {
         <div class="table-container">
           <div class="table-wrapper">
@@ -197,11 +100,13 @@
         </div>
 
       } @else if (!isFiltered()) {
-        <div class="acc-empty">
-          <i class="pi pi-users"></i>
-          <p class="font-semibold">Sélectionnez un client</p>
-          <p class="text-sm text-color-secondary">Choisissez un client pour afficher ses factures.</p>
-        </div>
+        @if (adminMode()) {
+          <div class="acc-empty">
+            <i class="pi pi-users"></i>
+            <p class="font-semibold">Sélectionnez un client</p>
+            <p class="text-sm text-color-secondary">Choisissez un client pour afficher ses factures.</p>
+          </div>
+        }
 
       } @else if (filteredFacturations().length === 0) {
         <div class="acc-empty">
@@ -374,7 +279,7 @@
     </div>
 
     @if (isFiltered()) {
-      <div class="acc-sidebar">
+      <div class="acc-sidebar" [class.mobile-hidden]="mobileView() === 'table'">
 
         <!-- ── Stat cards ── -->
         @if (filteredFacturations().length > 0) {
@@ -488,7 +393,6 @@
                 <app-currency [value]="planningStats().caSubv + planningStats().subvAdd" [hideDecimals]="true" />
               </span>
             </div>
-            <!-- Split track: gray locked zone + interactive range -->
             <div class="ff-split-track ff-split-track--orange">
               <div class="ff-split-track__locked" [style.flex]="planningStats().caSubv"></div>
               <div class="ff-split-track__active" [style.flex]="planningStats().maxSubvAdd">
@@ -540,11 +444,220 @@
             </div>
           </div>
 
-
         </div>
       </div>
     }
 
   </div>
+</ng-template>
 
-</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- Admin mode                                                              -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+@if (adminMode()) {
+
+  <div @pageAnimation class="accounting-page">
+
+    <!-- ── Top bar ──────────────────────────────────────────────────── -->
+    <div class="acc-top">
+
+      @if (isFiltered() && mobileView() === 'table') {
+        <!-- Mobile detail header (back + title + print) -->
+        <div class="acc-top__row mobile-detail-header">
+          <button class="mobile-back-btn" (click)="mobileView.set('sidebar')">
+            <i class="pi pi-arrow-left"></i>
+            <span>Analyse</span>
+          </button>
+          <span class="mobile-detail-title">Factures</span>
+          <div class="acc-top__actions">
+            <button class="acc-action-btn acc-action-btn--ghost" (click)="printList('agro')" [disabled]="printingPdf() !== null">
+              <i [class]="printingPdf() === 'agro' ? 'pi pi-spin pi-spinner' : 'pi pi-print'"></i>
+            </button>
+            <button class="acc-action-btn acc-action-btn--primary" (click)="printList('all')" [disabled]="printingPdf() !== null">
+              <i [class]="printingPdf() === 'all' ? 'pi pi-spin pi-spinner' : 'pi pi-print'"></i>
+            </button>
+          </div>
+        </div>
+
+      } @else {
+        <!-- Normal top row -->
+        <div class="acc-top__row">
+          <p-select
+            [options]="clients()"
+            [ngModel]="selectedClientId()"
+            (ngModelChange)="onClientChange($event)"
+            optionLabel="display_name"
+            optionValue="id"
+            [filter]="true"
+            filterBy="full_name,store_name"
+            placeholder="Tous les clients"
+            [showClear]="true"
+            appendTo="body"
+            styleClass="filter-select--glass"
+            panelStyleClass="client-select-panel">
+            <ng-template pTemplate="item" let-client>
+              <div class="client-option">
+                <div class="client-option__identity">
+                  <span class="client-option__name">{{ client.full_name }}</span>
+                  @if (client.store_name) {
+                    <span class="client-option__store">{{ client.store_name }}</span>
+                  }
+                </div>
+                <span class="client-option__right">
+                  @let total = (clientTotalMap().get(client.id)?.total_ttc ?? 0);
+                  <span class="client-option__amount">
+                    <app-currency [value]="total" [hideDecimals]="true" />
+                  </span>
+                  @if (client.fiscal_info?.montant_declare; as declared) {
+                    @let pct = (total / declared * 100);
+                    <span class="client-option__pct"
+                      [class.ok]="pct < 70"
+                      [class.warn]="pct >= 70 && pct < 90"
+                      [class.danger]="pct >= 90">
+                      {{ pct | number:'1.0-0' }}%
+                    </span>
+                  }
+                </span>
+              </div>
+            </ng-template>
+          </p-select>
+
+          @if (isFiltered()) {
+            <div class="acc-top__actions" style="margin-left:auto">
+              <button class="acc-action-btn acc-action-btn--ghost" (click)="openFiscalDialog()">
+                <i class="pi pi-building-columns"></i>
+                <span>Infos fiscales</span>
+              </button>
+              <button class="acc-action-btn acc-action-btn--ghost" (click)="printList('agro')" [disabled]="printingPdf() !== null">
+                <i [class]="printingPdf() === 'agro' ? 'pi pi-spin pi-spinner' : 'pi pi-print'"></i>
+                <span>AgroClik</span>
+              </button>
+              <button class="acc-action-btn acc-action-btn--primary" (click)="printList('all')" [disabled]="printingPdf() !== null">
+                <i [class]="printingPdf() === 'all' ? 'pi pi-spin pi-spinner' : 'pi pi-print'"></i>
+                <span>Imprimer</span>
+              </button>
+            </div>
+          }
+        </div>
+
+        @if (isFiltered()) {
+          <div class="mobile-tab-bar">
+            <button class="mobile-tab" [class.active]="mobileView() === 'sidebar'" (click)="mobileView.set('sidebar')">
+              <i class="pi pi-chart-pie"></i>
+              <span>Analyse</span>
+            </button>
+            <button class="mobile-tab" [class.active]="mobileView() === 'table'" (click)="mobileView.set('table')">
+              <i class="pi pi-table"></i>
+              <span>Détail</span>
+            </button>
+          </div>
+        }
+      }
+
+      <ng-container [ngTemplateOutlet]="filtersStrip" />
+    </div>
+
+    <!-- ── Fiscal info dialog ──────────────────────────────────────── -->
+    <p-dialog
+      header="Informations fiscales"
+      [visible]="showFiscalDialog()"
+      (visibleChange)="showFiscalDialog.set($event)"
+      [modal]="true"
+      [style]="{ width: '520px' }"
+      [closable]="true">
+      <div class="flex flex-column gap-3 pt-1">
+        <div class="grid">
+          <div class="col-6">
+            <label class="text-xs text-500 font-medium block mb-1">RC</label>
+            <input pInputText [(ngModel)]="fiscalForm.rc" placeholder="Registre de Commerce" class="w-full" />
+          </div>
+          <div class="col-6">
+            <label class="text-xs text-500 font-medium block mb-1">N.A</label>
+            <input pInputText [(ngModel)]="fiscalForm.na" placeholder="Numéro d'Article" class="w-full" />
+          </div>
+        </div>
+        <div class="grid">
+          <div class="col-6">
+            <label class="text-xs text-500 font-medium block mb-1">NIF</label>
+            <input pInputText [(ngModel)]="fiscalForm.nif" placeholder="N° Identification Fiscale" class="w-full" />
+          </div>
+          <div class="col-6">
+            <label class="text-xs text-500 font-medium block mb-1">NIS</label>
+            <input pInputText [(ngModel)]="fiscalForm.nis" placeholder="N° Identification Statistique" class="w-full" />
+          </div>
+        </div>
+        <div>
+          <label class="text-xs text-500 font-medium block mb-1">Montant déclaré (DA)</label>
+          <p-inputNumber [(ngModel)]="fiscalForm.montant_declare"
+            placeholder="Montant déclaré aux impôts"
+            [min]="0" [useGrouping]="true" mode="decimal" locale="fr-DZ"
+            styleClass="w-full" inputStyleClass="w-full" />
+        </div>
+        <div>
+          <div class="flex align-items-center justify-content-between mb-1">
+            <label class="text-xs text-500 font-medium">Marge subventionnée</label>
+            <span class="text-xs font-bold text-primary">{{ fiscalForm.marge_subv ?? 8 }}%</span>
+          </div>
+          <p-slider [(ngModel)]="fiscalForm.marge_subv" [min]="1" [max]="50" [step]="0.5" styleClass="w-full" />
+        </div>
+      </div>
+      <ng-template pTemplate="footer">
+        <p-button label="Annuler" severity="secondary" (onClick)="showFiscalDialog.set(false)" />
+        <p-button label="Enregistrer" icon="pi pi-check"
+          [loading]="savingFiscal()" (onClick)="saveFiscalInfo()" />
+      </ng-template>
+    </p-dialog>
+
+    <!-- ── Body ─────────────────────────────────────────────────────── -->
+    <ng-container [ngTemplateOutlet]="bodyPanels" />
+
+  </div>
+
+}
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- Client mode                                                             -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+@else {
+
+  <app-page-layout
+    title="Mes factures"
+    icon="pi pi-receipt"
+    [hideMobileIcon]="true"
+    backRoute="/"
+    [fullWidth]="true">
+
+    <ng-container pageActions>
+      @if (isFiltered()) {
+        <button class="acc-action-btn acc-action-btn--primary" (click)="printList('all')" [disabled]="printingPdf() !== null">
+          <i [class]="printingPdf() === 'all' ? 'pi pi-spin pi-spinner' : 'pi pi-print'"></i>
+          <span>Imprimer</span>
+        </button>
+      }
+    </ng-container>
+
+    <div @pageAnimation class="client-page-inner">
+
+      @if (isFiltered()) {
+        <!-- Tab bar — only visible on mobile via CSS -->
+        <div class="client-tab-bar">
+          <button class="mobile-tab" [class.active]="mobileView() === 'sidebar'" (click)="mobileView.set('sidebar')">
+            <i class="pi pi-chart-pie"></i>
+            <span>Analyse</span>
+          </button>
+          <button class="mobile-tab" [class.active]="mobileView() === 'table'" (click)="mobileView.set('table')">
+            <i class="pi pi-table"></i>
+            <span>Détail</span>
+          </button>
+        </div>
+      }
+
+      <ng-container [ngTemplateOutlet]="filtersStrip" />
+      <ng-container [ngTemplateOutlet]="bodyPanels" />
+
+    </div>
+
+  </app-page-layout>
+
+}

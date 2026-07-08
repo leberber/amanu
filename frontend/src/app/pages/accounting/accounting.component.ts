@@ -1,7 +1,8 @@
 import { Component, OnInit, inject, signal, computed, DestroyRef } from '@angular/core';
 import { trigger, transition, style, animate } from '@angular/animations';
 import { FormsModule } from '@angular/forms';
-import { DecimalPipe } from '@angular/common';
+import { DecimalPipe, NgTemplateOutlet } from '@angular/common';
+import { ActivatedRoute } from '@angular/router';
 import { SelectModule } from 'primeng/select';
 import { SliderModule } from 'primeng/slider';
 import { TooltipModule } from 'primeng/tooltip';
@@ -13,6 +14,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { forkJoin } from 'rxjs';
 
 import { SidebarService } from '../../services/sidebar.service';
+import { AuthService } from '../../services/auth.service';
 import {
   FacturationService,
   Facturation,
@@ -25,6 +27,7 @@ import { FacturationPdfService } from '../../services/facturation-pdf.service';
 import { ToastMessageService } from '../../core/services/toast-message.service';
 import { DateFormatPipe } from '../../shared/pipes/date-format.pipe';
 import { CurrencyDisplayComponent } from '../../shared/components/currency-display/currency-display.component';
+import { PageLayoutComponent } from '../../shared/components/page-layout/page-layout.component';
 
 type Period = 'month' | 'year' | 'pick';
 
@@ -34,6 +37,7 @@ type Period = 'month' | 'year' | 'pick';
   imports: [
     FormsModule,
     DecimalPipe,
+    NgTemplateOutlet,
     SelectModule,
     TooltipModule,
     DialogModule,
@@ -43,6 +47,7 @@ type Period = 'month' | 'year' | 'pick';
     SliderModule,
     DateFormatPipe,
     CurrencyDisplayComponent,
+    PageLayoutComponent,
   ],
   templateUrl: './accounting.component.html',
   styleUrl: './accounting.component.scss',
@@ -61,6 +66,10 @@ export class AccountingComponent implements OnInit {
   private pdfService = inject(FacturationPdfService);
   private toast = inject(ToastMessageService);
   private destroyRef = inject(DestroyRef);
+  private route = inject(ActivatedRoute);
+  private authService = inject(AuthService);
+  adminMode = signal(true);
+  mobileView = signal<'sidebar' | 'table'>('sidebar');
 
   clients = signal<FacturationClient[]>([]);
   clientTotals = signal<ClientTotal[]>([]);
@@ -95,6 +104,32 @@ export class AccountingComponent implements OnInit {
 
   isFiltered = computed(() => this.selectedClientId() != null);
 
+  readonly currentMonth = new Date().getMonth();
+  readonly currentYear = new Date().getFullYear();
+
+  canGoPrevYear = computed(() => {
+    const years = this.availableYears();
+    return years.indexOf(this.selectedYear()) > 0;
+  });
+
+  canGoNextYear = computed(() => {
+    const years = this.availableYears();
+    const idx = years.indexOf(this.selectedYear());
+    return idx >= 0 && idx < years.length - 1;
+  });
+
+  prevYear(): void {
+    const years = this.availableYears();
+    const idx = years.indexOf(this.selectedYear());
+    if (idx > 0) this.selectYear(years[idx - 1]);
+  }
+
+  nextYear(): void {
+    const years = this.availableYears();
+    const idx = years.indexOf(this.selectedYear());
+    if (idx >= 0 && idx < years.length - 1) this.selectYear(years[idx + 1]);
+  }
+
   factures = computed(() => this.facturations().filter(f => f.document_type === 'facture'));
 
   availableYears = computed(() => {
@@ -114,15 +149,16 @@ export class AccountingComponent implements OnInit {
            countByMonth.set(m, (countByMonth.get(m) ?? 0) + 1);
          });
 
-    const lastMonth = year === now.getFullYear() ? now.getMonth() : 11;
-    const result: { month: number; year: number; label: string; hasFactures: boolean; count: number }[] = [];
-    for (let month = 0; month <= lastMonth; month++) {
+    const result: { month: number; year: number; label: string; hasFactures: boolean; isFuture: boolean; count: number }[] = [];
+    for (let month = 0; month <= 11; month++) {
       const count = countByMonth.get(month) ?? 0;
+      const isFuture = year > now.getFullYear() || (year === now.getFullYear() && month > now.getMonth());
       result.push({
         month,
         year,
         label: new Date(year, month, 1).toLocaleDateString('fr-DZ', { month: 'short' }),
         hasFactures: count > 0,
+        isFuture,
         count,
       });
     }
@@ -305,6 +341,14 @@ export class AccountingComponent implements OnInit {
 
   ngOnInit() {
     this.sidebarService.collapsed.set(true);
+    const isAdmin = this.route.snapshot.data['adminMode'] !== false;
+    this.adminMode.set(isAdmin);
+
+    if (!isAdmin) {
+      this.initClientMode();
+      return;
+    }
+
     this.loading.set(true);
     forkJoin({
       clients: this.facturationService.getClients(),
@@ -322,10 +366,34 @@ export class AccountingComponent implements OnInit {
       });
   }
 
+  private initClientMode(): void {
+    const me = this.authService.currentUserValue;
+    if (!me) return;
+    this.loading.set(true);
+    forkJoin({
+      profile: this.facturationService.getMyProfile(),
+      facturations: this.facturationService.getMyFacturations(),
+      company: this.facturationService.getCompanySettings(),
+    }).pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: ({ profile, facturations, company }) => {
+          this.clients.set([profile]);
+          this.companySettings.set(company);
+          this.selectedClientId.set(profile.id);
+          this.margeSubv.set(profile.fiscal_info?.marge_subv ?? 8);
+          this.facturations.set(facturations.facturations);
+          this.mobileView.set('sidebar');
+          this.loading.set(false);
+        },
+        error: () => this.loading.set(false),
+      });
+  }
+
   onClientChange(clientId: number | null) {
     this.selectedClientId.set(clientId);
     this.selectedYear.set(new Date().getFullYear());
     this.pickedMonthYear.set(null);
+    this.mobileView.set('sidebar');
     const client = clientId != null ? this.clients().find(c => c.id === clientId) ?? null : null;
     this.margeSubv.set(client?.fiscal_info?.marge_subv ?? 8);
     this.subvAdditional.set(0);
