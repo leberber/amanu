@@ -14,6 +14,7 @@ import { TableLoadingRowsComponent, LoadingColumn } from '../../../shared/compon
 import { InfiniteScrollDirective } from '../../../shared/directives/infinite-scroll.directive';
 import { AgroclikPageContainerComponent } from '../../../shared/components/agroclik-page-container/agroclik-page-container.component';
 import { onLanguageChange } from '../../../core/utils/language-change.util';
+import { formatFractionalCartons } from '../../../shared/utils/quantity.utils';
 import { ProductService } from '../../../services/product.service';
 import { BrandService } from '../../../core/services/brand.service';
 import { SupplierService } from '../../../core/services/supplier.service';
@@ -616,9 +617,9 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
     return (product.pieces_per_box || 1) > 1;
   }
 
-  getCartonCount(product: Product): number {
+  getCartonCount(product: Product): string {
     const piecesPerBox = product.pieces_per_box || 1;
-    return Math.floor(product.stock_quantity / piecesPerBox);
+    return formatFractionalCartons(product.stock_quantity, piecesPerBox);
   }
 
   // Private methods

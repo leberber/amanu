@@ -59,7 +59,7 @@
             </div>
             <div class="kpi-card__body">
               <span class="kpi-card__label">{{ packagingLabel(data) }} vendus</span>
-              <span class="kpi-card__value">{{ toPackagingQty(data.summary.total_units, data) | number:'1.0-0' }}</span>
+              <span class="kpi-card__value">{{ toPackagingQty(data.summary.total_units, data) }}</span>
             </div>
           </div>
           <div class="kpi-card">
@@ -144,7 +144,7 @@
               @for (c of data.customer_sales; track c.customer_id) {
                 <div class="customer-table__row">
                   <span class="customer-table__name">{{ c.customer_name }}</span>
-                  <span class="text-right font-semibold">{{ toPackagingQty(c.quantity, data) | number:'1.0-0' }}</span>
+                  <span class="text-right font-semibold">{{ toPackagingQty(c.quantity, data) }}</span>
                   <span class="text-right"><app-currency [value]="c.revenue" /></span>
                   <span class="text-right text-color-secondary">{{ c.order_count }}</span>
                 </div>

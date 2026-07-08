@@ -17,6 +17,7 @@ import { CurrencyDisplayComponent } from '../../../shared/components/currency-di
 import { CurrencyService } from '../../../core/services/currency.service';
 import { ROUTES, RouteHelpers } from '../../../core/constants/routes.constants';
 import { environment } from '../../../../environments/environment';
+import { formatFractionalCartons } from '../../../shared/utils/quantity.utils';
 
 interface ProductDailySale {
   date: string;
@@ -202,9 +203,9 @@ export class AdminProductAnalyticsComponent implements OnInit {
     return `${d.getDate()}/${d.getMonth() + 1}`;
   }
 
-  toPackagingQty(pieces: number, data: ProductAnalyticsResponse): number {
+  toPackagingQty(pieces: number, data: ProductAnalyticsResponse): string {
     const ppb = data.pieces_per_box;
-    return ppb && ppb > 1 ? Math.round(pieces / ppb) : pieces;
+    return ppb && ppb > 1 ? formatFractionalCartons(pieces, ppb) : pieces.toString();
   }
 
   packagingLabel(data: ProductAnalyticsResponse): string {
