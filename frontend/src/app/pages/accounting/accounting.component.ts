@@ -7,6 +7,7 @@ import { SelectModule } from 'primeng/select';
 import { SliderModule } from 'primeng/slider';
 import { TooltipModule } from 'primeng/tooltip';
 import { DialogModule } from 'primeng/dialog';
+import { DrawerModule } from 'primeng/drawer';
 import { ButtonModule } from 'primeng/button';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { InputTextModule } from 'primeng/inputtext';
@@ -41,6 +42,7 @@ type Period = 'month' | 'year' | 'pick';
     SelectModule,
     TooltipModule,
     DialogModule,
+    DrawerModule,
     ButtonModule,
     InputNumberModule,
     InputTextModule,
@@ -88,9 +90,13 @@ export class AccountingComponent implements OnInit {
 
   // ── External facture inline editing ───────────────────────────────────────
   activeInlineGroup = signal<string | null>(null);
-  inlineRowData = { merchantName: '', paymentMode: 'espece', extImpose: 0, extExonere: 0, totalTva: 0, timbre: 0 };
+  inlineRowData = { merchantName: '', paymentMode: 'espece', extImpose: 0, extExonere: 0, totalTva: 0, timbre: 0, totalHt: 0, totalTtc: 0, totalsOverridden: false };
   savingInline = signal(false);
   deletingExternal = signal<number | null>(null);
+
+  // ── Mobile external facture drawer ────────────────────────────────────────
+  mobileExtDrawerOpen = signal(false);
+  mobileExtDrawerGroup = signal<{ label: string; month: number; year: number } | null>(null);
 
   // ── Fiscal info dialog ────────────────────────────────────────────────────
   showFiscalDialog = signal(false);
@@ -513,8 +519,55 @@ export class AccountingComponent implements OnInit {
   }
 
   addExternalRow(group: { label: string; month: number; year: number }): void {
-    this.inlineRowData = { merchantName: '', paymentMode: 'espece', extImpose: 0, extExonere: 0, totalTva: 0, timbre: 0 };
+    this.inlineRowData = { merchantName: '', paymentMode: 'espece', extImpose: 0, extExonere: 0, totalTva: 0, timbre: 0, totalHt: 0, totalTtc: 0, totalsOverridden: false };
     this.activeInlineGroup.set(group.label);
+  }
+
+  recomputeDrawerTotals(): void {
+    if (this.inlineRowData.totalsOverridden) return;
+    const d = this.inlineRowData;
+    d.totalHt = d.extImpose + d.extExonere;
+    d.totalTtc = d.totalHt + d.totalTva + (d.paymentMode === 'espece' ? d.timbre : 0);
+  }
+
+  get drawerErrors(): string[] {
+    const d = this.inlineRowData;
+    const errors: string[] = [];
+    const timbre = d.paymentMode === 'espece' ? d.timbre : 0;
+
+    if (d.extImpose < 0 || d.extExonere < 0 || d.totalTva < 0 || d.timbre < 0 || d.totalHt < 0 || d.totalTtc < 0)
+      errors.push('Les montants ne peuvent pas être négatifs');
+    if (d.extImpose === 0 && d.extExonere === 0)
+      errors.push('Au moins un montant (Imposé ou Exonéré) est requis');
+    if (d.totalTtc <= 0)
+      errors.push('Le Total TTC doit être supérieur à 0');
+    const expectedHt = d.extImpose + d.extExonere;
+    if (d.totalHt !== 0 && Math.abs(d.totalHt - expectedHt) > 0.01)
+      errors.push(`Total HT (${d.totalHt}) ≠ Mt. Imposé + Mt. Exonéré (${expectedHt})`);
+    const expectedTtc = d.totalHt + d.totalTva + timbre;
+    if (d.totalTtc !== 0 && Math.abs(d.totalTtc - expectedTtc) > 0.01)
+      errors.push(`Total TTC (${d.totalTtc}) ≠ Total HT + TVA + Timbre (${expectedTtc})`);
+
+    return errors;
+  }
+
+  openMobileExtDrawer(group: { label: string; month: number; year: number }): void {
+    this.inlineRowData = { merchantName: '', paymentMode: 'espece', extImpose: 0, extExonere: 0, totalTva: 0, timbre: 0, totalHt: 0, totalTtc: 0, totalsOverridden: false };
+    this.mobileExtDrawerGroup.set(group);
+    this.mobileExtDrawerOpen.set(true);
+  }
+
+  closeMobileExtDrawer(): void {
+    this.mobileExtDrawerOpen.set(false);
+    this.mobileExtDrawerGroup.set(null);
+  }
+
+  saveMobileExtDrawer(): void {
+    const group = this.mobileExtDrawerGroup();
+    if (!group) return;
+    this.saveInlineRow(group);
+    this.mobileExtDrawerOpen.set(false);
+    this.mobileExtDrawerGroup.set(null);
   }
 
   cancelInlineRow(): void {

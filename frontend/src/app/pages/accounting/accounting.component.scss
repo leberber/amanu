@@ -1177,6 +1177,194 @@
   }
 }
 
+// ── Mobile external facture drawer ────────────────────────────────────────────
+
+:host ::ng-deep .ext-mobile-drawer {
+  border-radius: 20px 20px 0 0 !important;
+  max-height: 92dvh;
+
+  .p-drawer-header { padding: 0; }
+  .p-drawer-content { padding: 0; overflow-y: auto; }
+  .p-drawer-footer { padding: 0; border-top: 1px solid var(--surface-border); }
+}
+
+.emd-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  z-index: 1000;
+}
+
+.emd-sheet {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1001;
+  background: #fff;
+  border-radius: 20px 20px 0 0;
+  max-height: 92dvh;
+  overflow-y: auto;
+  animation: emdSlideUp 0.25s ease-out;
+  box-shadow: 0 -4px 24px rgba(59, 130, 246, 0.12), 0 -1px 0 rgba(59, 130, 246, 0.08);
+  padding-bottom: env(safe-area-inset-bottom, 0.75rem);
+}
+
+.emd-handle {
+  width: 40px;
+  height: 4px;
+  background: var(--surface-border);
+  border-radius: 2px;
+  margin: 0.65rem auto 0;
+}
+
+@keyframes emdSlideUp {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+
+.emd-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.1rem 1.25rem 0.75rem;
+  border-bottom: 1px solid var(--surface-border);
+
+  &__title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-color);
+  }
+
+  &__sub {
+    font-size: 0.75rem;
+    color: var(--text-color-secondary);
+    margin-top: 0.1rem;
+  }
+}
+
+.emd-close {
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  background: var(--surface-hover);
+  color: var(--text-color-secondary);
+  cursor: pointer;
+  i { font-size: 0.8rem; }
+}
+
+.emd-body {
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.emd-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.emd-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.emd-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-color-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.emd-input {
+  width: 100%;
+  border-radius: 12px !important;
+  font-size: 1rem !important;
+  line-height: 1.5 !important;
+  padding: 0.75rem 1rem !important;
+  min-height: 3rem;
+}
+
+.emd-mode-group {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.emd-mode-btn {
+  flex: 1;
+  padding: 0.75rem 0.5rem;
+  border: 1.5px solid var(--surface-border);
+  border-radius: 12px;
+  background: var(--surface-card);
+  color: var(--text-color-secondary);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+
+  &.active {
+    border-color: var(--primary-color);
+    background: rgba(37, 99, 235, 0.07);
+    color: var(--primary-color);
+  }
+}
+
+.emd-errors {
+  margin: 0 1.5rem 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.emd-error {
+  font-size: 0.78rem;
+  color: #ef4444;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+
+  i { font-size: 0.75rem; }
+}
+
+.emd-footer {
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.9rem 1.25rem 1.25rem;
+}
+
+.emd-btn {
+  flex: 1;
+  padding: 0.75rem;
+  border-radius: 12px;
+  border: none;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.15s;
+
+  &:disabled { opacity: 0.5; cursor: default; }
+
+  &--cancel {
+    background: var(--surface-hover);
+    color: var(--text-color-secondary);
+  }
+
+  &--save {
+    background: var(--primary-color);
+    color: #fff;
+  }
+}
+
 // Fiscal dialog: full-width on small screens
 :host ::ng-deep .p-dialog {
   @media (max-width: 576px) {

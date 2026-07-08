@@ -122,7 +122,7 @@
           @for (group of facturationsGrouped(); track group.label) {
             <div class="mc-group-header">
               <span class="month-break-pill">{{ group.label }}</span>
-              <button class="add-ext-btn" (click)="addExternalRow(group)"
+              <button class="add-ext-btn" (click)="openMobileExtDrawer(group)"
                 [disabled]="savingInline()"
                 pTooltip="Ajouter une facture externe" tooltipPosition="right">
                 <i class="pi pi-plus"></i>
@@ -772,5 +772,102 @@
     </div>
 
   </app-page-layout>
+
+  <!-- ── Mobile external facture bottom sheet ── -->
+  @if (mobileExtDrawerOpen()) {
+    <div class="emd-backdrop" (click)="closeMobileExtDrawer()"></div>
+    <div class="emd-sheet">
+      <div class="emd-handle"></div>
+
+      <div class="emd-header">
+        <div class="emd-header__info">
+          <div class="emd-header__title">Facture externe</div>
+          @if (mobileExtDrawerGroup()) {
+            <div class="emd-header__sub">{{ mobileExtDrawerGroup()!.label }}</div>
+          }
+        </div>
+        <button class="emd-close" (click)="closeMobileExtDrawer()">
+          <i class="pi pi-times"></i>
+        </button>
+      </div>
+
+      <div class="emd-body">
+        <div class="emd-field">
+          <label class="emd-label">Marchand <span style="color: #ef4444">*</span></label>
+          <input pInputText class="emd-input" [(ngModel)]="inlineRowData.merchantName" placeholder="Nom du marchand" />
+        </div>
+
+        <div class="emd-field">
+          <label class="emd-label">Mode de paiement <span style="color: #ef4444">*</span></label>
+          <div class="emd-mode-group">
+            @for (mode of [{val:'espece',label:'Espèces'},{val:'cheque',label:'Chèque'},{val:'virement',label:'Virement'}]; track mode.val) {
+              <button class="emd-mode-btn" [class.active]="inlineRowData.paymentMode === mode.val"
+                (click)="inlineRowData.paymentMode = mode.val; recomputeDrawerTotals()">
+                {{ mode.label }}
+              </button>
+            }
+          </div>
+        </div>
+
+        <div class="emd-row">
+          <div class="emd-field">
+            <label class="emd-label">Mt. Imposé</label>
+            <input pInputText type="number" class="emd-input" [ngModel]="inlineRowData.extImpose"
+              (ngModelChange)="inlineRowData.extImpose = $event; recomputeDrawerTotals()" min="0" placeholder="0" />
+          </div>
+          <div class="emd-field">
+            <label class="emd-label">Mt. Exonéré</label>
+            <input pInputText type="number" class="emd-input" [ngModel]="inlineRowData.extExonere"
+              (ngModelChange)="inlineRowData.extExonere = $event; recomputeDrawerTotals()" min="0" placeholder="0" />
+          </div>
+        </div>
+
+        <div class="emd-row">
+          <div class="emd-field">
+            <label class="emd-label">TVA <span style="color: #ef4444">*</span></label>
+            <input pInputText type="number" class="emd-input" [ngModel]="inlineRowData.totalTva"
+              (ngModelChange)="inlineRowData.totalTva = $event; recomputeDrawerTotals()" min="0" placeholder="0" />
+          </div>
+          @if (inlineRowData.paymentMode === 'espece') {
+            <div class="emd-field">
+              <label class="emd-label">Timbre <span style="color: #ef4444">*</span></label>
+              <input pInputText type="number" class="emd-input" [ngModel]="inlineRowData.timbre"
+                (ngModelChange)="inlineRowData.timbre = $event; recomputeDrawerTotals()" min="0" placeholder="0" />
+            </div>
+          }
+        </div>
+
+        <div class="emd-row">
+          <div class="emd-field">
+            <label class="emd-label">Total HT <span style="color: #ef4444">*</span></label>
+            <input pInputText type="number" class="emd-input" [ngModel]="inlineRowData.totalHt"
+              (ngModelChange)="inlineRowData.totalHt = $event; inlineRowData.totalsOverridden = true" min="0" placeholder="0" />
+          </div>
+          <div class="emd-field">
+            <label class="emd-label">Total TTC <span style="color: #ef4444">*</span></label>
+            <input pInputText type="number" class="emd-input" [ngModel]="inlineRowData.totalTtc"
+              (ngModelChange)="inlineRowData.totalTtc = $event; inlineRowData.totalsOverridden = true" min="0" placeholder="0" />
+          </div>
+        </div>
+      </div>
+
+      @if (drawerErrors.length > 0) {
+        <div class="emd-errors">
+          @for (err of drawerErrors; track err) {
+            <div class="emd-error"><i class="pi pi-exclamation-triangle"></i> {{ err }}</div>
+          }
+        </div>
+      }
+
+      <div class="emd-footer">
+        <button class="emd-btn emd-btn--cancel" (click)="closeMobileExtDrawer()">Annuler</button>
+        <button class="emd-btn emd-btn--save"
+          [disabled]="savingInline() || !inlineRowData.merchantName || drawerErrors.length > 0"
+          (click)="saveMobileExtDrawer()">
+          @if (savingInline()) { <i class="pi pi-spin pi-spinner"></i> } @else { Enregistrer }
+        </button>
+      </div>
+    </div>
+  }
 
 }
