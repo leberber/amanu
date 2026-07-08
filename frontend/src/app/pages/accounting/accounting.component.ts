@@ -570,13 +570,43 @@ export class AccountingComponent implements OnInit {
     return errors;
   }
 
+  private viewportResizeHandler: (() => void) | null = null;
+
+  private setupKeyboardAvoidance(): void {
+    if (!window.visualViewport) return;
+    this.viewportResizeHandler = () => {
+      const sheet = document.querySelector('.emd-sheet') as HTMLElement;
+      if (!sheet) return;
+      const keyboardHeight = window.innerHeight - window.visualViewport!.height;
+      sheet.style.transform = keyboardHeight > 50 ? `translateY(-${keyboardHeight}px)` : '';
+      if (keyboardHeight > 50) {
+        setTimeout(() => {
+          const focused = document.activeElement as HTMLElement;
+          if (focused) focused.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 50);
+      }
+    };
+    window.visualViewport.addEventListener('resize', this.viewportResizeHandler);
+  }
+
+  private teardownKeyboardAvoidance(): void {
+    if (window.visualViewport && this.viewportResizeHandler) {
+      window.visualViewport.removeEventListener('resize', this.viewportResizeHandler);
+      this.viewportResizeHandler = null;
+    }
+    const sheet = document.querySelector('.emd-sheet') as HTMLElement;
+    if (sheet) sheet.style.transform = '';
+  }
+
   openMobileExtDrawer(group: { label: string; month: number; year: number }): void {
     this.inlineRowData = { merchantName: '', paymentMode: 'espece', ht9: 0, ht19: 0, ht0: 0 };
     this.mobileExtDrawerGroup.set(group);
     this.mobileExtDrawerOpen.set(true);
+    setTimeout(() => this.setupKeyboardAvoidance(), 100);
   }
 
   closeMobileExtDrawer(): void {
+    this.teardownKeyboardAvoidance();
     this.mobileExtDrawerOpen.set(false);
     this.mobileExtDrawerGroup.set(null);
   }
@@ -584,6 +614,7 @@ export class AccountingComponent implements OnInit {
   saveMobileExtDrawer(): void {
     const group = this.mobileExtDrawerGroup();
     if (!group) return;
+    this.teardownKeyboardAvoidance();
     this.saveInlineRow(group);
     this.mobileExtDrawerOpen.set(false);
     this.mobileExtDrawerGroup.set(null);

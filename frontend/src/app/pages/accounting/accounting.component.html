@@ -798,7 +798,7 @@
         <!-- ── Merchant & payment ── -->
         <div class="emd-field">
           <label class="emd-label">Marchand <span style="color:#ef4444">*</span></label>
-          <input pInputText class="emd-input" [(ngModel)]="inlineRowData.merchantName" placeholder="Nom du marchand" />
+          <input pInputText class="emd-input" [(ngModel)]="inlineRowData.merchantName" placeholder="Nom du marchand"  />
         </div>
 
         <div class="emd-field">
@@ -834,7 +834,7 @@
                   pTooltip="Montant hors taxes des produits soumis à la TVA de 9%."
                   tooltipPosition="top"></i>
               </label>
-              <input pInputText type="number" class="emd-input" [(ngModel)]="inlineRowData.ht9" min="0" placeholder="0.00" />
+              <input pInputText type="number" class="emd-input" [(ngModel)]="inlineRowData.ht9" min="0" placeholder="0.00" (focus)="$any($event.target).select()" />
               @if (inlineRowData.ht9 > 0) {
                 <span class="emd-hint">TVA → <app-currency [value]="inlineRowData.ht9 * 0.09" [hideDecimals]="true" /></span>
               }
@@ -846,7 +846,7 @@
                   pTooltip="Montant hors taxes des produits soumis à la TVA de 19%."
                   tooltipPosition="top"></i>
               </label>
-              <input pInputText type="number" class="emd-input" [(ngModel)]="inlineRowData.ht19" min="0" placeholder="0.00" />
+              <input pInputText type="number" class="emd-input" [(ngModel)]="inlineRowData.ht19" min="0" placeholder="0.00" (focus)="$any($event.target).select()" />
               @if (inlineRowData.ht19 > 0) {
                 <span class="emd-hint">TVA → <app-currency [value]="inlineRowData.ht19 * 0.19" [hideDecimals]="true" /></span>
               }
@@ -860,7 +860,7 @@
                 pTooltip="Montant hors taxes des produits exonérés de TVA. Le montant HT est identique au TTC."
                 tooltipPosition="top"></i>
             </label>
-            <input pInputText type="number" class="emd-input" [(ngModel)]="inlineRowData.ht0" min="0" placeholder="0.00" />
+            <input pInputText type="number" class="emd-input" [(ngModel)]="inlineRowData.ht0" min="0" placeholder="0.00" (focus)="$any($event.target).select()" />
           </div>
         </div>
 

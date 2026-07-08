@@ -4,7 +4,6 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { trigger, transition, style, animate } from '@angular/animations';
 import { HttpClient, HttpParams } from '@angular/common/http';
 
-import { DecimalPipe } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { ChartModule } from 'primeng/chart';
 import { SelectModule } from 'primeng/select';
@@ -56,7 +55,6 @@ interface ProductAnalyticsResponse {
   standalone: true,
   imports: [
     FormsModule,
-    DecimalPipe,
     ButtonModule,
     ChartModule,
     SelectModule,
