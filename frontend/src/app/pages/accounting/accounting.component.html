@@ -622,7 +622,6 @@
 @else {
 
   <app-page-layout
-    title="Mes factures"
     icon="pi pi-receipt"
     [hideMobileIcon]="true"
     backRoute="/"
@@ -630,6 +629,16 @@
 
     <ng-container pageActions>
       @if (isFiltered()) {
+        <div class="client-tab-bar">
+          <button class="mobile-tab mobile-tab--analyse" [class.active]="mobileView() === 'sidebar'" (click)="mobileView.set('sidebar')">
+            <i class="pi pi-chart-pie"></i>
+            <span>Analyse</span>
+          </button>
+          <button class="mobile-tab mobile-tab--facture" [class.active]="mobileView() === 'table'" (click)="mobileView.set('table')">
+            <i class="pi pi-receipt"></i>
+            <span>Facture</span>
+          </button>
+        </div>
         <button class="acc-action-btn acc-action-btn--primary" (click)="printList('all')" [disabled]="printingPdf() !== null">
           <i [class]="printingPdf() === 'all' ? 'pi pi-spin pi-spinner' : 'pi pi-print'"></i>
           <span>Imprimer</span>
@@ -638,20 +647,6 @@
     </ng-container>
 
     <div @pageAnimation class="client-page-inner">
-
-      @if (isFiltered()) {
-        <!-- Tab bar — only visible on mobile via CSS -->
-        <div class="client-tab-bar">
-          <button class="mobile-tab" [class.active]="mobileView() === 'sidebar'" (click)="mobileView.set('sidebar')">
-            <i class="pi pi-chart-pie"></i>
-            <span>Analyse</span>
-          </button>
-          <button class="mobile-tab" [class.active]="mobileView() === 'table'" (click)="mobileView.set('table')">
-            <i class="pi pi-table"></i>
-            <span>Détail</span>
-          </button>
-        </div>
-      }
 
       <ng-container [ngTemplateOutlet]="filtersStrip" />
       <ng-container [ngTemplateOutlet]="bodyPanels" />

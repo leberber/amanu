@@ -286,6 +286,10 @@ $sticky-footer-height: 60px;
     margin-right: 0;
     max-width: 100%;
     padding-top: var(--space-4);
+
+    @media (max-width: 767px) {
+      padding-top: calc(#{$topbar-height} + env(safe-area-inset-top, 0) + var(--space-3));
+    }
   }
 }
 
