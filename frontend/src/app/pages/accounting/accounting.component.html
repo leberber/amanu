@@ -867,25 +867,24 @@
         <!-- ── Total strip ── -->
         <div class="emd-total-strip">
           <div class="emd-total-strip__breakdown">
-            <span class="emd-total-strip__item">
-              HT&nbsp;<strong><app-currency [value]="drawerTotalHt" [hideDecimals]="true" /></strong>
-            </span>
-            <span class="emd-total-strip__sep">+</span>
-            <span class="emd-total-strip__item"
-              pTooltip="TVA 9% + TVA 19%, calculée automatiquement." tooltipPosition="top">
-              TVA&nbsp;<strong><app-currency [value]="drawerTva" [hideDecimals]="true" /></strong>
-            </span>
-            @if (inlineRowData.paymentMode === 'espece' && drawerTimbre > 0) {
-              <span class="emd-total-strip__sep">+</span>
-              <span class="emd-total-strip__item"
-                pTooltip="Timbre fiscal calculé automatiquement selon vos paliers." tooltipPosition="top">
-                Timbre&nbsp;<strong><app-currency [value]="drawerTimbre" [hideDecimals]="true" /></strong>
-              </span>
+            <div class="emd-total-strip__item">
+              <span class="emd-total-strip__item-label">TT HT <span class="emd-total-strip__da">(DA)</span></span>
+              <span class="emd-total-strip__item-value"><app-currency [value]="drawerTotalHt" [hideDecimals]="true" [hideSymbol]="true" /></span>
+            </div>
+            <div class="emd-total-strip__item" pTooltip="TVA 9% + TVA 19%, calculée automatiquement." tooltipPosition="top">
+              <span class="emd-total-strip__item-label">TVA</span>
+              <span class="emd-total-strip__item-value"><app-currency [value]="drawerTva" [hideDecimals]="true" [hideSymbol]="true" /></span>
+            </div>
+            @if (inlineRowData.paymentMode === 'espece') {
+              <div class="emd-total-strip__item" pTooltip="Timbre fiscal calculé automatiquement selon vos paliers." tooltipPosition="top">
+                <span class="emd-total-strip__item-label">Timbre</span>
+                <span class="emd-total-strip__item-value"><app-currency [value]="drawerTimbre" [hideDecimals]="true" [hideSymbol]="true" /></span>
+              </div>
             }
           </div>
           <div class="emd-total-strip__ttc">
-            <span class="emd-total-strip__ttc-label">TTC</span>
-            <span class="emd-total-strip__ttc-value"><app-currency [value]="drawerTotalTtc" /></span>
+            <span class="emd-total-strip__ttc-label">TTC <span class="emd-total-strip__da">(DA)</span></span>
+            <span class="emd-total-strip__ttc-value"><app-currency [value]="drawerTotalTtc" [hideDecimals]="true" [hideSymbol]="true" /></span>
           </div>
         </div>
 
