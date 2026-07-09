@@ -1,7 +1,6 @@
 import { Component, AfterViewInit, OnDestroy, inject, input, output, signal } from '@angular/core';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
 import * as L from 'leaflet';
-import { environment } from '../../../../environments/environment';
 import { MAP_DEFAULTS, LEAFLET_ICON, LEAFLET_TILES, LEAFLET_ASSETS } from '../../../core/constants/map.constants';
 
 export interface LocationData {
@@ -401,7 +400,6 @@ export class MapPickerComponent implements AfterViewInit, OnDestroy {
   private marker?: L.Marker;
   private userLocationMarker?: L.Marker;
   private userLocationAccuracy?: L.Circle;
-  private translateService = inject(TranslateService);
 
   // State signals
   selectedLocation = signal<LocationData | undefined>(undefined);
@@ -623,44 +621,21 @@ export class MapPickerComponent implements AfterViewInit, OnDestroy {
   private reverseGeocode(lat: number, lng: number): void {
     this.isLoadingAddress.set(true);
 
-    const apiKey = environment.googleMapsApiKey;
-    const language = this.translateService.currentLang || 'en';
-    const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${apiKey}&language=${language}`;
+    const url = `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&accept-language=fr`;
 
-    fetch(url)
+    fetch(url, { headers: { 'Accept-Language': 'fr' } })
       .then(response => response.json())
       .then(data => {
-        let location: LocationData;
-
-        if (data.status === 'OK' && data.results && data.results.length > 0) {
-          const result = data.results[0];
-          const address = result.formatted_address || '';
-          const components = result.address_components || [];
-
-          const wilaya = this.getAddressComponent(components, 'administrative_area_level_1');
-          const daira = this.getAddressComponent(components, 'administrative_area_level_2');
-          const commune = this.getAddressComponent(components, 'locality');
-          const village = this.getAddressComponent(components, 'neighborhood') ||
-                          this.getAddressComponent(components, 'sublocality') ||
-                          this.getAddressComponent(components, 'sublocality_level_1');
-
-          location = {
-            latitude: lat,
-            longitude: lng,
-            address: address,
-            wilaya: wilaya,
-            daira: daira,
-            commune: commune,
-            village: village
-          };
-        } else {
-          location = {
-            latitude: lat,
-            longitude: lng,
-            address: ''
-          };
-        }
-
+        const addr = data.address || {};
+        const location: LocationData = {
+          latitude: lat,
+          longitude: lng,
+          address: data.display_name || '',
+          wilaya: addr.state || addr.county || '',
+          daira: addr.county || addr.municipality || '',
+          commune: addr.city || addr.town || addr.village || addr.suburb || '',
+          village: addr.village || addr.suburb || addr.neighbourhood || ''
+        };
         this.selectedLocation.set(location);
         this.locationSelected.emit(location);
         this.isLoadingAddress.set(false);
@@ -675,11 +650,6 @@ export class MapPickerComponent implements AfterViewInit, OnDestroy {
         this.locationSelected.emit(location);
         this.isLoadingAddress.set(false);
       });
-  }
-
-  private getAddressComponent(components: any[], type: string): string {
-    const component = components.find(c => c.types && c.types.includes(type));
-    return component ? component.long_name : '';
   }
 
   public reset(): void {

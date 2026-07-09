@@ -21,6 +21,7 @@ import { VALIDATION } from '../../../core/constants/validation.constants';
 import { USER_ROLES } from '../../../core/constants/user.constants';
 import { UI_DELAY, UI } from '../../../core/constants/ui.constants';
 import { ROUTES } from '../../../core/constants/routes.constants';
+import { ALGERIA_WILAYAS, matchAlgeriaWilaya } from '../../../core/constants/map.constants';
 import { StatusSeverityService } from '../../../core/services/status-severity.service';
 import { UserGroupService } from '../../../core/services/user-group.service';
 import { UserGroup } from '../../../models/user-group.model';
@@ -69,8 +70,7 @@ export class AdminEditUserComponent implements OnInit {
   roleOptions = signal<{ label: string; value: string }[]>([]);
 
 
-  // Wilaya options (Algeria regions)
-  wilayaOptions = signal<{ label: string; value: string }[]>([]);
+  readonly wilayaOptions = ALGERIA_WILAYAS;
 
   // Group options
   groupOptions = signal<{ label: string; value: number; color: string }[]>([]);
@@ -94,7 +94,6 @@ export class AdminEditUserComponent implements OnInit {
   ngOnInit() {
     this.initForm();
     this.loadRoleOptions();
-    this.loadWilayaOptions();
     this.loadGroups();
     this.loadSegments();
     this.loadUser();
@@ -138,34 +137,7 @@ export class AdminEditUserComponent implements OnInit {
   }
 
 
-  private matchWilayaOption(value: string): string {
-    if (!value) return '';
-    const normalized = value
-      .toLowerCase()
-      .replace(/-/g, ' ')
-      .replace(/\s*(province|wilaya de|wilaya)\s*$/i, '')
-      .trim();
-    const match = this.wilayaOptions().find(opt =>
-      opt.value.toLowerCase().replace(/-/g, ' ').trim() === normalized
-    );
-    return match ? match.value : value;
-  }
 
-  private loadWilayaOptions() {
-    // Algeria's 58 wilayas
-    const wilayas = [
-      'Adrar', 'Chlef', 'Laghouat', 'Oum El Bouaghi', 'Batna', 'Béjaïa', 'Biskra', 'Béchar',
-      'Blida', 'Bouira', 'Tamanrasset', 'Tébessa', 'Tlemcen', 'Tiaret', 'Tizi Ouzou', 'Alger',
-      'Djelfa', 'Jijel', 'Sétif', 'Saïda', 'Skikda', 'Sidi Bel Abbès', 'Annaba', 'Guelma',
-      'Constantine', 'Médéa', 'Mostaganem', 'M\'Sila', 'Mascara', 'Ouargla', 'Oran', 'El Bayadh',
-      'Illizi', 'Bordj Bou Arréridj', 'Boumerdès', 'El Tarf', 'Tindouf', 'Tissemsilt', 'El Oued',
-      'Khenchela', 'Souk Ahras', 'Tipaza', 'Mila', 'Aïn Defla', 'Naâma', 'Aïn Témouchent',
-      'Ghardaïa', 'Relizane', 'Timimoun', 'Bordj Badji Mokhtar', 'Ouled Djellal', 'Béni Abbès',
-      'In Salah', 'In Guezzam', 'Touggourt', 'Djanet', 'El M\'Ghair', 'El Meniaa'
-    ];
-
-    this.wilayaOptions.set(wilayas.map(w => ({ label: w, value: w })));
-  }
 
   private loadSegments() {
     this.segmentService.getSegments()
@@ -229,7 +201,7 @@ export class AdminEditUserComponent implements OnInit {
           fiscal_nif: user.fiscal_info?.nif || '',
           fiscal_nis: user.fiscal_info?.nis || '',
           fiscal_montant_declare: user.fiscal_info?.montant_declare ?? null,
-          wilaya: this.matchWilayaOption(user.wilaya || ''),
+          wilaya: matchAlgeriaWilaya(user.wilaya || ''),
           daira: user.daira || '',
           commune: user.commune || '',
           latitude: user.latitude || null,
@@ -367,7 +339,7 @@ export class AdminEditUserComponent implements OnInit {
       latitude: location.latitude,
       longitude: location.longitude,
       address: location.address || this.userForm.get('address')?.value,
-      wilaya: this.matchWilayaOption(location.wilaya || '') || this.userForm.get('wilaya')?.value,
+      wilaya: matchAlgeriaWilaya(location.wilaya || '') || this.userForm.get('wilaya')?.value,
       daira: location.daira || this.userForm.get('daira')?.value,
       commune: location.commune || this.userForm.get('commune')?.value
     });

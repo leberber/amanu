@@ -53,6 +53,32 @@ export const LEAFLET_TILES = {
   }
 };
 
+// Algeria's 58 wilayas as select options
+export const ALGERIA_WILAYAS: { label: string; value: string }[] = [
+  'Adrar', 'Chlef', 'Laghouat', 'Oum El Bouaghi', 'Batna', 'Béjaïa', 'Biskra', 'Béchar',
+  'Blida', 'Bouira', 'Tamanrasset', 'Tébessa', 'Tlemcen', 'Tiaret', 'Tizi Ouzou', 'Alger',
+  'Djelfa', 'Jijel', 'Sétif', 'Saïda', 'Skikda', 'Sidi Bel Abbès', 'Annaba', 'Guelma',
+  'Constantine', 'Médéa', 'Mostaganem', 'M\'Sila', 'Mascara', 'Ouargla', 'Oran', 'El Bayadh',
+  'Illizi', 'Bordj Bou Arréridj', 'Boumerdès', 'El Tarf', 'Tindouf', 'Tissemsilt', 'El Oued',
+  'Khenchela', 'Souk Ahras', 'Tipaza', 'Mila', 'Aïn Defla', 'Naâma', 'Aïn Témouchent',
+  'Ghardaïa', 'Relizane', 'Timimoun', 'Bordj Badji Mokhtar', 'Ouled Djellal', 'Béni Abbès',
+  'In Salah', 'In Guezzam', 'Touggourt', 'Djanet', 'El M\'Ghair', 'El Meniaa'
+].map(w => ({ label: w, value: w }));
+
+// Normalize a wilaya string (from Nominatim/Google Maps) to match ALGERIA_WILAYAS values
+export function matchAlgeriaWilaya(value: string): string {
+  if (!value) return '';
+  const normalized = value.toLowerCase()
+    .replace(/-/g, ' ')
+    .replace(/^wilaya\s+(de\s+)?/i, '')
+    .replace(/\s*(province|wilaya)\s*$/i, '')
+    .trim();
+  const match = ALGERIA_WILAYAS.find(opt =>
+    opt.value.toLowerCase().replace(/-/g, ' ').trim() === normalized
+  );
+  return match ? match.value : value;
+}
+
 // Leaflet asset paths
 export const LEAFLET_ASSETS = {
   MARKER_ICON: 'assets/leaflet/marker-icon.png',

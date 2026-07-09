@@ -1,4 +1,137 @@
-.create-user-form {
-  max-width: 800px;
-  margin: 0 auto;
+:host ::ng-deep .page-content {
+  padding: 0;
+  margin: 0;
+}
+
+// The create-wizard fills the page-layout content area
+.create-wizard {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+
+  .form-wizard__body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow-y: auto;
+  }
+}
+
+::ng-deep .form-wizard--fullpage {
+  min-height: 0;
+}
+
+// Map step fills remaining space
+::ng-deep .form-wizard__body:has(.map-step) {
+  justify-content: flex-start !important;
+  padding: 0 !important;
+  min-height: 0;
+}
+
+.map-step {
+  flex: 1;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+
+  app-map-picker {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+
+    ::ng-deep .map-picker {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      height: auto !important;
+      min-height: 0;
+
+      .map-container {
+        flex: 1;
+        min-height: 300px;
+        border-radius: 0;
+        border: none;
+      }
+
+      .instructions {
+        flex-shrink: 0;
+        padding: var(--space-4);
+        background: var(--surface-50);
+        border-top: 1px solid var(--surface-200);
+        margin: 0;
+        text-align: center;
+
+        p { margin: 0; }
+      }
+
+      .address-display {
+        flex-shrink: 0;
+        padding: var(--space-3) var(--space-4);
+        background: var(--surface-50);
+        border-top: 1px solid var(--surface-200);
+        margin: 0;
+      }
+    }
+  }
+
+  .location-info-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    padding: var(--space-3) var(--space-4);
+    padding-bottom: calc(var(--space-3) + env(safe-area-inset-bottom, 0px));
+    background: rgba(255, 255, 255, 0.97);
+    backdrop-filter: blur(12px);
+    border-top: 1px solid var(--surface-200);
+
+    .location-info-card {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+
+      i {
+        font-size: 1.25rem;
+        color: var(--primary-color);
+        flex-shrink: 0;
+      }
+
+      .location-info-text {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+
+        .location-wilaya {
+          font-weight: 600;
+          font-size: var(--font-size-sm);
+          color: var(--text-color);
+        }
+
+        .location-detail {
+          font-size: var(--font-size-xs);
+          color: var(--text-color-secondary);
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .map-step app-map-picker ::ng-deep .map-picker .map-container {
+    min-height: 200px;
+  }
+}
+
+// Grid padding adjustments
+.grid > [class*="col-"] {
+  padding: var(--space-3);
+
+  @media (max-width: 768px) {
+    padding: var(--space-2);
+  }
 }

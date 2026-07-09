@@ -1,4 +1,4 @@
-import { Component, input } from '@angular/core';
+import { Component, input, output } from '@angular/core';
 import { BackButtonComponent } from '../back-button/back-button.component';
 import { TranslateModule } from '@ngx-translate/core';
 
@@ -43,4 +43,8 @@ export class PageLayoutComponent {
 
   // Optional: remove side margins and max-width from content area
   fullWidth = input(false);
+
+  // Optional: intercept back button click instead of navigating
+  backCustomHandler = input(false);
+  backClick = output<void>();
 }

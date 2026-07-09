@@ -1,128 +1,247 @@
-<app-agroclik-page-container>
-  <div pageTop>
-    <div class="admin-list-header animate-item" style="--item-delay: 0ms;">
-      <div class="header-title">
-        <div class="admin-icon-wrapper">
-          <div class="icon-bg"></div>
-          <div class="icon-circle">
-            <i class="pi pi-user-plus"></i>
+<app-page-layout
+  [showBackButton]="true"
+  [backRoute]="ROUTES.ADMIN.USERS"
+  [fullscreen]="true"
+  [fullWidth]="true"
+  [backCustomHandler]="step() > 1"
+  (backClick)="prevStep()">
+
+  <ng-container pageActions>
+    @if (step() === 1) {
+      <p-button
+        label="Suivant"
+        icon="pi pi-arrow-right"
+        iconPos="right"
+        [outlined]="true"
+        [disabled]="!isStep1Valid()"
+        [style]="{'border-radius': '999px', 'background': isStep1Valid() ? 'rgba(var(--primary-rgb), 0.08)' : 'transparent'}"
+        (onClick)="nextStep()" />
+    }
+    @if (step() === 2) {
+      <p-button
+        label="Suivant"
+        icon="pi pi-arrow-right"
+        iconPos="right"
+        [outlined]="true"
+        [disabled]="!latitude()"
+        [style]="{'border-radius': '999px', 'background': latitude() ? 'rgba(var(--primary-rgb), 0.08)' : 'transparent'}"
+        (onClick)="goToLocationDetails()" />
+    }
+    @if (step() === 3) {
+      <p-button
+        label="Créer"
+        icon="pi pi-check"
+        [loading]="creating()"
+        (onClick)="submit()" />
+    }
+  </ng-container>
+
+  <div class="create-wizard">
+
+    <!-- Step Content -->
+    <div class="form-wizard__body">
+
+      <!-- STEP 1: Info -->
+      @if (step() === 1) {
+        <div class="grid" @stepAnimation>
+          <div class="col-12 lg:col-8 lg:col-offset-2">
+
+                <!-- First Name + Last Name -->
+                <div class="grid">
+                  <div class="col-12 md:col-6">
+                    <div class="form-field">
+                      <div class="field-box" [class.filled]="firstName()">
+                        <div class="field-box__icon field-box__icon--primary"><i class="pi pi-user"></i></div>
+                        <div class="field-box__content">
+                          <label>Prénom <span class="required">*</span></label>
+                          <input pInputText [ngModel]="firstName()" (ngModelChange)="onFirstName($event)" placeholder="Ex: Ahmed" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-12 md:col-6">
+                    <div class="form-field">
+                      <div class="field-box" [class.filled]="lastName()">
+                        <div class="field-box__icon field-box__icon--primary"><i class="pi pi-user"></i></div>
+                        <div class="field-box__content">
+                          <label>Nom <span class="required">*</span></label>
+                          <input pInputText [ngModel]="lastName()" (ngModelChange)="onLastName($event)" placeholder="Ex: Boudiaf" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Store Name -->
+                <div class="form-field">
+                  <div class="field-box" [class.filled]="storeName()">
+                    <div class="field-box__icon field-box__icon--warning"><i class="pi pi-shop"></i></div>
+                    <div class="field-box__content">
+                      <label>Nom de la boutique</label>
+                      <input pInputText [ngModel]="storeName()" (ngModelChange)="storeName.set($event)" placeholder="Optionnel" />
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Business Type -->
+                @if (segmentOptions().length > 0) {
+                  <div class="form-field">
+                    <div class="field-box" [class.filled]="segmentId()">
+                      <div class="field-box__icon field-box__icon--info"><i class="pi pi-tag"></i></div>
+                      <div class="field-box__content">
+                        <label>Type de commerce</label>
+                        <p-select
+                          [options]="segmentOptions()"
+                          [ngModel]="segmentId()"
+                          (ngModelChange)="segmentId.set($event)"
+                          optionLabel="label" optionValue="value"
+                          placeholder="Sélectionner..."
+                          [showClear]="true" styleClass="w-full" appendTo="body" />
+                      </div>
+                    </div>
+                  </div>
+                }
+
+                <!-- Role -->
+                <div class="form-field">
+                  <div class="field-box" [class.filled]="role()">
+                    <div class="field-box__icon field-box__icon--primary"><i class="pi pi-id-card"></i></div>
+                    <div class="field-box__content">
+                      <label>Rôle <span class="required">*</span></label>
+                      <p-select
+                        [options]="roleOptions"
+                        [ngModel]="role()"
+                        (ngModelChange)="role.set($event)"
+                        optionLabel="label" optionValue="value"
+                        styleClass="w-full" appendTo="body" />
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Phone -->
+                <div class="form-field">
+                  <div class="field-box" [class.filled]="phone()" [class.error]="phoneTouched() && !isPhoneValid()">
+                    <div class="field-box__icon field-box__icon--success"><i class="pi pi-phone"></i></div>
+                    <div class="field-box__content">
+                      <label>Téléphone</label>
+                      <input pInputText type="tel" inputmode="tel"
+                        appPhoneFormat
+                        [ngModel]="phone()" (ngModelChange)="phone.set($event)"
+                        (blur)="phoneTouched.set(true)"
+                        placeholder="05 XX XX XX XX" />
+                    </div>
+                  </div>
+                  @if (phoneTouched() && !isPhoneValid()) {
+                    <small class="field-error">Numéro invalide — ex: 0550000000</small>
+                  }
+                </div>
+
+                <!-- Email -->
+                <div class="form-field">
+                  <div class="field-box" [class.filled]="email()">
+                    <div class="field-box__icon field-box__icon--info"><i class="pi pi-envelope"></i></div>
+                    <div class="field-box__content">
+                      <label>Email <span class="required">*</span></label>
+                      <input pInputText type="email" [ngModel]="email()" (ngModelChange)="email.set($event)" placeholder="nom.prenom@gmail.com" />
+                    </div>
+                  </div>
+                  <small class="field-hint">Auto-généré depuis le nom — modifiable</small>
+                </div>
+
+                <!-- Password -->
+                <div class="form-field">
+                  <div class="field-box" [class.filled]="password()">
+                    <div class="field-box__icon field-box__icon--warning"><i class="pi pi-key"></i></div>
+                    <div class="field-box__content">
+                      <label>Mot de passe <span class="required">*</span></label>
+                      <input pInputText type="password" [ngModel]="password()" (ngModelChange)="password.set($event)" />
+                    </div>
+                  </div>
+                </div>
+
           </div>
         </div>
-        <div class="title-text">
-          <h1>Créer un compte</h1>
-          <p>Ajouter un nouveau client ou chauffeur</p>
+      }
+
+      <!-- STEP 2: Map -->
+      @if (step() === 2) {
+        <div class="map-step" @stepAnimation>
+          <app-map-picker
+            [fullscreen]="true"
+            (locationSelected)="onLocationSelected($event)"
+            (locationError)="onLocationError($event)">
+          </app-map-picker>
+          @if (latitude() && longitude()) {
+            <div class="location-info-overlay">
+              <div class="location-info-card">
+                <i class="pi pi-map-marker"></i>
+                <div class="location-info-text">
+                  @if (wilaya()) {
+                    <span class="location-wilaya">{{ wilaya() }}</span>
+                  }
+                  @if (daira() || commune()) {
+                    <span class="location-detail">
+                      {{ commune() }}@if (commune() && daira()) { · }{{ daira() }}
+                    </span>
+                  }
+                </div>
+              </div>
+            </div>
+          }
         </div>
-      </div>
-      <button class="btn-secondary" (click)="goBack()">
-        <i class="pi pi-arrow-left"></i>
-        <span>Retour</span>
-      </button>
+      }
+
+      <!-- STEP 3: Location Details -->
+      @if (step() === 3) {
+        <div class="grid" @stepAnimation>
+          <div class="col-12 lg:col-8 lg:col-offset-2">
+
+            <!-- Wilaya -->
+            <div class="form-field">
+              <div class="field-box" [class.filled]="wilaya()">
+                <div class="field-box__icon field-box__icon--primary"><i class="pi pi-map"></i></div>
+                <div class="field-box__content">
+                  <label>Wilaya</label>
+                  <p-select
+                    [options]="wilayaOptions"
+                    [ngModel]="wilaya()"
+                    (ngModelChange)="wilaya.set($event)"
+                    optionLabel="label" optionValue="value"
+                    placeholder="Sélectionner..."
+                    [showClear]="true" styleClass="w-full" appendTo="body" />
+                </div>
+              </div>
+            </div>
+
+            <!-- Daira -->
+            <div class="form-field">
+              <div class="field-box" [class.filled]="daira()">
+                <div class="field-box__icon field-box__icon--success"><i class="pi pi-map"></i></div>
+                <div class="field-box__content">
+                  <label>Daïra</label>
+                  <input pInputText [ngModel]="daira()" (ngModelChange)="daira.set($event)" placeholder="Ex: Tizi Ouzou" />
+                </div>
+              </div>
+            </div>
+
+            <!-- Commune -->
+            <div class="form-field">
+              <div class="field-box" [class.filled]="commune()">
+                <div class="field-box__icon field-box__icon--warning"><i class="pi pi-flag"></i></div>
+                <div class="field-box__content">
+                  <label>Commune</label>
+                  <input pInputText [ngModel]="commune()" (ngModelChange)="commune.set($event)" placeholder="Ex: Tizi Ouzou" />
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      }
+
     </div>
+
+
   </div>
 
-  <div pageMain>
-    <div class="create-user-form" @pageAnimation>
-      <p-card>
-
-        <!-- Name -->
-        <div class="grid">
-          <div class="col-12 md:col-6">
-            <div class="flex flex-column gap-2">
-              <label class="font-semibold">Prénom <span class="text-red-500">*</span></label>
-              <input pInputText
-                [ngModel]="firstName()"
-                (ngModelChange)="onFirstName($event)"
-                placeholder="Ex: Ahmed"
-                class="w-full" />
-            </div>
-          </div>
-          <div class="col-12 md:col-6">
-            <div class="flex flex-column gap-2">
-              <label class="font-semibold">Nom <span class="text-red-500">*</span></label>
-              <input pInputText
-                [ngModel]="lastName()"
-                (ngModelChange)="onLastName($event)"
-                placeholder="Ex: Boudiaf"
-                class="w-full" />
-            </div>
-          </div>
-        </div>
-
-        <!-- Store Name + Role -->
-        <div class="grid mt-4">
-          <div class="col-12 md:col-6">
-            <div class="flex flex-column gap-2">
-              <label class="font-semibold">Nom de la boutique</label>
-              <input pInputText
-                [ngModel]="storeName()"
-                (ngModelChange)="storeName.set($event)"
-                placeholder="Vide"
-                class="w-full" />
-            </div>
-          </div>
-          <div class="col-12 md:col-6">
-            <div class="flex flex-column gap-2">
-              <label class="font-semibold">Rôle <span class="text-red-500">*</span></label>
-              <p-select
-                [options]="roleOptions"
-                [ngModel]="role()"
-                (ngModelChange)="role.set($event)"
-                optionLabel="label"
-                optionValue="value"
-                class="w-full" />
-            </div>
-          </div>
-        </div>
-
-        <!-- Phone -->
-        <div class="flex flex-column gap-2 mt-4">
-          <label class="font-semibold">Téléphone</label>
-          <input pInputText
-            [ngModel]="phone()"
-            (ngModelChange)="phone.set($event)"
-            placeholder="Optionnel"
-            class="w-full" />
-        </div>
-
-        <!-- Email -->
-        <div class="flex flex-column gap-2 mt-4">
-          <label class="font-semibold">Email <span class="text-red-500">*</span></label>
-          <input pInputText
-            [ngModel]="email()"
-            (ngModelChange)="email.set($event)"
-            placeholder="nom.prenom@gmail.com"
-            class="w-full" />
-          <small class="text-500">Auto-généré depuis le nom — modifiable</small>
-        </div>
-
-        <!-- Password -->
-        <div class="flex flex-column gap-2 mt-4">
-          <label class="font-semibold">Mot de passe <span class="text-red-500">*</span></label>
-          <input pInputText
-            [ngModel]="password()"
-            (ngModelChange)="password.set($event)"
-            class="w-full" />
-        </div>
-
-        <!-- Address -->
-        <div class="flex flex-column gap-2 mt-4">
-          <label class="font-semibold">Adresse</label>
-          <input pInputText
-            [ngModel]="address()"
-            (ngModelChange)="address.set($event)"
-            class="w-full" />
-        </div>
-
-        <!-- Submit -->
-        <div class="flex justify-content-end mt-5">
-          <p-button
-            label="Créer le compte"
-            icon="pi pi-check"
-            [loading]="creating()"
-            (onClick)="submit()" />
-        </div>
-
-      </p-card>
-    </div>
-  </div>
-</app-agroclik-page-container>
+</app-page-layout>

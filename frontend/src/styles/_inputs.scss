@@ -447,6 +447,11 @@
     }
   }
 
+  &.error {
+    border-color: var(--color-error);
+    .field-box__icon { i { color: var(--color-error); } }
+  }
+
   &.disabled {
     opacity: 0.7;
     cursor: not-allowed;

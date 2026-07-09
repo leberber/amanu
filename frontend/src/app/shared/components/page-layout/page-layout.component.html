@@ -10,6 +10,8 @@
           [route]="backRoute()"
           [showLabel]="false"
           [circular]="true"
+          [customHandler]="backCustomHandler()"
+          (buttonClick)="backClick.emit()"
           class="page-topbar__back">
         </app-back-button>
       }
