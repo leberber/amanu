@@ -50,13 +50,9 @@
                  [class.stepper-horizontal__step--completed]="currentStep() > 1">
               <div class="stepper-horizontal__indicator">
                 <div class="stepper-horizontal__number">
-                  @if (currentStep() > 1) {
-                    <i class="pi pi-check"></i>
-                  } @else {
-                    1
-                  }
+                  @if (currentStep() > 1) { <i class="pi pi-check"></i> } @else { 1 }
                 </div>
-                <span class="stepper-horizontal__label">{{ 'admin.users.form.step1_title' | translate }}</span>
+                <span class="stepper-horizontal__label">Identité</span>
               </div>
               <div class="stepper-horizontal__connector"></div>
             </div>
@@ -66,22 +62,30 @@
                  [class.stepper-horizontal__step--completed]="currentStep() > 2">
               <div class="stepper-horizontal__indicator">
                 <div class="stepper-horizontal__number">
-                  @if (currentStep() > 2) {
-                    <i class="pi pi-check"></i>
-                  } @else {
-                    2
-                  }
+                  @if (currentStep() > 2) { <i class="pi pi-check"></i> } @else { 2 }
                 </div>
-                <span class="stepper-horizontal__label">{{ 'admin.users.form.step2_title' | translate }}</span>
+                <span class="stepper-horizontal__label">Localisation</span>
               </div>
               <div class="stepper-horizontal__connector"></div>
             </div>
             <!-- Step 3 -->
             <div class="stepper-horizontal__step"
-                 [class.stepper-horizontal__step--active]="currentStep() === 3">
+                 [class.stepper-horizontal__step--active]="currentStep() === 3"
+                 [class.stepper-horizontal__step--completed]="currentStep() > 3">
               <div class="stepper-horizontal__indicator">
-                <div class="stepper-horizontal__number">3</div>
-                <span class="stepper-horizontal__label">{{ 'admin.users.form.step3_title' | translate }}</span>
+                <div class="stepper-horizontal__number">
+                  @if (currentStep() > 3) { <i class="pi pi-check"></i> } @else { 3 }
+                </div>
+                <span class="stepper-horizontal__label">Fiscal</span>
+              </div>
+              <div class="stepper-horizontal__connector"></div>
+            </div>
+            <!-- Step 4 -->
+            <div class="stepper-horizontal__step"
+                 [class.stepper-horizontal__step--active]="currentStep() === 4">
+              <div class="stepper-horizontal__indicator">
+                <div class="stepper-horizontal__number">4</div>
+                <span class="stepper-horizontal__label">Carte</span>
               </div>
             </div>
           </div>
@@ -89,10 +93,11 @@
 
         <!-- Step Content -->
         <div class="form-wizard__body">
-          <!-- STEP 1: Personal Info + Store Details -->
+
+          <!-- STEP 1: Identity & Commerce -->
           @if (currentStep() === 1) {
             <div class="grid">
-              <!-- Card 1: Personal Information -->
+              <!-- Card 1: Personal Info -->
               <div class="col-12 lg:col-6 item-animate">
                 <div class="form-card">
                   <div class="card-header">
@@ -105,9 +110,7 @@
                     <!-- Full Name -->
                     <div class="form-field">
                       <div class="field-box" [class.filled]="userForm.get('full_name')?.value">
-                        <div class="field-box__icon field-box__icon--primary">
-                          <i class="pi pi-user"></i>
-                        </div>
+                        <div class="field-box__icon field-box__icon--primary"><i class="pi pi-user"></i></div>
                         <div class="field-box__content">
                           <label>{{ 'admin.users.form.full_name' | translate }} <span class="required">*</span></label>
                           <input pInputText type="text" formControlName="full_name" [placeholder]="'admin.users.form.full_name' | translate">
@@ -117,26 +120,20 @@
                         <span class="field-error">{{ 'admin.users.form.name_required' | translate }}</span>
                       }
                     </div>
-
                     <!-- Email -->
                     <div class="form-field">
                       <div class="field-box filled disabled">
-                        <div class="field-box__icon field-box__icon--info">
-                          <i class="pi pi-envelope"></i>
-                        </div>
+                        <div class="field-box__icon field-box__icon--info"><i class="pi pi-envelope"></i></div>
                         <div class="field-box__content">
                           <label>{{ 'admin.users.form.email' | translate }}</label>
                           <input pInputText type="email" formControlName="email" [placeholder]="'admin.users.form.email' | translate">
                         </div>
                       </div>
                     </div>
-
                     <!-- Phone -->
                     <div class="form-field">
                       <div class="field-box" [class.filled]="userForm.get('phone')?.value">
-                        <div class="field-box__icon field-box__icon--success">
-                          <i class="pi pi-phone"></i>
-                        </div>
+                        <div class="field-box__icon field-box__icon--success"><i class="pi pi-phone"></i></div>
                         <div class="field-box__content">
                           <label>{{ 'admin.users.form.phone' | translate }}</label>
                           <input pInputText type="tel" formControlName="phone" [placeholder]="'admin.users.form.phone' | translate">
@@ -147,7 +144,7 @@
                 </div>
               </div>
 
-              <!-- Card 2: Store Details -->
+              <!-- Card 2: Commerce -->
               <div class="col-12 lg:col-6 item-animate" [style.animation-delay]="'50ms'">
                 <div class="form-card">
                   <div class="card-header">
@@ -157,38 +154,17 @@
                     <h3 class="card-header__title">{{ 'admin.users.form.store_details' | translate }}</h3>
                   </div>
                   <div class="card-body">
-                    <!-- Store Name -->
-                    <div class="form-field">
-                      <div class="field-box" [class.filled]="userForm.get('store_name')?.value">
-                        <div class="field-box__icon field-box__icon--warning">
-                          <i class="pi pi-shop"></i>
-                        </div>
-                        <div class="field-box__content">
-                          <label>{{ 'admin.users.form.store_name' | translate }}</label>
-                          <input pInputText type="text" formControlName="store_name" [placeholder]="'admin.users.form.store_name' | translate">
-                        </div>
-                      </div>
-                    </div>
-
                     <!-- Business Type -->
                     @if (segmentOptions().length > 0) {
                       <div class="form-field">
                         <div class="field-box" [class.filled]="userForm.get('segment_id')?.value">
-                          <div class="field-box__icon field-box__icon--info">
-                            <i class="pi pi-tag"></i>
-                          </div>
+                          <div class="field-box__icon field-box__icon--info"><i class="pi pi-tag"></i></div>
                           <div class="field-box__content">
                             <label>{{ 'register.business_type' | translate }} <span class="required">*</span></label>
-                            <p-select
-                              formControlName="segment_id"
-                              [options]="segmentOptions()"
-                              optionLabel="label"
-                              optionValue="value"
+                            <p-select formControlName="segment_id" [options]="segmentOptions()"
+                              optionLabel="label" optionValue="value"
                               [placeholder]="'register.select_business_type' | translate"
-                              [showClear]="false"
-                              styleClass="w-full"
-                              appendTo="body"
-                            />
+                              [showClear]="false" styleClass="w-full" appendTo="body" />
                           </div>
                         </div>
                         @if (userForm.get('segment_id')?.invalid && userForm.get('segment_id')?.touched) {
@@ -196,247 +172,36 @@
                         }
                       </div>
                     }
-
-                    <!-- Address -->
+                    <!-- Store Name -->
                     <div class="form-field">
-                      <div class="field-box" [class.filled]="userForm.get('address')?.value">
-                        <div class="field-box__icon field-box__icon--info">
-                          <i class="pi pi-home"></i>
-                        </div>
+                      <div class="field-box" [class.filled]="userForm.get('store_name')?.value">
+                        <div class="field-box__icon field-box__icon--warning"><i class="pi pi-shop"></i></div>
                         <div class="field-box__content">
-                          <label>{{ 'admin.users.form.address' | translate }}</label>
-                          <input pInputText type="text" formControlName="address" [placeholder]="'admin.users.form.address' | translate">
+                          <label>{{ 'admin.users.form.store_name' | translate }}</label>
+                          <input pInputText type="text" formControlName="store_name" [placeholder]="'admin.users.form.store_name' | translate">
                         </div>
                       </div>
                     </div>
-
-                    <!-- Fiscal Info section divider -->
-                    <div class="flex align-items-center gap-2 mt-3 mb-2 pt-3" style="border-top: 1px solid var(--surface-border)">
-                      <i class="pi pi-file-edit text-primary text-sm"></i>
-                      <span class="text-sm font-semibold text-600">Informations fiscales</span>
-                    </div>
-
-                    <!-- RC + N.A -->
-                    <div class="grid">
-                      <div class="col-6">
-                        <div class="form-field">
-                          <div class="field-box" [class.filled]="userForm.get('fiscal_rc')?.value">
-                            <div class="field-box__icon field-box__icon--warning">
-                              <i class="pi pi-briefcase"></i>
-                            </div>
-                            <div class="field-box__content">
-                              <label>RC</label>
-                              <input pInputText type="text" formControlName="fiscal_rc" placeholder="Registre de Commerce">
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="col-6">
-                        <div class="form-field">
-                          <div class="field-box" [class.filled]="userForm.get('fiscal_na')?.value">
-                            <div class="field-box__icon field-box__icon--info">
-                              <i class="pi pi-hashtag"></i>
-                            </div>
-                            <div class="field-box__content">
-                              <label>N.A</label>
-                              <input pInputText type="text" formControlName="fiscal_na" placeholder="Numéro d'Article">
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <!-- NIF + NIS -->
-                    <div class="grid">
-                      <div class="col-6">
-                        <div class="form-field">
-                          <div class="field-box" [class.filled]="userForm.get('fiscal_nif')?.value">
-                            <div class="field-box__icon field-box__icon--primary">
-                              <i class="pi pi-id-card"></i>
-                            </div>
-                            <div class="field-box__content">
-                              <label>NIF</label>
-                              <input pInputText type="text" formControlName="fiscal_nif" placeholder="N° Identification Fiscale">
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="col-6">
-                        <div class="form-field">
-                          <div class="field-box" [class.filled]="userForm.get('fiscal_nis')?.value">
-                            <div class="field-box__icon field-box__icon--success">
-                              <i class="pi pi-chart-bar"></i>
-                            </div>
-                            <div class="field-box__content">
-                              <label>NIS</label>
-                              <input pInputText type="text" formControlName="fiscal_nis" placeholder="N° Identification Statistique">
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <!-- Montant déclaré -->
-                    <div class="grid">
-                      <div class="col-12">
-                        <div class="form-field">
-                          <div class="field-box" [class.filled]="userForm.get('fiscal_montant_declare')?.value">
-                            <div class="field-box__icon field-box__icon--warning">
-                              <i class="pi pi-building-columns"></i>
-                            </div>
-                            <div class="field-box__content">
-                              <label>Montant déclaré (DA)</label>
-                              <p-inputNumber formControlName="fiscal_montant_declare"
-                                placeholder="Montant déclaré aux impôts"
-                                [min]="0" [useGrouping]="true" mode="decimal" locale="fr-DZ"
-                                styleClass="w-full" inputStyleClass="w-full" />
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          }
-
-          <!-- STEP 2: Location Info + Account Settings -->
-          @if (currentStep() === 2) {
-            <div class="grid">
-              <!-- Card 3: Location Information -->
-              <div class="col-12 lg:col-6 item-animate">
-                <div class="form-card">
-                  <div class="card-header">
-                    <div class="card-header__icon card-header__icon--info">
-                      <i class="pi pi-map-marker"></i>
-                    </div>
-                    <h3 class="card-header__title">{{ 'admin.users.form.location_info' | translate }}</h3>
-                  </div>
-                  <div class="card-body">
-                    <!-- Wilaya -->
-                    <div class="form-field">
-                      <div class="field-box" [class.filled]="userForm.get('wilaya')?.value">
-                        <div class="field-box__icon field-box__icon--primary">
-                          <i class="pi pi-map-marker"></i>
-                        </div>
-                        <div class="field-box__content">
-                          <label>{{ 'admin.users.form.wilaya' | translate }}</label>
-                          <p-select
-                            formControlName="wilaya"
-                            [options]="wilayaOptions()"
-                            optionLabel="label"
-                            optionValue="value"
-                            [placeholder]="'admin.users.form.wilaya' | translate"
-                            [filter]="true"
-                            filterPlaceholder="Search..."
-                            [showClear]="true"
-                            styleClass="w-full"
-                            appendTo="body"
-                          />
-                        </div>
-                      </div>
-                    </div>
-
-                    <!-- Daira -->
-                    <div class="form-field">
-                      <div class="field-box" [class.filled]="userForm.get('daira')?.value">
-                        <div class="field-box__icon field-box__icon--success">
-                          <i class="pi pi-map"></i>
-                        </div>
-                        <div class="field-box__content">
-                          <label>{{ 'admin.users.form.daira' | translate }}</label>
-                          <input pInputText type="text" formControlName="daira" [placeholder]="'admin.users.form.daira' | translate">
-                        </div>
-                      </div>
-                    </div>
-
-                    <!-- Commune -->
-                    <div class="form-field">
-                      <div class="field-box" [class.filled]="userForm.get('commune')?.value">
-                        <div class="field-box__icon field-box__icon--warning">
-                          <i class="pi pi-flag"></i>
-                        </div>
-                        <div class="field-box__content">
-                          <label>{{ 'admin.users.form.commune' | translate }}</label>
-                          <input pInputText type="text" formControlName="commune" [placeholder]="'admin.users.form.commune' | translate">
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Card 4: Account Settings -->
-              <div class="col-12 lg:col-6 item-animate" [style.animation-delay]="'50ms'">
-                <div class="form-card">
-                  <div class="card-header">
-                    <div class="card-header__icon card-header__icon--purple">
-                      <i class="pi pi-cog"></i>
-                    </div>
-                    <h3 class="card-header__title">{{ 'admin.users.form.account_settings' | translate }}</h3>
-                  </div>
-                  <div class="card-body">
                     <!-- Role -->
                     <div class="form-field">
                       <div class="field-box" [class.filled]="userForm.get('role')?.value">
-                        <div class="field-box__icon field-box__icon--primary">
-                          <i class="pi pi-id-card"></i>
-                        </div>
+                        <div class="field-box__icon field-box__icon--primary"><i class="pi pi-id-card"></i></div>
                         <div class="field-box__content">
                           <label>{{ 'admin.users.form.role' | translate }} <span class="required">*</span></label>
-                          <p-select
-                            formControlName="role"
-                            [options]="roleOptions()"
-                            optionLabel="label"
-                            optionValue="value"
-                            styleClass="w-full"
-                            appendTo="body"
-                          />
+                          <p-select formControlName="role" [options]="roleOptions()"
+                            optionLabel="label" optionValue="value" styleClass="w-full" appendTo="body" />
                         </div>
                       </div>
                     </div>
-
-                    <!-- User Groups -->
-                    @if (groupOptions().length > 0) {
-                      <div class="form-field">
-                        <div class="field-box" [class.filled]="selectedGroupIds().length > 0">
-                          <div class="field-box__icon field-box__icon--info">
-                            <i class="pi pi-users"></i>
-                          </div>
-                          <div class="field-box__content">
-                            <label>{{ 'admin.users.form.groups' | translate }}</label>
-                            <p-multiselect
-                              [options]="groupOptions()"
-                              [ngModel]="selectedGroupIds()"
-                              (ngModelChange)="onGroupsChange($event)"
-                              [ngModelOptions]="{standalone: true}"
-                              optionLabel="label"
-                              optionValue="value"
-                              [placeholder]="'admin.users.form.groups_placeholder' | translate"
-                              [showClear]="true"
-                              display="chip"
-                              styleClass="w-full"
-                              appendTo="body"
-                            />
-                            <small class="field-hint">{{ 'admin.users.form.groups_hint' | translate }}</small>
-                          </div>
-                        </div>
-                      </div>
-                    }
-
                     <!-- Status Toggle -->
-                    <div class="active-switch-container mt-4">
-                      <div
-                        class="active-switch"
+                    <div class="active-switch-container mt-3">
+                      <div class="active-switch"
                         [class.active-switch--on]="userForm.get('is_active')?.value"
                         (click)="userForm.get('is_active')?.setValue(!userForm.get('is_active')?.value)"
                         (keydown.enter)="userForm.get('is_active')?.setValue(!userForm.get('is_active')?.value)"
                         (keydown.space)="userForm.get('is_active')?.setValue(!userForm.get('is_active')?.value); $event.preventDefault()"
-                        role="switch"
-                        [attr.aria-checked]="userForm.get('is_active')?.value"
-                        [attr.aria-label]="'admin.users.form.status' | translate"
-                        tabindex="0">
+                        role="switch" [attr.aria-checked]="userForm.get('is_active')?.value"
+                        [attr.aria-label]="'admin.users.form.status' | translate" tabindex="0">
                         <div class="active-switch__track">
                           <div class="active-switch__thumb">
                             <i [class]="userForm.get('is_active')?.value ? 'pi pi-check' : 'pi pi-times'"></i>
@@ -448,22 +213,106 @@
                         </div>
                       </div>
                     </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          }
 
-                    <!-- Password -->
-                    <div class="form-field mt-4">
-                      <div class="field-box" [class.filled]="userForm.get('password')?.value">
-                        <div class="field-box__icon field-box__icon--warning">
-                          <i class="pi pi-key"></i>
+          <!-- STEP 2: Location & Account -->
+          @if (currentStep() === 2) {
+            <div class="grid">
+              <!-- Card 3: Location -->
+              <div class="col-12 lg:col-6 item-animate">
+                <div class="form-card">
+                  <div class="card-header">
+                    <div class="card-header__icon card-header__icon--info"><i class="pi pi-map-marker"></i></div>
+                    <h3 class="card-header__title">{{ 'admin.users.form.location_info' | translate }}</h3>
+                  </div>
+                  <div class="card-body">
+                    <!-- Wilaya -->
+                    <div class="form-field">
+                      <div class="field-box" [class.filled]="userForm.get('wilaya')?.value">
+                        <div class="field-box__icon field-box__icon--primary"><i class="pi pi-map-marker"></i></div>
+                        <div class="field-box__content">
+                          <label>{{ 'admin.users.form.wilaya' | translate }}</label>
+                          <p-select formControlName="wilaya" [options]="wilayaOptions()"
+                            optionLabel="label" optionValue="value"
+                            [placeholder]="'admin.users.form.wilaya' | translate"
+                            [filter]="true" filterPlaceholder="Search..."
+                            [showClear]="true" styleClass="w-full" appendTo="body" />
                         </div>
+                      </div>
+                    </div>
+                    <!-- Daira -->
+                    <div class="form-field">
+                      <div class="field-box" [class.filled]="userForm.get('daira')?.value">
+                        <div class="field-box__icon field-box__icon--success"><i class="pi pi-map"></i></div>
+                        <div class="field-box__content">
+                          <label>{{ 'admin.users.form.daira' | translate }}</label>
+                          <input pInputText type="text" formControlName="daira" [placeholder]="'admin.users.form.daira' | translate">
+                        </div>
+                      </div>
+                    </div>
+                    <!-- Commune -->
+                    <div class="form-field">
+                      <div class="field-box" [class.filled]="userForm.get('commune')?.value">
+                        <div class="field-box__icon field-box__icon--warning"><i class="pi pi-flag"></i></div>
+                        <div class="field-box__content">
+                          <label>{{ 'admin.users.form.commune' | translate }}</label>
+                          <input pInputText type="text" formControlName="commune" [placeholder]="'admin.users.form.commune' | translate">
+                        </div>
+                      </div>
+                    </div>
+                    <!-- Address -->
+                    <div class="form-field">
+                      <div class="field-box" [class.filled]="userForm.get('address')?.value">
+                        <div class="field-box__icon field-box__icon--info"><i class="pi pi-home"></i></div>
+                        <div class="field-box__content">
+                          <label>{{ 'admin.users.form.address' | translate }}</label>
+                          <input pInputText type="text" formControlName="address" [placeholder]="'admin.users.form.address' | translate">
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Card 4: Account -->
+              <div class="col-12 lg:col-6 item-animate" [style.animation-delay]="'50ms'">
+                <div class="form-card">
+                  <div class="card-header">
+                    <div class="card-header__icon card-header__icon--purple"><i class="pi pi-cog"></i></div>
+                    <h3 class="card-header__title">{{ 'admin.users.form.account_settings' | translate }}</h3>
+                  </div>
+                  <div class="card-body">
+                    <!-- User Groups -->
+                    @if (groupOptions().length > 0) {
+                      <div class="form-field">
+                        <div class="field-box" [class.filled]="selectedGroupIds().length > 0">
+                          <div class="field-box__icon field-box__icon--info"><i class="pi pi-users"></i></div>
+                          <div class="field-box__content">
+                            <label>{{ 'admin.users.form.groups' | translate }}</label>
+                            <p-multiselect [options]="groupOptions()"
+                              [ngModel]="selectedGroupIds()" (ngModelChange)="onGroupsChange($event)"
+                              [ngModelOptions]="{standalone: true}"
+                              optionLabel="label" optionValue="value"
+                              [placeholder]="'admin.users.form.groups_placeholder' | translate"
+                              [showClear]="true" display="chip" styleClass="w-full" appendTo="body" />
+                            <small class="field-hint">{{ 'admin.users.form.groups_hint' | translate }}</small>
+                          </div>
+                        </div>
+                      </div>
+                    }
+                    <!-- Password -->
+                    <div class="form-field">
+                      <div class="field-box" [class.filled]="userForm.get('password')?.value">
+                        <div class="field-box__icon field-box__icon--warning"><i class="pi pi-key"></i></div>
                         <div class="field-box__content">
                           <label>{{ 'admin.users.form.password_edit' | translate }}</label>
-                          <p-password
-                            formControlName="password"
+                          <p-password formControlName="password"
                             [placeholder]="'admin.users.form.password_placeholder' | translate"
-                            [toggleMask]="true"
-                            [feedback]="true"
-                            styleClass="w-full"
-                          />
+                            [toggleMask]="true" [feedback]="true" styleClass="w-full" />
                           <small class="field-hint">{{ 'admin.users.form.password_hint' | translate }}</small>
                         </div>
                       </div>
@@ -474,8 +323,87 @@
             </div>
           }
 
-          <!-- STEP 3: Map Location (fills wizard body) -->
+          <!-- STEP 3: Fiscal Info -->
           @if (currentStep() === 3) {
+            <div class="grid">
+              <div class="col-12 lg:col-8 lg:col-offset-2 item-animate">
+                <div class="form-card">
+                  <div class="card-header">
+                    <div class="card-header__icon card-header__icon--warning"><i class="pi pi-file-edit"></i></div>
+                    <h3 class="card-header__title">Informations fiscales</h3>
+                  </div>
+                  <div class="card-body">
+                    <!-- RC + N.A -->
+                    <div class="grid">
+                      <div class="col-12 md:col-6">
+                        <div class="form-field">
+                          <div class="field-box" [class.filled]="userForm.get('fiscal_rc')?.value">
+                            <div class="field-box__icon field-box__icon--warning"><i class="pi pi-briefcase"></i></div>
+                            <div class="field-box__content">
+                              <label>RC</label>
+                              <input pInputText type="text" formControlName="fiscal_rc" placeholder="Registre de Commerce">
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-12 md:col-6">
+                        <div class="form-field">
+                          <div class="field-box" [class.filled]="userForm.get('fiscal_na')?.value">
+                            <div class="field-box__icon field-box__icon--info"><i class="pi pi-hashtag"></i></div>
+                            <div class="field-box__content">
+                              <label>N.A</label>
+                              <input pInputText type="text" formControlName="fiscal_na" placeholder="Numéro d'Article">
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <!-- NIF + NIS -->
+                    <div class="grid">
+                      <div class="col-12 md:col-6">
+                        <div class="form-field">
+                          <div class="field-box" [class.filled]="userForm.get('fiscal_nif')?.value">
+                            <div class="field-box__icon field-box__icon--primary"><i class="pi pi-id-card"></i></div>
+                            <div class="field-box__content">
+                              <label>NIF</label>
+                              <input pInputText type="text" formControlName="fiscal_nif" placeholder="N° Identification Fiscale">
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-12 md:col-6">
+                        <div class="form-field">
+                          <div class="field-box" [class.filled]="userForm.get('fiscal_nis')?.value">
+                            <div class="field-box__icon field-box__icon--success"><i class="pi pi-chart-bar"></i></div>
+                            <div class="field-box__content">
+                              <label>NIS</label>
+                              <input pInputText type="text" formControlName="fiscal_nis" placeholder="N° Identification Statistique">
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <!-- Montant déclaré -->
+                    <div class="form-field">
+                      <div class="field-box" [class.filled]="userForm.get('fiscal_montant_declare')?.value">
+                        <div class="field-box__icon field-box__icon--warning"><i class="pi pi-building-columns"></i></div>
+                        <div class="field-box__content">
+                          <label>Montant déclaré (DA)</label>
+                          <p-inputNumber formControlName="fiscal_montant_declare"
+                            placeholder="Montant déclaré aux impôts"
+                            [min]="0" [useGrouping]="true" mode="decimal" locale="fr-DZ"
+                            styleClass="w-full" inputStyleClass="w-full" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          }
+
+          <!-- STEP 4: Map -->
+          @if (currentStep() === 4) {
             <div class="map-step">
               <app-map-picker
                 [initialLatitude]="initialLatitude"
@@ -491,6 +419,7 @@
               }
             </div>
           }
+
         </div>
 
         <!-- Footer with Navigation -->

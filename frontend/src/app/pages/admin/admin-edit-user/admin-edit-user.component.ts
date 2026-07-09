@@ -53,7 +53,7 @@ export class AdminEditUserComponent implements OnInit {
   readonly submitting = signal(false);
   readonly formInitialized = signal(false);
   readonly currentStep = signal(1);
-  readonly totalSteps = 3;
+  readonly totalSteps = 4;
   readonly ROUTES = ROUTES;
   readonly userName = signal('');
 
@@ -138,6 +138,15 @@ export class AdminEditUserComponent implements OnInit {
   }
 
 
+  private matchWilayaOption(value: string): string {
+    if (!value) return '';
+    const normalized = value.toLowerCase().replace(/-/g, ' ').trim();
+    const match = this.wilayaOptions().find(opt =>
+      opt.value.toLowerCase().replace(/-/g, ' ').trim() === normalized
+    );
+    return match ? match.value : value;
+  }
+
   private loadWilayaOptions() {
     // Algeria's 58 wilayas
     const wilayas = [
@@ -216,7 +225,7 @@ export class AdminEditUserComponent implements OnInit {
           fiscal_nif: user.fiscal_info?.nif || '',
           fiscal_nis: user.fiscal_info?.nis || '',
           fiscal_montant_declare: user.fiscal_info?.montant_declare ?? null,
-          wilaya: user.wilaya || '',
+          wilaya: this.matchWilayaOption(user.wilaya || ''),
           daira: user.daira || '',
           commune: user.commune || '',
           latitude: user.latitude || null,
@@ -261,14 +270,13 @@ export class AdminEditUserComponent implements OnInit {
   isCurrentStepValid(): boolean {
     switch (this.currentStep()) {
       case 1:
-        // Step 1: Full name and business type required
         return (this.userForm.get('full_name')?.valid ?? false) &&
                (this.userForm.get('segment_id')?.valid ?? false);
       case 2:
-        // Step 2: Role is required
         return this.userForm.get('role')?.valid ?? false;
       case 3:
-        // Step 3: Map - no required fields
+        return true;
+      case 4:
         return true;
       default:
         return true;
@@ -353,7 +361,7 @@ export class AdminEditUserComponent implements OnInit {
       latitude: location.latitude,
       longitude: location.longitude,
       address: location.address || this.userForm.get('address')?.value,
-      wilaya: location.wilaya || this.userForm.get('wilaya')?.value,
+      wilaya: this.matchWilayaOption(location.wilaya || '') || this.userForm.get('wilaya')?.value,
       daira: location.daira || this.userForm.get('daira')?.value,
       commune: location.commune || this.userForm.get('commune')?.value
     });
