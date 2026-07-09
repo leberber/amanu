@@ -11,6 +11,7 @@ import { UserRole, AuthProvider } from '../../models/user.model';
 import { DriverService } from '../../driver/services/driver.service';
 import { ToastMessageService } from '../../core/services/toast-message.service';
 import { ROUTES } from '../../core/constants/routes.constants';
+import { normalizeAlgerianPhone } from '../../core/utils/format.util';
 import { ANIMATION } from '../../core/constants/ui.constants';
 import { InactiveUserMessageComponent } from '../../components/inactive-user-message/inactive-user-message.component';
 
@@ -397,7 +398,7 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
     const registerData = {
       full_name: this.state.personalInfoForm.value.full_name,
       email: this.state.personalInfoForm.value.email,
-      phone: this.state.personalInfoForm.value.phone,
+      phone: normalizeAlgerianPhone(this.state.personalInfoForm.value.phone || ''),
       password: this.state.passwordForm.value.password,
       address: location?.address || '',
       latitude: location?.latitude,

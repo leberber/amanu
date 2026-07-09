@@ -16,11 +16,26 @@ const PHONE_SEGMENT_BREAKS = [4, 6, 8] as const;
  * @param maxLength - Maximum number of digits to include (defaults to VALIDATION.MIN_PHONE_LENGTH)
  * @returns Formatted phone number string
  */
+/**
+ * Normalizes an Algerian phone number by stripping +213/213 prefix
+ * and prepending 0 if the local part starts with 5, 6, or 7.
+ */
+export function normalizeAlgerianPhone(value: string): string {
+  let digits = value.replace(/\D/g, '');
+  if (digits.startsWith('213')) {
+    digits = digits.slice(3);
+  }
+  if (/^[567]/.test(digits)) {
+    digits = '0' + digits;
+  }
+  return digits;
+}
+
 export function formatPhoneNumber(value: string | null | undefined, maxLength = VALIDATION.MIN_PHONE_LENGTH): string {
   if (!value) return '';
 
-  // Remove all non-digits
-  const digits = value.replace(/\D/g, '');
+  // Normalize: strip country code, add leading 0
+  const digits = normalizeAlgerianPhone(value);
 
   // Limit to max length
   const limited = digits.slice(0, maxLength);

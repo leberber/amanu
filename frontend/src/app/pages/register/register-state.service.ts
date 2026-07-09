@@ -106,7 +106,7 @@ export class RegisterStateService {
     this.personalInfoForm = this.fb.group({
       full_name: ['', [Validators.required, Validators.minLength(VALIDATION.MIN_NAME_LENGTH)]],
       email: ['', [Validators.required, Validators.email]],
-      phone: ['', [Validators.required]]
+      phone: ['', [Validators.required, FormBuilderService.algerianPhoneValidator()]]
     });
 
     // Password Form
@@ -118,7 +118,7 @@ export class RegisterStateService {
     // Store Details Form
     this.storeDetailsForm = this.fb.group({
       store_name: [''],
-      segment_id: [null],
+      segment_id: [null, Validators.required],
       wilaya: ['', Validators.required],
       daira: [{ value: '', disabled: true }, Validators.required],
       commune: [{ value: '', disabled: true }, Validators.required]
@@ -195,7 +195,7 @@ export class RegisterStateService {
 
   isStoreDetailsValid(): boolean {
     const values = this.storeDetailsForm.getRawValue();
-    return !!(values.wilaya && values.daira && values.commune);
+    return !!(values.segment_id && values.wilaya && values.daira && values.commune);
   }
 
   isVehicleFormValid(): boolean {

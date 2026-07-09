@@ -27,17 +27,23 @@ import { ROUTES } from '../../../../core/constants/routes.constants';
 
     <form [formGroup]="state.personalInfoForm" class="register-form">
       <!-- Full Name -->
-      <div class="register-input"
-           [class.register-input--focused]="state.focusedField() === 'full_name'"
-           [class.register-input--filled]="state.personalInfoForm.get('full_name')?.value">
-        <input
-          type="text"
-          name="name"
-          formControlName="full_name"
-          autocomplete="name"
-          [placeholder]="'auth.full_name_placeholder' | translate"
-          (focus)="state.onInputFocus('full_name')"
-          (blur)="state.onInputBlur()">
+      <div class="register-field-wrapper">
+        <div class="register-input"
+             [class.register-input--focused]="state.focusedField() === 'full_name'"
+             [class.register-input--filled]="state.personalInfoForm.get('full_name')?.value">
+          <input
+            type="text"
+            name="name"
+            formControlName="full_name"
+            autocomplete="name"
+            [placeholder]="'auth.full_name_placeholder' | translate"
+            (focus)="state.onInputFocus('full_name')"
+            (blur)="state.onInputBlur()">
+          <span style="color:#ef4444;padding-right:0.75rem;font-weight:600;flex-shrink:0">*</span>
+        </div>
+        @if (state.personalInfoForm.get('full_name')?.invalid && state.personalInfoForm.get('full_name')?.dirty) {
+          <small class="register-error">{{ 'register.full_name_invalid' | translate }}</small>
+        }
       </div>
 
       <!-- Email -->
@@ -58,7 +64,13 @@ import { ROUTES } from '../../../../core/constants/routes.constants';
             (focus)="state.onInputFocus('email')"
             (blur)="state.onInputBlur()"
             (input)="state.clearServerError('email')">
+          @if (!state.fromGoogle()) {
+            <span style="color:#ef4444;padding-right:0.75rem;font-weight:600;flex-shrink:0">*</span>
+          }
         </div>
+        @if (state.personalInfoForm.get('email')?.invalid && state.personalInfoForm.get('email')?.dirty && !state.serverErrors()['email']) {
+          <small class="register-error">{{ 'register.email_invalid' | translate }}</small>
+        }
         @if (state.serverErrors()['email']) {
           <small class="register-error">{{ state.serverErrors()['email'] }}</small>
         }
@@ -81,7 +93,11 @@ import { ROUTES } from '../../../../core/constants/routes.constants';
             (focus)="state.onInputFocus('phone')"
             (blur)="state.onInputBlur()"
             (input)="state.clearServerError('phone')">
+          <span style="color:#ef4444;padding-right:0.75rem;font-weight:600;flex-shrink:0">*</span>
         </div>
+        @if (state.personalInfoForm.get('phone')?.invalid && state.personalInfoForm.get('phone')?.dirty && !state.serverErrors()['phone']) {
+          <small class="register-error">{{ 'register.phone_invalid' | translate }}</small>
+        }
         @if (state.serverErrors()['phone']) {
           <small class="register-error">{{ state.serverErrors()['phone'] }}</small>
         }

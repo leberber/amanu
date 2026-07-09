@@ -17,12 +17,9 @@ import { RegisterStateService } from '../../register-state.service';
     </div>
 
     <form [formGroup]="state.storeDetailsForm" class="register-form">
-      <!-- Business Type (Optional) -->
+      <!-- Business Type -->
       <div class="register-field">
-        <label class="register-field__label">
-          {{ 'register.business_type' | translate }}
-          <span class="register-field__optional">({{ 'common.optional' | translate }})</span>
-        </label>
+        <label class="register-field__label">{{ 'register.business_type' | translate }} <span style="color:#ef4444">*</span></label>
         <div class="register-select"
              [class.register-select--focused]="state.focusedField() === 'segment_id'"
              [class.register-select--filled]="state.storeDetailsForm.get('segment_id')?.value">
@@ -32,7 +29,7 @@ import { RegisterStateService } from '../../register-state.service';
             optionLabel="label"
             optionValue="value"
             [placeholder]="'register.select_business_type' | translate"
-            [showClear]="true"
+            [showClear]="false"
             (onFocus)="state.onInputFocus('segment_id')"
             (onBlur)="state.onInputBlur()">
           </p-select>

@@ -1,7 +1,8 @@
 import { Injectable, inject } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 import { VALIDATION } from '../constants/validation.constants';
 import { USER_ROLES } from '../constants/user.constants';
+import { normalizeAlgerianPhone } from '../utils/format.util';
 
 @Injectable({
   providedIn: 'root'
@@ -136,6 +137,15 @@ export class FormBuilderService {
 
   private passwordMatchValidator(control: AbstractControl): ValidationErrors | null {
     return FormBuilderService.createPasswordMatchValidator('newPassword', 'confirmPassword')(control);
+  }
+
+  static algerianPhoneValidator(): ValidatorFn {
+    return (control: AbstractControl): ValidationErrors | null => {
+      const value = control.value;
+      if (!value) return null;
+      const normalized = normalizeAlgerianPhone(String(value));
+      return /^0[567]\d{8}$/.test(normalized) ? null : { invalidPhone: true };
+    };
   }
 
   static createPasswordMatchValidator(
