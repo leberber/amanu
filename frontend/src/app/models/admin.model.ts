@@ -175,6 +175,7 @@ export interface DashboardStats {
     remaining_balance?: number;
     has_push?: boolean;
     segment_ids?: number[];
+    segment_id?: number | null;
   }
 
   // Customer Route (for delivery route optimization)

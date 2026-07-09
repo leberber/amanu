@@ -475,6 +475,8 @@
     "driver_account_pending_review": "Your application to become a driver has been registered. Our team will review your file.",
     "driver_will_contact": "We will contact you shortly to finalize your registration and explain the next steps.",
     "go_to_login": "Back to Login",
+    "business_type": "Business Type",
+    "select_business_type": "Select type...",
     "store_name": "Business Name",
     "store_name_placeholder": "e.g., Chez Ali, Superette Centre Ville...",
     "wilaya": "Wilaya",

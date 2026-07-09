@@ -107,6 +107,7 @@ def register_new_user(
         longitude=user_in.longitude,
         h3_index=h3_index,
         role=user_in.role,
+        segment_id=user_in.segment_id,
         is_active=False,
     )
     session.add(new_user)

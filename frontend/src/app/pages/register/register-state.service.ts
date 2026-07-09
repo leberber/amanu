@@ -6,6 +6,8 @@ import { FormBuilderService } from '../../core/services/form-builder.service';
 import { VALIDATION } from '../../core/constants/validation.constants';
 import { VehicleType } from '../../driver/services/driver.service';
 import { LocationData } from '../../shared/components/map-picker/map-picker.component';
+import { SegmentService } from '../../core/services/segment.service';
+import { Segment } from '../../models/segment.model';
 
 export type RegistrationType = 'customer' | 'driver' | null;
 
@@ -30,6 +32,7 @@ export interface CommuneData {
 export class RegisterStateService {
   private fb = inject(FormBuilder);
   private http = inject(HttpClient);
+  private segmentService = inject(SegmentService);
   private destroyRef = inject(DestroyRef);
 
   // Storage key for persisting state (v2 after refactor)
@@ -80,6 +83,9 @@ export class RegisterStateService {
   dairas = signal<{ label: string; value: string }[]>([]);
   communes = signal<{ label: string; value: string }[]>([]);
 
+  // Segments
+  segments = signal<{ label: string; value: number }[]>([]);
+
   // Vehicle type options
   readonly vehicleTypeOptions = [
     { label: 'Camion', value: VehicleType.TRUCK },
@@ -112,6 +118,7 @@ export class RegisterStateService {
     // Store Details Form
     this.storeDetailsForm = this.fb.group({
       store_name: [''],
+      segment_id: [null],
       wilaya: ['', Validators.required],
       daira: [{ value: '', disabled: true }, Validators.required],
       commune: [{ value: '', disabled: true }, Validators.required]
@@ -193,6 +200,17 @@ export class RegisterStateService {
 
   isVehicleFormValid(): boolean {
     return this.vehicleForm.valid;
+  }
+
+  // Load segments
+  loadSegments(): void {
+    this.segmentService.getSegments()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (segs) => {
+          this.segments.set(segs.map(s => ({ label: s.label_fr, value: s.id })));
+        }
+      });
   }
 
   // Load wilaya data

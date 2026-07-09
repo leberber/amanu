@@ -3,11 +3,14 @@ Customer Route model for storing routes from depot to customers.
 Routes are fetched from Google Directions API.
 Used for delivery route optimization and batching.
 """
-from sqlmodel import SQLModel, Field
+from sqlmodel import SQLModel, Field, Relationship
 from sqlalchemy import Column
 from geoalchemy2 import Geometry
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 from datetime import datetime, timezone
+
+if TYPE_CHECKING:
+    from app.models.user import User
 
 
 class CustomerRoute(SQLModel, table=True):
@@ -19,6 +22,8 @@ class CustomerRoute(SQLModel, table=True):
 
     id: Optional[int] = Field(default=None, primary_key=True)
     user_id: int = Field(foreign_key="users.id", unique=True, index=True)
+
+    user: Optional["User"] = Relationship(back_populates="customer_route")
 
     # === Route data from Google ===
     distance_meters: int = Field(default=0, description="Route distance in meters")

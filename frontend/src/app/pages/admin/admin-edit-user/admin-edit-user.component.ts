@@ -24,6 +24,7 @@ import { ROUTES } from '../../../core/constants/routes.constants';
 import { StatusSeverityService } from '../../../core/services/status-severity.service';
 import { UserGroupService } from '../../../core/services/user-group.service';
 import { UserGroup } from '../../../models/user-group.model';
+import { SegmentService } from '../../../core/services/segment.service';
 import { MapPickerComponent, LocationData } from '../../../shared/components/map-picker/map-picker.component';
 import { PageLayoutComponent } from '../../../shared/components/page-layout/page-layout.component';
 
@@ -75,9 +76,13 @@ export class AdminEditUserComponent implements OnInit {
   groupOptions = signal<{ label: string; value: number; color: string }[]>([]);
   selectedGroupIds = signal<number[]>([]);
 
+  // Segment options
+  segmentOptions = signal<{ label: string; value: number }[]>([]);
+
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
   private userGroupService = inject(UserGroupService);
+  private segmentService = inject(SegmentService);
   private toast = inject(ToastMessageService);
   private adminService = inject(AdminService);
   private route = inject(ActivatedRoute);
@@ -91,6 +96,7 @@ export class AdminEditUserComponent implements OnInit {
     this.loadRoleOptions();
     this.loadWilayaOptions();
     this.loadGroups();
+    this.loadSegments();
     this.loadUser();
     onLanguageChange(this.translateService, this.destroyRef, () => {
       this.loadRoleOptions();
@@ -104,6 +110,7 @@ export class AdminEditUserComponent implements OnInit {
       phone: [''],
       address: [''],
       store_name: [''],
+      segment_id: [null as number | null, Validators.required],
       fiscal_rc: [''],
       fiscal_na: [''],
       fiscal_nif: [''],
@@ -145,6 +152,16 @@ export class AdminEditUserComponent implements OnInit {
     ];
 
     this.wilayaOptions.set(wilayas.map(w => ({ label: w, value: w })));
+  }
+
+  private loadSegments() {
+    this.segmentService.getSegments()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (segs) => {
+          this.segmentOptions.set(segs.map(s => ({ label: s.label_fr, value: s.id })));
+        }
+      });
   }
 
   private loadGroups() {
@@ -193,6 +210,7 @@ export class AdminEditUserComponent implements OnInit {
           phone: user.phone || '',
           address: user.address || '',
           store_name: user.store_name || '',
+          segment_id: user.segment_id ?? null,
           fiscal_rc: user.fiscal_info?.rc || '',
           fiscal_na: user.fiscal_info?.na || '',
           fiscal_nif: user.fiscal_info?.nif || '',
@@ -243,8 +261,9 @@ export class AdminEditUserComponent implements OnInit {
   isCurrentStepValid(): boolean {
     switch (this.currentStep()) {
       case 1:
-        // Step 1: Full name is required
-        return this.userForm.get('full_name')?.valid ?? false;
+        // Step 1: Full name and business type required
+        return (this.userForm.get('full_name')?.valid ?? false) &&
+               (this.userForm.get('segment_id')?.valid ?? false);
       case 2:
         // Step 2: Role is required
         return this.userForm.get('role')?.valid ?? false;
@@ -280,6 +299,7 @@ export class AdminEditUserComponent implements OnInit {
       phone: formValues.phone || null,
       address: formValues.address || null,
       store_name: formValues.store_name || null,
+      segment_id: formValues.segment_id ?? null,
       fiscal_info: hasFiscal ? fiscalInfo : undefined,
       wilaya: formValues.wilaya || null,
       daira: formValues.daira || null,

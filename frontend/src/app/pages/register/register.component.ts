@@ -65,6 +65,7 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
 
   ngOnInit(): void {
     this.state.loadWilayaData();
+    this.state.loadSegments();
 
     // Check for Google OAuth flow
     const isFromGoogle = this.route.snapshot.queryParams['fromGoogle'] === 'true';
@@ -402,6 +403,7 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
       latitude: location?.latitude,
       longitude: location?.longitude,
       store_name: storeDetails.store_name || null,
+      segment_id: storeDetails.segment_id || null,
       wilaya: storeDetails.wilaya,
       daira: storeDetails.daira,
       commune: storeDetails.commune,
@@ -487,6 +489,7 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
       latitude: location?.latitude,
       longitude: location?.longitude,
       store_name: storeDetails.store_name || null,
+      segment_id: storeDetails.segment_id || null,
       wilaya: storeDetails.wilaya,
       daira: storeDetails.daira,
       commune: storeDetails.commune

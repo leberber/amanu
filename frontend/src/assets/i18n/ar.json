@@ -473,6 +473,8 @@
     "driver_account_pending_review": "تم تسجيل طلبك لتصبح سائقاً. سيقوم فريقنا بمراجعة ملفك.",
     "driver_will_contact": "سنتصل بك قريباً لإتمام تسجيلك وشرح الخطوات التالية.",
     "go_to_login": "العودة لتسجيل الدخول",
+    "business_type": "نوع النشاط",
+    "select_business_type": "اختر النوع...",
     "store_name": "اسم النشاط",
     "store_name_placeholder": "مثال: عند علي، سوبيريت وسط المدينة...",
     "store_name_optional": "اسم النشاط (اختياري)",

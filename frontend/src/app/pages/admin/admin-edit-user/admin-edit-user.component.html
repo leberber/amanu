@@ -170,6 +170,33 @@
                       </div>
                     </div>
 
+                    <!-- Business Type -->
+                    @if (segmentOptions().length > 0) {
+                      <div class="form-field">
+                        <div class="field-box" [class.filled]="userForm.get('segment_id')?.value">
+                          <div class="field-box__icon field-box__icon--info">
+                            <i class="pi pi-tag"></i>
+                          </div>
+                          <div class="field-box__content">
+                            <label>{{ 'register.business_type' | translate }} <span class="required">*</span></label>
+                            <p-select
+                              formControlName="segment_id"
+                              [options]="segmentOptions()"
+                              optionLabel="label"
+                              optionValue="value"
+                              [placeholder]="'register.select_business_type' | translate"
+                              [showClear]="false"
+                              styleClass="w-full"
+                              appendTo="body"
+                            />
+                          </div>
+                        </div>
+                        @if (userForm.get('segment_id')?.invalid && userForm.get('segment_id')?.touched) {
+                          <span class="field-error">{{ 'admin.users.form.business_type_required' | translate }}</span>
+                        }
+                      </div>
+                    }
+
                     <!-- Address -->
                     <div class="form-field">
                       <div class="field-box" [class.filled]="userForm.get('address')?.value">

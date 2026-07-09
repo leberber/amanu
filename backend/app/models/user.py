@@ -13,6 +13,7 @@ if TYPE_CHECKING:
     from app.models.user_notification import UserNotification
     from app.models.user_group import UserGroup
     from app.models.driver import Driver
+    from app.models.customer_route import CustomerRoute
 
 class UserRole(str, Enum):
     """User role enumeration"""
@@ -40,6 +41,8 @@ class UserBase(SQLModel):
     role: UserRole = Field(default=UserRole.CUSTOMER)
     is_active: bool = Field(default=True)
     h3_index: Optional[str] = Field(default=None, max_length=20, index=True)
+    # Business segment
+    segment_id: Optional[int] = Field(default=None)
     # Location
     address: Optional[str] = Field(default=None, max_length=200)
     wilaya: Optional[str] = Field(default=None, max_length=50)
@@ -69,6 +72,9 @@ class User(SQLModel, table=True):
     is_active: bool = Field(default=True)
     h3_index: Optional[str] = Field(default=None, max_length=20, index=True)
 
+    # Business segment
+    segment_id: Optional[int] = Field(default=None, foreign_key="segments.id")
+
     # Location
     address: Optional[str] = Field(default=None, max_length=200)
     wilaya: Optional[str] = Field(default=None, max_length=50)
@@ -95,6 +101,7 @@ class User(SQLModel, table=True):
     notifications: List["UserNotification"] = Relationship(sa_relationship_kwargs={"cascade": "all, delete-orphan", "foreign_keys": "[UserNotification.user_id]"})
     groups: List["UserGroup"] = Relationship(back_populates="users", link_model=UserGroupLink)
     driver: Optional["Driver"] = Relationship(back_populates="user", sa_relationship_kwargs={"cascade": "all, delete-orphan", "uselist": False, "foreign_keys": "[Driver.user_id]"})
+    customer_route: Optional["CustomerRoute"] = Relationship(back_populates="user", sa_relationship_kwargs={"cascade": "all, delete-orphan", "uselist": False})
 
 class UserCreate(UserBase):
     """Model for creating a new user"""
@@ -116,6 +123,8 @@ class UserUpdate(SQLModel):
     commune: Optional[str] = Field(default=None, max_length=50)
     latitude: Optional[float] = Field(default=None)
     longitude: Optional[float] = Field(default=None)
+    # Business segment
+    segment_id: Optional[int] = Field(default=None)
     # Fiscal info (for invoicing) — {rc, na, nif, nis}
     fiscal_info: Optional[Dict[str, Any]] = Field(default=None)
     # Auth
@@ -136,6 +145,7 @@ class UserRead(UserBase):
 
     id: int
     h3_index: Optional[str] = None
+    segment_id: Optional[int] = None
     user_preferences: Optional[Dict[str, Any]] = None
     created_at: datetime
     segment_ids: List[int] = []
