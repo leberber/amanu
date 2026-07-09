@@ -140,7 +140,11 @@ export class AdminEditUserComponent implements OnInit {
 
   private matchWilayaOption(value: string): string {
     if (!value) return '';
-    const normalized = value.toLowerCase().replace(/-/g, ' ').trim();
+    const normalized = value
+      .toLowerCase()
+      .replace(/-/g, ' ')
+      .replace(/\s*(province|wilaya de|wilaya)\s*$/i, '')
+      .trim();
     const match = this.wilayaOptions().find(opt =>
       opt.value.toLowerCase().replace(/-/g, ' ').trim() === normalized
     );
@@ -272,8 +276,10 @@ export class AdminEditUserComponent implements OnInit {
       case 1:
         return (this.userForm.get('full_name')?.valid ?? false) &&
                (this.userForm.get('segment_id')?.valid ?? false);
-      case 2:
-        return this.userForm.get('role')?.valid ?? false;
+      case 2: {
+        const roleCtrl = this.userForm.get('role');
+        return (roleCtrl?.valid ?? false) || (roleCtrl?.disabled ?? false);
+      }
       case 3:
         return true;
       case 4:
