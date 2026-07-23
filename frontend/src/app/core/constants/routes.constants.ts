@@ -101,6 +101,7 @@ export const ROUTES = {
     COMPANY_SETTINGS: '/admin/company-settings',
     SEGMENTS: '/admin/segments',
     RETURNS: '/admin/returns',
+    RETURNS_NEW: '/admin/returns/new',
     PRODUCT_ANALYTICS: '/admin/products/:id/analytics',
     USER_ANALYTICS: '/admin/users/:id/analytics'
   }

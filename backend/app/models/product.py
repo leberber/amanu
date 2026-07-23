@@ -44,6 +44,8 @@ class PackagingType(str, Enum):
     BUNDLE = "bundle"
     BOTTLE = "bottle"
     PALETTE = "palette"
+    FARDEAU = "fardeau"
+    SAC = "sac"
 
 class ProductBase(SQLModel):
     """Base product model with common fields"""

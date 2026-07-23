@@ -285,7 +285,11 @@
         "bottle": "bouteille",
         "bottle_plural": "bouteilles",
         "palette": "palette",
-        "palette_plural": "palettes"
+        "palette_plural": "palettes",
+        "fardeau": "fardeau",
+        "fardeau_plural": "fardeaux",
+        "sac": "sac",
+        "sac_plural": "sacs"
       }
     },
     "price": {

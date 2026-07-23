@@ -40,7 +40,7 @@ export const STOCK_STATUS = {
 export type StockStatusType = typeof STOCK_STATUS[keyof typeof STOCK_STATUS];
 
 // Packaging types (lowercase to match backend enum)
-export const PACKAGING_TYPES = ['box', 'carton', 'crate', 'pack', 'bag', 'bundle', 'bottle', 'palette'] as const;
+export const PACKAGING_TYPES = ['box', 'carton', 'crate', 'pack', 'bag', 'bundle', 'bottle', 'palette', 'fardeau', 'sac'] as const;
 export type PackagingType = typeof PACKAGING_TYPES[number];
 
 // Unit configurations (lowercase keys to match backend enum)

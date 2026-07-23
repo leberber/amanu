@@ -1,0 +1,169 @@
+<app-page-layout
+  title="Nouveau retour"
+  subtitle="Créer un retour à partir d'une commande existante"
+  mobileTitle="Retour"
+  mobileSubtitle="nouveau"
+  icon="pi pi-replay"
+  [showBackButton]="true"
+  [backRoute]="ROUTES.ADMIN.RETURNS">
+
+  <div @pageAnimation class="return-create-grid">
+
+    <!-- ══ MAIN COLUMN ══ -->
+    <div class="return-main">
+
+      <!-- Order search -->
+      <div class="panel">
+        <div class="panel__header">
+          <span class="panel__title">
+            <i class="pi pi-search"></i>
+            Rechercher la commande
+          </span>
+        </div>
+        <div class="panel__body">
+          <div class="flex gap-2">
+            <input
+              pInputText
+              type="number"
+              class="flex-1"
+              [ngModel]="createOrderId()"
+              (ngModelChange)="createOrderId.set($event)"
+              placeholder="N° de commande (ex: 1234)"
+              (keydown.enter)="fetchOrder()" />
+            <p-button
+              label="Chercher"
+              icon="pi pi-search"
+              [loading]="loadingOrder()"
+              (onClick)="fetchOrder()" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Order + items (shown after fetch) -->
+      @if (loadedOrder(); as order) {
+
+        <div class="panel">
+          <div class="panel__header">
+            <span class="panel__title">
+              <i class="pi pi-receipt"></i>
+              Commande #{{ order.id }}
+              @if (order.user?.full_name || order.user?.email) {
+                <span class="customer-name">— {{ order.user?.full_name || order.user?.email }}</span>
+              }
+            </span>
+            <p-tag [value]="order.status" severity="secondary" />
+          </div>
+
+          <div class="panel__body p-0">
+            @for (draft of itemDrafts(); track draft.orderItem.id; let i = $index) {
+              <div
+                class="item-row"
+                [class.item-row--selected]="draft.selected"
+                (click)="toggleItem(i)">
+
+                <div class="item-row__check">
+                  <i class="pi"
+                    [class.pi-check-square]="draft.selected"
+                    [class.pi-stop]="!draft.selected"></i>
+                </div>
+
+                <div class="item-row__name">
+                  {{ draft.orderItem.product_name }}
+                </div>
+
+                <div class="item-row__max">
+                  max {{ draft.options[draft.options.length - 1]?.label ?? draft.orderItem.quantity }}
+                </div>
+
+                @if (draft.selected) {
+                  <p-select
+                    [options]="draft.options"
+                    optionLabel="label"
+                    optionValue="cartons"
+                    [ngModel]="draft.cartonsQty"
+                    (ngModelChange)="setCartonsQty(i, $event)"
+                    appendTo="body"
+                    styleClass="p-inputtext-sm"
+                    (click)="$event.stopPropagation()">
+                  </p-select>
+                }
+              </div>
+            }
+          </div>
+
+          @if (hasSelectedItems()) {
+            <div class="refund-preview">
+              <span class="refund-preview__label">
+                <i class="pi pi-replay"></i>
+                Remboursement estimé
+              </span>
+              <span class="refund-preview__amount">
+                <app-currency [value]="selectedRefundTotal()" />
+              </span>
+            </div>
+          }
+        </div>
+
+      }
+    </div>
+
+    <!-- ══ SIDEBAR ══ -->
+    <div class="return-sidebar">
+      <div class="panel">
+        <div class="panel__header">
+          <span class="panel__title">
+            <i class="pi pi-info-circle"></i>
+            Détails du retour
+          </span>
+        </div>
+        <div class="panel__body">
+          <div class="flex flex-column gap-3">
+
+            <div class="flex flex-column gap-1">
+              <label class="field-label">Motif</label>
+              <p-select
+                [options]="returnReasons"
+                [ngModel]="createReason()"
+                (ngModelChange)="createReason.set($event)"
+                placeholder="Sélectionner un motif..."
+                [showClear]="true"
+                appendTo="body"
+                styleClass="w-full" />
+            </div>
+
+            <div class="flex flex-column gap-1">
+              <label class="field-label">Notes internes</label>
+              <textarea
+                pTextarea
+                rows="4"
+                class="w-full"
+                [ngModel]="createNotes()"
+                (ngModelChange)="createNotes.set($event)"
+                placeholder="Remarques, observations...">
+              </textarea>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="panel__footer">
+          <p-button
+            label="Annuler"
+            severity="secondary"
+            [outlined]="true"
+            styleClass="w-full"
+            (onClick)="cancel()" />
+          <p-button
+            label="Créer le retour"
+            icon="pi pi-replay"
+            styleClass="w-full"
+            [loading]="saving()"
+            [disabled]="!loadedOrder() || !hasSelectedItems()"
+            (onClick)="submitCreate()" />
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</app-page-layout>

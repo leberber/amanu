@@ -1,0 +1,163 @@
+// ─── Two-column grid ─────────────────────────────────────────────────────────
+.return-create-grid {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  align-items: start;
+  gap: 1.25rem;
+
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.return-main {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-width: 0;
+}
+
+.return-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+
+  @media (min-width: 901px) {
+    position: sticky;
+    top: 1rem;
+    align-self: start;
+  }
+}
+
+// ─── Panel ───────────────────────────────────────────────────────────────────
+.panel {
+  background: var(--surface-card);
+  border: 1px solid var(--surface-border);
+  border-radius: 12px;
+  overflow: hidden;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.875rem 1.25rem;
+    border-bottom: 1px solid var(--surface-border);
+    background: var(--surface-ground);
+  }
+
+  &__title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-color);
+
+    i { color: var(--primary-color); font-size: 0.85rem; }
+  }
+
+  &__body {
+    padding: 1.25rem;
+
+    &.p-0 { padding: 0; }
+  }
+
+  &__footer {
+    padding: 1rem 1.25rem;
+    border-top: 1px solid var(--surface-border);
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+  }
+}
+
+// ─── Customer name in panel title ────────────────────────────────────────────
+.customer-name {
+  font-weight: 400;
+  color: var(--text-color-secondary);
+  font-size: 0.85rem;
+}
+
+// ─── Item rows ───────────────────────────────────────────────────────────────
+.item-row {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  padding: 0.875rem 1.25rem;
+  border-bottom: 1px solid var(--surface-border);
+  cursor: pointer;
+  transition: background 0.12s;
+
+  &:last-child { border-bottom: none; }
+
+  &:hover { background: var(--surface-hover); }
+
+  &--selected {
+    background: var(--highlight-bg);
+    border-left: 3px solid var(--primary-color);
+    padding-left: calc(1.25rem - 3px);
+
+    &:hover { background: var(--highlight-bg); }
+  }
+
+  &__check {
+    flex-shrink: 0;
+    font-size: 1.1rem;
+    color: var(--text-color-secondary);
+
+    .item-row--selected & { color: var(--primary-color); }
+  }
+
+  &__name {
+    flex: 1;
+    font-size: 0.875rem;
+    font-weight: 500;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__max {
+    font-size: 0.75rem;
+    color: var(--text-color-secondary);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+}
+
+// ─── Refund preview bar ───────────────────────────────────────────────────────
+.refund-preview {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.875rem 1.25rem;
+  background: rgba(22, 163, 74, 0.07);
+  border-top: 1px solid rgba(22, 163, 74, 0.2);
+
+  &__label {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #16a34a;
+
+    i { font-size: 0.8rem; }
+  }
+
+  &__amount {
+    font-weight: 700;
+    font-size: 1rem;
+    color: #16a34a;
+  }
+}
+
+// ─── Form labels ─────────────────────────────────────────────────────────────
+.field-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-color-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
