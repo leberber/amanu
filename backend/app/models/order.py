@@ -264,6 +264,7 @@ class OrderItemRead(SQLModel):
     product_unit: str
     pieces_per_box: Optional[int] = None
     packaging_type: Optional[str] = None
+    fraction_options: Optional[List[Dict]] = None
     image_url: Optional[str] = None
     brand_name: Optional[str] = None
     category_name: Optional[str] = None

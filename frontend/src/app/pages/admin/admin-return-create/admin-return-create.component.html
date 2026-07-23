@@ -54,7 +54,7 @@
             <p-tag [value]="order.status" severity="secondary" />
           </div>
 
-          <div class="panel__body p-0">
+          <div class="panel__body p-0 items-scroll">
             @for (draft of itemDrafts(); track draft.orderItem.id; let i = $index) {
               <div
                 class="item-row"
@@ -67,26 +67,24 @@
                     [class.pi-stop]="!draft.selected"></i>
                 </div>
 
-                <div class="item-row__name">
-                  {{ draft.orderItem.product_name }}
+                <div class="item-row__content">
+                  <div class="flex align-items-center gap-2">
+                    <span class="item-row__name">{{ draft.orderItem.product_name }}</span>
+                    <span class="item-row__max">max {{ draft.options[draft.options.length - 1]?.label ?? draft.orderItem.quantity }}</span>
+                  </div>
+                  @if (draft.selected) {
+                    <p-select
+                      [options]="draft.options"
+                      optionLabel="label"
+                      optionValue="cartons"
+                      [ngModel]="draft.cartonsQty"
+                      (ngModelChange)="setCartonsQty(i, $event)"
+                      appendTo="body"
+                      styleClass="w-full p-inputtext-sm"
+                      (click)="$event.stopPropagation()">
+                    </p-select>
+                  }
                 </div>
-
-                <div class="item-row__max">
-                  max {{ draft.options[draft.options.length - 1]?.label ?? draft.orderItem.quantity }}
-                </div>
-
-                @if (draft.selected) {
-                  <p-select
-                    [options]="draft.options"
-                    optionLabel="label"
-                    optionValue="cartons"
-                    [ngModel]="draft.cartonsQty"
-                    (ngModelChange)="setCartonsQty(i, $event)"
-                    appendTo="body"
-                    styleClass="p-inputtext-sm"
-                    (click)="$event.stopPropagation()">
-                  </p-select>
-                }
               </div>
             }
           </div>
@@ -100,6 +98,23 @@
               <span class="refund-preview__amount">
                 <app-currency [value]="selectedRefundTotal()" />
               </span>
+            </div>
+
+            <!-- Restock toggle -->
+            <div class="restock-toggle" [class.restock-toggle--on]="restock()" (click)="restock.set(!restock())">
+              <div class="restock-toggle__icon">
+                <i class="pi pi-box"></i>
+              </div>
+              <div class="restock-toggle__text">
+                <span class="restock-toggle__label">Remettre en stock</span>
+                <span class="restock-toggle__sub">
+                  @if (restock()) { Les articles retournés seront remis en stock }
+                  @else { Articles non remis en stock (périmés / endommagés) }
+                </span>
+              </div>
+              <div class="restock-toggle__switch" [class.restock-toggle__switch--on]="restock()">
+                <div class="restock-toggle__thumb"></div>
+              </div>
             </div>
           }
         </div>

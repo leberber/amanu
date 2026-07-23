@@ -375,7 +375,7 @@ def read_products(
 @router.get("/admin/paginated", response_model=PaginatedProductsResponse)
 def read_products_paginated(
     skip: int = Query(0, ge=0),
-    limit: int = Query(50, ge=1, le=200),
+    limit: int = Query(50, ge=1, le=2000),
     category_id: Optional[int] = None,
     brand_id: Optional[int] = None,
     status_filter: str = Query("all", enum=["all", "active", "inactive"]),

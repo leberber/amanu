@@ -147,6 +147,7 @@ export interface DashboardStats {
     category_name?: string;
     pieces_per_box?: number;
     packaging_type?: string;
+    fraction_options?: { n: number; d: number }[];
     // Margin (admin only)
     cmup?: number;
     item_margin?: number;

@@ -78,6 +78,17 @@
   font-size: 0.85rem;
 }
 
+// ─── Scrollable items list ────────────────────────────────────────────────────
+.items-scroll {
+  max-height: 50vh;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--surface-border) transparent;
+
+  &::-webkit-scrollbar { width: 4px; }
+  &::-webkit-scrollbar-thumb { background: var(--surface-border); border-radius: 2px; }
+}
+
 // ─── Item rows ───────────────────────────────────────────────────────────────
 .item-row {
   display: flex;
@@ -108,11 +119,17 @@
     .item-row--selected & { color: var(--primary-color); }
   }
 
-  &__name {
+  &__content {
     flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  &__name {
     font-size: 0.875rem;
     font-weight: 500;
-    min-width: 0;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -160,4 +177,85 @@
   color: var(--text-color-secondary);
   text-transform: uppercase;
   letter-spacing: 0.03em;
+}
+
+// ─── Restock toggle ──────────────────────────────────────────────────────────
+.restock-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.875rem 1.25rem;
+  border-top: 1px solid var(--surface-border);
+  cursor: pointer;
+  transition: background 0.15s;
+  user-select: none;
+
+  &--on {
+    background: var(--highlight-bg);
+  }
+
+  &__icon {
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: var(--surface-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.95rem;
+    color: var(--text-color-secondary);
+    transition: background 0.15s, color 0.15s;
+
+    .restock-toggle--on & {
+      background: var(--primary-color);
+      color: white;
+    }
+  }
+
+  &__text {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-color);
+  }
+
+  &__sub {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--text-color-secondary);
+    margin-top: 2px;
+    line-height: 1.3;
+  }
+
+  &__switch {
+    flex-shrink: 0;
+    width: 36px;
+    height: 20px;
+    border-radius: 10px;
+    background: var(--surface-border);
+    position: relative;
+    transition: background 0.15s;
+
+    &--on { background: var(--primary-color); }
+  }
+
+  &__thumb {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: white;
+    transition: transform 0.15s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+
+    .restock-toggle__switch--on & { transform: translateX(16px); }
+  }
 }

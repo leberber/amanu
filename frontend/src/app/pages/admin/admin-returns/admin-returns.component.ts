@@ -15,8 +15,6 @@ import { ReturnsService, OrderReturn } from '../../../core/services/returns.serv
 import { RouteHelpers, ROUTES } from '../../../core/constants/routes.constants';
 import { Router } from '@angular/router';
 
-type StatusFilter = 'all' | 'pending' | 'approved' | 'received' | 'rejected';
-
 @Component({
   selector: 'app-admin-returns',
   standalone: true,
@@ -50,33 +48,10 @@ export class AdminReturnsComponent implements OnInit {
 
   loading = signal(true);
   returns = signal<OrderReturn[]>([]);
-  statusFilter = signal<StatusFilter>('all');
 
-  // Action loading
-  actionLoadingId = signal<number | null>(null);
-
-  filteredReturns = computed(() => {
-    const filter = this.statusFilter();
-    const all = this.returns();
-    if (filter === 'all') return all;
-    return all.filter(r => r.status === filter);
-  });
-
-  statusTabs: { label: string; value: StatusFilter }[] = [
-    { label: 'Tous', value: 'all' },
-    { label: 'En attente', value: 'pending' },
-    { label: 'Approuvés', value: 'approved' },
-    { label: 'Reçus', value: 'received' },
-    { label: 'Rejetés', value: 'rejected' },
-  ];
-
-  statusCounts = computed(() => {
-    const counts: Record<string, number> = {};
-    for (const r of this.returns()) {
-      counts[r.status] = (counts[r.status] ?? 0) + 1;
-    }
-    return counts;
-  });
+  totalRefunded = computed(() =>
+    this.returns().reduce((sum, r) => sum + r.refund_amount, 0)
+  );
 
   ngOnInit(): void {
     this.loadReturns();
@@ -94,55 +69,8 @@ export class AdminReturnsComponent implements OnInit {
     this.router.navigate([ROUTES.ADMIN.RETURNS_NEW]);
   }
 
-  approve(ret: OrderReturn): void {
-    this.actionLoadingId.set(ret.id);
-    this.returnsService.approve(ret.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: (updated) => { this.updateReturn(updated); this.actionLoadingId.set(null); this.toast.showSuccess('Retour approuvé'); },
-      error: () => { this.actionLoadingId.set(null); this.toast.showError('Erreur'); }
-    });
-  }
-
-  receive(ret: OrderReturn): void {
-    this.actionLoadingId.set(ret.id);
-    this.returnsService.receive(ret.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: (updated) => { this.updateReturn(updated); this.actionLoadingId.set(null); this.toast.showSuccess('Retour reçu — remboursement et stock mis à jour'); },
-      error: () => { this.actionLoadingId.set(null); this.toast.showError('Erreur'); }
-    });
-  }
-
-  reject(ret: OrderReturn): void {
-    this.actionLoadingId.set(ret.id);
-    this.returnsService.reject(ret.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: (updated) => { this.updateReturn(updated); this.actionLoadingId.set(null); this.toast.showSuccess('Retour rejeté'); },
-      error: () => { this.actionLoadingId.set(null); this.toast.showError('Erreur'); }
-    });
-  }
-
   goToOrder(orderId: number): void {
     this.router.navigate([RouteHelpers.adminOrderDetail(orderId)]);
   }
 
-  getStatusSeverity(status: string): 'warn' | 'info' | 'success' | 'danger' | 'secondary' {
-    switch (status) {
-      case 'pending': return 'warn';
-      case 'approved': return 'info';
-      case 'received': return 'success';
-      case 'rejected': return 'danger';
-      default: return 'secondary';
-    }
-  }
-
-  getStatusLabel(status: string): string {
-    const labels: Record<string, string> = {
-      pending: 'En attente',
-      approved: 'Approuvé',
-      received: 'Reçu',
-      rejected: 'Rejeté',
-    };
-    return labels[status] ?? status;
-  }
-
-  private updateReturn(updated: OrderReturn): void {
-    this.returns.update(list => list.map(r => r.id === updated.id ? updated : r));
-  }
 }

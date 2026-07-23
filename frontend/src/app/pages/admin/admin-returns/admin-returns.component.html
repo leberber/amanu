@@ -20,7 +20,7 @@
 
     @if (loading()) {
       <div class="flex gap-3 mb-3">
-        @for (i of [1,2,3]; track i) {
+        @for (i of [1,2]; track i) {
           <div class="skeleton flex-1" style="height:72px;border-radius:12px;"></div>
         }
       </div>
@@ -37,66 +37,32 @@
           <div class="surface-card border-round-xl shadow-1 p-3 flex-1">
             <div class="flex justify-content-between align-items-center">
               <div>
-                <div class="text-secondary text-xs mb-1">En attente</div>
-                <div class="text-2xl font-bold" [style.color]="statusCounts()['pending'] > 0 ? '#d97706' : 'var(--text-color)'">
-                  {{ statusCounts()['pending'] ?? 0 }}
-                </div>
+                <div class="text-secondary text-xs mb-1">Total retours</div>
+                <div class="text-2xl font-bold">{{ returns().length }}</div>
               </div>
-              <i class="pi pi-clock text-2xl" style="color:#d97706;opacity:0.7;"></i>
+              <i class="pi pi-replay text-2xl" style="color:var(--primary-color);opacity:0.6;"></i>
             </div>
           </div>
           <div class="surface-card border-round-xl shadow-1 p-3 flex-1">
             <div class="flex justify-content-between align-items-center">
               <div>
-                <div class="text-secondary text-xs mb-1">Approuvés</div>
-                <div class="text-2xl font-bold" [style.color]="statusCounts()['approved'] > 0 ? '#0ea5e9' : 'var(--text-color)'">
-                  {{ statusCounts()['approved'] ?? 0 }}
-                </div>
-              </div>
-              <i class="pi pi-check-circle text-2xl" style="color:#0ea5e9;opacity:0.7;"></i>
-            </div>
-          </div>
-          <div class="surface-card border-round-xl shadow-1 p-3 flex-1">
-            <div class="flex justify-content-between align-items-center">
-              <div>
-                <div class="text-secondary text-xs mb-1">Remboursés</div>
+                <div class="text-secondary text-xs mb-1">Total remboursé</div>
                 <div class="text-2xl font-bold" style="color:#16a34a;">
-                  {{ statusCounts()['received'] ?? 0 }}
+                  <app-currency [value]="totalRefunded()" />
                 </div>
               </div>
-              <i class="pi pi-replay text-2xl" style="color:#16a34a;opacity:0.7;"></i>
+              <i class="pi pi-credit-card text-2xl" style="color:#16a34a;opacity:0.6;"></i>
             </div>
           </div>
-        </div>
-
-        <!-- Status tabs -->
-        <div class="segment-control segment-control--glass segment-control--sliding" style="--segment-count: 5; width: 100%;">
-          <div class="segment-control__slider"></div>
-          @for (tab of statusTabs; track tab.value) {
-            <button class="segment-control__item" [class.active]="statusFilter() === tab.value" (click)="statusFilter.set(tab.value)">
-              {{ tab.label }}
-              @if (tab.value !== 'all' && statusCounts()[tab.value] > 0) {
-                <span class="count">{{ statusCounts()[tab.value] }}</span>
-              }
-            </button>
-          }
         </div>
 
         <!-- Table -->
         <div class="surface-card border-round-xl shadow-1 overflow-hidden">
-          @if (filteredReturns().length === 0) {
+          @if (returns().length === 0) {
             <div class="flex flex-column align-items-center justify-content-center p-6 gap-2">
               <i class="pi pi-replay text-4xl text-color-secondary"></i>
               <span class="text-color-secondary font-medium">Aucun retour</span>
-              <span class="text-xs text-color-secondary">
-                @switch (statusFilter()) {
-                  @case ('pending') { Aucun retour en attente }
-                  @case ('approved') { Aucun retour approuvé }
-                  @case ('received') { Aucun retour reçu }
-                  @case ('rejected') { Aucun retour rejeté }
-                  @default { Créez votre premier retour avec le bouton ci-dessus }
-                }
-              </span>
+              <span class="text-xs text-color-secondary">Créez votre premier retour avec le bouton ci-dessus</span>
             </div>
           } @else {
             <div class="table-wrapper">
@@ -108,14 +74,14 @@
                     <th>Commande</th>
                     <th>Articles</th>
                     <th>Motif</th>
+                    <th>Stock</th>
                     <th>Remboursement</th>
-                    <th>Statut</th>
+                    <th>Traité par</th>
                     <th>Date</th>
-                    <th></th>
                   </tr>
                 </thead>
                 <tbody>
-                  @for (ret of filteredReturns(); track ret.id) {
+                  @for (ret of returns(); track ret.id) {
                     <tr>
                       <td class="font-semibold text-secondary text-sm">#{{ ret.id }}</td>
                       <td class="font-medium">{{ ret.customer_name || '—' }}</td>
@@ -143,57 +109,19 @@
                         </span>
                       </td>
                       <td>
-                        <span class="font-bold"
-                          [style.color]="ret.status === 'received' ? '#16a34a' : ret.status === 'rejected' ? 'var(--text-color-secondary)' : '#d97706'">
+                        @if (ret.restocked) {
+                          <p-tag value="Remis en stock" severity="success" />
+                        } @else {
+                          <p-tag value="Non remis" severity="secondary" />
+                        }
+                      </td>
+                      <td>
+                        <span class="font-bold" style="color:#16a34a;">
                           <app-currency [value]="ret.refund_amount" />
                         </span>
                       </td>
-                      <td>
-                        <p-tag [value]="getStatusLabel(ret.status)" [severity]="getStatusSeverity(ret.status)" />
-                      </td>
+                      <td class="text-secondary text-sm">{{ ret.creator_name || '—' }}</td>
                       <td class="text-secondary text-sm">{{ ret.created_at | appDate }}</td>
-                      <td>
-                        <div class="flex gap-1 justify-content-end">
-                          @if (ret.status === 'pending') {
-                            <p-button
-                              label="Approuver"
-                              icon="pi pi-check"
-                              severity="success"
-                              size="small"
-                              [outlined]="true"
-                              [loading]="actionLoadingId() === ret.id"
-                              (onClick)="approve(ret)" />
-                            <p-button
-                              icon="pi pi-times"
-                              severity="danger"
-                              size="small"
-                              [outlined]="true"
-                              pTooltip="Rejeter"
-                              tooltipPosition="top"
-                              [loading]="actionLoadingId() === ret.id"
-                              (onClick)="reject(ret)" />
-                          }
-                          @if (ret.status === 'approved') {
-                            <p-button
-                              label="Marquer reçu"
-                              icon="pi pi-inbox"
-                              severity="primary"
-                              size="small"
-                              [outlined]="true"
-                              [loading]="actionLoadingId() === ret.id"
-                              (onClick)="receive(ret)" />
-                            <p-button
-                              icon="pi pi-times"
-                              severity="danger"
-                              size="small"
-                              [outlined]="true"
-                              pTooltip="Rejeter"
-                              tooltipPosition="top"
-                              [loading]="actionLoadingId() === ret.id"
-                              (onClick)="reject(ret)" />
-                          }
-                        </div>
-                      </td>
                     </tr>
                   }
                 </tbody>
@@ -207,4 +135,3 @@
 
   </div>
 </app-agroclik-page-container>
-

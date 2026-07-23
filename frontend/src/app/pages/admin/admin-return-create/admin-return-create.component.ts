@@ -75,6 +75,7 @@ export class AdminReturnCreateComponent {
   itemDrafts = signal<ReturnItemDraft[]>([]);
   createReason = signal('');
   createNotes = signal('');
+  restock = signal(true);
   saving = signal(false);
 
   hasSelectedItems = computed(() => this.itemDrafts().some(d => d.selected && d.cartonsQty > 0));
@@ -134,6 +135,7 @@ export class AdminReturnCreateComponent {
       order_id: order.id,
       reason: this.createReason() || undefined,
       notes: this.createNotes() || undefined,
+      restock: this.restock(),
       items: selectedItems.map(d => ({
         order_item_id: d.orderItem.id,
         quantity: d.cartonsQty * (d.orderItem.pieces_per_box || 1),
@@ -182,14 +184,12 @@ export class AdminReturnCreateComponent {
     const pkgPlural = this.packagingTypeService.getPackagingTypeTranslated(rawType, true);
     const options: ReturnQtyOption[] = [];
 
-    if (ppb > 1) {
-      const fracs: [number, number][] = [[1, 4], [1, 3], [1, 2]];
-      for (const [n, d] of fracs) {
-        const cartons = n / d;
-        const units = cartons * ppb;
-        if (Number.isInteger(units) && units <= maxUnits && cartons < maxCartons) {
-          options.push({ cartons, units, label: `${fractionLabel(n, d)} ${pkgSingular}` });
-        }
+    const fracs = item.fraction_options ?? [];
+    for (const { n, d } of fracs) {
+      const cartons = n / d;
+      const units = cartons * ppb;
+      if (Number.isInteger(units) && units <= maxUnits && cartons < maxCartons) {
+        options.push({ cartons, units, label: `${fractionLabel(n, d)} ${pkgSingular}` });
       }
     }
 

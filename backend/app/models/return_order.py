@@ -10,27 +10,18 @@ if TYPE_CHECKING:
     from app.models.order_payments import OrderPayment
 
 
-class ReturnStatus(str, Enum):
-    PENDING = "pending"
-    APPROVED = "approved"
-    RECEIVED = "received"
-    REJECTED = "rejected"
-
-
 class OrderReturn(SQLModel, table=True):
     __tablename__ = "order_returns"
 
     id: Optional[int] = Field(default=None, primary_key=True)
     order_id: int = Field(foreign_key="orders.id", index=True)
     created_by: int = Field(foreign_key="users.id")
-    status: ReturnStatus = Field(default=ReturnStatus.PENDING)
     reason: Optional[str] = Field(default=None, max_length=500)
     notes: Optional[str] = Field(default=None, max_length=1000)
+    restocked: bool = Field(default=False)
     refund_amount: float = Field(default=0.0)
     refund_payment_id: Optional[int] = Field(default=None, foreign_key="order_payments.id")
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-    approved_at: Optional[datetime] = Field(default=None)
-    received_at: Optional[datetime] = Field(default=None)
 
     items: List["OrderReturnItem"] = Relationship(
         back_populates="order_return",
@@ -68,6 +59,7 @@ class OrderReturnCreate(SQLModel):
     order_id: int
     reason: Optional[str] = None
     notes: Optional[str] = None
+    restock: bool = True
     items: List[OrderReturnItemCreate]
 
 
@@ -84,13 +76,11 @@ class OrderReturnItemRead(SQLModel):
 class OrderReturnRead(SQLModel):
     id: int
     order_id: int
-    status: ReturnStatus
     reason: Optional[str] = None
     notes: Optional[str] = None
+    restocked: bool
     refund_amount: float
     created_at: datetime
-    approved_at: Optional[datetime] = None
-    received_at: Optional[datetime] = None
     creator_name: Optional[str] = None
     customer_name: Optional[str] = None
     items: List[OrderReturnItemRead] = []
