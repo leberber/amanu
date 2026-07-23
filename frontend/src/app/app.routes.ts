@@ -155,6 +155,11 @@ export const routes: Routes = [
     canActivate: [adminGuard]
   },
   {
+    path: 'admin/returns',
+    loadComponent: () => import('./pages/admin/admin-returns/admin-returns.component').then(m => m.AdminReturnsComponent),
+    canActivate: [adminGuard]
+  },
+  {
     path: 'admin/orders/new',
     loadComponent: () => import('./pages/admin/admin-order-detail/admin-order-detail.component').then(m => m.AdminOrderDetailComponent),
     canActivate: [adminGuard],

@@ -100,6 +100,7 @@ export const ROUTES = {
     FACTURATION_NEW: '/admin/facturation/new',
     COMPANY_SETTINGS: '/admin/company-settings',
     SEGMENTS: '/admin/segments',
+    RETURNS: '/admin/returns',
     PRODUCT_ANALYTICS: '/admin/products/:id/analytics',
     USER_ANALYTICS: '/admin/users/:id/analytics'
   }

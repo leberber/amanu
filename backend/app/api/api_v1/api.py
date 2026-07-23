@@ -5,7 +5,7 @@ from app.api.api_v1.endpoints import (
     cross_sell_promotions, volume_discounts, push, user_notifications,
     user_groups, restock, drivers, shipping, driver_trips, driver_admin,
     admin_batching, customer_routes, roads, purchase_orders, suppliers,
-    facturation, admin_tools, segments
+    facturation, admin_tools, segments, returns
 )
 
 api_router = APIRouter()
@@ -36,3 +36,4 @@ api_router.include_router(suppliers.router, prefix="/suppliers", tags=["Supplier
 api_router.include_router(facturation.router, prefix="/facturation", tags=["Facturation"])
 api_router.include_router(admin_tools.router, prefix="/admin/tools", tags=["Admin Tools"])
 api_router.include_router(segments.router, prefix="/segments", tags=["Segments"])
+api_router.include_router(returns.router, prefix="/returns", tags=["Returns"])

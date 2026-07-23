@@ -1,0 +1,328 @@
+<app-agroclik-page-container>
+
+  <div pageTop>
+    <div class="admin-list-header">
+      <div class="header-title">
+        <div class="admin-icon-wrapper">
+          <div class="icon-bg"></div>
+          <div class="icon-circle"><i class="pi pi-replay"></i></div>
+        </div>
+        <div class="title-text">
+          <h1 class="text-xl font-bold m-0">Retours</h1>
+          <span class="text-secondary text-sm">{{ returns().length }} retour(s)</span>
+        </div>
+      </div>
+      <p-button label="Nouveau retour" icon="pi pi-plus" severity="success" [raised]="true" (onClick)="openCreateDialog()" />
+    </div>
+  </div>
+
+  <div pageMain>
+
+    @if (loading()) {
+      <div class="flex gap-3 mb-3">
+        @for (i of [1,2,3]; track i) {
+          <div class="skeleton flex-1" style="height:72px;border-radius:12px;"></div>
+        }
+      </div>
+      <div class="flex flex-column gap-2">
+        @for (i of [1,2,3,4,5]; track i) {
+          <div class="skeleton" style="height:56px;border-radius:10px;"></div>
+        }
+      </div>
+    } @else {
+      <div @pageAnimation class="flex flex-column gap-3">
+
+        <!-- Summary cards -->
+        <div class="flex gap-3">
+          <div class="surface-card border-round-xl shadow-1 p-3 flex-1">
+            <div class="flex justify-content-between align-items-center">
+              <div>
+                <div class="text-secondary text-xs mb-1">En attente</div>
+                <div class="text-2xl font-bold" [style.color]="statusCounts()['pending'] > 0 ? '#d97706' : 'var(--text-color)'">
+                  {{ statusCounts()['pending'] ?? 0 }}
+                </div>
+              </div>
+              <i class="pi pi-clock text-2xl" style="color:#d97706;opacity:0.7;"></i>
+            </div>
+          </div>
+          <div class="surface-card border-round-xl shadow-1 p-3 flex-1">
+            <div class="flex justify-content-between align-items-center">
+              <div>
+                <div class="text-secondary text-xs mb-1">Approuvés</div>
+                <div class="text-2xl font-bold" [style.color]="statusCounts()['approved'] > 0 ? '#0ea5e9' : 'var(--text-color)'">
+                  {{ statusCounts()['approved'] ?? 0 }}
+                </div>
+              </div>
+              <i class="pi pi-check-circle text-2xl" style="color:#0ea5e9;opacity:0.7;"></i>
+            </div>
+          </div>
+          <div class="surface-card border-round-xl shadow-1 p-3 flex-1">
+            <div class="flex justify-content-between align-items-center">
+              <div>
+                <div class="text-secondary text-xs mb-1">Remboursés</div>
+                <div class="text-2xl font-bold" style="color:#16a34a;">
+                  {{ statusCounts()['received'] ?? 0 }}
+                </div>
+              </div>
+              <i class="pi pi-replay text-2xl" style="color:#16a34a;opacity:0.7;"></i>
+            </div>
+          </div>
+        </div>
+
+        <!-- Status tabs -->
+        <div class="segment-control segment-control--glass segment-control--sliding" style="--segment-count: 5; width: 100%;">
+          <div class="segment-control__slider"></div>
+          @for (tab of statusTabs; track tab.value) {
+            <button class="segment-control__item" [class.active]="statusFilter() === tab.value" (click)="statusFilter.set(tab.value)">
+              {{ tab.label }}
+              @if (tab.value !== 'all' && statusCounts()[tab.value] > 0) {
+                <span class="count">{{ statusCounts()[tab.value] }}</span>
+              }
+            </button>
+          }
+        </div>
+
+        <!-- Table -->
+        <div class="surface-card border-round-xl shadow-1 overflow-hidden">
+          @if (filteredReturns().length === 0) {
+            <div class="flex flex-column align-items-center justify-content-center p-6 gap-2">
+              <i class="pi pi-replay text-4xl text-color-secondary"></i>
+              <span class="text-color-secondary font-medium">Aucun retour</span>
+              <span class="text-xs text-color-secondary">
+                @switch (statusFilter()) {
+                  @case ('pending') { Aucun retour en attente }
+                  @case ('approved') { Aucun retour approuvé }
+                  @case ('received') { Aucun retour reçu }
+                  @case ('rejected') { Aucun retour rejeté }
+                  @default { Créez votre premier retour avec le bouton ci-dessus }
+                }
+              </span>
+            </div>
+          } @else {
+            <div class="table-wrapper">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Client</th>
+                    <th>Commande</th>
+                    <th>Articles</th>
+                    <th>Motif</th>
+                    <th>Remboursement</th>
+                    <th>Statut</th>
+                    <th>Date</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (ret of filteredReturns(); track ret.id) {
+                    <tr>
+                      <td class="font-semibold text-secondary text-sm">#{{ ret.id }}</td>
+                      <td class="font-medium">{{ ret.customer_name || '—' }}</td>
+                      <td>
+                        <button
+                          class="action-btn"
+                          (click)="goToOrder(ret.order_id)"
+                          pTooltip="Voir la commande"
+                          tooltipPosition="top">
+                          <i class="pi pi-external-link" style="font-size:0.75rem;margin-right:4px;"></i>#{{ ret.order_id }}
+                        </button>
+                      </td>
+                      <td>
+                        <div class="flex flex-column gap-1">
+                          @for (item of ret.items; track item.id) {
+                            <span class="text-sm">{{ item.product_name }}
+                              <span class="pill secondary" style="font-size:0.7rem;padding:1px 6px;">× {{ item.quantity }}</span>
+                            </span>
+                          }
+                        </div>
+                      </td>
+                      <td class="text-secondary text-sm" style="max-width:160px;">
+                        <span [pTooltip]="ret.reason || ''" tooltipPosition="top" style="display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                          {{ ret.reason || '—' }}
+                        </span>
+                      </td>
+                      <td>
+                        <span class="font-bold"
+                          [style.color]="ret.status === 'received' ? '#16a34a' : ret.status === 'rejected' ? 'var(--text-color-secondary)' : '#d97706'">
+                          <app-currency [value]="ret.refund_amount" />
+                        </span>
+                      </td>
+                      <td>
+                        <p-tag [value]="getStatusLabel(ret.status)" [severity]="getStatusSeverity(ret.status)" />
+                      </td>
+                      <td class="text-secondary text-sm">{{ ret.created_at | appDate }}</td>
+                      <td>
+                        <div class="flex gap-1 justify-content-end">
+                          @if (ret.status === 'pending') {
+                            <p-button
+                              label="Approuver"
+                              icon="pi pi-check"
+                              severity="success"
+                              size="small"
+                              [outlined]="true"
+                              [loading]="actionLoadingId() === ret.id"
+                              (onClick)="approve(ret)" />
+                            <p-button
+                              icon="pi pi-times"
+                              severity="danger"
+                              size="small"
+                              [outlined]="true"
+                              pTooltip="Rejeter"
+                              tooltipPosition="top"
+                              [loading]="actionLoadingId() === ret.id"
+                              (onClick)="reject(ret)" />
+                          }
+                          @if (ret.status === 'approved') {
+                            <p-button
+                              label="Marquer reçu"
+                              icon="pi pi-inbox"
+                              severity="primary"
+                              size="small"
+                              [outlined]="true"
+                              [loading]="actionLoadingId() === ret.id"
+                              (onClick)="receive(ret)" />
+                            <p-button
+                              icon="pi pi-times"
+                              severity="danger"
+                              size="small"
+                              [outlined]="true"
+                              pTooltip="Rejeter"
+                              tooltipPosition="top"
+                              [loading]="actionLoadingId() === ret.id"
+                              (onClick)="reject(ret)" />
+                          }
+                        </div>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        </div>
+
+      </div>
+    }
+
+  </div>
+</app-agroclik-page-container>
+
+<!-- Create Return Dialog -->
+<p-dialog
+  header="Nouveau retour"
+  [visible]="showCreateDialog()"
+  (visibleChange)="showCreateDialog.set($event)"
+  [modal]="true"
+  [style]="{ width: '580px' }"
+  [draggable]="false">
+
+  <div class="flex flex-column gap-3 pt-2">
+
+    <!-- Order lookup -->
+    <div class="flex flex-column gap-1">
+      <label class="font-medium text-sm">N° de commande *</label>
+      <div class="flex gap-2">
+        <input pInputText type="number" class="flex-1"
+          [ngModel]="createOrderId()"
+          (ngModelChange)="createOrderId.set($event)"
+          placeholder="Ex: 1234"
+          (keydown.enter)="fetchOrder()" />
+        <p-button label="Chercher" icon="pi pi-search" [loading]="loadingOrder()" (onClick)="fetchOrder()" />
+      </div>
+    </div>
+
+    <!-- Loaded order summary -->
+    @if (loadedOrder(); as order) {
+      <div class="surface-ground border-round-xl p-3">
+
+        <!-- Order info bar -->
+        <div class="flex align-items-center justify-content-between mb-3">
+          <div class="flex align-items-center gap-2">
+            <i class="pi pi-receipt text-secondary"></i>
+            <span class="font-semibold text-sm">Commande #{{ order.id }}</span>
+            @if (order.user?.full_name || order.user?.email) {
+              <span class="text-secondary text-sm">— {{ order.user?.full_name || order.user?.email }}</span>
+            }
+          </div>
+          <p-tag [value]="order.status" severity="secondary" />
+        </div>
+
+        <!-- Item selection -->
+        <div class="flex flex-column gap-2">
+          @for (draft of itemDrafts(); track draft.orderItem.id; let i = $index) {
+            <div class="flex align-items-center gap-3 p-2 border-round-lg"
+              [style.background]="draft.selected ? 'var(--highlight-bg)' : 'var(--surface-card)'"
+              [style.border]="draft.selected ? '1.5px solid var(--primary-color)' : '1.5px solid var(--surface-border)'"
+              style="cursor:pointer; transition: all 0.15s;"
+              (click)="toggleItem(i)">
+              <i class="pi"
+                [class.pi-check-square]="draft.selected"
+                [class.pi-stop]="!draft.selected"
+                [style.color]="draft.selected ? 'var(--primary-color)' : 'var(--text-color-secondary)'"></i>
+              <span class="flex-1 font-medium text-sm">{{ draft.orderItem.product_name }}</span>
+              <span class="text-secondary text-xs">max {{ draft.orderItem.quantity }}</span>
+              @if (draft.selected) {
+                <p-inputNumber
+                  [ngModel]="draft.quantity"
+                  (ngModelChange)="setQuantity(i, $event)"
+                  [min]="0.5"
+                  [max]="draft.orderItem.quantity"
+                  [step]="0.5"
+                  [showButtons]="true"
+                  buttonLayout="horizontal"
+                  inputStyleClass="w-4rem text-center"
+                  styleClass="p-inputnumber-sm"
+                  (click)="$event.stopPropagation()">
+                </p-inputNumber>
+              }
+            </div>
+          }
+        </div>
+
+        <!-- Refund preview -->
+        @if (hasSelectedItems()) {
+          <div class="flex align-items-center justify-content-between mt-3 p-2 border-round-lg"
+            style="background:rgba(22,163,74,0.08);border:1.5px solid rgba(22,163,74,0.25);">
+            <span class="text-sm font-semibold" style="color:#16a34a;">
+              <i class="pi pi-replay mr-1"></i>Remboursement estimé
+            </span>
+            <span class="font-bold" style="color:#16a34a;">
+              <app-currency [value]="selectedRefundTotal()" />
+            </span>
+          </div>
+        }
+      </div>
+
+      <!-- Reason & notes -->
+      <div class="flex gap-3">
+        <div class="flex flex-column gap-1 flex-1">
+          <label class="font-medium text-sm">Motif</label>
+          <input pInputText class="w-full"
+            [ngModel]="createReason()"
+            (ngModelChange)="createReason.set($event)"
+            placeholder="Produit endommagé, qualité insuffisante..." />
+        </div>
+      </div>
+      <div class="flex flex-column gap-1">
+        <label class="font-medium text-sm">Notes internes</label>
+        <textarea pTextarea rows="2" class="w-full"
+          [ngModel]="createNotes()"
+          (ngModelChange)="createNotes.set($event)"
+          placeholder="Remarques...">
+        </textarea>
+      </div>
+    }
+
+  </div>
+
+  <ng-template pTemplate="footer">
+    <p-button label="Annuler" severity="secondary" (onClick)="showCreateDialog.set(false)" />
+    <p-button
+      label="Créer le retour"
+      icon="pi pi-replay"
+      [loading]="saving()"
+      [disabled]="!loadedOrder() || !hasSelectedItems()"
+      (onClick)="submitCreate()" />
+  </ng-template>
+</p-dialog>

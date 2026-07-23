@@ -161,6 +161,12 @@ export const ADMIN_NAV_ITEMS: AdminNavItem[] = [
     staffOnly: true
   },
   {
+    labelKey: 'admin.navigation.returns',
+    icon: 'pi pi-replay',
+    route: ROUTES.ADMIN.RETURNS,
+    staffOnly: true
+  },
+  {
     labelKey: 'admin.navigation.logs',
     icon: 'pi pi-file',
     route: ROUTES.ADMIN.LOGS,
