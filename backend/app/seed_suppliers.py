@@ -117,5 +117,5 @@ def seed_suppliers():
     logger.info(f"Supplier seeding completed! Added: {added_count}, Skipped: {skipped_count}")
 
 
-if __name__ == "__main__":
-    seed_suppliers()
+# if __name__ == "__main__":
+#     seed_suppliers()

@@ -97,6 +97,7 @@ export interface PurchaseOrderItemCreate {
 }
 
 export interface PurchaseOrderUpdate {
+  supplier_id?: number;
   supplier_name?: string;
   supplier_address?: string;
   supplier_phone?: string;

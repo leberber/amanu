@@ -294,9 +294,10 @@ export class PurchasingCartService {
   }
 
   // Helper: Build supplier info for order
-  private buildSupplierInfo(supplierName: string): Pick<PurchaseOrderCreate, 'supplier_name' | 'supplier_address' | 'supplier_phone' | 'supplier_email' | 'supplier_city'> {
+  private buildSupplierInfo(supplierName: string): Pick<PurchaseOrderCreate, 'supplier_id' | 'supplier_name' | 'supplier_address' | 'supplier_phone' | 'supplier_email' | 'supplier_city'> {
     const details = this.getSupplierDetails(supplierName);
     return {
+      supplier_id: details?.id,
       supplier_name: details?.name || supplierName,
       supplier_address: details?.address,
       supplier_phone: details?.phone,

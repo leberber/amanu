@@ -371,6 +371,7 @@ export interface DashboardStats {
   }
 
   export interface PurchaseOrderCreate {
+    supplier_id?: number;
     supplier_name: string;
     supplier_address?: string;
     supplier_phone?: string;
