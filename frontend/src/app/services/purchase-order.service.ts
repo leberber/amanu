@@ -77,6 +77,7 @@ export interface PurchaseOrder {
 export type PurchaseOrderStatus = 'draft' | 'sent' | 'confirmed' | 'delivered' | 'cancelled';
 
 export interface PurchaseOrderCreate {
+  supplier_id?: number;
   supplier_name: string;
   supplier_address?: string;
   supplier_phone?: string;

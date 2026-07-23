@@ -39,6 +39,7 @@ import { PackagingTypeService } from '../../../core/services/packaging-type.serv
 import { DRIVER_STATUS } from '../../../core/constants/driver.constants';
 import { ORDER_STATUS } from '../../../core/constants/order.constants';
 import { ShippingService } from '../../../services/shipping.service';
+import { DeliveryPricing } from '../../../models/shipping.model';
 import { formatFractionalCartons } from '../../../shared/utils/quantity.utils';
 import { fractionLabel } from '../../../shared/utils/box-options.utils';
 import { CurrencyService } from '../../../core/services/currency.service';
@@ -153,6 +154,8 @@ export class AdminOrderDetailComponent implements OnInit {
   createCustomer = signal<UserManage | null>(null);
   createDeliveryType = signal<'pickup' | 'delivery'>('pickup');
   createShippingCost = signal<number>(0);
+  shippingOptions = signal<{ standard: DeliveryPricing | null; priority: DeliveryPricing | null } | null>(null);
+  selectedShippingTier = signal<'standard' | 'priority'>('standard');
   customerSearchResults = signal<UserManage[]>([]);
   customerSearchLoading = signal(false);
   creatingOrder = signal(false);
@@ -936,6 +939,7 @@ export class AdminOrderDetailComponent implements OnInit {
     const orderTotal = this.previewTotal();
 
     this.calculatingShipping.set(true);
+    this.shippingOptions.set(null);
     this.shippingService.calculateCost({
       user_id: customer.id,
       weight_kg: weightKg,
@@ -946,7 +950,12 @@ export class AdminOrderDetailComponent implements OnInit {
     .subscribe({
       next: (res) => {
         if (res.deliverable) {
-          this.createShippingCost.set(res.standard_price?.cost ?? res.shipping_cost);
+          this.shippingOptions.set({ standard: res.standard_price, priority: res.priority_price });
+          const tier = this.selectedShippingTier();
+          const cost = tier === 'priority'
+            ? (res.priority_price?.cost ?? res.standard_price?.cost ?? res.shipping_cost)
+            : (res.standard_price?.cost ?? res.shipping_cost);
+          this.createShippingCost.set(cost);
         }
         this.calculatingShipping.set(false);
       },
@@ -954,10 +963,22 @@ export class AdminOrderDetailComponent implements OnInit {
     });
   }
 
+  selectShippingTier(tier: 'standard' | 'priority'): void {
+    this.selectedShippingTier.set(tier);
+    const opts = this.shippingOptions();
+    if (!opts) return;
+    const cost = tier === 'priority'
+      ? (opts.priority?.cost ?? opts.standard?.cost ?? 0)
+      : (opts.standard?.cost ?? 0);
+    this.createShippingCost.set(cost);
+  }
+
   clearCustomer(): void {
     this.selectedCustomer = null;
     this.createCustomer.set(null);
     this.customerSearchResults.set([]);
+    this.shippingOptions.set(null);
+    this.createShippingCost.set(0);
   }
 
   submitCreateOrder(): void {

@@ -985,7 +985,7 @@
             <div class="flex gap-1">
               <p-button label="Retrait" icon="pi pi-shop" size="small"
                 [severity]="createDeliveryType() === 'pickup' ? 'primary' : 'secondary'"
-                (onClick)="createDeliveryType.set('pickup'); createShippingCost.set(0)" />
+                (onClick)="createDeliveryType.set('pickup'); createShippingCost.set(0); shippingOptions.set(null); selectedShippingTier.set('standard')" />
               <p-button label="Livraison" icon="pi pi-truck" size="small"
                 [severity]="createDeliveryType() === 'delivery' ? 'primary' : 'secondary'"
                 (onClick)="createDeliveryType.set('delivery'); autoCalculateShipping()" />
@@ -1148,6 +1148,36 @@
               </div>
             }
             @if (createDeliveryType() === 'delivery') {
+              @if (shippingOptions(); as opts) {
+                <div class="flex gap-2 mb-2">
+                  <div
+                    (click)="selectShippingTier('standard')"
+                    style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px;border-radius:8px;border:1.5px solid;cursor:pointer;transition:all 0.15s;"
+                    [style.border-color]="selectedShippingTier() === 'standard' ? 'var(--primary-color)' : 'var(--surface-border)'"
+                    [style.background]="selectedShippingTier() === 'standard' ? 'var(--highlight-bg)' : 'transparent'">
+                    <span style="font-size:0.65rem;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;"
+                      [style.color]="selectedShippingTier() === 'standard' ? 'var(--primary-color)' : 'var(--text-color-secondary)'">Standard</span>
+                    <span style="font-size:0.9rem;font-weight:700;"
+                      [style.color]="selectedShippingTier() === 'standard' ? 'var(--primary-color)' : 'var(--text-color)'">
+                      <app-currency [value]="opts.standard?.cost ?? 0" />
+                    </span>
+                  </div>
+                  @if (opts.priority) {
+                    <div
+                      (click)="selectShippingTier('priority')"
+                      style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px;border-radius:8px;border:1.5px solid;cursor:pointer;transition:all 0.15s;"
+                      [style.border-color]="selectedShippingTier() === 'priority' ? 'var(--primary-color)' : 'var(--surface-border)'"
+                      [style.background]="selectedShippingTier() === 'priority' ? 'var(--highlight-bg)' : 'transparent'">
+                      <span style="font-size:0.65rem;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;"
+                        [style.color]="selectedShippingTier() === 'priority' ? 'var(--primary-color)' : 'var(--text-color-secondary)'">Premium</span>
+                      <span style="font-size:0.9rem;font-weight:700;"
+                        [style.color]="selectedShippingTier() === 'priority' ? 'var(--primary-color)' : 'var(--text-color)'">
+                        <app-currency [value]="opts.priority?.cost ?? 0" />
+                      </span>
+                    </div>
+                  }
+                </div>
+              }
               <div class="items-footer__row">
                 <span class="flex align-items-center gap-2">
                   Frais de livraison
