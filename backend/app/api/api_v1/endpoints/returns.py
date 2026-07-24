@@ -6,7 +6,7 @@ from sqlmodel import Session, select
 from app.database import get_session
 from app.models.user import User
 from app.models.order import Order, OrderItem
-from app.models.order_payments import OrderPayment, OrderAuditLog, AuditAction, PaymentMethod
+from app.models.order_payments import OrderAuditLog, AuditAction
 from app.models.product import Product
 from app.models.return_order import (
     OrderReturn, OrderReturnItem,
@@ -80,6 +80,9 @@ def create_return(
                 product.stock_quantity += qty
                 session.add(product)
 
+        order_item.quantity -= qty
+        session.add(order_item)
+
         return_items.append(OrderReturnItem(
             order_item_id=order_item.id,
             product_id=order_item.product_id,
@@ -100,20 +103,8 @@ def create_return(
     session.add(ret)
     session.flush()
 
-    # Record refund payment
     if refund_total > 0:
-        refund_payment = OrderPayment(
-            order_id=order.id,
-            amount=-refund_total,
-            method=PaymentMethod.CASH,
-            note=f"Remboursement automatique — retour #{ret.id}",
-            recorded_by=current_user.id,
-        )
-        session.add(refund_payment)
-        session.flush()
-        ret.refund_payment_id = refund_payment.id
-
-        order.total_paid = max(0.0, order.total_paid - refund_total)
+        order.total_amount = max(0.0, order.total_amount - refund_total)
         grand_total = order.total_amount + (order.shipping_cost or 0)
         if order.total_paid <= 0:
             order.payment_status = "unpaid"
@@ -131,6 +122,11 @@ def create_return(
         )
         session.add(log)
 
+    if order.user_id and refund_total > 0:
+        customer = session.get(User, order.user_id)
+        if customer:
+            customer.outstanding_balance -= refund_total
+            session.add(customer)
     session.commit()
     session.refresh(ret)
     return _build_read(ret, session)

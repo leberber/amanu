@@ -17,7 +17,7 @@ import { ToastMessageService } from '../../../core/services/toast-message.servic
 import { PackagingTypeService } from '../../../core/services/packaging-type.service';
 import { AdminService } from '../../../services/admin.service';
 import { ReturnsService, OrderReturnCreate } from '../../../core/services/returns.service';
-import { Order, OrderItem } from '../../../models/admin.model';
+import { Order, OrderItem, UserManage } from '../../../models/admin.model';
 import { ROUTES } from '../../../core/constants/routes.constants';
 import { fractionLabel } from '../../../shared/utils/box-options.utils';
 
@@ -72,6 +72,7 @@ export class AdminReturnCreateComponent {
   createOrderId = signal('');
   loadingOrder = signal(false);
   loadedOrder = signal<Order | null>(null);
+  customerInfo = signal<UserManage | null>(null);
   itemDrafts = signal<ReturnItemDraft[]>([]);
   createReason = signal('');
   createNotes = signal('');
@@ -79,6 +80,10 @@ export class AdminReturnCreateComponent {
   saving = signal(false);
 
   hasSelectedItems = computed(() => this.itemDrafts().some(d => d.selected && d.cartonsQty > 0));
+
+  projectedBalance = computed(() =>
+    (this.customerInfo()?.remaining_balance ?? 0) - this.selectedRefundTotal()
+  );
 
   selectedRefundTotal = computed(() =>
     this.itemDrafts()
@@ -103,10 +108,16 @@ export class AdminReturnCreateComponent {
     if (!id) return;
     this.loadingOrder.set(true);
     this.loadedOrder.set(null);
+    this.customerInfo.set(null);
     this.itemDrafts.set([]);
     this.adminService.getOrderById(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (order) => {
         this.loadedOrder.set(order);
+        if (order.user_id) {
+          this.adminService.getUserById(order.user_id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+            next: (user) => this.customerInfo.set(user),
+          });
+        }
         this.itemDrafts.set((order.items ?? []).map(item => {
           const options = this.buildQtyOptions(item);
           return {

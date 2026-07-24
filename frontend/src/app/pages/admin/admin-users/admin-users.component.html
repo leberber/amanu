@@ -403,6 +403,8 @@
                       <td class="text-center">
                         @if ((user.remaining_balance ?? 0) > 0) {
                           <span class="font-semibold text-red-500"><app-currency [value]="user.remaining_balance" /></span>
+                        } @else if ((user.remaining_balance ?? 0) < 0) {
+                          <span class="font-semibold text-blue-500"><app-currency [value]="user.remaining_balance" /></span>
                         } @else {
                           <span class="text-green-500"><i class="pi pi-check-circle"></i></span>
                         }

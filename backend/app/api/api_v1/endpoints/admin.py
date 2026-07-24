@@ -809,6 +809,8 @@ def admin_create_order(
     session.flush()
 
     _recalculate_order_margin(order, session)
+    target_user.outstanding_balance += (order.total_amount or 0.0) + (order.shipping_cost or 0.0)
+    session.add(target_user)
 
     session.commit()
 

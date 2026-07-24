@@ -96,6 +96,9 @@ class User(SQLModel, table=True):
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: Optional[datetime] = Field(default=None)
 
+    # Stored outstanding balance (sum of unpaid amounts across active orders)
+    outstanding_balance: float = Field(default=0.0)
+
     # Relationships
     orders: List["Order"] = Relationship(back_populates="user", sa_relationship_kwargs={"cascade": "all, delete-orphan", "foreign_keys": "[Order.user_id]"})
     notifications: List["UserNotification"] = Relationship(sa_relationship_kwargs={"cascade": "all, delete-orphan", "foreign_keys": "[UserNotification.user_id]"})

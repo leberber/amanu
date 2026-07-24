@@ -54,6 +54,44 @@
             <p-tag [value]="order.status" severity="secondary" />
           </div>
 
+          <!-- Customer info -->
+          @if (customerInfo(); as customer) {
+            <div class="customer-info-bar">
+              <div class="customer-info-bar__left">
+                <div class="customer-info-bar__avatar">
+                  <i class="pi pi-user"></i>
+                </div>
+                <div>
+                  <div class="customer-info-bar__name">{{ customer.full_name || customer.email }}</div>
+                  @if (customer.store_name) {
+                    <div class="customer-info-bar__sub">{{ customer.store_name }}</div>
+                  }
+                  @if (customer.phone) {
+                    <div class="customer-info-bar__sub">{{ customer.phone }}</div>
+                  }
+                </div>
+              </div>
+              <div class="customer-info-bar__balance">
+                <div class="customer-info-bar__balance-row">
+                  <span class="customer-info-bar__balance-label">Solde actuel</span>
+                  <span class="customer-info-bar__balance-amount"
+                    [style.color]="(customer.remaining_balance ?? 0) > 0 ? '#dc2626' : '#16a34a'">
+                    <app-currency [value]="customer.remaining_balance ?? 0" />
+                  </span>
+                </div>
+                @if (hasSelectedItems()) {
+                  <div class="customer-info-bar__balance-row customer-info-bar__balance-row--new">
+                    <span class="customer-info-bar__balance-label">Après retour</span>
+                    <span class="customer-info-bar__balance-amount"
+                      [style.color]="projectedBalance() > 0 ? '#dc2626' : '#16a34a'">
+                      <app-currency [value]="projectedBalance()" />
+                    </span>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+
           <div class="panel__body p-0 items-scroll">
             @for (draft of itemDrafts(); track draft.orderItem.id; let i = $index) {
               <div

@@ -425,6 +425,8 @@ def create_order(
 
     # Store margin at creation time (uses CMUP snapshot from product_purchase_lots)
     _recalculate_order_margin(order, session)
+    current_user.outstanding_balance += (order.total_amount or 0.0) + (order.shipping_cost or 0.0)
+    session.add(current_user)
     session.commit()
 
     # Notify admins and staff of the new order
@@ -774,6 +776,12 @@ def _restore_order_stock(order: Order, session: Session) -> None:
                 product.stock_quantity = (product.stock_quantity or 0) + item.quantity
                 session.add(product)
 
+    if order.user_id:
+        cancelled_user = session.get(User, order.user_id)
+        if cancelled_user:
+            outstanding_on_order = (order.total_amount or 0.0) + (order.shipping_cost or 0.0) - (order.total_paid or 0.0)
+            cancelled_user.outstanding_balance -= outstanding_on_order
+            session.add(cancelled_user)
     session.commit()
 
 
@@ -926,6 +934,22 @@ def _write_audit(session: Session, order_id: int, user_id: int, action: AuditAct
     session.add(log)
 
 
+def _refresh_user_outstanding_balance(user_id: int, session: Session) -> None:
+    """Recompute and store the user's outstanding balance from their active orders."""
+    user = session.get(User, user_id)
+    if not user:
+        return
+    orders = session.exec(
+        select(Order).where(Order.user_id == user_id, Order.status != OrderStatus.CANCELLED)
+    ).all()
+    balance = sum(
+        (o.total_amount or 0.0) + (o.shipping_cost or 0.0) - (o.total_paid or 0.0)
+        for o in orders
+    )
+    user.outstanding_balance = round(balance, 2)
+    session.add(user)
+
+
 def _recalculate_payment_status(order: Order, session: Session) -> None:
     """Recompute payment_status from sum of all payments."""
     total_paid = session.exec(
@@ -998,6 +1022,11 @@ def record_payment(
         "payment_status": order.payment_status,
     })
 
+    if order.user_id:
+        payer = session.get(User, order.user_id)
+        if payer:
+            payer.outstanding_balance -= payment_in.amount
+            session.add(payer)
     session.commit()
     session.refresh(payment)
 

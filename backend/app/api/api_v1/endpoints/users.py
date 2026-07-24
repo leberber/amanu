@@ -164,21 +164,6 @@ def read_users(
                 UserGroupBasic(id=group.id, name=group.name, color=group.color)
             )
 
-    # Compute remaining balance per user in one aggregate query
-    outstanding_expr = case(
-        (
-            Order.total_amount + func.coalesce(Order.shipping_cost, 0.0) - func.coalesce(Order.total_paid, 0.0) > 0,
-            Order.total_amount + func.coalesce(Order.shipping_cost, 0.0) - func.coalesce(Order.total_paid, 0.0)
-        ),
-        else_=0.0
-    )
-    balance_rows = session.exec(
-        select(Order.user_id, func.sum(outstanding_expr).label('remaining_balance'))
-        .where(Order.user_id.in_(user_ids), Order.status != OrderStatus.CANCELLED)
-        .group_by(Order.user_id)
-    ).all()
-    balance_map = {row[0]: row[1] for row in balance_rows}
-
     # Batch load push subscription presence per user
     push_rows = session.exec(
         select(PushSubscription.user_id, func.count(PushSubscription.id).label('cnt'))
@@ -200,7 +185,7 @@ def read_users(
     for user in users:
         user_dict = UserRead.model_validate(user).model_dump()
         user_dict["groups"] = user_groups_map.get(user.id, [])
-        user_dict["remaining_balance"] = balance_map.get(user.id, 0.0)
+        user_dict["remaining_balance"] = user.outstanding_balance
         user_dict["has_push"] = push_map.get(user.id, False)
         user_dict["segment_ids"] = user_segments_map.get(user.id, [])
         users_with_groups.append(UserRead(**user_dict))
@@ -276,9 +261,9 @@ def read_user_by_id(
             detail="Access denied",
         )
 
-    # Add groups to user response
     user_dict = UserRead.model_validate(user).model_dump()
     user_dict["groups"] = get_user_groups_for_user(user.id, session)
+    user_dict["remaining_balance"] = user.outstanding_balance
 
     return UserRead(**user_dict)
 
