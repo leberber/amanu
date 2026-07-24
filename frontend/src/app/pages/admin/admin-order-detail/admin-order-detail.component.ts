@@ -382,6 +382,10 @@ export class AdminOrderDetailComponent implements OnInit {
     const order = this.order();
     const amount = this.newPaymentAmount();
     if (!order || !amount || amount === 0) return;
+    if (amount > 0 && amount > this.balance() + 0.01) {
+      this.toast.showError('Le paiement dépasse le solde restant');
+      return;
+    }
 
     this.savingPayment.set(true);
     this.adminService.recordPayment(order.id, {

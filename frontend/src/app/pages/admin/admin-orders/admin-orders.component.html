@@ -153,14 +153,12 @@
                         styleClass="text-xs" />
                     </button>
                   </td>
-                  <td (click)="$event.stopPropagation()">
-                    <button class="payment-tag-btn" (click)="openPaymentPopover($event, order)">
-                      <p-tag
-                        [value]="'admin.orders.payment_status.' + (order.payment_status || 'unpaid') | translate"
-                        [severity]="order.payment_status === 'paid' ? 'success' : order.payment_status === 'partial' ? 'warn' : 'danger'"
-                        [rounded]="true"
-                        styleClass="text-xs" />
-                    </button>
+                  <td>
+                    <p-tag
+                      [value]="'admin.orders.payment_status.' + (order.payment_status || 'unpaid') | translate"
+                      [severity]="order.payment_status === 'paid' ? 'success' : order.payment_status === 'partial' ? 'warn' : 'danger'"
+                      [rounded]="true"
+                      styleClass="text-xs" />
                   </td>
                   <td class="text-right">
                     <div class="font-semibold"><app-currency [value]="getOrderTotal(order)" /></div>
@@ -348,7 +346,7 @@
       }
 
       <!-- Payment warning + inline form when marking as delivered -->
-      @if (deliveryPaymentWarning() > 0) {
+      @if (deliveryPaymentWarning() > 0 && editingOrder()?.payment_status !== 'paid') {
         <div class="delivery-payment-warning">
           <div class="delivery-payment-warning__top">
             <i class="pi pi-exclamation-triangle"></i>
@@ -389,7 +387,7 @@
       <!-- Actions -->
       @if (selectedNewStatus()) {
         <div class="status-popup__actions">
-          @if (deliveryPaymentWarning() > 0) {
+          @if (deliveryPaymentWarning() > 0 && editingOrder()?.payment_status !== 'paid') {
             <button
               class="status-popup__btn status-popup__btn--skip"
               [disabled]="assigning()"

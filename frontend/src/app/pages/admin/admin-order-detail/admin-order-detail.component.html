@@ -791,7 +791,8 @@
                     inputStyleClass="w-full"
                     mode="decimal"
                     [minFractionDigits]="0"
-                    [maxFractionDigits]="2">
+                    [maxFractionDigits]="2"
+                    [max]="balance() > 0 ? balance() : 0">
                   </p-inputNumber>
                   <p-select
                     [options]="paymentMethodOptions"
@@ -814,7 +815,7 @@
                   icon="pi pi-save"
                   severity="success"
                   [loading]="savingPayment()"
-                  [disabled]="!newPaymentAmount()"
+                  [disabled]="!newPaymentAmount() || (newPaymentAmount()! > 0 && newPaymentAmount()! > balance())"
                   styleClass="w-full"
                   (onClick)="recordPayment()">
                 </p-button>

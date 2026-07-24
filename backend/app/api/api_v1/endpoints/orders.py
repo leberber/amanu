@@ -1002,6 +1002,15 @@ def record_payment(
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
 
+    if payment_in.amount > 0:
+        grand_total = (order.total_amount or 0.0) + (order.shipping_cost or 0.0)
+        remaining = round(grand_total - (order.total_paid or 0.0), 2)
+        if payment_in.amount > remaining + 0.01:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Le paiement ({payment_in.amount} DA) dépasse le solde restant ({remaining} DA)"
+            )
+
     payment = OrderPayment(
         order_id=order_id,
         amount=payment_in.amount,

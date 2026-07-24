@@ -370,7 +370,7 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
     // Pre-fill inline payment when switching to delivered
     if (newStatus === 'delivered') {
       const order = this.editingOrder();
-      const outstanding = order ? Math.max(0, order.total_amount - (order.total_paid ?? 0)) : 0;
+      const outstanding = order ? Math.max(0, order.total_amount + (order.shipping_cost ?? 0) - (order.total_paid ?? 0)) : 0;
       this.inlinePaymentAmount.set(outstanding);
       this.inlinePaymentMethod.set('cash');
     }
