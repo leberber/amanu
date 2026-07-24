@@ -1,9 +1,9 @@
-// ─── Two-column grid ─────────────────────────────────────────────────────────
+// ─── Layout ───────────────────────────────────────────────────────────────────
 .return-create-grid {
   display: grid;
   grid-template-columns: 1fr 320px;
   align-items: start;
-  gap: 1.25rem;
+  gap: var(--space-7);
 
   @media (max-width: 900px) {
     grid-template-columns: 1fr;
@@ -13,85 +13,50 @@
 .return-main {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: var(--space-6);
   min-width: 0;
 }
 
 .return-sidebar {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-
   @media (min-width: 901px) {
     position: sticky;
     top: 1rem;
-    align-self: start;
   }
 }
 
-// ─── Panel ───────────────────────────────────────────────────────────────────
-.panel {
-  background: var(--surface-card);
-  border: 1px solid var(--surface-border);
-  border-radius: 12px;
-  overflow: hidden;
-
-  &__header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0.875rem 1.25rem;
-    border-bottom: 1px solid var(--surface-border);
-    background: var(--surface-ground);
-  }
-
-  &__title {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: var(--text-color);
-
-    i { color: var(--primary-color); font-size: 0.85rem; }
-  }
-
-  &__body {
-    padding: 1.25rem;
-
-    &.p-0 { padding: 0; }
-  }
-
-  &__footer {
-    padding: 1rem 1.25rem;
-    border-top: 1px solid var(--surface-border);
-    display: flex;
-    flex-direction: column;
-    gap: 0.625rem;
-  }
+// ─── Search row (compact field-box + button) ──────────────────────────────────
+::ng-deep .rc-search .field-box {
+  padding: var(--space-4) var(--space-5);
 }
 
-// ─── Customer name in panel title ────────────────────────────────────────────
-.customer-name {
+::ng-deep .rc-search-btn.p-button {
+  height: 100%;
+  padding-left: var(--space-8);
+  padding-right: var(--space-8);
+  font-size: var(--font-size-base);
+}
+
+// ─── Customer name inline ─────────────────────────────────────────────────────
+.rc-customer-name {
   font-weight: 400;
   color: var(--text-color-secondary);
-  font-size: 0.85rem;
+  font-size: var(--font-size-base);
 }
 
-// ─── Customer info bar ───────────────────────────────────────────────────────
-.customer-info-bar {
+// ─── Customer balance bar ─────────────────────────────────────────────────────
+.rc-balance-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  padding: 0.875rem 1.25rem;
-  border-bottom: 1px solid var(--surface-border);
+  padding: var(--space-6) var(--space-8);
+  border-bottom: var(--border-width) solid var(--border-color-light);
   background: var(--surface-ground);
 
   &__left {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    gap: var(--space-5);
     min-width: 0;
   }
 
@@ -100,90 +65,90 @@
     width: 36px;
     height: 36px;
     border-radius: 50%;
-    background: var(--primary-color);
+    background: var(--primary-gradient);
     color: white;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 0.9rem;
+    font-size: var(--font-size-base);
+    box-shadow: var(--shadow-primary);
   }
 
   &__name {
-    font-size: 0.875rem;
-    font-weight: 600;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
     color: var(--text-color);
   }
 
   &__sub {
-    font-size: 0.75rem;
+    font-size: var(--font-size-xs);
     color: var(--text-color-secondary);
     margin-top: 1px;
   }
 
-  &__balance {
+  &__right {
     flex-shrink: 0;
     display: flex;
     flex-direction: column;
     align-items: flex-end;
-    gap: 0.25rem;
+    gap: var(--space-2);
   }
 
-  &__balance-row {
+  &__row {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: var(--space-3);
 
-    &--new {
-      border-top: 1px dashed var(--surface-border);
-      padding-top: 0.25rem;
-      margin-top: 0.1rem;
+    &--projected {
+      border-top: 1px dashed var(--border-color-light);
+      padding-top: var(--space-2);
+      margin-top: var(--space-1);
     }
   }
 
-  &__balance-label {
-    font-size: 0.7rem;
+  &__label {
+    font-size: var(--font-size-xs);
     color: var(--text-color-secondary);
     text-transform: uppercase;
-    letter-spacing: 0.03em;
+    letter-spacing: 0.04em;
+    font-weight: var(--font-weight-medium);
   }
 
-  &__balance-amount {
-    font-size: 0.875rem;
-    font-weight: 700;
+  &__amount {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-bold);
   }
 }
 
-// ─── Scrollable items list ────────────────────────────────────────────────────
-.items-scroll {
+// ─── Items list ───────────────────────────────────────────────────────────────
+.rc-items {
   max-height: 50vh;
   overflow-y: auto;
   scrollbar-width: thin;
-  scrollbar-color: var(--surface-border) transparent;
+  scrollbar-color: var(--border-color-light) transparent;
 
   &::-webkit-scrollbar { width: 4px; }
   &::-webkit-scrollbar-thumb { background: var(--surface-border); border-radius: 2px; }
 }
 
-// ─── Item rows ───────────────────────────────────────────────────────────────
-.item-row {
+.rc-item {
   display: flex;
   align-items: center;
-  gap: 0.875rem;
-  padding: 0.875rem 1.25rem;
-  border-bottom: 1px solid var(--surface-border);
+  gap: var(--space-5);
+  padding: var(--space-6) var(--space-8);
+  border-bottom: var(--border-width) solid var(--border-color-light);
   cursor: pointer;
-  transition: background 0.12s;
+  transition: background var(--transition-fast);
 
   &:last-child { border-bottom: none; }
-
   &:hover { background: var(--surface-hover); }
 
   &--selected {
-    background: var(--highlight-bg);
+    background: rgba(var(--primary-rgb), 0.05);
     border-left: 3px solid var(--primary-color);
-    padding-left: calc(1.25rem - 3px);
+    padding-left: calc(var(--space-8) - 3px);
 
-    &:hover { background: var(--highlight-bg); }
+    &:hover { background: rgba(var(--primary-rgb), 0.08); }
   }
 
   &__check {
@@ -191,7 +156,7 @@
     font-size: 1.1rem;
     color: var(--text-color-secondary);
 
-    .item-row--selected & { color: var(--primary-color); }
+    .rc-item--selected & { color: var(--primary-color); }
   }
 
   &__content {
@@ -199,19 +164,19 @@
     min-width: 0;
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: var(--space-3);
   }
 
   &__name {
-    font-size: 0.875rem;
-    font-weight: 500;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
 
-  &__max {
-    font-size: 0.75rem;
+  &__meta {
+    font-size: var(--font-size-xs);
     color: var(--text-color-secondary);
     white-space: nowrap;
     flex-shrink: 0;
@@ -219,90 +184,77 @@
 }
 
 // ─── Refund preview bar ───────────────────────────────────────────────────────
-.refund-preview {
+.rc-refund-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.875rem 1.25rem;
+  padding: var(--space-6) var(--space-8);
   background: rgba(22, 163, 74, 0.07);
   border-top: 1px solid rgba(22, 163, 74, 0.2);
 
   &__label {
     display: flex;
     align-items: center;
-    gap: 0.4rem;
-    font-size: 0.85rem;
-    font-weight: 600;
+    gap: var(--space-3);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
     color: #16a34a;
 
-    i { font-size: 0.8rem; }
+    i { font-size: var(--font-size-xs); }
   }
 
   &__amount {
-    font-weight: 700;
-    font-size: 1rem;
+    font-weight: var(--font-weight-bold);
+    font-size: var(--font-size-base);
     color: #16a34a;
   }
 }
 
-// ─── Form labels ─────────────────────────────────────────────────────────────
-.field-label {
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--text-color-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-}
-
-// ─── Restock toggle ──────────────────────────────────────────────────────────
-.restock-toggle {
+// ─── Restock toggle ───────────────────────────────────────────────────────────
+.rc-restock {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.875rem 1.25rem;
-  border-top: 1px solid var(--surface-border);
+  gap: var(--space-5);
+  padding: var(--space-6) var(--space-8);
+  border-top: var(--border-width) solid var(--border-color-light);
   cursor: pointer;
-  transition: background 0.15s;
+  transition: background var(--transition-fast);
   user-select: none;
 
-  &--on {
-    background: var(--highlight-bg);
-  }
+  &--on { background: rgba(var(--primary-rgb), 0.05); }
 
   &__icon {
     flex-shrink: 0;
     width: 36px;
     height: 36px;
-    border-radius: 8px;
+    border-radius: var(--radius-md);
     background: var(--surface-border);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 0.95rem;
+    font-size: var(--font-size-base);
     color: var(--text-color-secondary);
-    transition: background 0.15s, color 0.15s;
+    transition: background var(--transition-fast), color var(--transition-fast);
 
-    .restock-toggle--on & {
-      background: var(--primary-color);
+    .rc-restock--on & {
+      background: var(--primary-gradient);
       color: white;
+      box-shadow: var(--shadow-primary);
     }
   }
 
-  &__text {
-    flex: 1;
-    min-width: 0;
-  }
+  &__text { flex: 1; min-width: 0; }
 
   &__label {
     display: block;
-    font-size: 0.875rem;
-    font-weight: 600;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
     color: var(--text-color);
   }
 
   &__sub {
     display: block;
-    font-size: 0.75rem;
+    font-size: var(--font-size-xs);
     color: var(--text-color-secondary);
     margin-top: 2px;
     line-height: 1.3;
@@ -315,7 +267,7 @@
     border-radius: 10px;
     background: var(--surface-border);
     position: relative;
-    transition: background 0.15s;
+    transition: background var(--transition-fast);
 
     &--on { background: var(--primary-color); }
   }
@@ -328,9 +280,18 @@
     height: 16px;
     border-radius: 50%;
     background: white;
-    transition: transform 0.15s;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    transition: transform var(--transition-fast);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 
-    .restock-toggle__switch--on & { transform: translateX(16px); }
+    .rc-restock__switch--on & { transform: translateX(16px); }
   }
+}
+
+// ─── Sidebar footer (action buttons) ─────────────────────────────────────────
+.rc-footer {
+  padding: var(--space-6) var(--space-8);
+  border-top: var(--border-width) solid var(--border-color-light);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
 }

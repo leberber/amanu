@@ -20,6 +20,7 @@ class OrderReturn(SQLModel, table=True):
     notes: Optional[str] = Field(default=None, max_length=1000)
     restocked: bool = Field(default=False)
     refund_amount: float = Field(default=0.0)
+    margin_impact: Optional[float] = Field(default=None)
     refund_payment_id: Optional[int] = Field(default=None, foreign_key="order_payments.id")
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
@@ -42,6 +43,8 @@ class OrderReturnItem(SQLModel, table=True):
     product_name: str
     quantity: float
     unit_price: float
+    pieces_per_box: Optional[int] = Field(default=None)
+    packaging_type: Optional[str] = Field(default=None)
 
     order_return: Optional["OrderReturn"] = Relationship(back_populates="items")
 
@@ -70,6 +73,8 @@ class OrderReturnItemRead(SQLModel):
     product_name: str
     quantity: float
     unit_price: float
+    pieces_per_box: Optional[int] = None
+    packaging_type: Optional[str] = None
     model_config = {"from_attributes": True}
 
 
@@ -80,8 +85,10 @@ class OrderReturnRead(SQLModel):
     notes: Optional[str] = None
     restocked: bool
     refund_amount: float
+    margin_impact: Optional[float] = None
     created_at: datetime
     creator_name: Optional[str] = None
     customer_name: Optional[str] = None
+    customer_segment_id: Optional[int] = None
     items: List[OrderReturnItemRead] = []
     model_config = {"from_attributes": True}

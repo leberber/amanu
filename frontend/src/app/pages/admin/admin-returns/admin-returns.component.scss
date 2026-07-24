@@ -1,1 +1,43 @@
-// No custom classes needed — uses existing shared styles
+// ─── Datepicker inside segment-control--glass ────────────────────────────────
+::ng-deep .returns-datepicker {
+  .p-datepicker-input {
+    background: transparent;
+    border: none;
+    border-radius: var(--radius-md);
+    height: 36px;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--text-color-secondary);
+    padding: 0 var(--space-5);
+    min-width: 150px;
+    cursor: pointer;
+    transition: background var(--transition-fast), color var(--transition-fast);
+
+    &:hover {
+      background: var(--overlay-subtle);
+      color: var(--text-color);
+    }
+
+    &:focus {
+      outline: none;
+      box-shadow: none;
+    }
+  }
+
+  .p-datepicker-dropdown {
+    display: none;
+  }
+}
+
+::ng-deep .returns-datepicker--active {
+  .p-datepicker-input {
+    background: var(--primary-gradient);
+    color: var(--color-white);
+    font-weight: var(--font-weight-semibold);
+    box-shadow: var(--shadow-primary);
+
+    &:hover {
+      color: var(--color-white);
+    }
+  }
+}

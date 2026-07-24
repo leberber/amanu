@@ -17,6 +17,27 @@ from app.core.security import get_current_staff_user
 router = APIRouter()
 
 
+def _build_item_read(item: OrderReturnItem, session: Session) -> OrderReturnItemRead:
+    # Prefer stored values; fall back to the source OrderItem for old records
+    ppb = item.pieces_per_box
+    pkg = item.packaging_type
+    if ppb is None or pkg is None:
+        src = session.get(OrderItem, item.order_item_id)
+        if src:
+            ppb = ppb if ppb is not None else src.pieces_per_box
+            pkg = pkg if pkg is not None else src.packaging_type
+    return OrderReturnItemRead(
+        id=item.id,
+        order_item_id=item.order_item_id,
+        product_id=item.product_id,
+        product_name=item.product_name,
+        quantity=item.quantity,
+        unit_price=item.unit_price,
+        pieces_per_box=ppb,
+        packaging_type=pkg,
+    )
+
+
 def _build_read(ret: OrderReturn, session: Session) -> OrderReturnRead:
     order = session.get(Order, ret.order_id)
     creator = session.get(User, ret.created_by)
@@ -28,18 +49,13 @@ def _build_read(ret: OrderReturn, session: Session) -> OrderReturnRead:
         notes=ret.notes,
         restocked=ret.restocked,
         refund_amount=ret.refund_amount,
+        margin_impact=ret.margin_impact,
         created_at=ret.created_at,
         creator_name=creator.full_name if creator else None,
         customer_name=customer.full_name if customer else None,
+        customer_segment_id=customer.segment_id if customer else None,
         items=[
-            OrderReturnItemRead(
-                id=item.id,
-                order_item_id=item.order_item_id,
-                product_id=item.product_id,
-                product_name=item.product_name,
-                quantity=item.quantity,
-                unit_price=item.unit_price,
-            )
+            _build_item_read(item, session)
             for item in ret.items
         ],
     )
@@ -65,6 +81,7 @@ def create_return(
         raise HTTPException(status_code=404, detail="Order not found")
 
     refund_total = 0.0
+    margin_impact = 0.0
     return_items = []
 
     for item_in in data.items:
@@ -73,6 +90,9 @@ def create_return(
             raise HTTPException(status_code=400, detail=f"Item {item_in.order_item_id} not found on this order")
         qty = min(item_in.quantity, order_item.quantity)
         refund_total += qty * order_item.unit_price
+
+        if order_item.cmup is not None:
+            margin_impact -= (order_item.unit_price - order_item.cmup) * qty
 
         if data.restock:
             product = session.get(Product, order_item.product_id)
@@ -89,6 +109,8 @@ def create_return(
             product_name=order_item.product_name,
             quantity=qty,
             unit_price=order_item.unit_price,
+            pieces_per_box=order_item.pieces_per_box,
+            packaging_type=order_item.packaging_type,
         ))
 
     ret = OrderReturn(
@@ -98,6 +120,7 @@ def create_return(
         notes=data.notes,
         restocked=data.restock,
         refund_amount=refund_total,
+        margin_impact=round(margin_impact, 2) if margin_impact != 0.0 else None,
         items=return_items,
     )
     session.add(ret)

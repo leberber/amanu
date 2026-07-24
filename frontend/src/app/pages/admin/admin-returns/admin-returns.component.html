@@ -1,18 +1,55 @@
 <app-agroclik-page-container>
 
   <div pageTop>
-    <div class="admin-list-header">
+    <!-- Header -->
+    <div class="admin-list-header animate-item" style="--item-delay: 0ms;">
       <div class="header-title">
         <div class="admin-icon-wrapper">
           <div class="icon-bg"></div>
           <div class="icon-circle"><i class="pi pi-replay"></i></div>
         </div>
         <div class="title-text">
-          <h1 class="text-xl font-bold m-0">Retours</h1>
-          <span class="text-secondary text-sm">{{ returns().length }} retour(s)</span>
+          <h1>Retours</h1>
+          <p>{{ returns().length }} retour(s)</p>
         </div>
       </div>
-      <p-button label="Nouveau retour" icon="pi pi-plus" severity="success" [raised]="true" (onClick)="openCreatePage()" />
+      <button class="btn-add" (click)="openCreatePage()">
+        <i class="pi pi-plus"></i>
+        <span>Nouveau retour</span>
+      </button>
+    </div>
+
+    <!-- Filters -->
+    <div class="flex align-items-center gap-3 flex-wrap mt-3 mb-4 animate-item" style="--item-delay: 50ms;">
+      <!-- Date filter + custom range on same line -->
+      <div class="segment-control segment-control--glass">
+        <button class="segment-control__item" [class.active]="dateFilter() === null"
+          (click)="setDateFilter(null)">
+          <span>Tous</span>
+          <span class="count">{{ returns().length }}</span>
+        </button>
+        <button class="segment-control__item" [class.active]="dateFilter() === 'today'"
+          (click)="setDateFilter(dateFilter() === 'today' ? null : 'today')">
+          <span>Aujourd'hui</span>
+        </button>
+        <button class="segment-control__item" [class.active]="dateFilter() === 'week'"
+          (click)="setDateFilter(dateFilter() === 'week' ? null : 'week')">
+          <span>Cette semaine</span>
+        </button>
+        <button class="segment-control__item" [class.active]="dateFilter() === 'month'"
+          (click)="setDateFilter(dateFilter() === 'month' ? null : 'month')">
+          <span>Ce mois</span>
+        </button>
+        <p-datepicker
+          [ngModel]="dateRange()"
+          (ngModelChange)="dateRange.set($event); setDateFilter('custom')"
+          selectionMode="range"
+          [readonlyInput]="true"
+          placeholder="Choisir..."
+          dateFormat="dd/mm/yy"
+          appendTo="body"
+          [styleClass]="'returns-datepicker' + (dateFilter() === 'custom' ? ' returns-datepicker--active' : '')" />
+      </div>
     </div>
   </div>
 
@@ -20,7 +57,7 @@
 
     @if (loading()) {
       <div class="flex gap-3 mb-3">
-        @for (i of [1,2]; track i) {
+        @for (i of [1,2,3]; track i) {
           <div class="skeleton flex-1" style="height:72px;border-radius:12px;"></div>
         }
       </div>
@@ -38,7 +75,7 @@
             <div class="flex justify-content-between align-items-center">
               <div>
                 <div class="text-secondary text-xs mb-1">Total retours</div>
-                <div class="text-2xl font-bold">{{ returns().length }}</div>
+                <div class="text-2xl font-bold">{{ filteredReturns().length }}</div>
               </div>
               <i class="pi pi-replay text-2xl" style="color:var(--primary-color);opacity:0.6;"></i>
             </div>
@@ -54,17 +91,48 @@
               <i class="pi pi-credit-card text-2xl" style="color:#16a34a;opacity:0.6;"></i>
             </div>
           </div>
+          <div class="surface-card border-round-xl shadow-1 p-3 flex-1">
+            <div class="flex justify-content-between align-items-center">
+              <div>
+                <div class="text-secondary text-xs mb-1">Impact marge</div>
+                <div class="text-2xl font-bold" style="color:#dc2626;">
+                  <app-currency [value]="totalMarginImpact()" />
+                </div>
+              </div>
+              <i class="pi pi-chart-line text-2xl" style="color:#dc2626;opacity:0.6;"></i>
+            </div>
+          </div>
         </div>
 
         <!-- Table -->
-        <div class="surface-card border-round-xl shadow-1 overflow-hidden">
+        <div class="table-container scrollable">
           @if (returns().length === 0) {
             <div class="flex flex-column align-items-center justify-content-center p-6 gap-2">
               <i class="pi pi-replay text-4xl text-color-secondary"></i>
               <span class="text-color-secondary font-medium">Aucun retour</span>
               <span class="text-xs text-color-secondary">Créez votre premier retour avec le bouton ci-dessus</span>
             </div>
+          } @else if (filteredReturns().length === 0) {
+            <div class="flex flex-column align-items-center justify-content-center p-6 gap-2">
+              <i class="pi pi-filter text-4xl text-color-secondary"></i>
+              <span class="text-color-secondary font-medium">Aucun retour trouvé</span>
+              <p-button label="Effacer les filtres" icon="pi pi-filter-slash"
+                severity="secondary" [outlined]="true" (onClick)="clearFilters()" />
+            </div>
           } @else {
+            <div class="table-header">
+              <app-table-search
+                [query]="searchTerm()"
+                (queryChange)="searchTerm.set($event)"
+                [placeholder]="'Rechercher un client...'" />
+              <div class="table-actions">
+                @if (dateFilter() || searchTerm()) {
+                  <button class="clear-filters-btn" (click)="clearFilters()" pTooltip="Effacer les filtres">
+                    <i class="pi pi-filter-slash"></i>
+                  </button>
+                }
+              </div>
+            </div>
             <div class="table-wrapper">
               <table class="table">
                 <thead>
@@ -76,35 +144,39 @@
                     <th>Motif</th>
                     <th>Stock</th>
                     <th>Remboursement</th>
+                    <th>Impact marge</th>
                     <th>Traité par</th>
                     <th>Date</th>
                   </tr>
                 </thead>
                 <tbody>
-                  @for (ret of returns(); track ret.id) {
-                    <tr>
+                  @for (ret of filteredReturns(); track ret.id; let i = $index) {
+                    <tr class="table-row-animate" [style.--row-delay]="((i < 10 ? i : 10) * 30) + 'ms'">
                       <td class="font-semibold text-secondary text-sm">#{{ ret.id }}</td>
                       <td class="font-medium">{{ ret.customer_name || '—' }}</td>
                       <td>
-                        <button
-                          class="action-btn"
-                          (click)="goToOrder(ret.order_id)"
+                        <p-button
+                          [link]="true"
+                          [label]="'#' + ret.order_id"
+                          icon="pi pi-external-link"
+                          iconPos="left"
+                          size="small"
+                          (onClick)="goToOrder(ret.order_id)"
                           pTooltip="Voir la commande"
-                          tooltipPosition="top">
-                          <i class="pi pi-external-link" style="font-size:0.75rem;margin-right:4px;"></i>#{{ ret.order_id }}
-                        </button>
+                          tooltipPosition="top" />
                       </td>
                       <td>
                         <div class="flex flex-column gap-1">
                           @for (item of ret.items; track item.id) {
                             <span class="text-sm">{{ item.product_name }}
-                              <span class="pill secondary" style="font-size:0.7rem;padding:1px 6px;">× {{ item.quantity }}</span>
+                              <span class="pill secondary" style="font-size:0.7rem;padding:1px 6px;">{{ getItemQtyLabel(item) }}</span>
                             </span>
                           }
                         </div>
                       </td>
                       <td class="text-secondary text-sm" style="max-width:160px;">
-                        <span [pTooltip]="ret.reason || ''" tooltipPosition="top" style="display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                        <span [pTooltip]="ret.reason || ''" tooltipPosition="top"
+                          style="display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
                           {{ ret.reason || '—' }}
                         </span>
                       </td>
@@ -119,6 +191,15 @@
                         <span class="font-bold" style="color:#16a34a;">
                           <app-currency [value]="ret.refund_amount" />
                         </span>
+                      </td>
+                      <td>
+                        @if (ret.margin_impact != null) {
+                          <span class="font-semibold" style="color:#dc2626;">
+                            <app-currency [value]="ret.margin_impact" />
+                          </span>
+                        } @else {
+                          <span class="text-secondary">—</span>
+                        }
                       </td>
                       <td class="text-secondary text-sm">{{ ret.creator_name || '—' }}</td>
                       <td class="text-secondary text-sm">{{ ret.created_at | appDate }}</td>

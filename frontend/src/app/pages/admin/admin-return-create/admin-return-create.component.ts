@@ -11,7 +11,7 @@ import { SelectModule } from 'primeng/select';
 import { TextareaModule } from 'primeng/textarea';
 import { TagModule } from 'primeng/tag';
 
-import { PageLayoutComponent } from '../../../shared/components/page-layout/page-layout.component';
+import { AgroclikPageContainerComponent } from '../../../shared/components/agroclik-page-container/agroclik-page-container.component';
 import { CurrencyDisplayComponent } from '../../../shared/components/currency-display/currency-display.component';
 import { ToastMessageService } from '../../../core/services/toast-message.service';
 import { PackagingTypeService } from '../../../core/services/packaging-type.service';
@@ -45,7 +45,7 @@ interface ReturnItemDraft {
     SelectModule,
     TextareaModule,
     TagModule,
-    PageLayoutComponent,
+    AgroclikPageContainerComponent,
     CurrencyDisplayComponent,
   ],
   templateUrl: './admin-return-create.component.html',

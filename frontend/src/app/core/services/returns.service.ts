@@ -10,6 +10,8 @@ export interface ReturnItem {
   product_name: string;
   quantity: number;
   unit_price: number;
+  pieces_per_box?: number;
+  packaging_type?: string;
 }
 
 export interface OrderReturn {
@@ -19,9 +21,11 @@ export interface OrderReturn {
   notes?: string;
   restocked: boolean;
   refund_amount: number;
+  margin_impact?: number;
   created_at: string;
   creator_name?: string;
   customer_name?: string;
+  customer_segment_id?: number;
   items: ReturnItem[];
 }
 

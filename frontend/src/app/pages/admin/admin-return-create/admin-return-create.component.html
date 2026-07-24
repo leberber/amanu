@@ -1,179 +1,193 @@
-<app-page-layout
-  title="Nouveau retour"
-  subtitle="Créer un retour à partir d'une commande existante"
-  mobileTitle="Retour"
-  mobileSubtitle="nouveau"
-  icon="pi pi-replay"
-  [showBackButton]="true"
-  [backRoute]="ROUTES.ADMIN.RETURNS">
+<app-agroclik-page-container>
 
-  <div @pageAnimation class="return-create-grid">
-
-    <!-- ══ MAIN COLUMN ══ -->
-    <div class="return-main">
-
-      <!-- Order search -->
-      <div class="panel">
-        <div class="panel__header">
-          <span class="panel__title">
-            <i class="pi pi-search"></i>
-            Rechercher la commande
-          </span>
+  <div pageTop>
+    <div class="admin-list-header animate-item" style="--item-delay: 0ms;">
+      <div class="header-title">
+        <div class="admin-icon-wrapper">
+          <div class="icon-bg"></div>
+          <div class="icon-circle"><i class="pi pi-replay"></i></div>
         </div>
-        <div class="panel__body">
-          <div class="flex gap-2">
-            <input
-              pInputText
-              type="number"
-              class="flex-1"
-              [ngModel]="createOrderId()"
-              (ngModelChange)="createOrderId.set($event)"
-              placeholder="N° de commande (ex: 1234)"
-              (keydown.enter)="fetchOrder()" />
-            <p-button
-              label="Chercher"
-              icon="pi pi-search"
-              [loading]="loadingOrder()"
-              (onClick)="fetchOrder()" />
-          </div>
+        <div class="title-text">
+          <h1>Nouveau retour</h1>
+          <p>Créer un retour à partir d'une commande existante</p>
         </div>
       </div>
+      <p-button
+        label="Retours"
+        icon="pi pi-arrow-left"
+        severity="secondary"
+        [outlined]="true"
+        (onClick)="cancel()" />
+    </div>
+  </div>
 
-      <!-- Order + items (shown after fetch) -->
-      @if (loadedOrder(); as order) {
+  <div pageMain>
+    <div @pageAnimation class="return-create-grid">
 
-        <div class="panel">
-          <div class="panel__header">
-            <span class="panel__title">
-              <i class="pi pi-receipt"></i>
-              Commande #{{ order.id }}
-              @if (order.user?.full_name || order.user?.email) {
-                <span class="customer-name">— {{ order.user?.full_name || order.user?.email }}</span>
-              }
-            </span>
-            <p-tag [value]="order.status" severity="secondary" />
-          </div>
+      <!-- ══ MAIN COLUMN ══ -->
+      <div class="return-main">
 
-          <!-- Customer info -->
-          @if (customerInfo(); as customer) {
-            <div class="customer-info-bar">
-              <div class="customer-info-bar__left">
-                <div class="customer-info-bar__avatar">
-                  <i class="pi pi-user"></i>
+        <!-- Order search -->
+        <div class="form-card">
+          <div class="card-body">
+            <div class="rc-search flex align-items-stretch gap-3">
+              <div class="field-box flex-1" [class.filled]="createOrderId()">
+                <div class="field-box__icon field-box__icon--primary">
+                  <i class="pi pi-hashtag"></i>
                 </div>
-                <div>
-                  <div class="customer-info-bar__name">{{ customer.full_name || customer.email }}</div>
-                  @if (customer.store_name) {
-                    <div class="customer-info-bar__sub">{{ customer.store_name }}</div>
-                  }
-                  @if (customer.phone) {
-                    <div class="customer-info-bar__sub">{{ customer.phone }}</div>
-                  }
+                <div class="field-box__content">
+                  <label>N° de commande</label>
+                  <input
+                    type="number"
+                    [ngModel]="createOrderId()"
+                    (ngModelChange)="createOrderId.set($event)"
+                    placeholder="ex: 1234"
+                    (keydown.enter)="fetchOrder()" />
                 </div>
               </div>
-              <div class="customer-info-bar__balance">
-                <div class="customer-info-bar__balance-row">
-                  <span class="customer-info-bar__balance-label">Solde actuel</span>
-                  <span class="customer-info-bar__balance-amount"
-                    [style.color]="(customer.remaining_balance ?? 0) > 0 ? '#dc2626' : '#16a34a'">
-                    <app-currency [value]="customer.remaining_balance ?? 0" />
-                  </span>
+              <p-button
+                label="Chercher"
+                icon="pi pi-search"
+                styleClass="rc-search-btn"
+                [loading]="loadingOrder()"
+                (onClick)="fetchOrder()" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Order + items -->
+        @if (loadedOrder(); as order) {
+          <div class="form-card">
+            <div class="card-header">
+              <div class="card-header__icon card-header__icon--primary">
+                <i class="pi pi-receipt"></i>
+              </div>
+              <div class="card-header__text">
+                <h3 class="card-header__title">
+                  Commande #{{ order.id }}
+                  @if (order.user?.full_name || order.user?.email) {
+                    <span class="rc-customer-name">— {{ order.user?.full_name || order.user?.email }}</span>
+                  }
+                </h3>
+              </div>
+              <p-tag [value]="order.status" severity="secondary" />
+            </div>
+
+            <!-- Customer balance bar -->
+            @if (customerInfo(); as customer) {
+              <div class="rc-balance-bar">
+                <div class="rc-balance-bar__left">
+                  <div class="rc-balance-bar__avatar">
+                    <i class="pi pi-user"></i>
+                  </div>
+                  <div>
+                    <div class="rc-balance-bar__name">{{ customer.full_name || customer.email }}</div>
+                    @if (customer.store_name) {
+                      <div class="rc-balance-bar__sub">{{ customer.store_name }}</div>
+                    }
+                    @if (customer.phone) {
+                      <div class="rc-balance-bar__sub">{{ customer.phone }}</div>
+                    }
+                  </div>
                 </div>
-                @if (hasSelectedItems()) {
-                  <div class="customer-info-bar__balance-row customer-info-bar__balance-row--new">
-                    <span class="customer-info-bar__balance-label">Après retour</span>
-                    <span class="customer-info-bar__balance-amount"
-                      [style.color]="projectedBalance() > 0 ? '#dc2626' : '#16a34a'">
-                      <app-currency [value]="projectedBalance()" />
+                <div class="rc-balance-bar__right">
+                  <div class="rc-balance-bar__row">
+                    <span class="rc-balance-bar__label">Solde actuel</span>
+                    <span class="rc-balance-bar__amount"
+                      [style.color]="(customer.remaining_balance ?? 0) > 0 ? '#dc2626' : '#16a34a'">
+                      <app-currency [value]="customer.remaining_balance ?? 0" />
                     </span>
                   </div>
-                }
-              </div>
-            </div>
-          }
-
-          <div class="panel__body p-0 items-scroll">
-            @for (draft of itemDrafts(); track draft.orderItem.id; let i = $index) {
-              <div
-                class="item-row"
-                [class.item-row--selected]="draft.selected"
-                (click)="toggleItem(i)">
-
-                <div class="item-row__check">
-                  <i class="pi"
-                    [class.pi-check-square]="draft.selected"
-                    [class.pi-stop]="!draft.selected"></i>
-                </div>
-
-                <div class="item-row__content">
-                  <div class="flex align-items-center gap-2">
-                    <span class="item-row__name">{{ draft.orderItem.product_name }}</span>
-                    <span class="item-row__max">max {{ draft.options[draft.options.length - 1]?.label ?? draft.orderItem.quantity }}</span>
-                  </div>
-                  @if (draft.selected) {
-                    <p-select
-                      [options]="draft.options"
-                      optionLabel="label"
-                      optionValue="cartons"
-                      [ngModel]="draft.cartonsQty"
-                      (ngModelChange)="setCartonsQty(i, $event)"
-                      appendTo="body"
-                      styleClass="w-full p-inputtext-sm"
-                      (click)="$event.stopPropagation()">
-                    </p-select>
+                  @if (hasSelectedItems()) {
+                    <div class="rc-balance-bar__row rc-balance-bar__row--projected">
+                      <span class="rc-balance-bar__label">Après retour</span>
+                      <span class="rc-balance-bar__amount"
+                        [style.color]="projectedBalance() > 0 ? '#dc2626' : '#16a34a'">
+                        <app-currency [value]="projectedBalance()" />
+                      </span>
+                    </div>
                   }
                 </div>
               </div>
             }
-          </div>
 
-          @if (hasSelectedItems()) {
-            <div class="refund-preview">
-              <span class="refund-preview__label">
-                <i class="pi pi-replay"></i>
-                Remboursement estimé
-              </span>
-              <span class="refund-preview__amount">
-                <app-currency [value]="selectedRefundTotal()" />
-              </span>
+            <!-- Items list -->
+            <div class="rc-items">
+              @for (draft of itemDrafts(); track draft.orderItem.id; let i = $index) {
+                <div class="rc-item" [class.rc-item--selected]="draft.selected" (click)="toggleItem(i)">
+                  <div class="rc-item__check">
+                    <i class="pi" [class.pi-check-square]="draft.selected" [class.pi-stop]="!draft.selected"></i>
+                  </div>
+                  <div class="rc-item__content">
+                    <div class="flex align-items-center gap-2 flex-wrap">
+                      <span class="rc-item__name">{{ draft.orderItem.product_name }}</span>
+                      <span class="rc-item__meta">max {{ draft.options[draft.options.length - 1]?.label ?? draft.orderItem.quantity }}</span>
+                      <span class="rc-item__meta"><app-currency [value]="draft.orderItem.unit_price" /></span>
+                    </div>
+                    @if (draft.selected) {
+                      <p-select
+                        [options]="draft.options"
+                        optionLabel="label"
+                        optionValue="cartons"
+                        [ngModel]="draft.cartonsQty"
+                        (ngModelChange)="setCartonsQty(i, $event)"
+                        appendTo="body"
+                        styleClass="w-full p-inputtext-sm"
+                        (click)="$event.stopPropagation()">
+                      </p-select>
+                    }
+                  </div>
+                </div>
+              }
             </div>
 
-            <!-- Restock toggle -->
-            <div class="restock-toggle" [class.restock-toggle--on]="restock()" (click)="restock.set(!restock())">
-              <div class="restock-toggle__icon">
-                <i class="pi pi-box"></i>
-              </div>
-              <div class="restock-toggle__text">
-                <span class="restock-toggle__label">Remettre en stock</span>
-                <span class="restock-toggle__sub">
-                  @if (restock()) { Les articles retournés seront remis en stock }
-                  @else { Articles non remis en stock (périmés / endommagés) }
+            @if (hasSelectedItems()) {
+              <!-- Refund preview -->
+              <div class="rc-refund-bar">
+                <span class="rc-refund-bar__label">
+                  <i class="pi pi-replay"></i>
+                  Remboursement estimé
+                </span>
+                <span class="rc-refund-bar__amount">
+                  <app-currency [value]="selectedRefundTotal()" />
                 </span>
               </div>
-              <div class="restock-toggle__switch" [class.restock-toggle__switch--on]="restock()">
-                <div class="restock-toggle__thumb"></div>
+
+              <!-- Restock toggle -->
+              <div class="rc-restock" [class.rc-restock--on]="restock()" (click)="restock.set(!restock())">
+                <div class="rc-restock__icon"><i class="pi pi-box"></i></div>
+                <div class="rc-restock__text">
+                  <span class="rc-restock__label">Remettre en stock</span>
+                  <span class="rc-restock__sub">
+                    @if (restock()) { Les articles retournés seront remis en stock }
+                    @else { Articles non remis en stock (périmés / endommagés) }
+                  </span>
+                </div>
+                <div class="rc-restock__switch" [class.rc-restock__switch--on]="restock()">
+                  <div class="rc-restock__thumb"></div>
+                </div>
               </div>
+            }
+          </div>
+        }
+
+      </div>
+
+      <!-- ══ SIDEBAR ══ -->
+      <div class="return-sidebar">
+        <div class="form-card">
+          <div class="card-header">
+            <div class="card-header__icon card-header__icon--primary">
+              <i class="pi pi-info-circle"></i>
             </div>
-          }
-        </div>
+            <div class="card-header__text">
+              <h3 class="card-header__title">Détails du retour</h3>
+            </div>
+          </div>
+          <div class="card-body">
 
-      }
-    </div>
-
-    <!-- ══ SIDEBAR ══ -->
-    <div class="return-sidebar">
-      <div class="panel">
-        <div class="panel__header">
-          <span class="panel__title">
-            <i class="pi pi-info-circle"></i>
-            Détails du retour
-          </span>
-        </div>
-        <div class="panel__body">
-          <div class="flex flex-column gap-3">
-
-            <div class="flex flex-column gap-1">
-              <label class="field-label">Motif</label>
+            <div class="form-field">
+              <label class="form-field__label">Motif</label>
               <p-select
                 [options]="returnReasons"
                 [ngModel]="createReason()"
@@ -184,8 +198,8 @@
                 styleClass="w-full" />
             </div>
 
-            <div class="flex flex-column gap-1">
-              <label class="field-label">Notes internes</label>
+            <div class="form-field">
+              <label class="form-field__label">Notes internes</label>
               <textarea
                 pTextarea
                 rows="4"
@@ -197,26 +211,26 @@
             </div>
 
           </div>
-        </div>
 
-        <div class="panel__footer">
-          <p-button
-            label="Annuler"
-            severity="secondary"
-            [outlined]="true"
-            styleClass="w-full"
-            (onClick)="cancel()" />
-          <p-button
-            label="Créer le retour"
-            icon="pi pi-replay"
-            styleClass="w-full"
-            [loading]="saving()"
-            [disabled]="!loadedOrder() || !hasSelectedItems()"
-            (onClick)="submitCreate()" />
+          <div class="rc-footer">
+            <p-button
+              label="Annuler"
+              severity="secondary"
+              [outlined]="true"
+              styleClass="w-full"
+              (onClick)="cancel()" />
+            <p-button
+              label="Créer le retour"
+              icon="pi pi-replay"
+              styleClass="w-full"
+              [loading]="saving()"
+              [disabled]="!loadedOrder() || !hasSelectedItems()"
+              (onClick)="submitCreate()" />
+          </div>
         </div>
       </div>
-    </div>
 
+    </div>
   </div>
 
-</app-page-layout>
+</app-agroclik-page-container>
