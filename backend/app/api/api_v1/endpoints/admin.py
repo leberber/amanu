@@ -12,7 +12,8 @@ from app.models.product import Product
 from app.models.category import Category
 from app.models.brand import Brand
 from app.models.order import Order, OrderStatus, OrderItem, DeliveryType
-from app.models.order_payments import OrderAuditLog, AuditAction
+from app.models.order_payments import OrderAuditLog, AuditAction, OrderPayment
+from app.models.return_order import OrderReturn
 from app.api.utils.common import format_price
 from app.api.api_v1.endpoints.orders import _recalculate_order_margin
 from app.core.security import get_current_admin_user, get_current_staff_user
@@ -815,3 +816,114 @@ def admin_create_order(
     session.commit()
 
     return {"order_id": order.id}
+
+
+# ---------------------------------------------------------------------------
+# User financial history
+# ---------------------------------------------------------------------------
+
+class FinancialEvent(BaseModel):
+    event_type: str          # "order" | "payment" | "return"
+    date: datetime
+    order_id: int
+    description: str
+    debit: float             # amount added to balance (order created)
+    credit: float            # amount removed from balance (payment / return)
+    method: Optional[str] = None   # payment method label
+    note: Optional[str] = None
+
+
+class UserFinancialHistory(BaseModel):
+    user_id: int
+    user_name: str
+    user_email: str
+    user_phone: Optional[str]
+    current_balance: float
+    total_ordered: float
+    total_paid: float
+    total_returned: float
+    events: List[FinancialEvent]
+
+
+@router.get("/users/{user_id}/financial-history", response_model=UserFinancialHistory)
+def get_user_financial_history(
+    user_id: int,
+    session: Session = Depends(get_session),
+    current_user: User = Depends(get_current_staff_user),
+) -> Any:
+    user = session.get(User, user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    orders = session.exec(
+        select(Order).where(Order.user_id == user_id).order_by(Order.created_at)
+    ).all()
+    order_ids = [o.id for o in orders]
+
+    payments: List[OrderPayment] = []
+    returns: List[OrderReturn] = []
+    if order_ids:
+        payments = session.exec(
+            select(OrderPayment)
+            .where(OrderPayment.order_id.in_(order_ids))
+            .order_by(OrderPayment.recorded_at)
+        ).all()
+        returns = session.exec(
+            select(OrderReturn)
+            .where(OrderReturn.order_id.in_(order_ids))
+            .order_by(OrderReturn.created_at)
+        ).all()
+
+    events: List[FinancialEvent] = []
+
+    for o in orders:
+        grand = (o.total_amount or 0.0) + (o.shipping_cost or 0.0)
+        events.append(FinancialEvent(
+            event_type="order",
+            date=o.created_at,
+            order_id=o.id,
+            description=f"Commande #{o.id}" + (" (annulée)" if o.status == OrderStatus.CANCELLED else ""),
+            debit=grand if o.status != OrderStatus.CANCELLED else 0.0,
+            credit=grand if o.status == OrderStatus.CANCELLED else 0.0,
+        ))
+
+    for p in payments:
+        events.append(FinancialEvent(
+            event_type="payment",
+            date=p.recorded_at,
+            order_id=p.order_id,
+            description=f"Paiement — commande #{p.order_id}",
+            debit=0.0,
+            credit=p.amount,
+            method=p.method,
+            note=p.note,
+        ))
+
+    for r in returns:
+        events.append(FinancialEvent(
+            event_type="return",
+            date=r.created_at,
+            order_id=r.order_id,
+            description=f"Retour — commande #{r.order_id}" + (f" ({r.reason})" if r.reason else ""),
+            debit=0.0,
+            credit=r.refund_amount,
+        ))
+
+    events.sort(key=lambda e: e.date)
+
+    active_orders = [o for o in orders if o.status != OrderStatus.CANCELLED]
+    total_ordered = sum((o.total_amount or 0.0) + (o.shipping_cost or 0.0) for o in active_orders)
+    total_paid = sum(p.amount for p in payments)
+    total_returned = sum(r.refund_amount for r in returns)
+
+    return UserFinancialHistory(
+        user_id=user.id,
+        user_name=user.full_name or user.email or "",
+        user_email=user.email or "",
+        user_phone=user.phone,
+        current_balance=round(user.outstanding_balance, 2),
+        total_ordered=round(total_ordered, 2),
+        total_paid=round(total_paid, 2),
+        total_returned=round(total_returned, 2),
+        events=events,
+    )

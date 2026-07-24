@@ -265,6 +265,11 @@ export class AdminUsersComponent extends BaseAdminListComponent implements OnIni
     this.baseRouter.navigate([RouteHelpers.adminUserAnalytics(user.id)]);
   }
 
+  navigateToUserBalance(user: UserManage, event: Event): void {
+    event.stopPropagation();
+    this.baseRouter.navigate([RouteHelpers.adminUserBalance(user.id)]);
+  }
+
   navigateToEditUser(user: UserManage): void {
     this.baseRouter.navigate([ROUTES.ADMIN.USERS, user.id, 'edit']);
   }

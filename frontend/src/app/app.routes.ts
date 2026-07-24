@@ -374,6 +374,12 @@ export const routes: Routes = [
     canActivate: [adminGuard],
     data: { hideBottomNav: true }
   },
+  {
+    path: 'admin/users/:id/balance',
+    loadComponent: () => import('./pages/admin/admin-user-balance/admin-user-balance.component').then(m => m.AdminUserBalanceComponent),
+    canActivate: [adminGuard],
+    data: { hideBottomNav: true }
+  },
 
   // Graph Builder (public - for adding missing roads)
   {

@@ -1,0 +1,166 @@
+<app-agroclik-page-container>
+
+  <div pageTop>
+    <div class="admin-list-header animate-item" style="--item-delay: 0ms;">
+      <div class="header-title">
+        <div class="admin-icon-wrapper">
+          <div class="icon-bg"></div>
+          <div class="icon-circle"><i class="pi pi-wallet"></i></div>
+        </div>
+        <div class="title-text">
+          @if (history(); as h) {
+            <h1>{{ h.user_name }}</h1>
+            <p>Historique financier</p>
+          } @else {
+            <h1>Historique financier</h1>
+          }
+        </div>
+      </div>
+      <p-button
+        label="Clients"
+        icon="pi pi-arrow-left"
+        severity="secondary"
+        [outlined]="true"
+        (onClick)="goBack()" />
+    </div>
+  </div>
+
+  <div pageMain>
+
+    @if (loading()) {
+      <div class="flex gap-3 mb-4">
+        @for (i of [1,2,3,4]; track i) {
+          <div class="skeleton flex-1" style="height:80px;border-radius:12px;"></div>
+        }
+      </div>
+      <div class="flex flex-column gap-2">
+        @for (i of [1,2,3,4,5,6,7]; track i) {
+          <div class="skeleton" style="height:52px;border-radius:10px;"></div>
+        }
+      </div>
+    } @else {
+      @if (history(); as h) {
+      <div @pageAnimation class="flex flex-column gap-4">
+
+        <!-- Summary cards -->
+        <div class="ub-summary-grid">
+          <div class="ub-card ub-card--neutral">
+            <div class="ub-card__icon"><i class="pi pi-shopping-cart"></i></div>
+            <div class="ub-card__body">
+              <span class="ub-card__label">Total commandé</span>
+              <span class="ub-card__value"><app-currency [value]="h.total_ordered" /></span>
+            </div>
+          </div>
+          <div class="ub-card ub-card--success">
+            <div class="ub-card__icon"><i class="pi pi-credit-card"></i></div>
+            <div class="ub-card__body">
+              <span class="ub-card__label">Total payé</span>
+              <span class="ub-card__value"><app-currency [value]="h.total_paid" /></span>
+            </div>
+          </div>
+          <div class="ub-card ub-card--info">
+            <div class="ub-card__icon"><i class="pi pi-replay"></i></div>
+            <div class="ub-card__body">
+              <span class="ub-card__label">Total retourné</span>
+              <span class="ub-card__value"><app-currency [value]="h.total_returned" /></span>
+            </div>
+          </div>
+          <div class="ub-card" [class.ub-card--danger]="h.current_balance > 0" [class.ub-card--success]="h.current_balance <= 0">
+            <div class="ub-card__icon"><i class="pi pi-wallet"></i></div>
+            <div class="ub-card__body">
+              <span class="ub-card__label">Solde impayé</span>
+              <span class="ub-card__value"><app-currency [value]="h.current_balance" /></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Ledger table -->
+        <div class="table-container">
+          @if (ledger().length === 0) {
+            <div class="flex flex-column align-items-center justify-content-center p-6 gap-2">
+              <i class="pi pi-inbox text-4xl text-color-secondary"></i>
+              <span class="text-color-secondary font-medium">Aucune transaction</span>
+            </div>
+          } @else {
+            <div class="table-wrapper">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Type</th>
+                    <th>Description</th>
+                    <th>Commande</th>
+                    <th class="text-right">Débit</th>
+                    <th class="text-right">Crédit</th>
+                    <th class="text-right">Solde après</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (row of ledger(); track $index; let i = $index) {
+                    <tr class="table-row-animate" [style.--row-delay]="((i < 10 ? i : 10) * 25) + 'ms'">
+                      <td class="text-secondary text-sm">{{ row.date | appDate }}</td>
+                      <td>
+                        <p-tag
+                          [value]="eventLabel(row.event_type)"
+                          [severity]="eventSeverity(row.event_type)" />
+                      </td>
+                      <td>
+                        <div class="flex flex-column gap-1">
+                          <span class="text-sm font-medium">{{ row.description }}</span>
+                          @if (row.method) {
+                            <span class="text-xs text-color-secondary">{{ methodLabel(row.method) }}
+                              @if (row.note) { — {{ row.note }} }
+                            </span>
+                          }
+                        </div>
+                      </td>
+                      <td>
+                        <p-button
+                          [link]="true"
+                          [label]="'#' + row.order_id"
+                          icon="pi pi-external-link"
+                          iconPos="left"
+                          size="small"
+                          (onClick)="goToOrder(row.order_id)"
+                          pTooltip="Voir la commande"
+                          tooltipPosition="top" />
+                      </td>
+                      <td class="text-right">
+                        @if (row.debit > 0) {
+                          <span class="font-semibold" style="color:#dc2626;">
+                            +<app-currency [value]="row.debit" />
+                          </span>
+                        } @else {
+                          <span class="text-color-secondary">—</span>
+                        }
+                      </td>
+                      <td class="text-right">
+                        @if (row.credit > 0) {
+                          <span class="font-semibold" style="color:#16a34a;">
+                            −<app-currency [value]="row.credit" />
+                          </span>
+                        } @else {
+                          <span class="text-color-secondary">—</span>
+                        }
+                      </td>
+                      <td class="text-right">
+                        <span class="font-bold"
+                          [style.color]="row.running_balance > 0 ? '#dc2626' : row.running_balance < 0 ? '#2563eb' : '#16a34a'">
+                          <app-currency [value]="row.running_balance" />
+                        </span>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        </div>
+
+      </div>
+      }
+    }
+
+  </div>
+
+</app-agroclik-page-container>

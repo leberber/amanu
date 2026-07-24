@@ -13,6 +13,15 @@
   --table-max-height: calc(100vh - 375px);
 }
 
+.balance-link {
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-underline-offset: 3px;
+
+  &:hover { opacity: 0.75; }
+}
+
 .btn-secondary--active {
   background: #dbeafe !important;
   border-color: #3b82f6 !important;

@@ -103,7 +103,8 @@ export const ROUTES = {
     RETURNS: '/admin/returns',
     RETURNS_NEW: '/admin/returns/new',
     PRODUCT_ANALYTICS: '/admin/products/:id/analytics',
-    USER_ANALYTICS: '/admin/users/:id/analytics'
+    USER_ANALYTICS: '/admin/users/:id/analytics',
+    USER_BALANCE: '/admin/users/:id/balance'
   }
 } as const;
 
@@ -128,7 +129,8 @@ export const RouteHelpers = {
   adminEditSupplier: (id: number | string) => `/admin/suppliers/${id}/edit`,
   adminFacturationDetail: (id: number | string) => `/admin/facturation/${id}`,
   adminProductAnalytics: (id: number | string) => `/admin/products/${id}/analytics`,
-  adminUserAnalytics: (id: number | string) => `/admin/users/${id}/analytics`
+  adminUserAnalytics: (id: number | string) => `/admin/users/${id}/analytics`,
+  adminUserBalance: (id: number | string) => `/admin/users/${id}/balance`
 };
 
 /**
