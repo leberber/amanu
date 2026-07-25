@@ -380,6 +380,12 @@ export const routes: Routes = [
     canActivate: [adminGuard],
     data: { hideBottomNav: true }
   },
+  {
+    path: 'admin/daily-report',
+    loadComponent: () => import('./pages/admin/admin-daily-report/admin-daily-report.component').then(m => m.AdminDailyReportComponent),
+    canActivate: [adminGuard],
+    data: { hideBottomNav: true }
+  },
 
   // Graph Builder (public - for adding missing roads)
   {

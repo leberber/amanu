@@ -102,6 +102,7 @@ export const ROUTES = {
     SEGMENTS: '/admin/segments',
     RETURNS: '/admin/returns',
     RETURNS_NEW: '/admin/returns/new',
+    DAILY_REPORT: '/admin/daily-report',
     PRODUCT_ANALYTICS: '/admin/products/:id/analytics',
     USER_ANALYTICS: '/admin/users/:id/analytics',
     USER_BALANCE: '/admin/users/:id/balance'

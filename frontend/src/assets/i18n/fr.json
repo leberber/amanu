@@ -1940,6 +1940,7 @@
     "navigation": {
       "dashboard": "Tableau de Bord",
       "sales_report": "Rapport de Ventes",
+      "daily_report": "Clôture journalière",
       "orders": "Commandes",
       "users": "Utilisateurs",
       "users_map": "Carte des Clients",

@@ -47,6 +47,12 @@ export const ADMIN_NAV_ITEMS: AdminNavItem[] = [
     adminOnly: true
   },
   {
+    labelKey: 'admin.navigation.daily_report',
+    icon: 'pi pi-calculator',
+    route: ROUTES.ADMIN.DAILY_REPORT,
+    staffOnly: true
+  },
+  {
     labelKey: 'admin.navigation.orders',
     icon: 'pi pi-list',
     route: ROUTES.ADMIN.ORDERS,

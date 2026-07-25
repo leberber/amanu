@@ -1,5 +1,5 @@
 from typing import Any, Dict, List, Optional
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone, timedelta, date as date_type
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlmodel import Session, select, func
@@ -14,6 +14,7 @@ from app.models.brand import Brand
 from app.models.order import Order, OrderStatus, OrderItem, DeliveryType
 from app.models.order_payments import OrderAuditLog, AuditAction, OrderPayment
 from app.models.return_order import OrderReturn
+from app.models.purchase_order import PurchaseOrder, PurchaseOrderStatus
 from app.api.utils.common import format_price
 from app.api.api_v1.endpoints.orders import _recalculate_order_margin
 from app.core.security import get_current_admin_user, get_current_staff_user
@@ -926,4 +927,254 @@ def get_user_financial_history(
         total_paid=round(total_paid, 2),
         total_returned=round(total_returned, 2),
         events=events,
+    )
+
+
+# ---------------------------------------------------------------------------
+# Daily report
+# ---------------------------------------------------------------------------
+
+def _day_utc_range(day: date_type):
+    """UTC start/end for a business day running 20:00→19:59 Algeria time (UTC+1).
+    e.g. 'July 23' covers July 22 20:00 local → July 23 19:59:59 local.
+    """
+    # Algeria UTC+1: local = UTC + 1h  →  UTC = local - 1h
+    # Start: previous calendar day at 20:00 local = prev day at 19:00 UTC
+    start = datetime(day.year, day.month, day.day, 19, 0, 0, tzinfo=timezone.utc) - timedelta(days=1)
+    # End: same calendar day at 19:59:59 local = same day at 18:59:59 UTC
+    end = datetime(day.year, day.month, day.day, 18, 59, 59, 999999, tzinfo=timezone.utc)
+    return start, end
+
+
+class DailyOrderRow(BaseModel):
+    order_id: int
+    customer_name: str
+    total: float
+    total_paid: float
+    payment_status: str
+    delivered_at: datetime
+    margin: Optional[float] = None
+    margin_pct: Optional[float] = None
+
+
+class DailyPurchaseRow(BaseModel):
+    id: int
+    reference: str
+    supplier_name: str
+    total_amount: float
+
+
+class DailyReturnRow(BaseModel):
+    id: int
+    order_id: int
+    customer_name: Optional[str]
+    refund_amount: float
+    reason: Optional[str]
+    created_at: datetime
+
+
+class StaffPaymentRow(BaseModel):
+    staff_name: str
+    total: float
+    by_method: Dict[str, float]
+
+
+class DailyReportResponse(BaseModel):
+    date: str
+    # Deliveries
+    deliveries_count: int
+    deliveries_total: float
+    deliveries_outstanding: float
+    orders: List[DailyOrderRow]
+    # Payments collected today
+    payments_total: float
+    payments_by_method: Dict[str, float]
+    payments_by_staff: List[StaffPaymentRow]
+    # Purchases received today
+    purchases_count: int
+    purchases_total: float
+    purchases: List[DailyPurchaseRow]
+    # Returns today
+    returns_count: int
+    returns_total: float
+    returns: List[DailyReturnRow]
+    # Net
+    net: float
+    # Margin on delivered orders
+    margin_total: Optional[float] = None
+    margin_pct: Optional[float] = None
+
+
+@router.get("/daily-report", response_model=DailyReportResponse)
+def get_daily_report(
+    date: Optional[str] = Query(default=None, description="YYYY-MM-DD, defaults to today Algeria"),
+    session: Session = Depends(get_session),
+    current_user: User = Depends(get_current_staff_user),
+) -> Any:
+    if date:
+        day = date_type.fromisoformat(date)
+    else:
+        day = (datetime.now(timezone.utc) + timedelta(hours=1)).date()
+
+    start_utc, end_utc = _day_utc_range(day)
+
+    # ── Deliveries: audit log (new orders) + updated_at fallback (historical) ──
+    delivery_logs = session.exec(
+        select(OrderAuditLog).where(
+            OrderAuditLog.action == AuditAction.DELIVERY_CONFIRMED,
+            OrderAuditLog.created_at >= start_utc,
+            OrderAuditLog.created_at <= end_utc,
+        )
+    ).all()
+    audit_delivered_ids: set[int] = {log.order_id for log in delivery_logs}
+    delivered_log_time: Dict[int, datetime] = {}
+    for log in delivery_logs:
+        if log.order_id not in delivered_log_time or log.created_at > delivered_log_time[log.order_id]:
+            delivered_log_time[log.order_id] = log.created_at
+
+    # Fallback for orders delivered before audit logging was added
+    fallback_q = select(Order).where(
+        Order.status == OrderStatus.DELIVERED,
+        Order.updated_at >= start_utc,
+        Order.updated_at <= end_utc,
+    )
+    if audit_delivered_ids:
+        fallback_q = fallback_q.where(~Order.id.in_(list(audit_delivered_ids)))
+    fallback_orders = session.exec(fallback_q).all()
+    for o in fallback_orders:
+        delivered_log_time[o.id] = o.updated_at or o.created_at
+
+    all_delivered_ids = list(audit_delivered_ids | {o.id for o in fallback_orders})
+
+    order_rows: List[DailyOrderRow] = []
+    deliveries_total = 0.0
+    deliveries_outstanding = 0.0
+    if all_delivered_ids:
+        audit_orders = (
+            session.exec(select(Order).where(Order.id.in_(list(audit_delivered_ids)))).all()
+            if audit_delivered_ids else []
+        )
+        delivered_orders = audit_orders + fallback_orders
+        user_map: Dict[int, str] = {}
+        user_ids = [o.user_id for o in delivered_orders if o.user_id]
+        if user_ids:
+            for u in session.exec(select(User).where(User.id.in_(user_ids))).all():
+                user_map[u.id] = u.full_name or u.email or f"#{u.id}"
+        for o in delivered_orders:
+            grand = (o.total_amount or 0.0) + (o.shipping_cost or 0.0)
+            remaining = max(0.0, grand - (o.total_paid or 0.0))
+            deliveries_total += grand
+            deliveries_outstanding += remaining
+            order_rows.append(DailyOrderRow(
+                order_id=o.id,
+                customer_name=user_map.get(o.user_id, "—") if o.user_id else "Sans compte",
+                total=round(grand, 2),
+                total_paid=round(o.total_paid or 0.0, 2),
+                payment_status=o.payment_status or "unpaid",
+                delivered_at=delivered_log_time.get(o.id, o.updated_at or o.created_at),
+                margin=o.margin,
+                margin_pct=o.margin_pct,
+            ))
+        order_rows.sort(key=lambda r: r.delivered_at, reverse=True)
+
+    # ── Payments collected today ───────────────────────────────────────────────
+    payments_today = session.exec(
+        select(OrderPayment).where(
+            OrderPayment.recorded_at >= start_utc,
+            OrderPayment.recorded_at <= end_utc,
+            OrderPayment.amount > 0,
+        )
+    ).all()
+    payments_total = round(sum(p.amount for p in payments_today), 2)
+    by_method: Dict[str, float] = {}
+    staff_map: Dict[int, str] = {}
+    staff_totals: Dict[int, Dict[str, float]] = {}
+    if payments_today:
+        recorder_ids = list({p.recorded_by for p in payments_today})
+        for u in session.exec(select(User).where(User.id.in_(recorder_ids))).all():
+            staff_map[u.id] = u.full_name or u.email or f"#{u.id}"
+        for p in payments_today:
+            m = p.method if isinstance(p.method, str) else p.method.value
+            by_method[m] = round(by_method.get(m, 0.0) + p.amount, 2)
+            staff_totals.setdefault(p.recorded_by, {})
+            staff_totals[p.recorded_by][m] = round(
+                staff_totals[p.recorded_by].get(m, 0.0) + p.amount, 2
+            )
+    payments_by_staff = [
+        StaffPaymentRow(
+            staff_name=staff_map.get(uid, f"#{uid}"),
+            total=round(sum(v for v in methods.values()), 2),
+            by_method=methods,
+        )
+        for uid, methods in sorted(staff_totals.items(), key=lambda x: -sum(x[1].values()))
+    ]
+
+    # ── Purchases delivered today ─────────────────────────────────────────────
+    purchases_today = session.exec(
+        select(PurchaseOrder).where(
+            PurchaseOrder.status == PurchaseOrderStatus.DELIVERED,
+            PurchaseOrder.delivered_at >= start_utc,
+            PurchaseOrder.delivered_at <= end_utc,
+        )
+    ).all()
+    purchases_total = round(sum(p.total_amount for p in purchases_today), 2)
+    purchase_rows = [
+        DailyPurchaseRow(
+            id=p.id, reference=p.reference,
+            supplier_name=p.supplier_name,
+            total_amount=round(p.total_amount, 2),
+        )
+        for p in purchases_today
+    ]
+
+    # ── Returns today ─────────────────────────────────────────────────────────
+    returns_today = session.exec(
+        select(OrderReturn).where(
+            OrderReturn.created_at >= start_utc,
+            OrderReturn.created_at <= end_utc,
+        )
+    ).all()
+    returns_total = round(sum(r.refund_amount for r in returns_today), 2)
+    return_order_ids = list({r.order_id for r in returns_today})
+    return_user_map: Dict[int, str] = {}
+    if return_order_ids:
+        for o in session.exec(select(Order).where(Order.id.in_(return_order_ids))).all():
+            if o.user_id:
+                u = session.get(User, o.user_id)
+                return_user_map[o.id] = u.full_name or u.email if u else "—"
+    return_rows = [
+        DailyReturnRow(
+            id=r.id, order_id=r.order_id,
+            customer_name=return_user_map.get(r.order_id),
+            refund_amount=round(r.refund_amount, 2),
+            reason=r.reason,
+            created_at=r.created_at,
+        )
+        for r in returns_today
+    ]
+
+    net = round(payments_total - purchases_total - returns_total, 2)
+
+    margin_rows = [o for o in order_rows if o.margin is not None]
+    margin_total = round(sum(o.margin for o in margin_rows), 2) if margin_rows else None
+    margin_pct = round(margin_total / deliveries_total * 100, 1) if margin_total is not None and deliveries_total > 0 else None
+
+    return DailyReportResponse(
+        date=day.isoformat(),
+        deliveries_count=len(order_rows),
+        deliveries_total=round(deliveries_total, 2),
+        deliveries_outstanding=round(deliveries_outstanding, 2),
+        orders=order_rows,
+        payments_total=payments_total,
+        payments_by_method=by_method,
+        payments_by_staff=payments_by_staff,
+        purchases_count=len(purchase_rows),
+        purchases_total=purchases_total,
+        purchases=purchase_rows,
+        returns_count=len(return_rows),
+        returns_total=returns_total,
+        returns=return_rows,
+        net=net,
+        margin_total=margin_total,
+        margin_pct=margin_pct,
     )

@@ -1,0 +1,344 @@
+<app-agroclik-page-container>
+
+  <!-- ── Header ── -->
+  <div pageTop>
+    <div class="admin-list-header animate-item" style="--item-delay: 0ms;">
+      <div class="header-title">
+        <div class="admin-icon-wrapper">
+          <div class="icon-bg"></div>
+          <div class="icon-circle"><i class="pi pi-calculator"></i></div>
+        </div>
+        <div class="title-text">
+          <h1>Clôture journalière</h1>
+          <p>Récapitulatif financier de la journée</p>
+        </div>
+      </div>
+      <div class="dr-date-nav">
+        <p-button icon="pi pi-chevron-left" [text]="true" [rounded]="true" severity="secondary" (onClick)="prevDay()" />
+        <div class="dr-date-btn-wrap">
+          <div class="dr-date-label">
+            <i class="pi pi-calendar"></i>
+            <span>{{ formattedDate() }}</span>
+            <i class="pi pi-angle-down"></i>
+          </div>
+          <p-datepicker
+            [ngModel]="selectedDate()"
+            (ngModelChange)="onDateChange($event)"
+            dateFormat="dd/mm/yy"
+            [readonlyInput]="true"
+            appendTo="body"
+            styleClass="dr-datepicker-styled" />
+        </div>
+        <p-button icon="pi pi-chevron-right" [text]="true" [rounded]="true" severity="secondary" (onClick)="nextDay()" [disabled]="isToday()" />
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Main ── -->
+  <div pageMain>
+
+    @if (loading()) {
+      <div class="dr-kpi-strip">
+        @for (i of [1,2,3,4,5]; track i) {
+          <div class="skeleton" style="height:88px;border-radius:14px;flex:1;"></div>
+        }
+      </div>
+      <div class="dr-body">
+        <div class="dr-left">
+          <div class="skeleton" style="flex:1;border-radius:12px;"></div>
+        </div>
+        <div class="dr-right">
+          <div class="skeleton" style="flex:1;border-radius:12px;"></div>
+        </div>
+      </div>
+    } @else {
+      @if (report(); as r) {
+        <div @pageAnimation class="dr-page">
+
+          <!-- ══ KPI STRIP ══ -->
+          <div class="dr-kpi-strip">
+
+            <!-- Net (featured card) -->
+            <div class="dr-kpi dr-kpi--featured"
+              [class.dr-kpi--pos]="r.net >= 0"
+              [class.dr-kpi--neg]="r.net < 0">
+              <div class="dr-kpi__icon-wrap">
+                <i class="pi pi-wallet"></i>
+              </div>
+              <div class="dr-kpi__main">
+                <span class="dr-kpi__label">Solde net</span>
+                <span class="dr-kpi__big"><app-currency [value]="r.net" /></span>
+              </div>
+              <div class="dr-kpi__rate-wrap">
+                <div class="dr-kpi__rate-track">
+                  <div class="dr-kpi__rate-fill" [style.width.%]="collectionRate()"></div>
+                </div>
+                <span class="dr-kpi__rate-txt">{{ collectionRate() }}% collecté</span>
+              </div>
+            </div>
+
+            <!-- Encaissé -->
+            <div class="dr-kpi">
+              <div class="dr-kpi__icon-wrap dr-kpi__icon-wrap--green"><i class="pi pi-credit-card"></i></div>
+              <div class="dr-kpi__main">
+                <span class="dr-kpi__label">Encaissé</span>
+                <span class="dr-kpi__big" style="color:#16a34a;"><app-currency [value]="r.payments_total" /></span>
+                <span class="dr-kpi__sub">{{ r.payments_by_staff.length }} agent(s)</span>
+              </div>
+            </div>
+
+            <!-- Livraisons -->
+            <div class="dr-kpi">
+              <div class="dr-kpi__icon-wrap dr-kpi__icon-wrap--blue"><i class="pi pi-truck"></i></div>
+              <div class="dr-kpi__main">
+                <span class="dr-kpi__label">Livraisons</span>
+                <span class="dr-kpi__big" style="color:#2563eb;">{{ r.deliveries_count }}</span>
+                <span class="dr-kpi__sub"><app-currency [value]="r.deliveries_total" /></span>
+                @if (r.deliveries_outstanding > 0) {
+                  <span class="dr-kpi__alert"><app-currency [value]="r.deliveries_outstanding" /> impayé</span>
+                }
+              </div>
+            </div>
+
+            <!-- Achats -->
+            <div class="dr-kpi">
+              <div class="dr-kpi__icon-wrap dr-kpi__icon-wrap--orange"><i class="pi pi-box"></i></div>
+              <div class="dr-kpi__main">
+                <span class="dr-kpi__label">Achats reçus</span>
+                <span class="dr-kpi__big" style="color:#d97706;"><app-currency [value]="r.purchases_total" /></span>
+                <span class="dr-kpi__sub">{{ r.purchases_count }} bon(s)</span>
+              </div>
+            </div>
+
+            <!-- Retours -->
+            <div class="dr-kpi">
+              <div class="dr-kpi__icon-wrap dr-kpi__icon-wrap--purple"><i class="pi pi-replay"></i></div>
+              <div class="dr-kpi__main">
+                <span class="dr-kpi__label">Retours</span>
+                <span class="dr-kpi__big" style="color:#7c3aed;"><app-currency [value]="r.returns_total" /></span>
+                <span class="dr-kpi__sub">{{ r.returns_count }} retour(s)</span>
+              </div>
+            </div>
+
+            <!-- Marge -->
+            @if (r.margin_total != null) {
+              <div class="dr-kpi">
+                <div class="dr-kpi__icon-wrap dr-kpi__icon-wrap--green"><i class="pi pi-chart-line"></i></div>
+                <div class="dr-kpi__main">
+                  <span class="dr-kpi__label">Marge</span>
+                  <span class="dr-kpi__big" style="color:#16a34a;"><app-currency [value]="r.margin_total" /></span>
+                  <span class="dr-kpi__sub">{{ r.margin_pct | number:'1.0-1' }}% du CA</span>
+                </div>
+              </div>
+            }
+
+          </div>
+
+          <!-- ══ BODY ══ -->
+          <div class="dr-body">
+
+            <!-- ── Tab bar ── -->
+            <div class="dr-tab-bar">
+              <button class="dr-tab" [class.dr-tab--active]="activeTab() === 0" (click)="activeTab.set(0)">
+                <i class="pi pi-truck"></i>
+                Commandes livrées
+                <span class="dr-tab__count">{{ r.deliveries_count }}</span>
+              </button>
+              <button class="dr-tab" [class.dr-tab--active]="activeTab() === 1" (click)="activeTab.set(1)">
+                <i class="pi pi-users"></i>
+                Récapitulatif
+              </button>
+            </div>
+
+            <!-- ── Tab 1: Orders ── -->
+            @if (activeTab() === 0) {
+              <div class="form-card dr-orders-card">
+                <div class="card-header">
+                  <div class="card-header__icon card-header__icon--primary"><i class="pi pi-truck"></i></div>
+                  <div class="card-header__text"><h3 class="card-header__title">Commandes livrées</h3></div>
+                  <div class="dr-header-kpis">
+                    <span class="dr-header-kpi dr-header-kpi--blue">{{ r.deliveries_count }} livraisons</span>
+                    @if (r.deliveries_outstanding > 0) {
+                      <span class="dr-header-kpi dr-header-kpi--red"><app-currency [value]="r.deliveries_outstanding" /> impayé</span>
+                    }
+                  </div>
+                </div>
+                <div class="card-body p-0 dr-scroll">
+                  @if (r.orders.length === 0) {
+                    <div class="flex flex-column align-items-center justify-content-center gap-3 p-6" style="height:100%;">
+                      <i class="pi pi-moon" style="font-size:2.5rem;color:var(--text-color-secondary);opacity:0.4;"></i>
+                      <span class="font-medium text-color-secondary">Aucune livraison ce jour</span>
+                    </div>
+                  } @else {
+                    <table class="table">
+                      <thead>
+                        <tr>
+                          <th>#</th>
+                          <th>Client</th>
+                          <th class="text-right">Total</th>
+                          <th class="text-right">Payé</th>
+                          <th class="text-right">Reste</th>
+                          <th class="text-right">Marge</th>
+                          <th>Paiement</th>
+                          <th>Heure</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        @for (o of r.orders; track o.order_id; let i = $index) {
+                          <tr class="table-row-animate clickable-row"
+                            [style.--row-delay]="(i * 18) + 'ms'"
+                            [class.dr-row--unpaid]="o.payment_status === 'unpaid'"
+                            [class.dr-row--partial]="o.payment_status === 'partial'"
+                            (click)="goToOrder(o.order_id)">
+                            <td><span class="id-badge">#{{ o.order_id }}</span></td>
+                            <td class="font-medium">{{ o.customer_name }}</td>
+                            <td class="text-right font-semibold"><app-currency [value]="o.total" /></td>
+                            <td class="text-right" style="color:#16a34a;font-weight:600;"><app-currency [value]="o.total_paid" /></td>
+                            <td class="text-right">
+                              @if (o.total - o.total_paid > 0.01) {
+                                <span style="color:#dc2626;font-weight:600;"><app-currency [value]="o.total - o.total_paid" /></span>
+                              } @else {
+                                <i class="pi pi-check-circle" style="color:#16a34a;"></i>
+                              }
+                            </td>
+                            <td class="text-right">
+                              @if (o.margin != null) {
+                                <div class="font-semibold" style="color:#16a34a;"><app-currency [value]="o.margin" /></div>
+                                <div class="text-xs" style="color:#16a34a;">{{ o.margin_pct | number:'1.0-1' }}%</div>
+                              } @else {
+                                <span class="text-secondary">—</span>
+                              }
+                            </td>
+                            <td><p-tag [value]="paymentLabel(o.payment_status)" [severity]="paymentSeverity(o.payment_status)" /></td>
+                            <td class="text-secondary text-sm">{{ o.delivered_at | appDate }}</td>
+                          </tr>
+                        }
+                      </tbody>
+                    </table>
+                  }
+                </div>
+              </div>
+            }
+
+            <!-- ── Tab 2: Summary ── -->
+            @if (activeTab() === 1) {
+              <div class="dr-summary-layout">
+
+                <!-- Left: Par agent -->
+                <div class="form-card dr-summary-panel">
+                  <div class="card-header">
+                    <div class="card-header__icon card-header__icon--primary"><i class="pi pi-users"></i></div>
+                    <div class="card-header__text"><h3 class="card-header__title">Par agent</h3></div>
+                    @if (r.payments_total > 0) {
+                      <span class="dr-badge" style="margin-left:auto;background:rgba(22,163,74,0.1);color:#16a34a;">
+                        <app-currency [value]="r.payments_total" />
+                      </span>
+                    }
+                  </div>
+                  <div class="card-body p-0 dr-scroll">
+                    @if (r.payments_by_staff.length === 0) {
+                      <div class="flex align-items-center justify-content-center gap-2 p-4 text-secondary text-sm">
+                        Aucun encaissement
+                      </div>
+                    } @else {
+                      <table class="table">
+                        <thead><tr><th>Agent</th><th class="text-right">Total</th></tr></thead>
+                        <tbody>
+                          @for (s of r.payments_by_staff; track s.staff_name; let i = $index) {
+                            <tr class="table-row-animate" [style.--row-delay]="(i * 30) + 'ms'">
+                              <td>
+                                <div class="dr-agent">
+                                  <div class="dr-agent__avatar">{{ s.staff_name.charAt(0).toUpperCase() }}</div>
+                                  <span class="font-medium">{{ s.staff_name }}</span>
+                                </div>
+                              </td>
+                              <td class="text-right font-bold" style="color:#16a34a;"><app-currency [value]="s.total" /></td>
+                            </tr>
+                          }
+                        </tbody>
+                      </table>
+                    }
+                  </div>
+                </div>
+
+                <!-- Right: Achats + Retours stacked -->
+                <div class="dr-summary-right">
+
+                  <div class="form-card dr-summary-panel">
+                    <div class="card-header">
+                      <div class="card-header__icon card-header__icon--primary"><i class="pi pi-box"></i></div>
+                      <div class="card-header__text"><h3 class="card-header__title">Achats reçus</h3></div>
+                      @if (r.purchases_total > 0) {
+                        <span class="dr-badge dr-badge--orange"><app-currency [value]="r.purchases_total" /></span>
+                      }
+                    </div>
+                    <div class="card-body p-0 dr-scroll">
+                      @if (r.purchases.length === 0) {
+                        <div class="flex align-items-center justify-content-center gap-2 p-4 text-secondary text-sm">
+                          Aucun achat ce jour
+                        </div>
+                      } @else {
+                        <table class="table">
+                          <thead><tr><th>Référence</th><th>Fournisseur</th><th class="text-right">Montant</th></tr></thead>
+                          <tbody>
+                            @for (p of r.purchases; track p.id) {
+                              <tr class="clickable-row" (click)="goToPurchaseOrder(p.id)">
+                                <td class="text-secondary font-semibold text-sm">{{ p.reference }}</td>
+                                <td class="font-medium">{{ p.supplier_name }}</td>
+                                <td class="text-right font-bold" style="color:#d97706;"><app-currency [value]="p.total_amount" /></td>
+                              </tr>
+                            }
+                          </tbody>
+                        </table>
+                      }
+                    </div>
+                  </div>
+
+                  <div class="form-card dr-summary-panel">
+                    <div class="card-header">
+                      <div class="card-header__icon card-header__icon--primary"><i class="pi pi-replay"></i></div>
+                      <div class="card-header__text"><h3 class="card-header__title">Retours</h3></div>
+                      @if (r.returns_total > 0) {
+                        <span class="dr-badge dr-badge--purple"><app-currency [value]="r.returns_total" /></span>
+                      }
+                    </div>
+                    <div class="card-body p-0 dr-scroll">
+                      @if (r.returns.length === 0) {
+                        <div class="flex align-items-center justify-content-center gap-2 p-4 text-secondary text-sm">
+                          Aucun retour ce jour
+                        </div>
+                      } @else {
+                        <table class="table">
+                          <thead><tr><th>Client</th><th>Cmd</th><th>Motif</th><th class="text-right">Remb.</th></tr></thead>
+                          <tbody>
+                            @for (ret of r.returns; track ret.id) {
+                              <tr>
+                                <td class="font-medium">{{ ret.customer_name || '—' }}</td>
+                                <td>
+                                  <p-button [link]="true" [label]="'#' + ret.order_id" size="small"
+                                    (onClick)="goToOrder(ret.order_id); $event.stopPropagation()" />
+                                </td>
+                                <td class="text-secondary text-sm">{{ ret.reason || '—' }}</td>
+                                <td class="text-right font-bold" style="color:#7c3aed;"><app-currency [value]="ret.refund_amount" /></td>
+                              </tr>
+                            }
+                          </tbody>
+                        </table>
+                      }
+                    </div>
+                  </div>
+
+                </div>
+
+              </div>
+            }
+
+          </div>
+
+        </div>
+      }
+    }
+
+  </div>
+
+</app-agroclik-page-container>

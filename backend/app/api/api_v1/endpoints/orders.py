@@ -754,6 +754,14 @@ def update_order(
             _restore_order_stock(order, session)
             _handle_order_cancellation_trip_cleanup(order, session)
 
+        # Write delivery audit log
+        if new_status == OrderStatus.DELIVERED:
+            _write_audit(session, order.id, current_user.id, AuditAction.DELIVERY_CONFIRMED, {
+                "total": order.total_amount,
+                "payment_status": order.payment_status,
+            })
+            session.commit()
+
     # Include order items in response
     return order
 

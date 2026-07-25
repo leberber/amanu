@@ -1,0 +1,494 @@
+// ─── Page container ───────────────────────────────────────────────────────────
+.dr-page {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  height: calc(100vh - 160px);
+  min-height: 480px;
+}
+
+// ─── KPI strip ────────────────────────────────────────────────────────────────
+.dr-kpi-strip {
+  display: flex;
+  gap: 10px;
+  flex-shrink: 0;
+
+  @media (max-width: 991px) {
+    flex-wrap: wrap;
+  }
+}
+
+.dr-kpi {
+  background: var(--surface-card);
+  border: var(--border-width) solid var(--border-color-light);
+  border-radius: 14px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 150ms ease;
+
+  &:hover { box-shadow: var(--shadow-md); }
+
+  // Featured net card
+  &--featured {
+    flex: 1.5;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    background: var(--surface-card);
+    border-width: 2px;
+    position: relative;
+    overflow: hidden;
+
+    &::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      opacity: 0.04;
+      border-radius: inherit;
+      background: var(--text-color);
+    }
+
+    .dr-kpi__icon-wrap {
+      position: absolute;
+      top: 12px;
+      right: 14px;
+      width: 34px;
+      height: 34px;
+      font-size: 1rem;
+    }
+  }
+
+  &--pos {
+    border-color: rgba(22, 163, 74, 0.35);
+    &::before { background: #16a34a !important; }
+    .dr-kpi__big { color: #16a34a; }
+    .dr-kpi__rate-fill { background: #16a34a; }
+    .dr-kpi__icon-wrap { background: rgba(22, 163, 74, 0.12); color: #16a34a; }
+  }
+
+  &--neg {
+    border-color: rgba(220, 38, 38, 0.35);
+    &::before { background: #dc2626 !important; }
+    .dr-kpi__big { color: #dc2626; }
+    .dr-kpi__rate-fill { background: #dc2626; }
+    .dr-kpi__icon-wrap { background: rgba(220, 38, 38, 0.12); color: #dc2626; }
+  }
+
+  // Icon wrapper
+  &__icon-wrap {
+    flex-shrink: 0;
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    background: var(--surface-border);
+    color: var(--text-color-secondary);
+
+    &--green  { background: rgba(22, 163, 74, 0.12);  color: #16a34a; }
+    &--blue   { background: rgba(37, 99, 235, 0.12);  color: #2563eb; }
+    &--orange { background: rgba(217, 119, 6, 0.12);  color: #d97706; }
+    &--purple { background: rgba(124, 58, 237, 0.12); color: #7c3aed; }
+  }
+
+  // Content
+  &__main {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+
+  &__label {
+    font-size: 0.68rem;
+    font-weight: 600;
+    color: var(--text-color-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+  }
+
+  &__big {
+    font-size: 1.25rem;
+    font-weight: 700;
+    line-height: 1.1;
+    white-space: nowrap;
+    color: var(--text-color);
+  }
+
+  &__sub {
+    font-size: 0.72rem;
+    color: var(--text-color-secondary);
+  }
+
+  &__alert {
+    font-size: 0.68rem;
+    font-weight: 600;
+    color: #dc2626;
+    background: rgba(220, 38, 38, 0.08);
+    border-radius: 4px;
+    padding: 1px 5px;
+    margin-top: 1px;
+    width: fit-content;
+  }
+
+  // Collection rate bar
+  &__rate-wrap {
+    width: 100%;
+    margin-top: 4px;
+  }
+
+  &__rate-track {
+    width: 100%;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--surface-border);
+    overflow: hidden;
+    margin-bottom: 4px;
+  }
+
+  &__rate-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 600ms ease;
+    background: var(--text-color-secondary);
+  }
+
+  &__rate-txt {
+    font-size: 0.68rem;
+    color: var(--text-color-secondary);
+    font-weight: 600;
+  }
+}
+
+// ─── Body (single column) ─────────────────────────────────────────────────────
+.dr-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1;
+  min-height: 0;
+}
+
+// ─── Scrollable card body ─────────────────────────────────────────────────────
+.dr-scroll {
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-color-light) transparent;
+
+  &::-webkit-scrollbar { width: 4px; }
+  &::-webkit-scrollbar-thumb { background: var(--surface-border); border-radius: 2px; }
+}
+
+// ─── Orders card fills all remaining right space ───────────────────────────────
+.dr-orders-card {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+
+  .card-body { flex: 1; min-height: 0; }
+}
+
+// ─── Method card: fixed size ──────────────────────────────────────────────────
+.dr-method-card {
+  flex-shrink: 0;
+}
+
+// ─── Tab bar ──────────────────────────────────────────────────────────────────
+.dr-tab-bar {
+  display: flex;
+  gap: 0;
+  flex-shrink: 0;
+  border-bottom: 2px solid var(--surface-border);
+}
+
+.dr-tab {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 18px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 0.83rem;
+  font-weight: 600;
+  color: var(--text-color-secondary);
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  border-radius: 0;
+  transition: color 150ms, border-color 150ms;
+  white-space: nowrap;
+
+  &--active {
+    color: var(--primary-color);
+    border-bottom-color: var(--primary-color);
+  }
+
+  &:hover:not(.dr-tab--active) {
+    color: var(--text-color);
+    background: var(--surface-ground);
+  }
+
+  &__count {
+    font-size: 0.68rem;
+    font-weight: 700;
+    background: var(--surface-border);
+    color: var(--text-color-secondary);
+    padding: 1px 6px;
+    border-radius: 10px;
+  }
+}
+
+// ─── Summary layout (tab 2) ───────────────────────────────────────────────────
+.dr-summary-layout {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 12px;
+  overflow: hidden;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    overflow-y: auto;
+  }
+}
+
+.dr-summary-right {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 0;
+}
+
+.dr-summary-panel {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+
+  .card-body { flex: 1; min-height: 0; }
+
+  // Left panel fills full height
+  .dr-summary-layout > & { height: 100%; }
+
+  // Right panels split equally
+  .dr-summary-right > & { flex: 1; }
+}
+
+// ─── Agent cell ───────────────────────────────────────────────────────────────
+.dr-agent {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  &__avatar {
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--primary-color);
+    color: white;
+    font-size: 0.72rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+// ─── Header kpi chips ─────────────────────────────────────────────────────────
+.dr-header-kpis {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+}
+
+.dr-header-kpi {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 20px;
+
+  &--blue {
+    background: rgba(37, 99, 235, 0.1);
+    color: #2563eb;
+  }
+
+  &--red {
+    background: rgba(220, 38, 38, 0.1);
+    color: #dc2626;
+  }
+}
+
+// ─── Badge in card header ─────────────────────────────────────────────────────
+.dr-badge {
+  margin-left: auto;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 20px;
+
+  &--orange {
+    background: rgba(217, 119, 6, 0.1);
+    color: #d97706;
+  }
+
+  &--purple {
+    background: rgba(124, 58, 237, 0.1);
+    color: #7c3aed;
+  }
+}
+
+// ─── Payment method bar ───────────────────────────────────────────────────────
+.dr-method-bar {
+  display: flex;
+  height: 8px;
+  border-radius: 4px;
+  overflow: hidden;
+  gap: 2px;
+  margin-bottom: 12px;
+
+  &__seg {
+    border-radius: 4px;
+    transition: width 400ms ease;
+    &:first-child { border-radius: 4px 0 0 4px; }
+    &:last-child  { border-radius: 0 4px 4px 0; }
+    &:only-child  { border-radius: 4px; }
+  }
+}
+
+// ─── Method pills ─────────────────────────────────────────────────────────────
+.dr-method-pills {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.dr-method-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: var(--surface-ground);
+  border: var(--border-width) solid var(--border-color-light);
+
+  &__dot {
+    flex-shrink: 0;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--pill-color, var(--text-color-secondary));
+  }
+
+  &__label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-color);
+    flex: 1;
+  }
+
+  &__pct {
+    font-size: 0.7rem;
+    color: var(--text-color-secondary);
+    background: var(--surface-border);
+    padding: 1px 6px;
+    border-radius: 10px;
+    font-weight: 600;
+  }
+
+  &__amt {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--text-color);
+    white-space: nowrap;
+  }
+}
+
+// ─── Order ID badge ───────────────────────────────────────────────────────────
+.id-badge {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text-color-secondary);
+  background: var(--surface-ground);
+  border: var(--border-width) solid var(--border-color-light);
+  border-radius: 6px;
+  padding: 1px 6px;
+  white-space: nowrap;
+}
+
+// ─── Row state highlights ─────────────────────────────────────────────────────
+.dr-row--unpaid {
+  background: rgba(220, 38, 38, 0.035) !important;
+}
+
+.dr-row--partial {
+  background: rgba(217, 119, 6, 0.035) !important;
+}
+
+.clickable-row {
+  cursor: pointer;
+  &:hover { background: var(--surface-ground) !important; }
+}
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+.text-right { text-align: right; }
+.card-body.p-0 { padding: 0; }
+
+// ─── Date navigation ──────────────────────────────────────────────────────────
+.dr-date-nav {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  background: var(--surface-card);
+  border: var(--border-width) solid var(--border-color-light);
+  border-radius: 30px;
+  padding: 3px;
+  box-shadow: var(--shadow-sm);
+}
+
+.dr-date-btn-wrap {
+  position: relative;
+  isolation: isolate;
+}
+
+.dr-date-label {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  pointer-events: none;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-color);
+  white-space: nowrap;
+
+  .pi-calendar { color: var(--primary-color); font-size: 0.78rem; }
+  .pi-angle-down { color: var(--text-color-secondary); font-size: 0.72rem; }
+}
+
+::ng-deep .dr-datepicker-styled .p-datepicker-input {
+  background: var(--surface-ground) !important;
+  border-color: transparent !important;
+  border-radius: 24px !important;
+  box-shadow: none !important;
+  color: transparent !important;
+  cursor: pointer;
+  min-width: 230px;
+  padding: 8px 16px !important;
+
+  &:hover { background: var(--surface-border) !important; }
+}
