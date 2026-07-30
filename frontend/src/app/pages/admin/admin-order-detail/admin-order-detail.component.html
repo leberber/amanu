@@ -13,9 +13,11 @@
       <span class="items-badge">
         {{ o.items?.length || 0 }} {{ ((o.items?.length || 0) === 1 ? 'common.item' : 'common.items') | translate }}
       </span>
-      <button class="btn-icon" (click)="printOrder()" [disabled]="printing()" pTooltip="Télécharger PDF" tooltipPosition="bottom">
-        <i [class]="printing() ? 'pi pi-spin pi-spinner' : 'pi pi-print'"></i>
-      </button>
+      @if (!isTabletOnly()) {
+        <button class="btn-icon" (click)="printOrder()" [disabled]="printing()" pTooltip="Télécharger PDF" tooltipPosition="bottom">
+          <i [class]="printing() ? 'pi pi-spin pi-spinner' : 'pi pi-print'"></i>
+        </button>
+      }
     </div>
   }
 
@@ -552,7 +554,13 @@
       </div>
 
       <!-- ══════════ RIGHT SIDEBAR ══════════ -->
-      <div class="order-sidebar">
+      <div class="order-sidebar" [class.tablet-open]="tabletSidebarOpen()">
+        <!-- Tablet drawer handle -->
+        @if (isTabletOnly()) {
+          <div class="tablet-sidebar-handle" (click)="tabletSidebarOpen.set(!tabletSidebarOpen())">
+            <span class="handle-bar"></span>
+          </div>
+        }
 
         <!-- Tab bar -->
         <div class="sidebar-tabs">
@@ -877,6 +885,8 @@
 
       </div>
     </div>
+
+
   }
 
   <!-- ─── Create Mode (desktop) ───────────────────────────────────────── -->

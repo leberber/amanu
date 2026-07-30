@@ -129,6 +129,7 @@ export class AdminOrderDetailComponent implements OnInit {
   isTabletOnly = computed(() => this.breakpoint.isTablet() && !this.breakpoint.isMobile());
   pickerPanelOpen = signal(false);
   showCustomerSearch = signal(false);
+  tabletSidebarOpen = signal(false);
 
   editingQtyItemId = signal<number | null>(null);
   editingQtyNewIndex = signal<number | null>(null);
