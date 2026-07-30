@@ -879,8 +879,8 @@
     </div>
   }
 
-  <!-- ─── Create Mode ──────────────────────────────────────────────────── -->
-  @if (!loading() && isCreateMode()) {
+  <!-- ─── Create Mode (desktop) ───────────────────────────────────────── -->
+  @if (!loading() && isCreateMode() && !isTabletOnly()) {
     <div class="create-mode-layout" @pageAnimation>
 
       <!-- ══════ RIGHT: Product Picker (40%) ══════ -->
@@ -1041,182 +1041,348 @@
         </div>
 
         <!-- Items -->
-        <div class="panel panel--items">
-          <div class="panel__header">
-            <span class="panel__title">
-              <i class="pi pi-list"></i>
-              Articles
-              <span class="panel__count">{{ pendingNewItems().length }}</span>
-            </span>
-          </div>
-          <div class="items-list">
-            @if (pendingNewItems().length === 0) {
-              <div class="create-empty-items">
-                <i class="pi pi-shopping-cart"></i>
-                <p>Aucun article ajouté</p>
-                <small>Cliquez sur un produit à droite pour l'ajouter</small>
-              </div>
-            }
-            @for (entry of pendingNewItems(); track entry.product.id; let i = $index) {
-              <div class="item-row item-row--new">
-                <div class="item-row__img">
-                  @if (entry.product.image_url) {
-                    <img [src]="entry.product.image_url" [alt]="entry.product.name" loading="lazy" (error)="onImageError($event)">
-                  } @else {
-                    <i class="pi pi-box"></i>
-                  }
-                </div>
-                <div class="item-row__info">
-                  <span class="item-row__name">{{ entry.product.name }}</span>
-                  @if ((entry.product.pieces_per_box || 1) > 1) {
-                    <span class="item-row__ppb">{{ entry.product.pieces_per_box }} u/{{ entry.product.packaging_type || 'carton' }}</span>
-                  }
-                </div>
-                <div class="item-row__qty">
-                  @if (entry.product.fraction_options?.length) {
-                    <p-select
-                      [options]="getNewItemBoxOptions(entry.product)"
-                      [ngModel]="entry.qty"
-                      (ngModelChange)="setNewItemQty(i, $event)"
-                      optionLabel="label"
-                      optionValue="value"
-                      [filter]="true"
-                      filterBy="label"
-                      appendTo="body"
-                      styleClass="w-full" />
-                    <span class="qty-sub">{{ entry.qty * (entry.product.pieces_per_box || 1) }} {{ entry.product.unit | appUnit }}</span>
-                  } @else {
-                    <button class="qty-btn qty-btn--danger" (click)="decrementNewItem(i)"><i class="pi pi-minus"></i></button>
-                    <div class="item-row__qty-display">
-                      @if (editingQtyNewIndex() === i) {
-                        <input class="qty-inline-input" type="number" min="1"
-                          [value]="entry.qty"
-                          (blur)="commitNewQty(i, $any($event.target).value); editingQtyNewIndex.set(null)"
-                          (keydown.enter)="$any($event.target).blur()"
-                          (keydown.escape)="editingQtyNewIndex.set(null)">
-                      } @else {
-                        @if ((entry.product.pieces_per_box || 1) > 1) {
-                          <span class="qty-main qty-main--editable" (click)="startEditingNewQty($event, i)">{{ entry.qty }} {{ getNewItemPackagingLabel(entry.product, entry.qty) }}</span>
-                          <span class="qty-sub">{{ entry.qty * (entry.product.pieces_per_box || 1) }} {{ entry.product.unit | appUnit }}</span>
-                        } @else {
-                          <span class="qty-main qty-main--editable" (click)="startEditingNewQty($event, i)">{{ entry.qty }} {{ entry.product.unit | appUnit }}</span>
-                        }
-                      }
-                    </div>
-                    <button class="qty-btn" (click)="incrementNewItem(i)"><i class="pi pi-plus"></i></button>
-                  }
-                </div>
-                <div class="item-row__price">
-                  <span class="item-row__price-label">P.U.</span>
-                  @if (entry.customPrice) {
-                    <span class="item-row__price-original"><app-currency [value]="entry.product.price" /></span>
-                    <span class="item-row__price-custom"><app-currency [value]="entry.customPrice" /></span>
-                  } @else {
-                    <span><app-currency [value]="entry.product.price" /></span>
-                  }
-                  <input
-                    class="price-override-input"
-                    type="number"
-                    [placeholder]="entry.product.price"
-                    min="0"
-                    (input)="setNewItemCustomPrice(i, $any($event.target).value)">
-                </div>
-                <div class="item-row__total">
-                  @if (entry.customPrice) {
-                    <span class="item-row__total-original"><app-currency [value]="entry.product.price * entry.qty * (entry.product.pieces_per_box || 1)" /></span>
-                    <span class="item-row__total-discounted"><app-currency [value]="entry.customPrice * entry.qty * (entry.product.pieces_per_box || 1)" /></span>
-                  } @else {
-                    <app-currency [value]="entry.product.price * entry.qty * (entry.product.pieces_per_box || 1)" />
-                  }
-                </div>
-                <div class="item-row__actions">
-                  <button class="qty-btn qty-btn--danger" (click)="removePendingNew(i)" pTooltip="Supprimer" tooltipPosition="left">
-                    <i class="pi pi-times"></i>
-                  </button>
-                </div>
-              </div>
-            }
-          </div>
-          <div class="items-footer">
-            @if (previewDiscount() > 0) {
-              <div class="items-footer__row">
-                <span style="opacity:0.5;">Prix catalogue</span>
-                <span style="text-decoration:line-through;opacity:0.5;"><app-currency [value]="previewGrossTotal()" /></span>
-              </div>
-              <div class="items-footer__row" style="color:#16a34a !important;">
-                <span>Remise</span>
-                <span>-<app-currency [value]="previewDiscount()" /></span>
-              </div>
-            }
-            @if (createDeliveryType() === 'delivery') {
-              @if (shippingOptions(); as opts) {
-                <div class="flex gap-2 mb-2">
-                  <div
-                    (click)="selectShippingTier('standard')"
-                    style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px;border-radius:8px;border:1.5px solid;cursor:pointer;transition:all 0.15s;"
-                    [style.border-color]="selectedShippingTier() === 'standard' ? 'var(--primary-color)' : 'var(--surface-border)'"
-                    [style.background]="selectedShippingTier() === 'standard' ? 'var(--highlight-bg)' : 'transparent'">
-                    <span style="font-size:0.65rem;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;"
-                      [style.color]="selectedShippingTier() === 'standard' ? 'var(--primary-color)' : 'var(--text-color-secondary)'">Standard</span>
-                    <span style="font-size:0.9rem;font-weight:700;"
-                      [style.color]="selectedShippingTier() === 'standard' ? 'var(--primary-color)' : 'var(--text-color)'">
-                      <app-currency [value]="opts.standard?.cost ?? 0" />
-                    </span>
-                  </div>
-                  @if (opts.priority) {
-                    <div
-                      (click)="selectShippingTier('priority')"
-                      style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px;border-radius:8px;border:1.5px solid;cursor:pointer;transition:all 0.15s;"
-                      [style.border-color]="selectedShippingTier() === 'priority' ? 'var(--primary-color)' : 'var(--surface-border)'"
-                      [style.background]="selectedShippingTier() === 'priority' ? 'var(--highlight-bg)' : 'transparent'">
-                      <span style="font-size:0.65rem;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;"
-                        [style.color]="selectedShippingTier() === 'priority' ? 'var(--primary-color)' : 'var(--text-color-secondary)'">Premium</span>
-                      <span style="font-size:0.9rem;font-weight:700;"
-                        [style.color]="selectedShippingTier() === 'priority' ? 'var(--primary-color)' : 'var(--text-color)'">
-                        <app-currency [value]="opts.priority?.cost ?? 0" />
-                      </span>
-                    </div>
-                  }
-                </div>
-              }
-              <div class="items-footer__row">
-                <span class="flex align-items-center gap-2">
-                  Frais de livraison
-                  @if (calculatingShipping()) {
-                    <i class="pi pi-spin pi-spinner" style="font-size:0.85rem;color:var(--primary-color)"></i>
-                  } @else if (createCustomer()?.h3_index) {
-                    <i class="pi pi-refresh" style="font-size:0.8rem;cursor:pointer;color:var(--primary-color)"
-                      pTooltip="Recalculer" tooltipPosition="top"
-                      (click)="autoCalculateShipping()"></i>
-                  }
-                </span>
-                <input type="number" min="0" step="100"
-                  class="shipping-cost-field"
-                  [value]="createShippingCost()"
-                  (input)="createShippingCost.set(+$any($event.target).value || 0)"
-                  [disabled]="calculatingShipping()"
-                  placeholder="0">
-              </div>
-            }
-            <div class="items-footer__total">
-              <span>Total</span>
-              <span style="font-size:1.125rem;font-weight:700;color:var(--text-color);"><app-currency [value]="previewTotal()" /></span>
-            </div>
-            <p-button
-              label="Créer la commande"
-              icon="pi pi-check"
-              severity="success"
-              size="large"
-              [loading]="creatingOrder()"
-              [disabled]="!createCustomer() || pendingNewItems().length === 0"
-              (onClick)="submitCreateOrder()">
-            </p-button>
-          </div>
-        </div>
+        <ng-container [ngTemplateOutlet]="createItemsPanelTpl"></ng-container>
 
       </div>
     </div>
   }
 
+  <!-- ─── Create Mode (tablet) ───────────────────────────────────────── -->
+  @if (!loading() && isCreateMode() && isTabletOnly()) {
+    <div class="tablet-create-layout" @pageAnimation>
+
+      <!-- Top: order area (scrollable) — items only -->
+      <div class="tablet-order-area">
+        <ng-container [ngTemplateOutlet]="createItemsPanelTpl"></ng-container>
+      </div>
+
+      <!-- Bottom: product picker panel (sliding drawer) -->
+      <div class="tablet-picker-panel" [class.open]="pickerPanelOpen()">
+        <div class="tablet-picker-handle" (click)="togglePickerPanel()">
+          <span class="handle-bar"></span>
+        </div>
+        @if (pickerPanelOpen()) {
+          <div class="tablet-picker-filters">
+            <div class="tablet-picker-filters__search">
+              <app-table-search
+                [query]="pickerSearch()"
+                (queryChange)="pickerSearch.set($event)"
+                (search)="triggerPickerFilter()"
+                (clear)="triggerPickerFilter()">
+              </app-table-search>
+              <div class="tablet-delivery-toggle">
+                <p-button label="Retrait" icon="pi pi-shop" size="small"
+                  [severity]="createDeliveryType() === 'pickup' ? 'primary' : 'secondary'"
+                  (onClick)="createDeliveryType.set('pickup'); createShippingCost.set(0); shippingOptions.set(null); selectedShippingTier.set('standard')" />
+                <p-button label="Livraison" icon="pi pi-truck" size="small"
+                  [severity]="createDeliveryType() === 'delivery' ? 'primary' : 'secondary'"
+                  (onClick)="createDeliveryType.set('delivery'); autoCalculateShipping()" />
+              </div>
+            </div>
+            <div class="tablet-picker-filters__dropdowns">
+              <p-select
+                [options]="pickerCategoryOptions()"
+                [ngModel]="pickerCategoryId()"
+                (ngModelChange)="onPickerCategoryChange($event)"
+                optionLabel="label" optionValue="value"
+                placeholder="Catégorie" [showClear]="true"
+                styleClass="filter-select--glass"
+                panelStyleClass="filter-select-panel--glass"
+                appendTo="body">
+              </p-select>
+              <p-select
+                [options]="pickerBrandOptions()"
+                [ngModel]="pickerBrandId()"
+                (ngModelChange)="onPickerBrandChange($event)"
+                optionLabel="label" optionValue="value"
+                placeholder="Marque" [showClear]="true"
+                styleClass="filter-select--glass"
+                panelStyleClass="filter-select-panel--glass"
+                appendTo="body">
+              </p-select>
+              <button class="btn-icon"
+                [class.btn-icon--active]="!!createCustomer()"
+                pTooltip="Client" tooltipPosition="top"
+                (click)="toggleCustomerSearch()">
+                <i class="pi pi-user"></i>
+              </button>
+            </div>
+            @if (createCustomer()) {
+              <div class="tablet-selected-customer">
+                <i class="pi pi-user"></i>
+                <span>{{ createCustomer()!.full_name || createCustomer()!.email }}</span>
+                <button class="btn-icon btn-icon--sm" (click)="clearCustomer()">
+                  <i class="pi pi-times"></i>
+                </button>
+              </div>
+            }
+          </div>
+
+          @if (showCustomerSearch()) {
+            <div class="tablet-customer-search-area">
+              @if (!createCustomer()) {
+                <p-autocomplete
+                  [(ngModel)]="selectedCustomer"
+                  [suggestions]="customerSearchResults()"
+                  (completeMethod)="onCustomerSearch($event)"
+                  (onSelect)="onCustomerSelected($event); showCustomerSearch.set(false)"
+                  optionLabel="full_name"
+                  placeholder="Rechercher un client..."
+                  styleClass="w-full autocomplete-glass"
+                  inputStyleClass="w-full"
+                  appendTo="body"
+                  [showEmptyMessage]="true"
+                  emptyMessage="Aucun client trouvé">
+                  <ng-template #item let-user>
+                    <div class="customer-search-item">
+                      <div class="customer-search-item__avatar"><i class="pi pi-user"></i></div>
+                      <div class="customer-search-item__info">
+                        <span class="customer-search-item__name">{{ user.full_name || user.email }}</span>
+                        <span class="customer-search-item__meta">
+                          @if (user.phone) { {{ user.phone }} · }
+                          {{ user.address || 'Aucune adresse' }}
+                        </span>
+                      </div>
+                    </div>
+                  </ng-template>
+                </p-autocomplete>
+              } @else {
+                <div class="create-customer-card">
+                  <div class="create-customer-card__avatar"><i class="pi pi-user"></i></div>
+                  <div class="create-customer-card__info">
+                    <span class="create-customer-card__name">{{ createCustomer()!.full_name || createCustomer()!.email }}</span>
+                  </div>
+                  <button class="btn-icon" (click)="clearCustomer()">
+                    <i class="pi pi-times"></i>
+                  </button>
+                </div>
+              }
+            </div>
+          }
+
+          <div class="tablet-picker-grid">
+            @if (pickerLoading()) {
+              @for (i of [1,2,3,4,5,6]; track i) {
+                <div class="picker-card picker-card--skeleton">
+                  <div class="skeleton" style="width:100%;height:52px;border-radius:8px;"></div>
+                  <div class="skeleton" style="width:80%;height:9px;border-radius:4px;margin-top:4px;"></div>
+                  <div class="skeleton" style="width:50%;height:9px;border-radius:4px;"></div>
+                </div>
+              }
+            } @else if (pickerProducts().length === 0) {
+              <div class="picker-empty" style="grid-column:1/-1">
+                <i class="pi pi-search"></i>
+                <span>Aucun produit trouvé</span>
+              </div>
+            } @else {
+              @for (product of pickerProducts(); track product.id) {
+                <div class="picker-card"
+                  [class.picker-card--selected]="pendingProductIds().has(product.id)"
+                  (click)="selectPickerProduct(product)">
+                  <div class="picker-card__img">
+                    @if (product.image_url) {
+                      <img [src]="product.image_url" [alt]="product.name" loading="lazy" (error)="onImageError($event)">
+                    } @else {
+                      <i class="pi pi-box"></i>
+                    }
+                  </div>
+                  <span class="picker-card__name">{{ product.name }}</span>
+                  <span class="picker-card__price"><app-currency [value]="product.price" /></span>
+                  <span class="picker-card__stock" [class.low]="product.stock_quantity < (product.pieces_per_box || 1) * 5">
+                    {{ getProductStockLabel(product) }}
+                  </span>
+                </div>
+              }
+            }
+          </div>
+        }
+      </div>
+
+      <!-- FAB: reopen picker when dismissed -->
+      @if (!pickerPanelOpen()) {
+        <button class="tablet-picker-fab" (click)="pickerPanelOpen.set(true)">
+          <i class="pi pi-search"></i>
+          <span>Produits</span>
+        </button>
+      }
+
+    </div>
+  }
+
+  <!-- ─── Shared template: create mode items panel ──────────────────── -->
+  <ng-template #createItemsPanelTpl>
+    <div class="panel panel--items">
+      <div class="panel__header">
+        <span class="panel__title">
+          <i class="pi pi-list"></i>
+          Articles
+          <span class="panel__count">{{ pendingNewItems().length }}</span>
+        </span>
+      </div>
+      <div class="items-list">
+        @if (pendingNewItems().length === 0) {
+          <div class="create-empty-items">
+            <i class="pi pi-shopping-cart"></i>
+            <p>Aucun article ajouté</p>
+            <small>Cliquez sur un produit pour l'ajouter</small>
+          </div>
+        }
+        @for (entry of pendingNewItems(); track entry.product.id; let i = $index) {
+          <div class="item-row item-row--new">
+            <div class="item-row__img">
+              @if (entry.product.image_url) {
+                <img [src]="entry.product.image_url" [alt]="entry.product.name" loading="lazy" (error)="onImageError($event)">
+              } @else {
+                <i class="pi pi-box"></i>
+              }
+            </div>
+            <div class="item-row__info">
+              <span class="item-row__name">{{ entry.product.name }}</span>
+              @if ((entry.product.pieces_per_box || 1) > 1) {
+                <span class="item-row__ppb">{{ entry.product.pieces_per_box }} u/{{ entry.product.packaging_type || 'carton' }}</span>
+              }
+            </div>
+            <div class="item-row__qty">
+              @if (entry.product.fraction_options?.length) {
+                <p-select
+                  [options]="getNewItemBoxOptions(entry.product)"
+                  [ngModel]="entry.qty"
+                  (ngModelChange)="setNewItemQty(i, $event)"
+                  optionLabel="label"
+                  optionValue="value"
+                  [filter]="true"
+                  filterBy="label"
+                  appendTo="body"
+                  styleClass="w-full" />
+                <span class="qty-sub">{{ entry.qty * (entry.product.pieces_per_box || 1) }} {{ entry.product.unit | appUnit }}</span>
+              } @else {
+                <button class="qty-btn qty-btn--danger" (click)="decrementNewItem(i)"><i class="pi pi-minus"></i></button>
+                <div class="item-row__qty-display">
+                  @if (editingQtyNewIndex() === i) {
+                    <input class="qty-inline-input" type="number" min="1"
+                      [value]="entry.qty"
+                      (blur)="commitNewQty(i, $any($event.target).value); editingQtyNewIndex.set(null)"
+                      (keydown.enter)="$any($event.target).blur()"
+                      (keydown.escape)="editingQtyNewIndex.set(null)">
+                  } @else {
+                    @if ((entry.product.pieces_per_box || 1) > 1) {
+                      <span class="qty-main qty-main--editable" (click)="startEditingNewQty($event, i)">{{ entry.qty }} {{ getNewItemPackagingLabel(entry.product, entry.qty) }}</span>
+                      <span class="qty-sub">{{ entry.qty * (entry.product.pieces_per_box || 1) }} {{ entry.product.unit | appUnit }}</span>
+                    } @else {
+                      <span class="qty-main qty-main--editable" (click)="startEditingNewQty($event, i)">{{ entry.qty }} {{ entry.product.unit | appUnit }}</span>
+                    }
+                  }
+                </div>
+                <button class="qty-btn" (click)="incrementNewItem(i)"><i class="pi pi-plus"></i></button>
+              }
+            </div>
+            <div class="item-row__price">
+              <span class="item-row__price-label">P.U.</span>
+              @if (entry.customPrice) {
+                <span class="item-row__price-original"><app-currency [value]="entry.product.price" /></span>
+                <span class="item-row__price-custom"><app-currency [value]="entry.customPrice" /></span>
+              } @else {
+                <span><app-currency [value]="entry.product.price" /></span>
+              }
+              <input
+                class="price-override-input"
+                type="number"
+                [placeholder]="entry.product.price"
+                min="0"
+                (input)="setNewItemCustomPrice(i, $any($event.target).value)">
+            </div>
+            <div class="item-row__total">
+              @if (entry.customPrice) {
+                <span class="item-row__total-original"><app-currency [value]="entry.product.price * entry.qty * (entry.product.pieces_per_box || 1)" /></span>
+                <span class="item-row__total-discounted"><app-currency [value]="entry.customPrice * entry.qty * (entry.product.pieces_per_box || 1)" /></span>
+              } @else {
+                <app-currency [value]="entry.product.price * entry.qty * (entry.product.pieces_per_box || 1)" />
+              }
+            </div>
+            <div class="item-row__actions">
+              <button class="qty-btn qty-btn--danger" (click)="removePendingNew(i)" pTooltip="Supprimer" tooltipPosition="left">
+                <i class="pi pi-times"></i>
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+      <div class="items-footer">
+        @if (previewDiscount() > 0) {
+          <div class="items-footer__row">
+            <span style="opacity:0.5;">Prix catalogue</span>
+            <span style="text-decoration:line-through;opacity:0.5;"><app-currency [value]="previewGrossTotal()" /></span>
+          </div>
+          <div class="items-footer__row" style="color:#16a34a !important;">
+            <span>Remise</span>
+            <span>-<app-currency [value]="previewDiscount()" /></span>
+          </div>
+        }
+        @if (createDeliveryType() === 'delivery') {
+          @if (shippingOptions(); as opts) {
+            <div class="flex gap-2 mb-2">
+              <div
+                (click)="selectShippingTier('standard')"
+                style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px;border-radius:8px;border:1.5px solid;cursor:pointer;transition:all 0.15s;"
+                [style.border-color]="selectedShippingTier() === 'standard' ? 'var(--primary-color)' : 'var(--surface-border)'"
+                [style.background]="selectedShippingTier() === 'standard' ? 'var(--highlight-bg)' : 'transparent'">
+                <span style="font-size:0.65rem;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;"
+                  [style.color]="selectedShippingTier() === 'standard' ? 'var(--primary-color)' : 'var(--text-color-secondary)'">Standard</span>
+                <span style="font-size:0.9rem;font-weight:700;"
+                  [style.color]="selectedShippingTier() === 'standard' ? 'var(--primary-color)' : 'var(--text-color)'">
+                  <app-currency [value]="opts.standard?.cost ?? 0" />
+                </span>
+              </div>
+              @if (opts.priority) {
+                <div
+                  (click)="selectShippingTier('priority')"
+                  style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px;border-radius:8px;border:1.5px solid;cursor:pointer;transition:all 0.15s;"
+                  [style.border-color]="selectedShippingTier() === 'priority' ? 'var(--primary-color)' : 'var(--surface-border)'"
+                  [style.background]="selectedShippingTier() === 'priority' ? 'var(--highlight-bg)' : 'transparent'">
+                  <span style="font-size:0.65rem;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;"
+                    [style.color]="selectedShippingTier() === 'priority' ? 'var(--primary-color)' : 'var(--text-color-secondary)'">Premium</span>
+                  <span style="font-size:0.9rem;font-weight:700;"
+                    [style.color]="selectedShippingTier() === 'priority' ? 'var(--primary-color)' : 'var(--text-color)'">
+                    <app-currency [value]="opts.priority?.cost ?? 0" />
+                  </span>
+                </div>
+              }
+            </div>
+          }
+          <div class="items-footer__row">
+            <span class="flex align-items-center gap-2">
+              Frais de livraison
+              @if (calculatingShipping()) {
+                <i class="pi pi-spin pi-spinner" style="font-size:0.85rem;color:var(--primary-color)"></i>
+              } @else if (createCustomer()?.h3_index) {
+                <i class="pi pi-refresh" style="font-size:0.8rem;cursor:pointer;color:var(--primary-color)"
+                  pTooltip="Recalculer" tooltipPosition="top"
+                  (click)="autoCalculateShipping()"></i>
+              }
+            </span>
+            <input type="number" min="0" step="100"
+              class="shipping-cost-field"
+              [value]="createShippingCost()"
+              (input)="createShippingCost.set(+$any($event.target).value || 0)"
+              [disabled]="calculatingShipping()"
+              placeholder="0">
+          </div>
+        }
+        <div class="items-footer__total">
+          <span>Total</span>
+          <span style="font-size:1.125rem;font-weight:700;color:var(--text-color);"><app-currency [value]="previewTotal()" /></span>
+        </div>
+        <p-button
+          label="Créer la commande"
+          icon="pi pi-check"
+          severity="success"
+          size="large"
+          [loading]="creatingOrder()"
+          [disabled]="!createCustomer() || pendingNewItems().length === 0"
+          (onClick)="submitCreateOrder()">
+        </p-button>
+      </div>
+    </div>
+  </ng-template>
 
 </app-page-layout>

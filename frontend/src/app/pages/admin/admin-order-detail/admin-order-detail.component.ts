@@ -43,6 +43,7 @@ import { DeliveryPricing } from '../../../models/shipping.model';
 import { formatFractionalCartons } from '../../../shared/utils/quantity.utils';
 import { fractionLabel } from '../../../shared/utils/box-options.utils';
 import { CurrencyService } from '../../../core/services/currency.service';
+import { BreakpointService } from '../../../core/services/breakpoint.service';
 
 @Component({
   selector: 'app-admin-order-detail',
@@ -93,6 +94,7 @@ export class AdminOrderDetailComponent implements OnInit {
   private readonly brandService = inject(BrandService);
   private readonly shippingService = inject(ShippingService);
   private readonly currencyService = inject(CurrencyService);
+  private readonly breakpoint = inject(BreakpointService);
 
   // Route constant for back navigation
   readonly ROUTES = ROUTES;
@@ -122,6 +124,11 @@ export class AdminOrderDetailComponent implements OnInit {
   pendingPrices = signal<Map<number, number | null>>(new Map());
   savingEdits = signal(false);
   showAddItem = signal(false);
+
+  // Tablet layout
+  isTabletOnly = computed(() => this.breakpoint.isTablet() && !this.breakpoint.isMobile());
+  pickerPanelOpen = signal(false);
+  showCustomerSearch = signal(false);
 
   editingQtyItemId = signal<number | null>(null);
   editingQtyNewIndex = signal<number | null>(null);
@@ -332,6 +339,9 @@ export class AdminOrderDetailComponent implements OnInit {
     if (isCreate) {
       this.loadPickerMeta();
       this.pickerFilterChange$.next();
+      if (this.isTabletOnly()) {
+        this.pickerPanelOpen.set(true);
+      }
     }
   }
 
@@ -685,6 +695,17 @@ export class AdminOrderDetailComponent implements OnInit {
     this.pickerFilterChange$.next();
   }
 
+  togglePickerPanel(): void {
+    this.pickerPanelOpen.update(v => !v);
+    if (this.pickerPanelOpen() && this.pickerCategories().length === 0) {
+      this.loadPickerMeta();
+      this.pickerFilterChange$.next();
+    }
+  }
+
+  toggleCustomerSearch(): void {
+    this.showCustomerSearch.update(v => !v);
+  }
 
   removePendingNew(index: number): void {
     this.pendingNewItems.update(items => items.filter((_, i) => i !== index));
