@@ -694,8 +694,8 @@
     }
   }
 
-  // Hide on desktop
-  @media (min-width: 768px) {
+  // Hide on desktop (sidebar takes over above tablet)
+  @media (min-width: 993px) {
     display: none;
   }
 }
