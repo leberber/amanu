@@ -10,8 +10,8 @@
 @media (min-width: 769px) and (max-width: 992px) {
   :host ::ng-deep .page-content {
     margin: 0 !important;
-    padding-left: 0 !important;
-    padding-right: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
   }
 }
 
@@ -1853,20 +1853,30 @@
 // ─── Tablet Edit Mode: sidebar as bottom drawer ───────────────────────────────
 @media (min-width: 769px) and (max-width: 992px) {
   .order-page-grid {
-    grid-template-columns: 1fr;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    height: calc(100vh - 56px);
+    overflow: hidden;
+    gap: 0;
+    width: 100%;
+  }
+
+  .order-main {
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
+    width: 100%;
   }
 
   .order-sidebar {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
+    flex-shrink: 0;
+    width: 100%;
     height: 44px;
     background: var(--surface-card);
     border-radius: 1.25rem 1.25rem 0 0;
     border-top: 1px solid var(--surface-border);
     box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.12);
-    z-index: 200;
     overflow: hidden;
     transition: height 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 
