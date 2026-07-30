@@ -1040,10 +1040,7 @@ def record_payment(
     })
 
     if order.user_id:
-        payer = session.get(User, order.user_id)
-        if payer:
-            payer.outstanding_balance -= payment_in.amount
-            session.add(payer)
+        _refresh_user_outstanding_balance(order.user_id, session)
     session.commit()
     session.refresh(payment)
 
@@ -1232,6 +1229,8 @@ def add_order_item(
     session.flush()
     _recalculate_order_total(order, session)
     order.admin_modified_at = datetime.now(timezone.utc)
+    if order.user_id:
+        _refresh_user_outstanding_balance(order.user_id, session)
 
     # Notify customer
     try:
@@ -1289,6 +1288,8 @@ def remove_order_item(
     session.flush()
     _recalculate_order_total(order, session)
     order.admin_modified_at = datetime.now(timezone.utc)
+    if order.user_id:
+        _refresh_user_outstanding_balance(order.user_id, session)
 
     try:
         NotificationService.notify_order_modified(
@@ -1355,6 +1356,8 @@ def update_order_item(
     session.flush()
     _recalculate_order_total(order, session)
     order.admin_modified_at = datetime.now(timezone.utc)
+    if order.user_id:
+        _refresh_user_outstanding_balance(order.user_id, session)
 
     try:
         NotificationService.notify_order_modified(
