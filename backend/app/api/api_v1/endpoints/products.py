@@ -255,7 +255,7 @@ def create_product(
 @router.get("", response_model=List[ProductRead])
 def read_products(
     skip: int = Query(0, ge=0),
-    limit: int = Query(100, ge=1, le=1000),
+    limit: int = Query(1000, ge=1, le=1000),
     category_id: Optional[int] = None,
     brand_id: Optional[int] = None,
     is_organic: Optional[bool] = None,
