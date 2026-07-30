@@ -788,7 +788,7 @@ def admin_create_order(
         cross_sell_discount_amount=0,
         volume_discount_amount=0,
         shipping_cost=format_price(data.shipping_cost),
-        total_amount=format_price(subtotal + data.shipping_cost),
+        total_amount=format_price(subtotal),
         total_weight_kg=total_weight_kg,
         delivery_type=DeliveryType.PICKUP if data.delivery_type == "pickup" else DeliveryType.STANDARD,
     )
