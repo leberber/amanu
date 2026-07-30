@@ -121,7 +121,7 @@
                   <div class="rc-item__content">
                     <div class="flex align-items-center gap-2 flex-wrap">
                       <span class="rc-item__name">{{ draft.orderItem.product_name }}</span>
-                      <span class="rc-item__meta">max {{ draft.options[draft.options.length - 1]?.label ?? draft.orderItem.quantity }}</span>
+                      <span class="rc-item__meta">max {{ draft.options[draft.options.length - 1].label }}</span>
                       <span class="rc-item__meta"><app-currency [value]="draft.orderItem.unit_price" /></span>
                     </div>
                     @if (draft.selected) {
