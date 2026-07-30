@@ -25,9 +25,9 @@
 
 <!-- src/app/app.component.html -->
 <div class="app-container flex h-screen overflow-hidden"
-     [class.with-sidebar]="showNavigation() && !isMobile()"
-     [class.with-sidebar-collapsed]="showNavigation() && !isMobile() && sidebarCollapsed()"
-     [class.with-bottom-nav]="showNavigation() && isMobile() && !hideBottomNav()">
+     [class.with-sidebar]="showNavigation() && !isTablet()"
+     [class.with-sidebar-collapsed]="showNavigation() && !isTablet() && sidebarCollapsed()"
+     [class.with-bottom-nav]="showNavigation() && isTablet() && !hideBottomNav()">
 
   @if (showNavigation()) {
     <app-sidebar />
@@ -39,7 +39,7 @@
     </div>
   </main>
 
-  @if (showNavigation() && isMobile() && (!hideBottomNav() || homeScroll.scrolledDown())) {
+  @if (showNavigation() && isTablet() && (!hideBottomNav() || homeScroll.scrolledDown())) {
     <app-bottom-navigation />
   }
 

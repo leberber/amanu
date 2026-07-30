@@ -119,6 +119,7 @@ export class AppComponent implements OnInit {
 
   // Expose breakpoint service for template
   isMobile = this.breakpoint.isMobile;
+  isTablet = this.breakpoint.isTablet;
 
   // Expose sidebar collapsed state for template
   sidebarCollapsed = this.sidebarService.collapsed;

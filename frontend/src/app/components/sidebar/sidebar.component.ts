@@ -54,7 +54,7 @@ export class SidebarComponent implements OnInit {
   // State (drawer visibility comes from service)
   mobileDrawerVisible = this.sidebarService.drawerVisible;
   collapsed = this.sidebarService.collapsed;
-  isMobile = this.breakpoint.isMobile;
+  isMobile = this.breakpoint.isTablet;
   isLoggedIn = signal(this.authService.isLoggedIn);
   refreshingStatus = signal(false);
   private currentUserSignal = signal(this.authService.currentUserValue);
