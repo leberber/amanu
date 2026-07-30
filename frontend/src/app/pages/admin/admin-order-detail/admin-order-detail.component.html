@@ -1056,6 +1056,19 @@
         <ng-container [ngTemplateOutlet]="createItemsPanelTpl"></ng-container>
       </div>
 
+      <!-- Submit bar (sticky, above picker) -->
+      <div class="tablet-submit-bar">
+        <p-button
+          label="Créer la commande"
+          icon="pi pi-check"
+          severity="success"
+          [fluid]="true"
+          [loading]="creatingOrder()"
+          [disabled]="!createCustomer() || pendingNewItems().length === 0"
+          (onClick)="submitCreateOrder()">
+        </p-button>
+      </div>
+
       <!-- Bottom: product picker panel (sliding drawer) -->
       <div class="tablet-picker-panel" [class.open]="pickerPanelOpen()">
         <div class="tablet-picker-handle" (click)="togglePickerPanel()">
@@ -1063,23 +1076,73 @@
         </div>
         @if (pickerPanelOpen()) {
           <div class="tablet-picker-filters">
-            <div class="tablet-picker-filters__search">
+
+            <!-- Row 1: search, centered -->
+            <div class="tablet-filters-search">
               <app-table-search
                 [query]="pickerSearch()"
                 (queryChange)="pickerSearch.set($event)"
                 (search)="triggerPickerFilter()"
                 (clear)="triggerPickerFilter()">
               </app-table-search>
-              <div class="tablet-delivery-toggle">
-                <p-button label="Retrait" icon="pi pi-shop" size="small"
-                  [severity]="createDeliveryType() === 'pickup' ? 'primary' : 'secondary'"
-                  (onClick)="createDeliveryType.set('pickup'); createShippingCost.set(0); shippingOptions.set(null); selectedShippingTier.set('standard')" />
-                <p-button label="Livraison" icon="pi pi-truck" size="small"
-                  [severity]="createDeliveryType() === 'delivery' ? 'primary' : 'secondary'"
-                  (onClick)="createDeliveryType.set('delivery'); autoCalculateShipping()" />
+            </div>
+
+            <!-- Row 2: customer chip + delivery toggle -->
+            <div class="tablet-filters-top">
+              <button class="tablet-customer-chip"
+                [class.has-customer]="!!createCustomer()"
+                (click)="toggleCustomerSearch()">
+                <i class="pi pi-user"></i>
+                @if (createCustomer()) {
+                  <span>{{ createCustomer()!.full_name || createCustomer()!.email }}</span>
+                  <i class="pi pi-times" (click)="$event.stopPropagation(); clearCustomer()"></i>
+                } @else {
+                  <span>Sélectionner un client</span>
+                }
+              </button>
+              <div class="tablet-delivery-seg">
+                <button [class.active]="createDeliveryType() === 'pickup'"
+                  (click)="createDeliveryType.set('pickup'); createShippingCost.set(0); shippingOptions.set(null); selectedShippingTier.set('standard')">
+                  <i class="pi pi-shop"></i><span>Retrait</span>
+                </button>
+                <button [class.active]="createDeliveryType() === 'delivery'"
+                  (click)="createDeliveryType.set('delivery'); autoCalculateShipping()">
+                  <i class="pi pi-truck"></i><span>Livraison</span>
+                </button>
               </div>
             </div>
-            <div class="tablet-picker-filters__dropdowns">
+
+            <!-- Customer autocomplete (expands when chip tapped, no customer yet) -->
+            @if (showCustomerSearch() && !createCustomer()) {
+              <p-autocomplete
+                [(ngModel)]="selectedCustomer"
+                [suggestions]="customerSearchResults()"
+                (completeMethod)="onCustomerSearch($event)"
+                (onSelect)="onCustomerSelected($event); showCustomerSearch.set(false)"
+                optionLabel="full_name"
+                placeholder="Rechercher un client..."
+                styleClass="w-full autocomplete-glass"
+                inputStyleClass="w-full"
+                appendTo="body"
+                [showEmptyMessage]="true"
+                emptyMessage="Aucun client trouvé">
+                <ng-template #item let-user>
+                  <div class="customer-search-item">
+                    <div class="customer-search-item__avatar"><i class="pi pi-user"></i></div>
+                    <div class="customer-search-item__info">
+                      <span class="customer-search-item__name">{{ user.full_name || user.email }}</span>
+                      <span class="customer-search-item__meta">
+                        @if (user.phone) { {{ user.phone }} · }
+                        {{ user.address || 'Aucune adresse' }}
+                      </span>
+                    </div>
+                  </div>
+                </ng-template>
+              </p-autocomplete>
+            }
+
+            <!-- Row 3: dropdowns -->
+            <div class="tablet-filters-bottom">
               <p-select
                 [options]="pickerCategoryOptions()"
                 [ngModel]="pickerCategoryId()"
@@ -1100,65 +1163,9 @@
                 panelStyleClass="filter-select-panel--glass"
                 appendTo="body">
               </p-select>
-              <button class="btn-icon"
-                [class.btn-icon--active]="!!createCustomer()"
-                pTooltip="Client" tooltipPosition="top"
-                (click)="toggleCustomerSearch()">
-                <i class="pi pi-user"></i>
-              </button>
             </div>
-            @if (createCustomer()) {
-              <div class="tablet-selected-customer">
-                <i class="pi pi-user"></i>
-                <span>{{ createCustomer()!.full_name || createCustomer()!.email }}</span>
-                <button class="btn-icon btn-icon--sm" (click)="clearCustomer()">
-                  <i class="pi pi-times"></i>
-                </button>
-              </div>
-            }
-          </div>
 
-          @if (showCustomerSearch()) {
-            <div class="tablet-customer-search-area">
-              @if (!createCustomer()) {
-                <p-autocomplete
-                  [(ngModel)]="selectedCustomer"
-                  [suggestions]="customerSearchResults()"
-                  (completeMethod)="onCustomerSearch($event)"
-                  (onSelect)="onCustomerSelected($event); showCustomerSearch.set(false)"
-                  optionLabel="full_name"
-                  placeholder="Rechercher un client..."
-                  styleClass="w-full autocomplete-glass"
-                  inputStyleClass="w-full"
-                  appendTo="body"
-                  [showEmptyMessage]="true"
-                  emptyMessage="Aucun client trouvé">
-                  <ng-template #item let-user>
-                    <div class="customer-search-item">
-                      <div class="customer-search-item__avatar"><i class="pi pi-user"></i></div>
-                      <div class="customer-search-item__info">
-                        <span class="customer-search-item__name">{{ user.full_name || user.email }}</span>
-                        <span class="customer-search-item__meta">
-                          @if (user.phone) { {{ user.phone }} · }
-                          {{ user.address || 'Aucune adresse' }}
-                        </span>
-                      </div>
-                    </div>
-                  </ng-template>
-                </p-autocomplete>
-              } @else {
-                <div class="create-customer-card">
-                  <div class="create-customer-card__avatar"><i class="pi pi-user"></i></div>
-                  <div class="create-customer-card__info">
-                    <span class="create-customer-card__name">{{ createCustomer()!.full_name || createCustomer()!.email }}</span>
-                  </div>
-                  <button class="btn-icon" (click)="clearCustomer()">
-                    <i class="pi pi-times"></i>
-                  </button>
-                </div>
-              }
-            </div>
-          }
+          </div>
 
           <div class="tablet-picker-grid">
             @if (pickerLoading()) {
@@ -1372,15 +1379,17 @@
           <span>Total</span>
           <span style="font-size:1.125rem;font-weight:700;color:var(--text-color);"><app-currency [value]="previewTotal()" /></span>
         </div>
-        <p-button
-          label="Créer la commande"
-          icon="pi pi-check"
-          severity="success"
-          size="large"
-          [loading]="creatingOrder()"
-          [disabled]="!createCustomer() || pendingNewItems().length === 0"
-          (onClick)="submitCreateOrder()">
-        </p-button>
+        @if (!isTabletOnly()) {
+          <p-button
+            label="Créer la commande"
+            icon="pi pi-check"
+            severity="success"
+            size="large"
+            [loading]="creatingOrder()"
+            [disabled]="!createCustomer() || pendingNewItems().length === 0"
+            (onClick)="submitCreateOrder()">
+          </p-button>
+        }
       </div>
     </div>
   </ng-template>
