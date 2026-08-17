@@ -63,7 +63,7 @@ class OrderBase(SQLModel):
     status: OrderStatus = Field(default=OrderStatus.PENDING)
     shipping_address: str
     contact_phone: str
-    total_amount: float = Field(gt=0)
+    total_amount: float = Field(ge=0)
     # Promotion fields
     subtotal: Optional[float] = Field(default=None)
     discount_amount: float = Field(default=0)
