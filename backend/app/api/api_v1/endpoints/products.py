@@ -454,6 +454,30 @@ def read_products_paginated(
     )
 
 
+
+@router.get("/barcode/{code}", response_model=ProductRead)
+def get_product_by_barcode(
+    code: str,
+    current_user: User = Depends(get_current_staff_user),
+    session: Session = Depends(get_session),
+) -> Any:
+    """Look up a product by its EAN/UPC barcode (staff only)."""
+    product = session.exec(select(Product).where(Product.barcode == code.strip())).first()
+    if not product:
+        raise HTTPException(status_code=404, detail="Produit non trouvé pour ce code-barres")
+
+    promotions = get_active_promotions(session)
+    product_data = ProductRead.model_validate(product).model_dump()
+    product_data['promotion'] = get_best_promotion_for_product(product, promotions)
+    product_data['segment_ids'] = get_product_segment_ids(product.id, session)
+
+    discount = get_best_group_discount(product, current_user, session)
+    if discount:
+        product_data['group_discount'] = discount
+        product_data['effective_price'] = round(product_data['price'] - discount, 2)
+
+    return product_data
+
 @router.get("/{product_id}", response_model=ProductRead)
 def read_product(
     product_id: int,

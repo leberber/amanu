@@ -73,6 +73,7 @@ class ProductBase(SQLModel):
     image_url: Optional[str] = Field(default=None, max_length=255)
     max_order_cartons: Optional[int] = Field(default=None)  # Max cartons a customer can order; null = no limit
     new_until: Optional[datetime] = Field(default=None)  # Show "New" badge until this date
+    barcode: Optional[str] = Field(default=None, max_length=50, index=True)  # EAN/UPC barcode
     fraction_options: Optional[List[Dict]] = Field(default=None, sa_column=Column(JSON))  # e.g. [{"n":1,"d":2},{"n":1,"d":4}]
 
 class Product(SQLModel, table=True):
@@ -110,6 +111,7 @@ class Product(SQLModel, table=True):
     image_url: Optional[str] = Field(default=None, max_length=255)
     max_order_cartons: Optional[int] = Field(default=None)  # Max cartons a customer can order; null = no limit
     new_until: Optional[datetime] = Field(default=None)  # Show "New" badge until this date
+    barcode: Optional[str] = Field(default=None, max_length=50, index=True)  # EAN/UPC barcode
     fraction_options: Optional[List[Dict]] = Field(default=None, sa_column=Column(JSON))
 
     # Timestamps
@@ -164,6 +166,7 @@ class ProductUpdate(SQLModel):
     max_order_cartons: Optional[int] = Field(default=None)
     new_until: Optional[datetime] = Field(default=None)
     fraction_options: Optional[List[Dict]] = Field(default=None)
+    barcode: Optional[str] = Field(default=None, max_length=50)
 
     segment_ids: Optional[List[int]] = Field(default=None)
 
@@ -186,3 +189,4 @@ class ProductRead(ProductBase):
     group_discount: Optional[float] = None      # Best group discount amount for current user (DA)
     effective_price: Optional[float] = None     # price after group discount
     segment_ids: List[int] = []                 # Segments this product belongs to
+    barcode: Optional[str] = None

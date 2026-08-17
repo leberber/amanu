@@ -222,6 +222,11 @@
           <!-- Product Picker -->
           @if (showAddItem() && canEditItems()) {
             <div class="product-picker">
+              @if (scanningBarcode()) {
+                <div class="flex align-items-center gap-2 p-2 text-sm text-primary">
+                  <i class="pi pi-spin pi-spinner"></i> Scan en cours...
+                </div>
+              }
               <div class="product-picker__filters">
                 <app-table-search
                   [query]="pickerSearch()"
@@ -898,6 +903,15 @@
         <div class="panel create-picker-panel">
           <div class="panel__header">
             <span class="panel__title"><i class="pi pi-box"></i> Produits</span>
+            @if (scanningBarcode()) {
+              <span class="flex align-items-center gap-2 text-sm text-primary">
+                <i class="pi pi-spin pi-spinner"></i> Scan...
+              </span>
+            } @else {
+              <span class="flex align-items-center gap-1 text-xs" style="color: var(--text-color-secondary)">
+                <i class="pi pi-barcode"></i> Scanner actif
+              </span>
+            }
           </div>
 
           <div class="create-picker__filters">

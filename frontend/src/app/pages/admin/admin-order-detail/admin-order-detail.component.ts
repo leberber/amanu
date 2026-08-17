@@ -44,6 +44,7 @@ import { formatFractionalCartons } from '../../../shared/utils/quantity.utils';
 import { fractionLabel } from '../../../shared/utils/box-options.utils';
 import { CurrencyService } from '../../../core/services/currency.service';
 import { BreakpointService } from '../../../core/services/breakpoint.service';
+import { BarcodeScannerService } from '../../../core/services/barcode-scanner.service';
 
 @Component({
   selector: 'app-admin-order-detail',
@@ -95,6 +96,7 @@ export class AdminOrderDetailComponent implements OnInit {
   private readonly shippingService = inject(ShippingService);
   private readonly currencyService = inject(CurrencyService);
   private readonly breakpoint = inject(BreakpointService);
+  private readonly barcodeScanner = inject(BarcodeScannerService);
 
   // Route constant for back navigation
   readonly ROUTES = ROUTES;
@@ -168,6 +170,7 @@ export class AdminOrderDetailComponent implements OnInit {
   customerSearchLoading = signal(false);
   creatingOrder = signal(false);
   calculatingShipping = signal(false);
+  scanningBarcode = signal(false);
   selectedCustomer: UserManage | null = null;
   private customerSearch$ = new Subject<string>();
 
@@ -335,6 +338,11 @@ export class AdminOrderDetailComponent implements OnInit {
       },
       error: () => this.customerSearchLoading.set(false)
     });
+
+    // Barcode scanner
+    this.barcodeScanner.scan$.pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(code => this.onBarcodeScan(code));
 
     // Auto-load products when entering create mode
     if (isCreate) {
@@ -629,6 +637,21 @@ export class AdminOrderDetailComponent implements OnInit {
     this.brandService.getBrands(true)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(brands => this.pickerBrands.set(brands));
+  }
+
+  onBarcodeScan(code: string): void {
+    if (!this.isCreateMode() && !this.showAddItem()) return;
+    if (this.scanningBarcode()) return;
+    this.scanningBarcode.set(true);
+    this.barcodeScanner.getProductByBarcode(code)
+      .pipe(takeUntilDestroyed(this.destroyRef), finalize(() => this.scanningBarcode.set(false)))
+      .subscribe({
+        next: (product) => {
+          this.selectPickerProduct(product);
+          this.toast.showSuccess(`${product.name} ajouté`);
+        },
+        error: () => this.toast.showError(`Aucun produit pour le code ${code}`)
+      });
   }
 
   selectPickerProduct(product: Product): void {

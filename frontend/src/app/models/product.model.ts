@@ -52,6 +52,7 @@ export interface Product {
     volume?: number;  // in liters (L)
     weight?: number;  // in kilograms (kg)
     tva_rate?: number;  // TVA rate: 0, 9, or 19
+    barcode?: string | null;           // EAN/UPC barcode for scanner lookup
     max_order_cartons?: number | null;  // Max cartons a customer can order; null = no limit
     new_until?: string | null;         // Show "New" badge until this date
     fraction_options?: Array<{n: number; d: number}> | null;

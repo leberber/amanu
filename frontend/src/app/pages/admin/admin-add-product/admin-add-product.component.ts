@@ -326,6 +326,7 @@ export class AdminAddProductComponent implements OnInit {
       volume: [null],
       weight: [null],
       tva_rate: [0],
+      barcode: [null],
       max_order_cartons: [null],
       new_until: [null],
     });
@@ -437,6 +438,7 @@ export class AdminAddProductComponent implements OnInit {
             volume: product.volume || '',
             weight: product.weight || '',
             tva_rate: product.tva_rate ?? 0,
+            barcode: product.barcode ?? null,
             max_order_cartons: product.max_order_cartons ?? null,
             new_until: product.new_until ? new Date(product.new_until) : null,
           });
@@ -488,6 +490,7 @@ export class AdminAddProductComponent implements OnInit {
         volume: formValues.volume || null,
         weight: formValues.weight || null,
         tva_rate: formValues.tva_rate ?? 0,
+        barcode: formValues.barcode?.trim() || null,
         max_order_cartons: formValues.max_order_cartons || null,
         new_until: formValues.new_until ? (formValues.new_until as Date).toISOString() : null,
         segment_ids: this.selectedSegmentIds(),
