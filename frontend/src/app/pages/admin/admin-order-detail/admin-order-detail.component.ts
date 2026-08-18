@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, DestroyRef, signal, computed } from '@angular/core';
+import { Component, OnInit, inject, DestroyRef, signal, computed, effect, Injector } from '@angular/core';
 import { trigger, transition, style, animate } from '@angular/animations';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -45,6 +45,8 @@ import { fractionLabel } from '../../../shared/utils/box-options.utils';
 import { CurrencyService } from '../../../core/services/currency.service';
 import { BreakpointService } from '../../../core/services/breakpoint.service';
 import { BarcodeScannerService } from '../../../core/services/barcode-scanner.service';
+
+const DRAFT_KEY = 'admin_new_order_draft';
 
 @Component({
   selector: 'app-admin-order-detail',
@@ -97,6 +99,7 @@ export class AdminOrderDetailComponent implements OnInit {
   private readonly currencyService = inject(CurrencyService);
   private readonly breakpoint = inject(BreakpointService);
   private readonly barcodeScanner = inject(BarcodeScannerService);
+  private readonly injector = inject(Injector);
 
   // Route constant for back navigation
   readonly ROUTES = ROUTES;
@@ -346,11 +349,23 @@ export class AdminOrderDetailComponent implements OnInit {
 
     // Auto-load products when entering create mode
     if (isCreate) {
+      this.restoreDraft();
       this.loadPickerMeta();
       this.pickerFilterChange$.next();
       if (this.isTabletOnly()) {
         this.pickerPanelOpen.set(true);
       }
+
+      // Auto-save draft whenever items or customer changes
+      effect(() => {
+        const draft = {
+          items: this.pendingNewItems(),
+          customer: this.createCustomer(),
+          deliveryType: this.createDeliveryType(),
+          shippingCost: this.createShippingCost(),
+        };
+        localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+      }, { injector: this.injector });
     }
   }
 
@@ -1030,6 +1045,27 @@ export class AdminOrderDetailComponent implements OnInit {
     this.createShippingCost.set(0);
   }
 
+  private restoreDraft(): void {
+    try {
+      const raw = localStorage.getItem(DRAFT_KEY);
+      if (!raw) return;
+      const draft = JSON.parse(raw);
+      if (draft.items?.length) this.pendingNewItems.set(draft.items);
+      if (draft.customer) {
+        this.createCustomer.set(draft.customer);
+        this.selectedCustomer = draft.customer;
+      }
+      if (draft.deliveryType) this.createDeliveryType.set(draft.deliveryType);
+      if (draft.shippingCost) this.createShippingCost.set(draft.shippingCost);
+    } catch {
+      localStorage.removeItem(DRAFT_KEY);
+    }
+  }
+
+  private clearDraft(): void {
+    localStorage.removeItem(DRAFT_KEY);
+  }
+
   submitCreateOrder(): void {
     const customer = this.createCustomer();
     const items = this.pendingNewItems();
@@ -1048,6 +1084,7 @@ export class AdminOrderDetailComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef), finalize(() => this.creatingOrder.set(false)))
       .subscribe({
         next: (res) => {
+          this.clearDraft();
           this.toast.showSuccess('Commande créée avec succès');
           this.router.navigate([RouteHelpers.adminOrderDetail(res.order_id)]);
         },
