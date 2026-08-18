@@ -57,6 +57,8 @@ export interface DailyReport {
   deliveries_outstanding: number;
   orders: DailyOrderRow[];
   payments_total: number;
+  payments_new_orders: number;
+  payments_old_orders: number;
   payments_by_method: Record<string, number>;
   payments_by_staff: StaffPaymentRow[];
   purchases_count: number;

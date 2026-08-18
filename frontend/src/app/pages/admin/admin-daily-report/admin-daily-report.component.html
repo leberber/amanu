@@ -67,7 +67,7 @@
               </div>
               <div class="dr-kpi__main">
                 <span class="dr-kpi__label">Solde net</span>
-                <span class="dr-kpi__big"><app-currency [value]="r.net" /></span>
+                <span class="dr-kpi__big"><app-currency [value]="r.net" [hideDecimals]="true" /></span>
               </div>
               <div class="dr-kpi__rate-wrap">
                 <div class="dr-kpi__rate-track">
@@ -77,26 +77,26 @@
               </div>
             </div>
 
-            <!-- Encaissé -->
+            <!-- Livraisons du jour -->
             <div class="dr-kpi">
               <div class="dr-kpi__icon-wrap dr-kpi__icon-wrap--green"><i class="pi pi-credit-card"></i></div>
               <div class="dr-kpi__main">
-                <span class="dr-kpi__label">Encaissé</span>
-                <span class="dr-kpi__big" style="color:#16a34a;"><app-currency [value]="r.payments_total" /></span>
-                <span class="dr-kpi__sub">{{ r.payments_by_staff.length }} agent(s)</span>
-              </div>
-            </div>
-
-            <!-- Livraisons -->
-            <div class="dr-kpi">
-              <div class="dr-kpi__icon-wrap dr-kpi__icon-wrap--blue"><i class="pi pi-truck"></i></div>
-              <div class="dr-kpi__main">
-                <span class="dr-kpi__label">Livraisons</span>
-                <span class="dr-kpi__big" style="color:#2563eb;">{{ r.deliveries_count }}</span>
-                <span class="dr-kpi__sub"><app-currency [value]="r.deliveries_total" /></span>
+                <span class="dr-kpi__label">Livraisons du jour</span>
+                <span class="dr-kpi__big" style="color:#16a34a;"><app-currency [value]="r.payments_new_orders" [hideDecimals]="true" /></span>
+                <span class="dr-kpi__sub">{{ r.deliveries_count }} livraison(s)</span>
                 @if (r.deliveries_outstanding > 0) {
                   <span class="dr-kpi__alert"><app-currency [value]="r.deliveries_outstanding" /> impayé</span>
                 }
+              </div>
+            </div>
+
+            <!-- Recouvrement -->
+            <div class="dr-kpi">
+              <div class="dr-kpi__icon-wrap dr-kpi__icon-wrap--warn"><i class="pi pi-history"></i></div>
+              <div class="dr-kpi__main">
+                <span class="dr-kpi__label">Recouvrement</span>
+                <span class="dr-kpi__big" style="color:#ca8a04;"><app-currency [value]="r.payments_old_orders" [hideDecimals]="true" /></span>
+                <span class="dr-kpi__sub">Dettes recouvrées</span>
               </div>
             </div>
 
@@ -105,7 +105,7 @@
               <div class="dr-kpi__icon-wrap dr-kpi__icon-wrap--orange"><i class="pi pi-box"></i></div>
               <div class="dr-kpi__main">
                 <span class="dr-kpi__label">Achats reçus</span>
-                <span class="dr-kpi__big" style="color:#d97706;"><app-currency [value]="r.purchases_total" /></span>
+                <span class="dr-kpi__big" style="color:#d97706;"><app-currency [value]="r.purchases_total" [hideDecimals]="true" /></span>
                 <span class="dr-kpi__sub">{{ r.purchases_count }} bon(s)</span>
               </div>
             </div>
@@ -115,7 +115,7 @@
               <div class="dr-kpi__icon-wrap dr-kpi__icon-wrap--purple"><i class="pi pi-replay"></i></div>
               <div class="dr-kpi__main">
                 <span class="dr-kpi__label">Retours</span>
-                <span class="dr-kpi__big" style="color:#7c3aed;"><app-currency [value]="r.returns_total" /></span>
+                <span class="dr-kpi__big" style="color:#7c3aed;"><app-currency [value]="r.returns_total" [hideDecimals]="true" /></span>
                 <span class="dr-kpi__sub">{{ r.returns_count }} retour(s)</span>
               </div>
             </div>
@@ -126,7 +126,7 @@
                 <div class="dr-kpi__icon-wrap dr-kpi__icon-wrap--green"><i class="pi pi-chart-line"></i></div>
                 <div class="dr-kpi__main">
                   <span class="dr-kpi__label">Marge</span>
-                  <span class="dr-kpi__big" style="color:#16a34a;"><app-currency [value]="r.margin_total" /></span>
+                  <span class="dr-kpi__big" style="color:#16a34a;"><app-currency [value]="r.margin_total" [hideDecimals]="true" /></span>
                   <span class="dr-kpi__sub">{{ r.margin_pct | number:'1.0-1' }}% du CA</span>
                 </div>
               </div>
@@ -228,7 +228,10 @@
                 <div class="form-card dr-summary-panel">
                   <div class="card-header">
                     <div class="card-header__icon card-header__icon--primary"><i class="pi pi-users"></i></div>
-                    <div class="card-header__text"><h3 class="card-header__title">Par agent</h3></div>
+                    <div class="card-header__text">
+                      <h3 class="card-header__title">Par agent</h3>
+                      <span class="card-header__sub">{{ r.payments_by_staff.length }} agent(s)</span>
+                    </div>
                     @if (r.payments_total > 0) {
                       <span class="dr-badge" style="margin-left:auto;background:rgba(22,163,74,0.1);color:#16a34a;">
                         <app-currency [value]="r.payments_total" />

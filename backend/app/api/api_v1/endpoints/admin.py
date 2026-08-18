@@ -988,6 +988,8 @@ class DailyReportResponse(BaseModel):
     orders: List[DailyOrderRow]
     # Payments collected today
     payments_total: float
+    payments_new_orders: float   # payments for orders delivered today
+    payments_old_orders: float   # payments for older orders (debt collection)
     payments_by_method: Dict[str, float]
     payments_by_staff: List[StaffPaymentRow]
     # Purchases received today
@@ -1086,6 +1088,9 @@ def get_daily_report(
         )
     ).all()
     payments_total = round(sum(p.amount for p in payments_today), 2)
+    delivered_ids_set = set(all_delivered_ids)
+    payments_new_orders = round(sum(p.amount for p in payments_today if p.order_id in delivered_ids_set), 2)
+    payments_old_orders = round(payments_total - payments_new_orders, 2)
     by_method: Dict[str, float] = {}
     staff_map: Dict[int, str] = {}
     staff_totals: Dict[int, Dict[str, float]] = {}
@@ -1166,6 +1171,8 @@ def get_daily_report(
         deliveries_outstanding=round(deliveries_outstanding, 2),
         orders=order_rows,
         payments_total=payments_total,
+        payments_new_orders=payments_new_orders,
+        payments_old_orders=payments_old_orders,
         payments_by_method=by_method,
         payments_by_staff=payments_by_staff,
         purchases_count=len(purchase_rows),

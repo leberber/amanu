@@ -96,6 +96,7 @@
     &--blue   { background: rgba(37, 99, 235, 0.12);  color: #2563eb; }
     &--orange { background: rgba(217, 119, 6, 0.12);  color: #d97706; }
     &--purple { background: rgba(124, 58, 237, 0.12); color: #7c3aed; }
+    &--warn   { background: rgba(202, 138, 4, 0.12);  color: #ca8a04; }
   }
 
   // Content
@@ -116,7 +117,7 @@
   }
 
   &__big {
-    font-size: 1.25rem;
+    font-size: 1.1rem;
     font-weight: 700;
     line-height: 1.1;
     white-space: nowrap;
