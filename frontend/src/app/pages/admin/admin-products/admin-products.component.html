@@ -202,6 +202,7 @@
                 @if (isColumnVisible('volume')) { <th style="width: 8%" class="text-center">{{ 'admin.products.table.volume' | translate }}</th> }
                 @if (isColumnVisible('weight')) { <th style="width: 8%" class="text-center">{{ 'admin.products.table.weight' | translate }}</th> }
                 @if (isColumnVisible('tva')) { <th style="width: 6%" class="text-center">{{ 'admin.products.table.tva' | translate }}</th> }
+                @if (isColumnVisible('barcode')) { <th style="width: 13%" class="text-center">Code-barres</th> }
                 @if (isColumnVisible('purchase_price')) {
                   <th style="width: 12%" class="text-center sortable" (click)="toggleSort('purchase_price')">
                     <span class="sort-header">{{ 'admin.products.table.purchase_price' | translate }}<i [class]="getSortIcon('purchase_price')"></i></span>
@@ -310,6 +311,38 @@
                   @if (isColumnVisible('tva')) {
                     <td class="text-center">
                       <span class="pill">{{ (product.tva_rate ?? 0) }}%</span>
+                    </td>
+                  }
+
+                  <!-- Barcode -->
+                  @if (isColumnVisible('barcode')) {
+                    <td class="text-center" (click)="$event.stopPropagation()">
+                      @if (!isEditingBarcode(product.id)) {
+                        <div class="editable-cell" (click)="startEditBarcode(product)">
+                          @if (product.barcode) {
+                            <div class="editable-cell__value" style="font-family:monospace;font-size:0.8rem;">{{ product.barcode }}</div>
+                          } @else {
+                            <div class="editable-cell__value text-color-secondary">—</div>
+                          }
+                          <i class="pi pi-barcode editable-cell__icon"></i>
+                        </div>
+                      } @else {
+                        <div class="cell-edit justify-content-center">
+                          <input
+                            class="cell-edit__input"
+                            type="text"
+                            [(ngModel)]="barcodeEdit.value"
+                            placeholder="EAN/UPC"
+                            (keydown.enter)="saveBarcode(product)"
+                            (keydown.escape)="cancelEditBarcode()">
+                          <button class="cell-edit__btn cell-edit__btn--save" (click)="saveBarcode(product)">
+                            <i class="pi pi-check"></i>
+                          </button>
+                          <button class="cell-edit__btn cell-edit__btn--cancel" (click)="cancelEditBarcode()">
+                            <i class="pi pi-times"></i>
+                          </button>
+                        </div>
+                      }
                     </td>
                   }
 

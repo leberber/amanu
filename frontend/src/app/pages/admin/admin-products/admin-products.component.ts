@@ -163,6 +163,7 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
   cmupEdit = new InlineEditState<number>(0);
   stockEdit = new InlineEditState<number>(0);
   statusEdit = new InlineEditState<boolean>(true);
+  barcodeEdit = new InlineEditState<string>('');
 
   // Stock edit mode (cartons or units)
   stockEditMode: 'cartons' | 'units' = 'cartons';
@@ -189,6 +190,7 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
       { field: 'volume', label: 'admin.products.table.volume', visible: false },
       { field: 'weight', label: 'admin.products.table.weight', visible: false },
       { field: 'tva', label: 'admin.products.table.tva', visible: false },
+      { field: 'barcode', label: 'Code-barres', visible: false },
       { field: 'purchase_price', label: 'admin.products.table.purchase_price', visible: !isMobile },
       { field: 'price', label: 'admin.products.table.price', visible: true },
       { field: 'profit', label: 'admin.products.table.profit', visible: !isMobile },
@@ -467,6 +469,42 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
 
   isEditingPrice(productId: number): boolean {
     return this.priceEdit.isEditing(productId);
+  }
+
+  // Inline barcode editing
+  startEditBarcode(product: Product): void {
+    this.barcodeEdit.start(product.id, product.barcode ?? '');
+  }
+
+  cancelEditBarcode(): void {
+    this.barcodeEdit.cancel();
+  }
+
+  saveBarcode(product: Product): void {
+    const newBarcode = this.barcodeEdit.value.trim() || null;
+    if (!this.barcodeEdit.hasChanged(product.barcode ?? '')) {
+      this.barcodeEdit.cancel();
+      return;
+    }
+    this.productService.updateProduct(product.id, { barcode: newBarcode })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.displayedProducts.update(products =>
+            products.map(p => p.id === product.id ? { ...p, barcode: newBarcode } : p)
+          );
+          this.barcodeEdit.cancel();
+          this.baseToast.showSuccess('Code-barres mis à jour');
+        },
+        error: (error) => {
+          this.barcodeEdit.cancel();
+          this.baseToast.showApiError(error, 'Erreur mise à jour code-barres');
+        }
+      });
+  }
+
+  isEditingBarcode(productId: number): boolean {
+    return this.barcodeEdit.isEditing(productId);
   }
 
   // Inline CMUP editing methods
