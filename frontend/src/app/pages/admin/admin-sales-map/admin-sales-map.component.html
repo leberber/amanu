@@ -1,0 +1,262 @@
+<app-page-layout
+  title="admin.sales_map.title"
+  subtitle="admin.sales_map.subtitle"
+  mobileTitle="admin.sales_map.mobile_title"
+  icon="pi pi-map"
+  [showBackButton]="true"
+  [backRoute]="ROUTES.ADMIN.SALES_REPORT"
+  [fullscreen]="true"
+  [hideMobileIcon]="true">
+
+  <div class="sales-map-container" @fadeIn>
+
+    <!-- Stats Bar -->
+    <div class="map-stats-bar">
+      <div class="stat-cards">
+
+        <div class="stat-card">
+          <div class="stat-card-icon" style="background: rgba(59,130,246,0.12); color: #3b82f6">
+            <i class="pi pi-map-marker"></i>
+          </div>
+          <div class="stat-card-body">
+            <span class="stat-card-value">{{ filteredClients().length }}</span>
+            <span class="stat-card-label">{{ 'admin.sales_map.on_map' | translate }}</span>
+          </div>
+        </div>
+
+        <div class="stat-card-sep"></div>
+
+        <div class="stat-card">
+          <div class="stat-card-icon" style="background: rgba(34,197,94,0.12); color: #22c55e">
+            <i class="pi pi-wallet"></i>
+          </div>
+          <div class="stat-card-body">
+            <span class="stat-card-value">{{ formatAmount(totalRevenue()) }} DA</span>
+            <span class="stat-card-label">{{ 'admin.sales_map.total_revenue' | translate }}</span>
+          </div>
+        </div>
+
+        @if (topSpender()) {
+          <div class="stat-card-sep"></div>
+          <div class="stat-card">
+            <div class="stat-card-icon" style="background: rgba(245,158,11,0.12); color: #f59e0b">
+              <i class="pi pi-star-fill"></i>
+            </div>
+            <div class="stat-card-body">
+              <span class="stat-card-value">{{ topSpender()!.store_name || topSpender()!.full_name }}</span>
+              <span class="stat-card-label">{{ formatAmount(topSpender()!.total_spent) }} DA</span>
+            </div>
+          </div>
+        }
+
+      </div>
+
+      <button
+        class="top-clients-btn"
+        [class.top-clients-btn--active]="showTopPanel()"
+        (click)="toggleTopPanel()">
+        <i class="pi pi-list-ol"></i>
+        <span>{{ 'admin.sales_map.top_clients' | translate }}</span>
+      </button>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="map-filter-bar">
+
+      <!-- Date presets — segmented control -->
+      <div class="segment-control">
+        @for (preset of datePresets; track preset) {
+          @if (preset !== 'custom') {
+            <button
+              class="segment-btn"
+              [class.segment-btn--active]="datePreset() === preset"
+              (click)="setDatePreset(preset)">
+              {{ 'admin.sales_map.preset_' + preset | translate }}
+            </button>
+          } @else {
+            <button
+              class="segment-btn segment-btn--icon"
+              [class.segment-btn--active]="datePreset() === 'custom'"
+              (click)="setDatePreset('custom')">
+              <i class="pi pi-calendar"></i>
+              {{ 'admin.sales_map.preset_custom' | translate }}
+            </button>
+          }
+        }
+      </div>
+
+      <!-- Custom date inputs -->
+      @if (datePreset() === 'custom') {
+        <div class="date-range-inputs">
+          <input type="date" class="date-input" [value]="customStart()" (change)="onCustomStartChange($event)">
+          <i class="pi pi-arrow-right date-arrow"></i>
+          <input type="date" class="date-input" [value]="customEnd()" (change)="onCustomEndChange($event)">
+          <button
+            class="date-apply-btn"
+            [disabled]="!customStart() || !customEnd()"
+            (click)="applyCustomRange()">
+            <i class="pi pi-check"></i>
+          </button>
+        </div>
+      }
+
+      <div class="filter-sep"></div>
+
+      <!-- Tier chips -->
+      <div class="tier-chips">
+        <button
+          class="tier-chip"
+          [class.tier-chip--active]="tierFilter() === 'all'"
+          (click)="setTierFilter('all')">
+          <span class="tier-chip-label">{{ 'common.all' | translate }}</span>
+          <span class="tier-chip-count">{{ clientsOnMap().length }}</span>
+        </button>
+
+        @for (tier of tiers; track tier) {
+          <button
+            class="tier-chip"
+            [class.tier-chip--active]="tierFilter() === tier"
+            [style.--tc]="getTierColor(tier)"
+            (click)="setTierFilter(tier)">
+            <span class="tier-chip-dot"></span>
+            <span class="tier-chip-label">{{ TIER_CONFIG[tier].labelKey | translate }}</span>
+            <span class="tier-chip-count">{{ tierCounts()[tier] }}</span>
+          </button>
+        }
+      </div>
+
+    </div>
+
+    <!-- Map -->
+    <div class="map-wrapper">
+      @if (loading()) {
+        <div class="map-loading">
+          <i class="pi pi-spin pi-spinner"></i>
+          <span>{{ 'common.loading' | translate }}</span>
+        </div>
+      }
+      <div id="sales-map" class="map-container"></div>
+
+      <!-- Top Clients Panel -->
+      @if (showTopPanel()) {
+        <div class="top-panel" @slideIn>
+          <div class="top-panel-header">
+            <span class="top-panel-title">
+              <i class="pi pi-list-ol"></i>
+              {{ 'admin.sales_map.top_clients' | translate }}
+            </span>
+            <button pButton
+              class="p-button-text p-button-rounded p-button-sm"
+              icon="pi pi-times"
+              (click)="toggleTopPanel()">
+            </button>
+          </div>
+          <div class="top-panel-list">
+            @if (topClients().length === 0) {
+              <div class="top-panel-empty">{{ 'admin.sales_map.no_clients' | translate }}</div>
+            } @else {
+              @for (client of topClients(); track client.user_id; let i = $index) {
+                <div class="top-client-row" (click)="flyToClient(client)">
+                  <span class="top-rank" [style.color]="getRankColor(i + 1)">
+                    @if (i < 3) {
+                      <i class="pi pi-trophy"></i>
+                    } @else {
+                      {{ i + 1 }}
+                    }
+                  </span>
+                  <div class="top-client-avatar" [style.background]="getTierColor(getTierForClient(client))">
+                    {{ client.full_name.charAt(0).toUpperCase() }}
+                  </div>
+                  <div class="top-client-info">
+                    <span class="top-client-name">{{ client.store_name || client.full_name }}</span>
+                    <span class="top-client-location">{{ client.commune || client.wilaya || '—' }}</span>
+                  </div>
+                  <div class="top-client-amount">
+                    <span class="top-amount-value">{{ formatAmount(client.total_spent) }}</span>
+                    <span class="top-amount-unit">DA</span>
+                  </div>
+                </div>
+              }
+            }
+          </div>
+        </div>
+      }
+
+      <div #popoverTarget class="popover-target"></div>
+    </div>
+  </div>
+
+  <!-- Client Detail Popover -->
+  <p-popover #clientPopover (onHide)="onPopoverHide()">
+    @if (selectedClient()) {
+      <div class="client-popover">
+        <div class="popover-header">
+          <div class="user-header-compact">
+            <div class="user-avatar-sm" [style.background]="selectedTierColor()">
+              {{ selectedClient()!.full_name.charAt(0).toUpperCase() }}
+            </div>
+            <div class="user-info-compact">
+              <h4 class="user-name-sm">{{ selectedClient()!.store_name || selectedClient()!.full_name }}</h4>
+              <span class="user-location-sm">
+                @if (selectedClient()!.commune) { {{ selectedClient()!.commune }} }
+                @else if (selectedClient()!.wilaya) { {{ selectedClient()!.wilaya }} }
+              </span>
+            </div>
+          </div>
+          <button pButton
+            class="p-button-text p-button-rounded p-button-sm close-btn"
+            icon="pi pi-times"
+            (click)="closePopover()">
+          </button>
+        </div>
+
+        @if (selectedClient()!.phone) {
+          <div class="popover-contact">
+            <div class="contact-item">
+              <i class="pi pi-phone"></i>
+              <span>{{ selectedClient()!.phone }}</span>
+            </div>
+          </div>
+        }
+
+        @if (dateRangeLabel()) {
+          <div class="period-badge">
+            <i class="pi pi-calendar"></i>
+            <span>{{ dateRangeLabel() }}</span>
+          </div>
+        }
+
+        <div class="purchase-stats">
+          <div class="purchase-stat">
+            <span class="purchase-stat-label">{{ 'admin.sales_map.total_spent' | translate }}</span>
+            <span class="purchase-stat-value purchase-stat-value--primary">
+              {{ formatAmount(selectedClient()!.total_spent) }} DA
+            </span>
+          </div>
+          <div class="purchase-stat">
+            <span class="purchase-stat-label">{{ 'admin.sales_map.order_count' | translate }}</span>
+            <span class="purchase-stat-value">{{ selectedClient()!.order_count }}</span>
+          </div>
+          <div class="purchase-stat">
+            <span class="purchase-stat-label">{{ 'admin.sales_map.avg_order' | translate }}</span>
+            <span class="purchase-stat-value">{{ formatAmount(selectedClient()!.avg_order_value) }} DA</span>
+          </div>
+          <div class="purchase-stat">
+            <span class="purchase-stat-label">{{ 'admin.sales_map.last_order' | translate }}</span>
+            <span class="purchase-stat-value">{{ formatDate(selectedClient()!.last_order_date) }}</span>
+          </div>
+        </div>
+
+        <div class="popover-action">
+          <button pButton
+            class="p-button-outlined p-button-sm w-full"
+            icon="pi pi-chart-bar"
+            [label]="'admin.sales_map.view_analytics' | translate"
+            (click)="goToUserAnalytics(selectedClient()!.user_id)">
+          </button>
+        </div>
+      </div>
+    }
+  </p-popover>
+
+</app-page-layout>

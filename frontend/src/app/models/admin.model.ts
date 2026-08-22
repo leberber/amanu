@@ -179,6 +179,21 @@ export interface DashboardStats {
     segment_id?: number | null;
   }
 
+  export interface ClientMapPoint {
+    user_id: number;
+    full_name: string;
+    phone?: string;
+    store_name?: string;
+    wilaya?: string;
+    commune?: string;
+    latitude: number;
+    longitude: number;
+    total_spent: number;
+    order_count: number;
+    avg_order_value: number;
+    last_order_date?: string;
+  }
+
   // Customer Route (for delivery route optimization)
   export interface CustomerRoute {
     id: number;

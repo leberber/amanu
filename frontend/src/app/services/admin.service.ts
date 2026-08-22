@@ -25,7 +25,8 @@ import {
   OrderPayment,
   OrderPaymentsResponse,
   OrderAuditLog,
-  OrderItemCreate
+  OrderItemCreate,
+  ClientMapPoint
 } from '../models/admin.model';
 import {
   DriverProfileWithFlags,
@@ -178,6 +179,14 @@ export class AdminService {
 
   createUser(userData: any): Observable<UserManage> {
     return this.apiService.post<UserManage>('/admin/tools/create-account', userData);
+  }
+
+  // Clients sales map
+  getClientsMap(startDate?: string, endDate?: string): Observable<ClientMapPoint[]> {
+    const params: Record<string, string> = {};
+    if (startDate) params['start_date'] = startDate;
+    if (endDate) params['end_date'] = endDate;
+    return this.apiService.get<ClientMapPoint[]>('/admin/clients-map', { params });
   }
 
   // Customer Routes

@@ -931,6 +931,94 @@ def get_user_financial_history(
 
 
 # ---------------------------------------------------------------------------
+# Clients sales map
+# ---------------------------------------------------------------------------
+
+class ClientMapPoint(BaseModel):
+    user_id: int
+    full_name: str
+    phone: Optional[str]
+    store_name: Optional[str]
+    wilaya: Optional[str]
+    commune: Optional[str]
+    latitude: float
+    longitude: float
+    total_spent: float
+    order_count: int
+    avg_order_value: float
+    last_order_date: Optional[str]
+
+
+@router.get("/clients-map", response_model=List[ClientMapPoint])
+def get_clients_map(
+    start_date: Optional[str] = Query(default=None, description="ISO date YYYY-MM-DD"),
+    end_date: Optional[str] = Query(default=None, description="ISO date YYYY-MM-DD"),
+    current_user: User = Depends(get_current_staff_user),
+    session: Session = Depends(get_session),
+) -> Any:
+    """
+    Returns all customers with a known location and their purchase statistics.
+    Optionally filtered by date range (start_date / end_date, YYYY-MM-DD).
+    """
+    order_filters = [Order.status != OrderStatus.CANCELLED]
+    if start_date:
+        order_filters.append(Order.created_at >= datetime.fromisoformat(start_date).replace(tzinfo=timezone.utc))
+    if end_date:
+        end_dt = datetime.fromisoformat(end_date).replace(tzinfo=timezone.utc) + timedelta(days=1)
+        order_filters.append(Order.created_at < end_dt)
+
+    # Aggregate per user: total spent (non-cancelled), order count, last order date
+    agg = session.exec(
+        select(
+            Order.user_id,
+            func.sum(Order.total_amount).label("total_spent"),
+            func.count(Order.id).label("order_count"),
+            func.max(Order.created_at).label("last_order_date"),
+        )
+        .where(*order_filters)
+        .group_by(Order.user_id)
+    ).all()
+
+    stats_by_user: dict[int, dict] = {}
+    for row in agg:
+        stats_by_user[row[0]] = {
+            "total_spent": float(row[1] or 0),
+            "order_count": int(row[2] or 0),
+            "last_order_date": row[3].isoformat() if row[3] else None,
+        }
+
+    customers = session.exec(
+        select(User).where(
+            User.role == UserRole.CUSTOMER,
+            User.latitude.isnot(None),
+            User.longitude.isnot(None),
+        )
+    ).all()
+
+    result = []
+    for u in customers:
+        stats = stats_by_user.get(u.id, {"total_spent": 0.0, "order_count": 0, "last_order_date": None})
+        total = stats["total_spent"]
+        count = stats["order_count"]
+        result.append(ClientMapPoint(
+            user_id=u.id,
+            full_name=u.full_name or u.email or "",
+            phone=u.phone,
+            store_name=u.store_name,
+            wilaya=u.wilaya,
+            commune=u.commune,
+            latitude=u.latitude,
+            longitude=u.longitude,
+            total_spent=round(total, 2),
+            order_count=count,
+            avg_order_value=round(total / count, 2) if count else 0.0,
+            last_order_date=stats["last_order_date"],
+        ))
+
+    return result
+
+
+# ---------------------------------------------------------------------------
 # Daily report
 # ---------------------------------------------------------------------------
 

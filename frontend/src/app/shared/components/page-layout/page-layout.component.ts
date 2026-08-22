@@ -7,7 +7,8 @@ import { TranslateModule } from '@ngx-translate/core';
   standalone: true,
   imports: [BackButtonComponent, TranslateModule],
   templateUrl: './page-layout.component.html',
-  styleUrl: './page-layout.component.scss'
+  styleUrl: './page-layout.component.scss',
+  host: { '[attr.title]': 'null' }
 })
 export class PageLayoutComponent {
   // Page title - displayed in top bar (optional if using pageHeader slot)
