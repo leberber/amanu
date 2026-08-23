@@ -221,7 +221,7 @@ export class PurchaseOrderService {
     return this.api.get<Record<number, PriceTier[]>>('/purchase-orders/cmup-tiers');
   }
 
-  getProductLifecycles(): Observable<Record<number, { made_date: string; expiry_date: string }[]>> {
+  getProductLifecycles(): Observable<Record<number, { made_date: string; expiry_date: string; quantity_added: number }[]>> {
     return this.api.get('/purchase-orders/product-lifecycles');
   }
 

@@ -202,7 +202,7 @@ async def get_product_lifecycles(session: Session = Depends(get_session)):
     from sqlalchemy import text
     rows = session.exec(
         text("""
-            SELECT product_id, made_date, expiry_date
+            SELECT product_id, made_date, expiry_date, quantity_added
             FROM product_purchase_lots
             WHERE made_date IS NOT NULL AND expiry_date IS NOT NULL
             ORDER BY product_id, expiry_date ASC
@@ -214,6 +214,7 @@ async def get_product_lifecycles(session: Session = Depends(get_session)):
         entry = {
             "made_date": row[1].isoformat() if row[1] else None,
             "expiry_date": row[2].isoformat() if row[2] else None,
+            "quantity_added": row[3] or 0,
         }
         if pid not in result:
             result[pid] = []

@@ -51,7 +51,7 @@ import { BreakpointService } from '../../../core/services/breakpoint.service';
 })
 export class AdminProductsComponent extends BaseAdminListComponent implements OnInit {
   // Infinite scroll configuration
-  private readonly BATCH_SIZE = 100;
+  private readonly BATCH_SIZE = 2000;
 
   // Data signals - products loaded from server
   displayedProducts = signal<Product[]>([]);
@@ -109,7 +109,7 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
   // CMUP (weighted average cost) per product
   cmupMap = signal<Record<number, number>>({});
   priceTiersMap = signal<Record<number, PriceTier[]>>({});
-  lifecycleMap = signal<Record<number, { made_date: string; expiry_date: string }[]>>({});
+  lifecycleMap = signal<Record<number, { made_date: string; expiry_date: string; quantity_added: number }[]>>({});
 
   // Lots drawer
   lotsProduct = signal<Product | null>(null);
@@ -135,8 +135,8 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
         case 'purchase_price': aVal = this.getCmup(a.id) ?? -1; bVal = this.getCmup(b.id) ?? -1; break;
         case 'profit':      aVal = this.getProfit(a) ?? -Infinity; bVal = this.getProfit(b) ?? -Infinity; break;
         case 'lifecycle':
-          aVal = Math.max(-1, ...this.getProductLifecycle(a.id).map(l => l.percentage));
-          bVal = Math.max(-1, ...this.getProductLifecycle(b.id).map(l => l.percentage));
+          aVal = Math.max(-1, ...this.getProductLifecycle(a.id, a.stock_quantity).map(l => l.percentage));
+          bVal = Math.max(-1, ...this.getProductLifecycle(b.id, b.stock_quantity).map(l => l.percentage));
           break;
         default:            return 0;
       }
@@ -736,17 +736,27 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
       .subscribe({ next: (data) => this.lifecycleMap.set(data), error: () => {} });
   }
 
-  getProductLifecycle(productId: number): { percentage: number; color: string; label: string; totalLabel: string }[] {
+  getProductLifecycle(productId: number, stockQuantity: number): { percentage: number; color: string; label: string; totalLabel: string }[] {
     const lots = this.lifecycleMap()[productId];
     if (!lots?.length) return [];
 
+    // FIFO: lots are sorted oldest-first from backend.
+    // Walk newest-first to find which lots still have stock.
+    const activeLots = new Set<string>();
+    let remaining = stockQuantity;
+    for (const lot of [...lots].reverse()) {
+      if (remaining <= 0) break;
+      activeLots.add(lot.expiry_date);
+      remaining -= lot.quantity_added;
+    }
+
     const today = new Date(); today.setHours(0, 0, 0, 0);
 
-    // Deduplicate by expiry_date
     const seen = new Set<string>();
     const result = [];
 
     for (const lc of lots) {
+      if (!activeLots.has(lc.expiry_date)) continue;
       if (seen.has(lc.expiry_date)) continue;
       seen.add(lc.expiry_date);
 
