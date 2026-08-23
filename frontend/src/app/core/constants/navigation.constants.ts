@@ -104,7 +104,7 @@ export const ADMIN_NAV_ITEMS: AdminNavItem[] = [
     labelKey: 'admin.navigation.sales_map',
     icon: 'pi pi-map',
     route: ROUTES.ADMIN.SALES_MAP,
-    adminOnly: true
+    staffOnly: true
   },
   {
     labelKey: 'admin.navigation.user_groups',

@@ -254,7 +254,7 @@ export const routes: Routes = [
   {
     path: 'admin/sales-map',
     loadComponent: () => import('./pages/admin/admin-sales-map/admin-sales-map.component').then(m => m.AdminSalesMapComponent),
-    canActivate: [adminOnlyGuard],
+    canActivate: [adminGuard],
     data: { hideBottomNav: true }
   },
 

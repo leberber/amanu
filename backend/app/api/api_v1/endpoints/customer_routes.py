@@ -4,14 +4,14 @@ Fetch and manage routes from depot to customers using Google Directions API.
 """
 import json
 from fastapi import APIRouter, Depends, HTTPException
-from sqlmodel import Session, select, text
+from sqlmodel import Session, text
 from typing import List, Optional
 from pydantic import BaseModel
 
 from app.database import get_session
-from app.models.user import User, UserRole
+from app.models.user import User
 from app.models.customer_route import CustomerRoute
-from app.core.security import get_current_user
+from app.core.security import get_current_staff_user, get_current_admin_user
 from app.services.customer_route_service import (
     fetch_and_save_route,
     fetch_all_customer_routes,
@@ -94,12 +94,9 @@ class UpdateRouteRequest(BaseModel):
 def list_routes(
     corridor: Optional[str] = None,
     session: Session = Depends(get_session),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_staff_user)
 ):
-    """List all stored customer routes. Admin only."""
-    if current_user.role != UserRole.ADMIN:
-        raise HTTPException(status_code=403, detail="Admin access required")
-
+    """List all stored customer routes. Staff and admin."""
     if corridor:
         routes = get_routes_by_corridor(session, corridor)
     else:
@@ -111,16 +108,13 @@ def list_routes(
 @router.get("/with-geometry", response_model=List[CustomerRouteWithGeometry])
 def list_routes_with_geometry(
     session: Session = Depends(get_session),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_staff_user)
 ):
     """
     List all customer routes with geometry coordinates for map display.
     Returns coordinates as [[lng, lat], ...] arrays.
-    Admin only.
+    Staff and admin.
     """
-    if current_user.role != UserRole.ADMIN:
-        raise HTTPException(status_code=403, detail="Admin access required")
-
     # Query routes with geometry as GeoJSON
     result = session.exec(text("""
         SELECT
@@ -157,12 +151,9 @@ def list_routes_with_geometry(
 @router.get("/stats", response_model=List[CorridorStats])
 def get_corridor_stats(
     session: Session = Depends(get_session),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_staff_user)
 ):
-    """Get statistics by corridor. Admin only."""
-    if current_user.role != UserRole.ADMIN:
-        raise HTTPException(status_code=403, detail="Admin access required")
-
+    """Get statistics by corridor. Staff and admin."""
     routes = get_all_customer_routes(session)
 
     # Group by corridor
@@ -189,12 +180,9 @@ def get_corridor_stats(
 def get_route(
     user_id: int,
     session: Session = Depends(get_session),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_staff_user)
 ):
-    """Get stored route for a specific customer. Admin only."""
-    if current_user.role != UserRole.ADMIN:
-        raise HTTPException(status_code=403, detail="Admin access required")
-
+    """Get stored route for a specific customer. Staff and admin."""
     route = get_customer_route(session, user_id)
     if not route:
         raise HTTPException(status_code=404, detail="Route not found for this user")
@@ -207,12 +195,9 @@ def update_route(
     user_id: int,
     request: UpdateRouteRequest,
     session: Session = Depends(get_session),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_staff_user)
 ):
-    """Update route data manually (corridor, distance, duration). Admin only."""
-    if current_user.role != UserRole.ADMIN:
-        raise HTTPException(status_code=403, detail="Admin access required")
-
+    """Update route data manually (corridor, distance, duration). Staff and admin."""
     route = get_customer_route(session, user_id)
     if not route:
         raise HTTPException(status_code=404, detail="Route not found for this user")
@@ -236,12 +221,9 @@ def update_route(
 def fetch_single_route(
     request: FetchRouteRequest,
     session: Session = Depends(get_session),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_staff_user)
 ):
-    """Fetch route for a single customer using Google. Admin only."""
-    if current_user.role != UserRole.ADMIN:
-        raise HTTPException(status_code=403, detail="Admin access required")
-
+    """Fetch route for a single customer using Google. Staff and admin."""
     user = session.get(User, request.user_id)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -266,16 +248,13 @@ def fetch_single_route(
 @router.post("/fetch-all", response_model=FetchRoutesResponse)
 def fetch_all_routes(
     session: Session = Depends(get_session),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_staff_user)
 ):
     """
     Fetch routes for all customers using Google.
     Only fetches for customers without existing routes.
-    Admin only.
+    Staff and admin.
     """
-    if current_user.role != UserRole.ADMIN:
-        raise HTTPException(status_code=403, detail="Admin access required")
-
     result = fetch_all_customer_routes(session, only_missing=True)
 
     return FetchRoutesResponse(**result)
@@ -284,15 +263,12 @@ def fetch_all_routes(
 @router.post("/refetch-all", response_model=FetchRoutesResponse)
 def refetch_all_routes(
     session: Session = Depends(get_session),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_admin_user)
 ):
     """
     Re-fetch routes for ALL customers (including existing ones).
     Admin only.
     """
-    if current_user.role != UserRole.ADMIN:
-        raise HTTPException(status_code=403, detail="Admin access required")
-
     result = fetch_all_customer_routes(session, only_missing=False)
 
     return FetchRoutesResponse(**result)
@@ -302,12 +278,9 @@ def refetch_all_routes(
 def delete_route(
     user_id: int,
     session: Session = Depends(get_session),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_staff_user)
 ):
-    """Delete a customer's route. Admin only."""
-    if current_user.role != UserRole.ADMIN:
-        raise HTTPException(status_code=403, detail="Admin access required")
-
+    """Delete a customer's route. Staff and admin."""
     if delete_customer_route(session, user_id):
         return {"message": "Route deleted"}
     else:
@@ -317,11 +290,8 @@ def delete_route(
 @router.delete("/")
 def delete_all_routes(
     session: Session = Depends(get_session),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_admin_user)
 ):
     """Delete ALL customer routes. Admin only."""
-    if current_user.role != UserRole.ADMIN:
-        raise HTTPException(status_code=403, detail="Admin access required")
-
     count = delete_all_customer_routes(session)
     return {"message": f"Deleted {count} routes"}
