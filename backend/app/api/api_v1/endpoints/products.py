@@ -378,6 +378,7 @@ def read_products_paginated(
     limit: int = Query(50, ge=1, le=2000),
     category_id: Optional[int] = None,
     brand_id: Optional[int] = None,
+    supplier_id: Optional[int] = None,
     status_filter: str = Query("all", enum=["all", "active", "inactive"]),
     search: Optional[str] = None,
     lang: str = Query("en", description="Language for translations (en, fr, ar)"),
@@ -397,6 +398,15 @@ def read_products_paginated(
 
     if brand_id:
         base_query = base_query.where(Product.brand_id == brand_id)
+
+    if supplier_id:
+        supplier_product_ids = select(PurchaseOrderItem.product_id).join(
+            PurchaseOrder, PurchaseOrderItem.purchase_order_id == PurchaseOrder.id
+        ).where(
+            PurchaseOrder.supplier_id == supplier_id,
+            PurchaseOrderItem.product_id.isnot(None)
+        )
+        base_query = base_query.where(Product.id.in_(supplier_product_ids))
 
     if search:
         search_conditions = [

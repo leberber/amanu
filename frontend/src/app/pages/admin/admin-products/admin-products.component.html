@@ -104,6 +104,35 @@
             </div>
           </ng-template>
         </p-select>
+
+        <!-- Supplier Dropdown -->
+        <p-select
+          [ngModel]="supplierFilter"
+          (ngModelChange)="supplierFilter = $event; onSupplierChange()"
+          [options]="supplierOptions()"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Tous les fournisseurs"
+          [showClear]="supplierFilter !== null"
+          [filter]="true"
+          filterPlaceholder="Rechercher..."
+          styleClass="filter-select--glass"
+          panelStyleClass="filter-select-panel--glass"
+          appendTo="body">
+          <ng-template pTemplate="selectedItem" let-selected>
+            @if (selected) {
+              <div class="select-item">
+                <i class="pi pi-truck"></i>
+                <span>{{ selected.label }}</span>
+              </div>
+            }
+          </ng-template>
+          <ng-template pTemplate="item" let-option>
+            <div class="select-option">
+              <span>{{ option.label }}</span>
+            </div>
+          </ng-template>
+        </p-select>
       </div>
 
       <button class="btn-add" (click)="createNewProduct()">
@@ -195,6 +224,7 @@
           <table class="table">
             <thead>
               <tr>
+                <th style="width: 2.5rem; padding: 0 0.5rem;"></th>
                 @if (isColumnVisible('image')) { <th style="width: 8%"></th> }
                 @if (isColumnVisible('name')) { <th style="width: 22%">{{ 'admin.products.table.product_name' | translate }}</th> }
                 @if (isColumnVisible('category')) { <th style="width: 12%" class="text-center">{{ 'admin.products.table.category' | translate }}</th> }
@@ -235,6 +265,13 @@
             <tbody>
               @for (product of sortedProducts(); track product.id; let i = $index) {
                 <tr class="table-row-animate clickable-row" [style.--row-delay]="((i < 10 ? i : 10) * 40) + 'ms'" (click)="openLots(product, $event)">
+                  <!-- Selection Checkbox -->
+                  <td style="width: 2.5rem; padding: 0 0.5rem; text-align: center;" (click)="$event.stopPropagation()">
+                    <input type="checkbox"
+                      [checked]="isProductSelected(product.id)"
+                      (change)="toggleProductSelection(product.id, $event)"
+                      style="width:16px;height:16px;cursor:pointer;accent-color:var(--primary-color);border-radius:3px;" />
+                  </td>
                   <!-- Product Image -->
                   @if (isColumnVisible('image')) {
                     <td>
@@ -584,6 +621,119 @@
     }
   </div>
 </app-agroclik-page-container>
+
+<!-- Floating PO action bar -->
+@if (selectedProductIds().size > 0) {
+  <div style="position:fixed;bottom:1.75rem;left:50%;transform:translateX(-50%);z-index:1100;
+              background:var(--surface-card);border:1px solid var(--surface-border);
+              border-radius:12px;box-shadow:0 8px 28px rgba(0,0,0,0.18);
+              padding:0.75rem 1.25rem;display:flex;align-items:center;gap:1rem;white-space:nowrap;">
+    <span style="font-size:0.875rem;font-weight:500;color:var(--text-color);">
+      <strong>{{ selectedProductIds().size }}</strong> produit(s) sélectionné(s)
+    </span>
+    <p-button severity="secondary" [text]="true" size="small" icon="pi pi-times" label="Désélectionner" (onClick)="clearSelection()" />
+    <p-button size="small" icon="pi pi-shopping-cart" label="Créer bon de commande" (onClick)="openPoDialog()" />
+  </div>
+}
+
+<!-- Quick PO creation dialog -->
+<p-dialog
+  [visible]="poDialogVisible()"
+  (visibleChange)="poDialogVisible.set($event)"
+  header="Créer bon de commande"
+  [modal]="true"
+  [draggable]="false"
+  [style]="{'width': '820px', 'max-width': '95vw'}">
+
+  <!-- Supplier -->
+  <div class="flex flex-column gap-2 mb-4">
+    <label class="font-semibold text-sm">Fournisseur *</label>
+    <p-select
+      [options]="poSuppliers()"
+      [ngModel]="poSelectedSupplier()"
+      (ngModelChange)="poSelectedSupplier.set($event)"
+      optionLabel="name"
+      placeholder="Sélectionner un fournisseur"
+      [filter]="true"
+      filterBy="name"
+      styleClass="w-full" />
+  </div>
+
+  <!-- Items -->
+  <table style="width:100%;border-collapse:collapse;">
+    <thead>
+      <tr style="border-bottom:2px solid var(--surface-border);">
+        <th style="text-align:left;padding:0.5rem;font-size:0.78rem;color:var(--text-color-secondary);font-weight:600;">Produit</th>
+        <th style="text-align:center;padding:0.5rem;font-size:0.78rem;color:var(--text-color-secondary);font-weight:600;">Stock</th>
+        <th style="text-align:center;padding:0.5rem;font-size:0.78rem;color:var(--text-color-secondary);font-weight:600;">Qté (ctn)</th>
+        <th style="text-align:right;padding:0.5rem;font-size:0.78rem;color:var(--text-color-secondary);font-weight:600;">Prix unit. DA</th>
+        <th style="text-align:right;padding:0.5rem;font-size:0.78rem;color:var(--text-color-secondary);font-weight:600;">Total</th>
+        <th style="width:2.5rem;"></th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (item of poItems(); track item.product.id; let i = $index) {
+        <tr style="border-bottom:1px solid var(--surface-border);">
+          <td style="padding:0.625rem 0.5rem;">
+            <div class="flex flex-column gap-0">
+              <span class="font-semibold text-sm">{{ getProductName(item.product) }}</span>
+              <span class="text-xs text-color-secondary">{{ getUnitsPerCarton(item.product) }} u/ctn</span>
+            </div>
+          </td>
+          <td style="text-align:center;padding:0.625rem 0.5rem;">
+            <span [style.color]="item.product.stock_quantity === 0 ? '#ef4444' : 'inherit'" class="text-sm font-semibold">
+              {{ item.product.stock_quantity }} u
+            </span>
+          </td>
+          <td style="text-align:center;padding:0.625rem 0.5rem;">
+            <input type="number" pInputText
+              [value]="item.qtyCtn"
+              (change)="updatePoItemQty(i, +$any($event.target).value)"
+              min="1" step="1"
+              style="width:72px;text-align:center;padding:0.3rem 0.5rem;" />
+          </td>
+          <td style="text-align:right;padding:0.625rem 0.5rem;">
+            <input type="number" pInputText
+              [value]="item.unitPrice"
+              (change)="updatePoItemPrice(i, +$any($event.target).value)"
+              min="0" step="0.01"
+              style="width:100px;text-align:right;padding:0.3rem 0.5rem;" />
+          </td>
+          <td style="text-align:right;padding:0.625rem 0.5rem;font-weight:600;font-size:0.875rem;white-space:nowrap;">
+            {{ getPoItemTotal(item) | number:'1.0-2' }} DA
+          </td>
+          <td style="padding:0.25rem;">
+            <p-button icon="pi pi-times" severity="danger" [text]="true" [rounded]="true" size="small" (onClick)="removePoItem(i)" />
+          </td>
+        </tr>
+      }
+      @if (poItems().length === 0) {
+        <tr><td colspan="6" style="text-align:center;padding:1.5rem;color:var(--text-color-secondary);font-size:0.875rem;">Aucun produit sélectionné</td></tr>
+      }
+    </tbody>
+    <tfoot>
+      <tr style="border-top:2px solid var(--surface-border);">
+        <td colspan="4" style="text-align:right;padding:0.75rem 0.5rem;font-weight:600;font-size:0.875rem;">Total général</td>
+        <td style="text-align:right;padding:0.75rem 0.5rem;font-weight:700;font-size:1rem;color:var(--primary-color);white-space:nowrap;">
+          {{ getPoGrandTotal() | number:'1.0-2' }} DA
+        </td>
+        <td></td>
+      </tr>
+    </tfoot>
+  </table>
+
+  <ng-template pTemplate="footer">
+    <div class="flex justify-content-end gap-2">
+      <p-button label="Annuler" icon="pi pi-times" severity="secondary" [outlined]="true" (onClick)="poDialogVisible.set(false)" />
+      <p-button
+        label="Créer le bon de commande"
+        icon="pi pi-check"
+        [disabled]="!poSelectedSupplier() || poItems().length === 0"
+        [loading]="poSubmitting()"
+        (onClick)="submitPo()" />
+    </div>
+  </ng-template>
+</p-dialog>
 
 <!-- Lots History Drawer -->
 <p-drawer

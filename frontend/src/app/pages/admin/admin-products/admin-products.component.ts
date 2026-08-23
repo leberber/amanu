@@ -28,7 +28,9 @@ import { InlineEditState } from '../../../shared/utils/inline-edit-state';
 import { Product } from '../../../models/product.model';
 import { Category } from '../../../models/category.model';
 import { Brand } from '../../../models/brand.model';
+import { Supplier } from '../../../models/supplier.model';
 import { ROUTES, RouteHelpers } from '../../../core/constants/routes.constants';
+import { PurchaseOrderCreate } from '../../../services/purchase-order.service';
 import { BreakpointService } from '../../../core/services/breakpoint.service';
 
 @Component({
@@ -77,6 +79,9 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
   // Brand filter
   brandFilter: number | null = null;
 
+  // Supplier filter
+  supplierFilter: number | null = null;
+
   // Computed counts from server
   activeCount = computed(() => this.serverActiveCount());
   inactiveCount = computed(() => this.serverInactiveCount());
@@ -106,10 +111,29 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
     ];
   });
 
+  // Computed supplier options (reuses poSuppliers signal)
+  supplierOptions = computed(() => {
+    return [
+      { label: 'Tous les fournisseurs', value: null as number | null },
+      ...this.poSuppliers().map(s => ({
+        label: s.name,
+        value: s.id as number | null
+      }))
+    ];
+  });
+
   // CMUP (weighted average cost) per product
   cmupMap = signal<Record<number, number>>({});
   priceTiersMap = signal<Record<number, PriceTier[]>>({});
   lifecycleMap = signal<Record<number, { made_date: string; expiry_date: string; quantity_added: number }[]>>({});
+
+  // --- Quick PO creation ---
+  readonly poDialogVisible = signal(false);
+  readonly selectedProductIds = signal<Set<number>>(new Set());
+  readonly poSuppliers = signal<Supplier[]>([]);
+  readonly poSelectedSupplier = signal<Supplier | null>(null);
+  readonly poItems = signal<{ product: Product; qtyCtn: number; unitPrice: number }[]>([]);
+  readonly poSubmitting = signal(false);
 
   // Lots drawer
   lotsProduct = signal<Product | null>(null);
@@ -251,6 +275,7 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
     this.columnOptions = this.getInitialColumnOptions();
     this.loadCategories();
     this.loadBrands();
+    this.loadSuppliers();
     this.loadProducts();
     this.loadCmup();
     this.loadPriceTiers();
@@ -280,6 +305,7 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
       limit: this.BATCH_SIZE,
       category_id: this.categoryFilter ?? undefined,
       brand_id: this.brandFilter ?? undefined,
+      supplier_id: this.supplierFilter ?? undefined,
       status_filter: this.statusFilter as 'all' | 'active' | 'inactive',
       search: this.searchQuery || undefined
     })
@@ -324,6 +350,7 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
     this.searchQuery = '';
     this.categoryFilter = null;
     this.brandFilter = null;
+    this.supplierFilter = null;
     this.statusFilter = 'all';
     this.filterItems();
   }
@@ -679,6 +706,16 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
       });
   }
 
+  private loadSuppliers(): void {
+    this.supplierService.getSuppliers(true)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({ next: (s) => this.poSuppliers.set(s), error: () => {} });
+  }
+
+  onSupplierChange(): void {
+    this.filterItems();
+  }
+
   private loadProducts(): void {
     // Only show skeleton on initial load — not on search/filter refreshes.
     // This prevents the @if(loading) block from destroying the search input and losing focus.
@@ -691,6 +728,7 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
       limit: this.BATCH_SIZE,
       category_id: this.categoryFilter ?? undefined,
       brand_id: this.brandFilter ?? undefined,
+      supplier_id: this.supplierFilter ?? undefined,
       status_filter: this.statusFilter as 'all' | 'active' | 'inactive',
       search: this.searchQuery || undefined
     })
@@ -905,6 +943,115 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
         },
         error: (error) => {
           this.baseToast.showApiError(error, 'admin.products.delete_failed');
+        }
+      });
+  }
+
+  // ---------------------------------------------------------------------------
+  // Quick PO creation
+  // ---------------------------------------------------------------------------
+
+  toggleProductSelection(productId: number, event: Event): void {
+    event.stopPropagation();
+    const ids = new Set(this.selectedProductIds());
+    if (ids.has(productId)) { ids.delete(productId); } else { ids.add(productId); }
+    this.selectedProductIds.set(ids);
+  }
+
+  isProductSelected(id: number): boolean {
+    return this.selectedProductIds().has(id);
+  }
+
+  clearSelection(): void {
+    this.selectedProductIds.set(new Set());
+  }
+
+  openPoDialog(): void {
+    const selected = this.sortedProducts().filter(p => this.selectedProductIds().has(p.id));
+    this.poItems.set(selected.map(p => ({
+      product: p,
+      qtyCtn: 1,
+      unitPrice: this.getCmup(p.id) ?? 0
+    })));
+    if (this.poSuppliers().length === 0) {
+      this.supplierService.getSuppliers(true)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: (s) => {
+            this.poSuppliers.set(s);
+            const preselect = this.supplierFilter ? s.find(sup => sup.id === this.supplierFilter) ?? null : null;
+            this.poSelectedSupplier.set(preselect);
+          },
+          error: () => {}
+        });
+    } else {
+      const preselect = this.supplierFilter ? this.poSuppliers().find(s => s.id === this.supplierFilter) ?? null : null;
+      this.poSelectedSupplier.set(preselect);
+    }
+    this.poDialogVisible.set(true);
+  }
+
+  removePoItem(index: number): void {
+    this.poItems.update(items => items.filter((_, i) => i !== index));
+  }
+
+  updatePoItemQty(index: number, value: number): void {
+    this.poItems.update(items => items.map((item, i) =>
+      i === index ? { ...item, qtyCtn: Math.max(1, Math.round(value) || 1) } : item
+    ));
+  }
+
+  updatePoItemPrice(index: number, value: number): void {
+    this.poItems.update(items => items.map((item, i) =>
+      i === index ? { ...item, unitPrice: Math.max(0, value || 0) } : item
+    ));
+  }
+
+  getUnitsPerCarton(product: Product): number {
+    return (product as any).pieces_per_box || 1;
+  }
+
+  getPoItemTotal(item: { product: Product; qtyCtn: number; unitPrice: number }): number {
+    return item.qtyCtn * this.getUnitsPerCarton(item.product) * item.unitPrice;
+  }
+
+  getPoGrandTotal(): number {
+    return this.poItems().reduce((sum, item) => sum + this.getPoItemTotal(item), 0);
+  }
+
+  submitPo(): void {
+    const supplier = this.poSelectedSupplier();
+    if (!supplier || this.poItems().length === 0) return;
+    this.poSubmitting.set(true);
+    const order: PurchaseOrderCreate = {
+      supplier_id: supplier.id,
+      supplier_name: supplier.name,
+      supplier_address: supplier.address,
+      supplier_phone: supplier.phone,
+      supplier_email: supplier.email,
+      supplier_city: supplier.city,
+      items: this.poItems().map(item => ({
+        product_id: item.product.id,
+        product_name: this.getProductName(item.product),
+        brand: this.getBrandName(item.product.brand_id),
+        units_per_carton: this.getUnitsPerCarton(item.product),
+        quantity_ordered: item.qtyCtn,
+        unit_price: item.unitPrice,
+        total_price: this.getPoItemTotal(item)
+      }))
+    };
+    this.purchaseOrderService.createOrder(order)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (po) => {
+          this.poSubmitting.set(false);
+          this.poDialogVisible.set(false);
+          this.clearSelection();
+          this.baseRouter.navigate([RouteHelpers.adminPurchaseOrderDetail(po.id)]);
+        },
+        error: (err) => {
+          this.poSubmitting.set(false);
+          this.baseToast.showApiError(err, 'Erreur lors de la création du bon de commande');
         }
       });
   }

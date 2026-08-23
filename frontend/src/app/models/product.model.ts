@@ -94,6 +94,7 @@ export interface Product {
     limit?: number;
     category_id?: number;
     brand_id?: number;
+    supplier_id?: number;
     status_filter?: 'all' | 'active' | 'inactive';
     search?: string;
   }

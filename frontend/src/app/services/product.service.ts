@@ -127,6 +127,7 @@ export class ProductService {
 
     if (filters.category_id) params.category_id = filters.category_id;
     if (filters.brand_id) params.brand_id = filters.brand_id;
+    if (filters.supplier_id) params.supplier_id = filters.supplier_id;
     if (filters.status_filter) params.status_filter = filters.status_filter;
     if (filters.search) params.search = filters.search;
 
