@@ -1023,14 +1023,14 @@ def get_clients_map(
 # ---------------------------------------------------------------------------
 
 def _day_utc_range(day: date_type):
-    """UTC start/end for a business day running 20:00→19:59 Algeria time (UTC+1).
-    e.g. 'July 23' covers July 22 20:00 local → July 23 19:59:59 local.
+    """UTC start/end for a business day running 00:00→23:59 Algeria time (UTC+1).
+    e.g. 'July 23' covers July 23 00:00 local → July 23 23:59:59 local.
     """
     # Algeria UTC+1: local = UTC + 1h  →  UTC = local - 1h
-    # Start: previous calendar day at 20:00 local = prev day at 19:00 UTC
-    start = datetime(day.year, day.month, day.day, 19, 0, 0, tzinfo=timezone.utc) - timedelta(days=1)
-    # End: same calendar day at 19:59:59 local = same day at 18:59:59 UTC
-    end = datetime(day.year, day.month, day.day, 18, 59, 59, 999999, tzinfo=timezone.utc)
+    # Start: same calendar day at 00:00 local = previous day at 23:00 UTC
+    start = datetime(day.year, day.month, day.day, 23, 0, 0, tzinfo=timezone.utc) - timedelta(days=1)
+    # End: same calendar day at 23:59:59 local = same day at 22:59:59 UTC
+    end = datetime(day.year, day.month, day.day, 22, 59, 59, 999999, tzinfo=timezone.utc)
     return start, end
 
 

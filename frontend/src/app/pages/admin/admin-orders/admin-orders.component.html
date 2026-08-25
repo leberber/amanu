@@ -24,8 +24,8 @@
       </p-button>
     </div>
 
-    <!-- Status Segmented Control -->
-    <div class="flex align-items-center justify-content-between gap-3 flex-wrap mt-3 mb-4 animate-item" style="--item-delay: 50ms;">
+    <!-- Status & Payment Filters -->
+    <div class="flex align-items-center gap-3 flex-wrap mt-3 mb-4 animate-item" style="--item-delay: 50ms;">
       <div class="segment-control segment-control--glass">
         <button class="segment-control__item" [class.active]="statusFilter === 'all'" (click)="onStatusFilterChange('all')">
           <span>{{ 'common.all' | translate }}</span>
@@ -50,6 +50,21 @@
         <button class="segment-control__item" [class.active]="statusFilter === 'cancelled'" (click)="onStatusFilterChange('cancelled')">
           <span>{{ 'admin.orders.status.cancelled' | translate }}</span>
           <span class="count cancelled">{{ cancelledCount() }}</span>
+        </button>
+      </div>
+
+      <div class="segment-control segment-control--glass">
+        <button class="segment-control__item" [class.active]="paymentStatusFilter() === 'all'" (click)="onPaymentStatusFilterChange('all')">
+          <span>{{ 'common.all' | translate }}</span>
+          <span class="count">{{ allOrders().length }}</span>
+        </button>
+        <button class="segment-control__item" [class.active]="paymentStatusFilter() === 'unpaid_partial'" (click)="onPaymentStatusFilterChange('unpaid_partial')">
+          <span>{{ 'admin.orders.filter_unpaid_partial' | translate }}</span>
+          <span class="count warn">{{ unpaidPartialCount() }}</span>
+        </button>
+        <button class="segment-control__item" [class.active]="paymentStatusFilter() === 'paid'" (click)="onPaymentStatusFilterChange('paid')">
+          <span>{{ 'admin.orders.filter_paid' | translate }}</span>
+          <span class="count success">{{ paidCount() }}</span>
         </button>
       </div>
     </div>

@@ -86,6 +86,17 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
   // Override status filter type for orders
   override statusFilter: string = 'all';
 
+  // Payment status filter
+  paymentStatusFilter = signal<'all' | 'unpaid_partial' | 'paid'>('all');
+
+  // Computed payment counts
+  unpaidPartialCount = computed(() =>
+    this.allOrders().filter(o => o.payment_status === 'unpaid' || o.payment_status === 'partial').length
+  );
+  paidCount = computed(() =>
+    this.allOrders().filter(o => o.payment_status === 'paid').length
+  );
+
   // Column visibility options - with mobile defaults (initialized in ngOnInit)
   override columnOptions: ColumnOption[] = [];
 
@@ -157,7 +168,7 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
   }
 
   hasActiveFilters(): boolean {
-    return !!(this.searchQuery?.trim() || this.statusFilter !== 'all');
+    return !!(this.searchQuery?.trim() || this.statusFilter !== 'all' || this.paymentStatusFilter() !== 'all');
   }
 
   // Abstract method implementations
@@ -203,6 +214,14 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
       filtered = filtered.filter(order => order.status === this.statusFilter);
     }
 
+    if (this.paymentStatusFilter() !== 'all') {
+      if (this.paymentStatusFilter() === 'unpaid_partial') {
+        filtered = filtered.filter(order => order.payment_status === 'unpaid' || order.payment_status === 'partial');
+      } else if (this.paymentStatusFilter() === 'paid') {
+        filtered = filtered.filter(order => order.payment_status === 'paid');
+      }
+    }
+
     if (this.hasSearchQuery()) {
       const search = this.searchQuery.toLowerCase();
       filtered = filtered.filter(order =>
@@ -222,6 +241,12 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
   override clearFilters(): void {
     this.searchQuery = '';
     this.statusFilter = 'all';
+    this.paymentStatusFilter.set('all');
+    this.filterItems();
+  }
+
+  onPaymentStatusFilterChange(filter: 'all' | 'unpaid_partial' | 'paid'): void {
+    this.paymentStatusFilter.set(filter);
     this.filterItems();
   }
 
