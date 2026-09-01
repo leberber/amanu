@@ -403,6 +403,11 @@ export class OrderPdfService {
       ${balance > 0.01 ? `
         <div class="balance"><span>SOLDE IMPAYÉ</span><span>${this.money(balance)} DA</span></div>
       ` : ''}
+      ${(order.user_outstanding_balance ?? 0) > 0.01 ? `
+        <div class="balance" style="border-color:#ea580c;color:#ea580c;margin-top:4px;">
+          <span>ANCIEN SOLDE</span><span>${this.money(order.user_outstanding_balance!)} DA</span>
+        </div>
+      ` : ''}
     </div>
   </div>
 

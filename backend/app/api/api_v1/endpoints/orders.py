@@ -576,6 +576,7 @@ def read_order(
 
     # Build user info
     user_info = None
+    user_balance = None
     if order.user:
         user_info = UserInfo(
             id=order.user.id,
@@ -585,6 +586,7 @@ def read_order(
             daira=order.user.daira,
             commune=order.user.commune
         )
+        user_balance = order.user.outstanding_balance
 
     # Build response with promotion info
     response = OrderWithItems(
@@ -599,6 +601,8 @@ def read_order(
         shipping_cost=order.shipping_cost,
         original_shipping_cost=order.original_shipping_cost,
         promotion_id=order.promotion_id,
+        payment_status=order.payment_status or "unpaid",
+        total_paid=order.total_paid or 0.0,
         created_at=order.created_at,
         updated_at=order.updated_at,
         admin_modified_at=admin_modified_at_snapshot,
@@ -616,6 +620,7 @@ def read_order(
             for p in sorted(order.payments, key=lambda p: p.recorded_at)
         ],
         user=user_info,
+        user_outstanding_balance=user_balance,
         items=[]
     )
 
@@ -1386,6 +1391,7 @@ def _build_order_with_items(order: Order, session: Session) -> OrderWithItems:
     ).all()
 
     user_info = None
+    user_balance = None
     if order.user_id:
         user = session.get(User, order.user_id)
         if user:
@@ -1397,10 +1403,12 @@ def _build_order_with_items(order: Order, session: Session) -> OrderWithItems:
                 daira=user.daira,
                 commune=user.commune,
             )
+            user_balance = user.outstanding_balance
 
     return OrderWithItems(
         **order.model_dump(),
         user=user_info,
+        user_outstanding_balance=user_balance,
         items=[
             OrderItemRead(
                 id=i.id,

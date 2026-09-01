@@ -99,6 +99,8 @@ export interface DashboardStats {
     // Margin (admin only)
     margin?: number;
     margin_pct?: number;
+    // User's total outstanding balance
+    user_outstanding_balance?: number;
   }
 
   export interface OrderPayment {

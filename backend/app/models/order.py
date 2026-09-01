@@ -300,3 +300,4 @@ class OrderWithItems(OrderRead):
     promotion_info: Optional[PromotionInfo] = None
     total_weight: Optional[float] = None  # Total weight in kg
     total_volume: Optional[float] = None  # Total volume in liters
+    user_outstanding_balance: Optional[float] = None
