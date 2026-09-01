@@ -13,6 +13,7 @@ from app.models.return_order import (
     OrderReturnCreate, OrderReturnRead, OrderReturnItemRead
 )
 from app.core.security import get_current_staff_user
+from app.api.api_v1.endpoints.orders import _refresh_user_outstanding_balance
 
 router = APIRouter()
 
@@ -146,10 +147,7 @@ def create_return(
         session.add(log)
 
     if order.user_id and refund_total > 0:
-        customer = session.get(User, order.user_id)
-        if customer:
-            customer.outstanding_balance -= refund_total
-            session.add(customer)
+        _refresh_user_outstanding_balance(order.user_id, session)
     session.commit()
     session.refresh(ret)
     return _build_read(ret, session)

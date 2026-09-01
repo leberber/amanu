@@ -16,7 +16,7 @@ from app.models.order_payments import OrderAuditLog, AuditAction, OrderPayment
 from app.models.return_order import OrderReturn
 from app.models.purchase_order import PurchaseOrder, PurchaseOrderStatus
 from app.api.utils.common import format_price
-from app.api.api_v1.endpoints.orders import _recalculate_order_margin
+from app.api.api_v1.endpoints.orders import _recalculate_order_margin, _refresh_user_outstanding_balance
 from app.core.security import get_current_admin_user, get_current_staff_user
 from app.core.logging_config import read_logs, get_log_stats
 from app.core.system_metrics import get_metrics
@@ -1273,3 +1273,121 @@ def get_daily_report(
         margin_total=margin_total,
         margin_pct=margin_pct,
     )
+
+
+@router.get("/recalculate-balances/preview")
+def preview_recalculate_balances(
+    current_user: User = Depends(get_current_admin_user),
+    session: Session = Depends(get_session),
+) -> Any:
+    """Preview which users would be affected by balance recalculation."""
+    users = session.exec(select(User)).all()
+    affected = []
+    for user in users:
+        orders = session.exec(
+            select(Order).where(Order.user_id == user.id, Order.status != OrderStatus.CANCELLED)
+        ).all()
+        correct_balance = round(sum(
+            max(0.0, (o.total_amount or 0.0) + (o.shipping_cost or 0.0) - (o.total_paid or 0.0))
+            for o in orders
+        ), 2)
+        if user.outstanding_balance != correct_balance:
+            # Determine reason(s) for discrepancy
+            reasons = []
+            for o in orders:
+                overpaid = (o.total_paid or 0.0) - (o.total_amount or 0.0) - (o.shipping_cost or 0.0)
+                if overpaid > 0:
+                    # Check if there are returns on this order
+                    has_return = session.exec(
+                        select(func.count(OrderReturn.id)).where(OrderReturn.order_id == o.id)
+                    ).one()
+                    if has_return > 0:
+                        reasons.append(f"Retour sur commande #{o.id} ({round(overpaid, 2)} DA)")
+                    else:
+                        # Find item changes after last payment
+                        last_payment = session.exec(
+                            select(OrderAuditLog.created_at).where(
+                                OrderAuditLog.order_id == o.id,
+                                OrderAuditLog.action == AuditAction.PAYMENT_RECORDED,
+                            ).order_by(OrderAuditLog.created_at.desc())
+                        ).first()
+                        # Build product_id -> order_item lookup for packaging info
+                        order_items = session.exec(
+                            select(OrderItem).where(OrderItem.order_id == o.id)
+                        ).all()
+                        item_map = {oi.product_id: oi for oi in order_items}
+
+                        _PKG_FR = {
+                            "bundle": "Fardeau", "carton": "Carton", "box": "Boîte",
+                            "bag": "Sac", "pack": "Pack", "bottle": "Bouteille",
+                            "palette": "Palette",
+                        }
+
+                        def _fmt_qty(qty, product_id):
+                            """Format quantity using order item packaging type in French."""
+                            oi = item_map.get(product_id)
+                            if oi and oi.pieces_per_box and oi.pieces_per_box > 1:
+                                label = _PKG_FR.get(oi.packaging_type, oi.packaging_type or "Crt")
+                                cartons = qty / oi.pieces_per_box
+                                if cartons == int(cartons):
+                                    return f"{int(cartons)} {label}"
+                                return f"{cartons:.1f} {label}"
+                            return f"{int(qty)} Pcs"
+
+                        changes = []
+                        if last_payment:
+                            edits = session.exec(
+                                select(OrderAuditLog).where(
+                                    OrderAuditLog.order_id == o.id,
+                                    OrderAuditLog.action.in_([
+                                        AuditAction.ITEM_ADDED,
+                                        AuditAction.ITEM_REMOVED,
+                                        AuditAction.ITEM_QUANTITY_CHANGED,
+                                    ]),
+                                    OrderAuditLog.created_at > last_payment,
+                                ).order_by(OrderAuditLog.created_at)
+                            ).all()
+                            for e in edits:
+                                d = e.details or {}
+                                name = d.get("product_name", "?")
+                                pid = d.get("product_id")
+                                if e.action == AuditAction.ITEM_REMOVED:
+                                    changes.append(f"Supprimé: {name} ({_fmt_qty(d.get('quantity', 0), pid)})")
+                                elif e.action == AuditAction.ITEM_QUANTITY_CHANGED:
+                                    old_q = d.get("old_quantity", 0)
+                                    new_q = d.get("new_quantity", 0)
+                                    changes.append(f"{name}: {_fmt_qty(old_q, pid)} → {_fmt_qty(new_q, pid)}")
+                                elif e.action == AuditAction.ITEM_ADDED:
+                                    changes.append(f"Ajouté: {name} ({_fmt_qty(d.get('quantity', 0), pid)})")
+                        reason = f"Commande #{o.id} modifiée après paiement ({round(overpaid, 2)} DA)"
+                        if changes:
+                            reason += "\n" + "\n".join(changes)
+                        reasons.append(reason)
+            affected.append({
+                "user_id": user.id,
+                "full_name": user.full_name or user.email or f"#{user.id}",
+                "phone": user.phone,
+                "current_balance": user.outstanding_balance,
+                "correct_balance": correct_balance,
+                "reasons": reasons,
+            })
+    return {"total_users": len(users), "affected": affected}
+
+
+@router.post("/recalculate-balances")
+def recalculate_all_user_balances(
+    current_user: User = Depends(get_current_admin_user),
+    session: Session = Depends(get_session),
+) -> Any:
+    """Recompute outstanding_balance for all users from their orders."""
+    users = session.exec(select(User)).all()
+    fixed = 0
+    for user in users:
+        old = user.outstanding_balance
+        _refresh_user_outstanding_balance(user.id, session)
+        session.flush()
+        session.refresh(user)
+        if user.outstanding_balance != old:
+            fixed += 1
+    session.commit()
+    return {"total_users": len(users), "fixed": fixed}

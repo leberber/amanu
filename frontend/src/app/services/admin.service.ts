@@ -26,7 +26,8 @@ import {
   OrderPaymentsResponse,
   OrderAuditLog,
   OrderItemCreate,
-  ClientMapPoint
+  ClientMapPoint,
+  BalancePreviewResponse
 } from '../models/admin.model';
 import {
   DriverProfileWithFlags,
@@ -259,6 +260,14 @@ export class AdminService {
 
   clearSystemErrors(): Observable<void> {
     return this.apiService.delete<void>('/admin/system/errors');
+  }
+
+  previewRecalculateBalances(): Observable<BalancePreviewResponse> {
+    return this.apiService.get<BalancePreviewResponse>('/admin/recalculate-balances/preview');
+  }
+
+  recalculateBalances(): Observable<{ total_users: number; fixed: number }> {
+    return this.apiService.post<{ total_users: number; fixed: number }>('/admin/recalculate-balances', {});
   }
 
   // Purchase Orders (Bon de Commande)

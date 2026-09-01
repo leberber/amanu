@@ -785,11 +785,7 @@ def _restore_order_stock(order: Order, session: Session) -> None:
                 session.add(product)
 
     if order.user_id:
-        cancelled_user = session.get(User, order.user_id)
-        if cancelled_user:
-            outstanding_on_order = (order.total_amount or 0.0) + (order.shipping_cost or 0.0) - (order.total_paid or 0.0)
-            cancelled_user.outstanding_balance -= outstanding_on_order
-            session.add(cancelled_user)
+        _refresh_user_outstanding_balance(order.user_id, session)
     session.commit()
 
 
@@ -951,7 +947,7 @@ def _refresh_user_outstanding_balance(user_id: int, session: Session) -> None:
         select(Order).where(Order.user_id == user_id, Order.status != OrderStatus.CANCELLED)
     ).all()
     balance = sum(
-        (o.total_amount or 0.0) + (o.shipping_cost or 0.0) - (o.total_paid or 0.0)
+        max(0.0, (o.total_amount or 0.0) + (o.shipping_cost or 0.0) - (o.total_paid or 0.0))
         for o in orders
     )
     user.outstanding_balance = round(balance, 2)
@@ -1176,6 +1172,9 @@ def add_order_item(
     if order.status not in EDITABLE_STATUSES:
         raise HTTPException(status_code=400, detail="Order can only be edited when pending or confirmed")
 
+    if order.payment_status == PaymentStatus.PAID:
+        raise HTTPException(status_code=400, detail="Cannot edit a fully paid order. Record a refund first if needed.")
+
     product = session.get(Product, item_in.product_id)
     if not product or not product.is_active:
         raise HTTPException(status_code=404, detail="Product not found or inactive")
@@ -1260,6 +1259,9 @@ def remove_order_item(
     if order.status not in EDITABLE_STATUSES:
         raise HTTPException(status_code=400, detail="Order can only be edited when pending or confirmed")
 
+    if order.payment_status == PaymentStatus.PAID:
+        raise HTTPException(status_code=400, detail="Cannot edit a fully paid order. Record a refund first if needed.")
+
     item = session.get(OrderItem, item_id)
     if not item or item.order_id != order_id:
         raise HTTPException(status_code=404, detail="Item not found")
@@ -1318,6 +1320,9 @@ def update_order_item(
 
     if order.status not in EDITABLE_STATUSES:
         raise HTTPException(status_code=400, detail="Order can only be edited when pending or confirmed")
+
+    if order.payment_status == PaymentStatus.PAID:
+        raise HTTPException(status_code=400, detail="Cannot edit a fully paid order. Record a refund first if needed.")
 
     item = session.get(OrderItem, item_id)
     if not item or item.order_id != order_id:

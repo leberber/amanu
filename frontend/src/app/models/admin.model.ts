@@ -401,3 +401,17 @@ export interface DashboardStats {
     orders: PurchaseOrder[];
     total: number;
   }
+
+  export interface BalancePreviewUser {
+    user_id: number;
+    full_name: string;
+    phone?: string;
+    current_balance: number;
+    correct_balance: number;
+    reasons: string[];
+  }
+
+  export interface BalancePreviewResponse {
+    total_users: number;
+    affected: BalancePreviewUser[];
+  }

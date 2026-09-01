@@ -229,8 +229,11 @@ export class AdminOrderDetailComponent implements OnInit {
   // Item editing allowed until delivered (always true in create mode)
   canEditItems = computed(() => {
     if (this.isCreateMode()) return true;
-    const s = this.order()?.status;
-    return s === 'pending' || s === 'confirmed' || s === 'ready';
+    const o = this.order();
+    const s = o?.status;
+    if (s !== 'pending' && s !== 'confirmed' && s !== 'ready') return false;
+    if (o?.payment_status === 'paid') return false;
+    return true;
   });
 
   // Payment balance

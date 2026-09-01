@@ -14,7 +14,8 @@ import { BreakpointService } from '../../../core/services/breakpoint.service';
 import { USER_ROLES } from '../../../core/constants/user.constants';
 import { onLanguageChange } from '../../../core/utils/language-change.util';
 import { AdminService } from '../../../services/admin.service';
-import { UserManage, UsersResponse } from '../../../models/admin.model';
+import { AuthGuardService } from '../../../core/services/auth-guard.service';
+import { UserManage, UsersResponse, BalancePreviewUser } from '../../../models/admin.model';
 import { BaseAdminListComponent, ColumnOption } from '../../../shared/base/base-admin-list.component';
 import { UserGroupService } from '../../../core/services/user-group.service';
 import { UserGroup, UserGroupBasic } from '../../../models/user-group.model';
@@ -136,6 +137,7 @@ export class AdminUsersComponent extends BaseAdminListComponent implements OnIni
   private destroyRef = inject(DestroyRef);
   private readonly breakpoint = inject(BreakpointService);
   private userGroupService = inject(UserGroupService);
+  authGuard = inject(AuthGuardService);
 
   ngOnInit(): void {
     this.columnOptions = this.getInitialColumnOptions();
@@ -397,6 +399,48 @@ export class AdminUsersComponent extends BaseAdminListComponent implements OnIni
   // UI utilities
   refreshUserData(): void {
     this.loadAllUsers();
+  }
+
+  // Balance recalculation
+  recalculating = signal(false);
+  showRecalcDialog = signal(false);
+  recalcPreviewUsers = signal<BalancePreviewUser[]>([]);
+  loadingPreview = signal(false);
+
+  previewRecalculation(): void {
+    this.loadingPreview.set(true);
+    this.showRecalcDialog.set(true);
+    this.adminService.previewRecalculateBalances().subscribe({
+      next: (result) => {
+        this.recalcPreviewUsers.set(result.affected);
+        this.loadingPreview.set(false);
+      },
+      error: () => {
+        this.loadingPreview.set(false);
+        this.showRecalcDialog.set(false);
+        this.baseToast.showError('Erreur lors de la vérification des soldes');
+      }
+    });
+  }
+
+  confirmRecalculation(): void {
+    this.recalculating.set(true);
+    this.adminService.recalculateBalances().subscribe({
+      next: (result) => {
+        this.recalculating.set(false);
+        this.showRecalcDialog.set(false);
+        if (result.fixed > 0) {
+          this.baseToast.showSuccess(`${result.fixed} solde(s) corrigé(s)`);
+          this.loadAllUsers();
+        } else {
+          this.baseToast.showInfo('Tous les soldes sont corrects');
+        }
+      },
+      error: () => {
+        this.recalculating.set(false);
+        this.baseToast.showError('Erreur lors du recalcul des soldes');
+      }
+    });
   }
 
   // ── Set Password Dialog ───────────────────────────────────────────────────

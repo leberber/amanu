@@ -192,6 +192,81 @@
     </ng-template>
   </p-dialog>
 
+  <!-- Recalculate Balances Dialog -->
+  <p-dialog
+    header="Recalculer les soldes"
+    [visible]="showRecalcDialog()"
+    (visibleChange)="showRecalcDialog.set($event)"
+    [modal]="true"
+    [style]="{ width: '520px' }"
+    [draggable]="false">
+    @if (loadingPreview()) {
+      <div class="flex align-items-center gap-2 text-secondary p-3">
+        <i class="pi pi-spin pi-spinner"></i>
+        <span>Vérification des soldes...</span>
+      </div>
+    } @else if (recalcPreviewUsers().length === 0) {
+      <div class="flex flex-column align-items-center gap-3 p-4">
+        <i class="pi pi-check-circle text-green-500" style="font-size: 2.5rem"></i>
+        <span class="font-semibold">Tous les soldes sont corrects</span>
+        <span class="text-secondary text-sm">Aucune correction nécessaire.</span>
+      </div>
+    } @else {
+      <div class="flex flex-column gap-3">
+        <div class="flex align-items-center gap-2 mb-2">
+          <i class="pi pi-exclamation-triangle text-orange-500"></i>
+          <span class="font-semibold">{{ recalcPreviewUsers().length }} solde(s) à corriger</span>
+        </div>
+        <div class="flex flex-column gap-2" style="max-height: 400px; overflow-y: auto">
+          @for (u of recalcPreviewUsers(); track u.user_id) {
+            <div class="p-3 border-round-lg border-1 surface-border">
+              <div class="flex align-items-center justify-content-between">
+                <div class="flex flex-column gap-1">
+                  <span class="font-semibold">{{ u.full_name }}</span>
+                  @if (u.phone) {
+                    <span class="text-secondary text-sm">{{ u.phone }}</span>
+                  }
+                </div>
+                <div class="flex align-items-center gap-3">
+                  <div class="flex flex-column align-items-end gap-1">
+                    <span class="text-red-500 text-sm line-through">{{ u.current_balance | number:'1.2-2' }} DA</span>
+                    <span class="text-green-600 font-semibold">{{ u.correct_balance | number:'1.2-2' }} DA</span>
+                  </div>
+                  <p-button icon="pi pi-check" severity="success" [rounded]="true" [text]="true" size="small" pTooltip="Corriger ce solde" />
+                </div>
+              </div>
+              @if (u.reasons.length > 0) {
+                <div class="flex flex-column gap-1 mt-2">
+                  @for (reason of u.reasons; track reason) {
+                    <span class="text-sm text-orange-600"><i class="pi pi-info-circle mr-1"></i>{{ reason.split('\n')[0] }}</span>
+                    @if (reason.split('\n').length > 1) {
+                      <div class="flex flex-column gap-1 ml-4">
+                        @for (detail of reason.split('\n').slice(1); track detail) {
+                          <span class="text-xs text-secondary">{{ detail }}</span>
+                        }
+                      </div>
+                    }
+                  }
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    }
+    <ng-template pTemplate="footer">
+      <p-button label="Fermer" severity="secondary" (click)="showRecalcDialog.set(false)" />
+      @if (recalcPreviewUsers().length > 0 && !loadingPreview()) {
+        <p-button
+          label="Corriger"
+          icon="pi pi-check"
+          [loading]="recalculating()"
+          (click)="confirmRecalculation()"
+        />
+      }
+    </ng-template>
+  </p-dialog>
+
     <!-- Loading State - Skeleton Table -->
     @if (loading) {
       <app-table-skeleton
@@ -221,6 +296,11 @@
             @if (hasActiveFilters()) {
               <button class="clear-filters-btn" (click)="clearFilters()" [pTooltip]="'admin.users.clear_filters' | translate">
                 <i class="pi pi-filter-slash"></i>
+              </button>
+            }
+            @if (authGuard.isAdmin()) {
+              <button class="table-action-btn" (click)="previewRecalculation()" [disabled]="recalculating()" pTooltip="Recalculer les soldes">
+                <i [class]="recalculating() ? 'pi pi-spin pi-spinner' : 'pi pi-calculator'"></i>
               </button>
             }
             <button class="table-action-btn refresh-btn" (click)="refreshUserData()" [pTooltip]="'admin.users.refresh' | translate">
