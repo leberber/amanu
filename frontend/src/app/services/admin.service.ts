@@ -270,6 +270,10 @@ export class AdminService {
     return this.apiService.post<{ total_users: number; fixed: number }>('/admin/recalculate-balances', {});
   }
 
+  recalculateUserBalance(userId: number): Observable<{ user_id: number; old_balance: number; new_balance: number }> {
+    return this.apiService.post<{ user_id: number; old_balance: number; new_balance: number }>(`/admin/recalculate-balances/${userId}`, {});
+  }
+
   // Purchase Orders (Bon de Commande)
   getPurchaseOrders(status?: string, supplier?: string, skip = 0, limit = 50): Observable<PurchaseOrdersResponse> {
     const params: Record<string, string | number> = { skip, limit };

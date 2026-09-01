@@ -1374,6 +1374,23 @@ def preview_recalculate_balances(
     return {"total_users": len(users), "affected": affected}
 
 
+@router.post("/recalculate-balances/{user_id}")
+def recalculate_user_balance(
+    user_id: int,
+    current_user: User = Depends(get_current_admin_user),
+    session: Session = Depends(get_session),
+) -> Any:
+    """Recompute outstanding_balance for a single user."""
+    user = session.get(User, user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    old = user.outstanding_balance
+    _refresh_user_outstanding_balance(user_id, session)
+    session.commit()
+    session.refresh(user)
+    return {"user_id": user_id, "old_balance": old, "new_balance": user.outstanding_balance}
+
+
 @router.post("/recalculate-balances")
 def recalculate_all_user_balances(
     current_user: User = Depends(get_current_admin_user),

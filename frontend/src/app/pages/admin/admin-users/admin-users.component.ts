@@ -406,6 +406,7 @@ export class AdminUsersComponent extends BaseAdminListComponent implements OnIni
   showRecalcDialog = signal(false);
   recalcPreviewUsers = signal<BalancePreviewUser[]>([]);
   loadingPreview = signal(false);
+  fixingUserId = signal<number | null>(null);
 
   previewRecalculation(): void {
     this.loadingPreview.set(true);
@@ -419,6 +420,27 @@ export class AdminUsersComponent extends BaseAdminListComponent implements OnIni
         this.loadingPreview.set(false);
         this.showRecalcDialog.set(false);
         this.baseToast.showError('Erreur lors de la vérification des soldes');
+      }
+    });
+  }
+
+  fixSingleUser(u: BalancePreviewUser): void {
+    this.fixingUserId.set(u.user_id);
+    this.adminService.recalculateUserBalance(u.user_id).subscribe({
+      next: (result) => {
+        this.fixingUserId.set(null);
+        this.recalcPreviewUsers.update(users => users.filter(x => x.user_id !== u.user_id));
+        this.baseToast.showSuccess(`${u.full_name}: ${result.old_balance} → ${result.new_balance} DA`);
+        // Update the user list in background
+        const idx = this.allUsers.findIndex(x => x.id === u.user_id);
+        if (idx !== -1) {
+          this.allUsers[idx].remaining_balance = result.new_balance;
+        }
+        this.filterItems();
+      },
+      error: () => {
+        this.fixingUserId.set(null);
+        this.baseToast.showError(`Erreur lors de la correction du solde de ${u.full_name}`);
       }
     });
   }

@@ -232,7 +232,17 @@
                     <span class="text-red-500 text-sm line-through">{{ u.current_balance | number:'1.2-2' }} DA</span>
                     <span class="text-green-600 font-semibold">{{ u.correct_balance | number:'1.2-2' }} DA</span>
                   </div>
-                  <p-button icon="pi pi-check" severity="success" [rounded]="true" [text]="true" size="small" pTooltip="Corriger ce solde" />
+                  <p-button
+                    icon="pi pi-check"
+                    severity="success"
+                    [rounded]="true"
+                    [text]="true"
+                    size="small"
+                    pTooltip="Corriger ce solde"
+                    [loading]="fixingUserId() === u.user_id"
+                    [disabled]="fixingUserId() !== null"
+                    (click)="fixSingleUser(u)"
+                  />
                 </div>
               </div>
               @if (u.reasons.length > 0) {
