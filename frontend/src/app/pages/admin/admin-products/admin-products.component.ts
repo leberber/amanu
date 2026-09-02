@@ -329,15 +329,6 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
     return !!(this.searchQuery?.trim() || this.categoryFilter || this.brandFilter || this.statusFilter !== 'all');
   }
 
-  // Abstract method implementations
-  updatePaginatedItems(): void {
-    // Not used - using server-side pagination with infinite scroll
-  }
-
-  getSearchDebounceKey(): string {
-    return 'products-search';
-  }
-
   onCategoryChange(): void {
     this.filterItems();
   }
@@ -346,8 +337,13 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
     this.filterItems();
   }
 
-  onSupplierChange(): void {
-    this.filterItems();
+  // Abstract method implementations
+  updatePaginatedItems(): void {
+    // Not used - using server-side pagination with infinite scroll
+  }
+
+  getSearchDebounceKey(): string {
+    return 'products-search';
   }
 
   override clearFilters() {
@@ -714,6 +710,10 @@ export class AdminProductsComponent extends BaseAdminListComponent implements On
     this.supplierService.getSuppliers(true)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({ next: (s) => this.poSuppliers.set(s), error: () => {} });
+  }
+
+  onSupplierChange(): void {
+    this.filterItems();
   }
 
   private loadProducts(): void {

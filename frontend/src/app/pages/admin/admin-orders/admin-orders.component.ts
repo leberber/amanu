@@ -180,14 +180,6 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
     return 'orders-search';
   }
 
-  override onStatusFilterChange(status: string): void {
-    super.onStatusFilterChange(status);
-  }
-
-  override onSearchInput(): void {
-    super.onSearchInput();
-  }
-
   // Data loading
   loadAllOrders(): void {
     this.adminService.getAllOrders('', 1, PAGINATION.FETCH_ALL_LIMIT)
@@ -252,7 +244,6 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
     this.paymentStatusFilter.set('all');
     this.filterItems();
   }
-
 
   onPaymentStatusFilterChange(filter: 'all' | 'unpaid_partial' | 'paid'): void {
     this.paymentStatusFilter.set(filter);
