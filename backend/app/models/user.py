@@ -108,6 +108,7 @@ class User(SQLModel, table=True):
 
 class UserCreate(UserBase):
     """Model for creating a new user"""
+    phone: str = Field(min_length=1, max_length=20)
     password: str = Field(min_length=8, max_length=100)
 
 class UserUpdate(SQLModel):
