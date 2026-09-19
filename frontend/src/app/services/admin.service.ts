@@ -90,13 +90,22 @@ export class AdminService {
   }
 
   // Orders management
-  getAllOrders(status?: string, page: number = 1, pageSize: number = PAGINATION.DEFAULT_PAGE_SIZE): Observable<OrdersResponse> {
+  getAllOrders(status?: string, page: number = 1, pageSize: number = PAGINATION.DEFAULT_PAGE_SIZE, filters?: { user_id?: number; payment_status?: string; search?: string }): Observable<OrdersResponse> {
     let params: any = { skip: (page - 1) * pageSize, limit: pageSize };
-    
+
     if (status) {
       params.status = status;
     }
-    
+    if (filters?.user_id) {
+      params.user_id = filters.user_id;
+    }
+    if (filters?.payment_status) {
+      params.payment_status = filters.payment_status;
+    }
+    if (filters?.search) {
+      params.search = filters.search;
+    }
+
     return this.apiService.get<Order[]>('/orders', { params }).pipe(
       map(response => ({
         orders: response,

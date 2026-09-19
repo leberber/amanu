@@ -39,22 +39,30 @@ import { BaseAdminListComponent, ColumnOption } from '../../../shared/base/base-
 export class AdminOrdersComponent extends BaseAdminListComponent implements OnInit {
   readonly ROUTES = ROUTES;
 
-  // Infinite scroll configuration
-  private readonly BATCH_SIZE = 50;
+  // Infinite scroll / pagination
+  private readonly PAGE_SIZE = 100;
 
   // Data signals
   allOrders = signal<Order[]>([]);
+  /** Cached counts from unfiltered load (so status tabs stay accurate) */
+  private cachedCounts = signal<{ total: number; pending: number; confirmed: number; in_transit: number; delivered: number; cancelled: number; unpaid_partial: number; paid: number }>({
+    total: 0, pending: 0, confirmed: 0, in_transit: 0, delivered: 0, cancelled: 0, unpaid_partial: 0, paid: 0
+  });
   orders = signal<Order[]>([]);
   displayedOrders = signal<Order[]>([]);
   loadingMore = signal(false);
-  hasMore = computed(() => this.displayedOrders().length < this.orders().length);
+  /** True when the last server response returned a full page (more data likely available) */
+  private serverHasMore = signal(true);
+  private serverPage = 1;
+  hasMore = computed(() => this.displayedOrders().length < this.orders().length || this.serverHasMore());
 
-  // Computed counts
-  pendingCount = computed(() => this.allOrders().filter(o => o.status === ORDER_STATUS.PENDING).length);
-  confirmedCount = computed(() => this.allOrders().filter(o => o.status === ORDER_STATUS.CONFIRMED).length);
-  inTransitCount = computed(() => this.allOrders().filter(o => o.status === ORDER_STATUS.IN_TRANSIT).length);
-  deliveredCount = computed(() => this.allOrders().filter(o => o.status === ORDER_STATUS.DELIVERED).length);
-  cancelledCount = computed(() => this.allOrders().filter(o => o.status === ORDER_STATUS.CANCELLED).length);
+  // Computed counts — use cached counts so they stay accurate across filters
+  totalCount = computed(() => this.cachedCounts().total);
+  pendingCount = computed(() => this.cachedCounts().pending);
+  confirmedCount = computed(() => this.cachedCounts().confirmed);
+  inTransitCount = computed(() => this.cachedCounts().in_transit);
+  deliveredCount = computed(() => this.cachedCounts().delivered);
+  cancelledCount = computed(() => this.cachedCounts().cancelled);
 
   // Status editing signals
   editingStatusOrderId = signal<number | null>(null);
@@ -89,13 +97,9 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
   // Payment status filter
   paymentStatusFilter = signal<'all' | 'unpaid_partial' | 'paid'>('all');
 
-  // Computed payment counts
-  unpaidPartialCount = computed(() =>
-    this.allOrders().filter(o => o.payment_status === 'unpaid' || o.payment_status === 'partial').length
-  );
-  paidCount = computed(() =>
-    this.allOrders().filter(o => o.payment_status === 'paid').length
-  );
+  // Computed payment counts — use cached counts
+  unpaidPartialCount = computed(() => this.cachedCounts().unpaid_partial);
+  paidCount = computed(() => this.cachedCounts().paid);
 
   // Column visibility options - with mobile defaults (initialized in ngOnInit)
   override columnOptions: ColumnOption[] = [];
@@ -164,7 +168,7 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
     this.loading = true;
     this.columnOptions = this.getInitialColumnOptions();
     this.loadAllOrders();
-    onLanguageChange(this.translateService, this.destroyRef, () => this.filterItems());
+    onLanguageChange(this.translateService, this.destroyRef, () => this.refreshDisplayedOrders());
   }
 
   hasActiveFilters(): boolean {
@@ -182,14 +186,29 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
 
   // Data loading
   loadAllOrders(): void {
-    this.adminService.getAllOrders('', 1, PAGINATION.FETCH_ALL_LIMIT)
+    const status = this.statusFilter !== 'all' ? this.statusFilter : undefined;
+    const paymentStatus = this.paymentStatusFilter() !== 'all' ? this.paymentStatusFilter() : undefined;
+    const search = this.searchQuery?.trim() || undefined;
+    const isUnfiltered = !status && !paymentStatus && !search;
+
+    this.serverPage = 1;
+    this.serverHasMore.set(true);
+
+    this.adminService.getAllOrders(status, 1, this.PAGE_SIZE, {
+      payment_status: paymentStatus,
+      search,
+    })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
           const orders = response?.orders || [];
           this.allOrders.set(orders);
+          this.serverHasMore.set(orders.length >= this.PAGE_SIZE);
           this.orders.set(orders);
-          this.displayedOrders.set(orders.slice(0, this.BATCH_SIZE));
+          this.displayedOrders.set(orders);
+          if (isUnfiltered) {
+            this.updateCachedCounts(orders);
+          }
           this.loading = false;
           this.markTableInitialized();
         },
@@ -207,35 +226,37 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
       });
   }
 
+  private updateCachedCounts(orders: Order[]): void {
+    this.cachedCounts.set({
+      total: orders.length,
+      pending: orders.filter(o => o.status === ORDER_STATUS.PENDING).length,
+      confirmed: orders.filter(o => o.status === ORDER_STATUS.CONFIRMED).length,
+      in_transit: orders.filter(o => o.status === ORDER_STATUS.IN_TRANSIT).length,
+      delivered: orders.filter(o => o.status === ORDER_STATUS.DELIVERED).length,
+      cancelled: orders.filter(o => o.status === ORDER_STATUS.CANCELLED).length,
+      unpaid_partial: orders.filter(o => o.payment_status === 'unpaid' || o.payment_status === 'partial').length,
+      paid: orders.filter(o => o.payment_status === 'paid').length,
+    });
+  }
+
+  /** Re-fetch from server when any filter changes */
   filterItems(): void {
-    let filtered = [...this.allOrders()];
+    this.loading = true;
+    this.loadAllOrders();
+  }
 
-    if (this.statusFilter !== 'all') {
-      filtered = filtered.filter(order => order.status === this.statusFilter);
-    }
+  /** Server-side search with debounce */
+  override onSearchInput(): void {
+    this.searchDebounce.debounce(this.getSearchDebounceKey(), () => {
+      this.loadAllOrders();
+    });
+  }
 
-    if (this.paymentStatusFilter() !== 'all') {
-      if (this.paymentStatusFilter() === 'unpaid_partial') {
-        filtered = filtered.filter(order => order.payment_status === 'unpaid' || order.payment_status === 'partial');
-      } else if (this.paymentStatusFilter() === 'paid') {
-        filtered = filtered.filter(order => order.payment_status === 'paid');
-      }
-    }
-
-    if (this.hasSearchQuery()) {
-      const search = this.searchQuery.toLowerCase();
-      filtered = filtered.filter(order =>
-        order.id.toString().includes(search) ||
-        order.user?.full_name?.toLowerCase().includes(search) ||
-        order.user?.email?.toLowerCase().includes(search) ||
-        order.status.toLowerCase().includes(search) ||
-        order.total_amount.toString().includes(search) ||
-        order.contact_phone?.toLowerCase().includes(search)
-      );
-    }
-
-    this.orders.set(filtered);
-    this.displayedOrders.set(filtered.slice(0, this.BATCH_SIZE));
+  /** Refresh displayed list from allOrders (after inline updates) */
+  private refreshDisplayedOrders(): void {
+    const orders = this.allOrders();
+    this.orders.set(orders);
+    this.displayedOrders.set(orders);
   }
 
   override clearFilters(): void {
@@ -251,6 +272,9 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
   }
 
   refreshOrders(): void {
+    this.searchQuery = '';
+    this.statusFilter = 'all';
+    this.paymentStatusFilter.set('all');
     this.loading = true;
     this.loadAllOrders();
   }
@@ -259,14 +283,32 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
   loadMoreOrders(): void {
     if (this.loadingMore() || !this.hasMore()) return;
 
-    this.loadingMore.set(true);
-    const current = this.displayedOrders().length;
-    const next = this.orders().slice(current, current + this.BATCH_SIZE);
+    // If all loaded orders are already displayed, fetch next page from server
+    if (this.displayedOrders().length >= this.orders().length && this.serverHasMore()) {
+      this.loadingMore.set(true);
+      this.serverPage++;
+      const status = this.statusFilter !== 'all' ? this.statusFilter : undefined;
+      const paymentStatus = this.paymentStatusFilter() !== 'all' ? this.paymentStatusFilter() : undefined;
 
-    setTimeout(() => {
-      this.displayedOrders.update(orders => [...orders, ...next]);
-      this.loadingMore.set(false);
-    }, 300);
+      const search = this.searchQuery?.trim() || undefined;
+      this.adminService.getAllOrders(status, this.serverPage, this.PAGE_SIZE, {
+        payment_status: paymentStatus,
+        search,
+      })
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: (response) => {
+            const newOrders = response?.orders || [];
+            this.serverHasMore.set(newOrders.length >= this.PAGE_SIZE);
+            this.allOrders.update(existing => [...existing, ...newOrders]);
+            this.refreshDisplayedOrders();
+            this.loadingMore.set(false);
+          },
+          error: () => {
+            this.loadingMore.set(false);
+          }
+        });
+    }
   }
 
   getLoadingColumns(): LoadingColumn[] {
@@ -461,7 +503,7 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
               }
               return orders;
             });
-            this.filterItems();
+            this.refreshDisplayedOrders();
           }
           this.statusPopover()?.hide();
           this.cancelEditStatus();
@@ -488,7 +530,7 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
             }
             return orders;
           });
-          this.filterItems();
+          this.refreshDisplayedOrders();
           this.baseToast.showSuccess('admin.orders.status_update_message', {
             orderId: orderId,
             status: this.translateService.instant('admin.orders.status.' + newStatus)
@@ -531,7 +573,7 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
               }
               return orders;
             });
-            this.filterItems();
+            this.refreshDisplayedOrders();
           }
           this.driverPopover()?.hide();
           this.assigningOrderId.set(null);
@@ -632,7 +674,7 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
           updated[idx] = { ...updated[idx], payment_status: newStatus, total_paid: newTotalPaid };
           return updated;
         });
-        this.filterItems();
+        this.refreshDisplayedOrders();
         this.savingPayment.set(false);
         this.paymentPopover()?.hide();
         this.baseToast.showSuccess('admin.orders.payment_recorded');

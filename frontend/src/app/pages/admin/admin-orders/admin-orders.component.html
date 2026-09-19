@@ -13,7 +13,7 @@
         </div>
         <div class="title-text">
           <h1>{{ 'admin.orders.title' | translate }}</h1>
-          <p>{{ allOrders().length }} {{ 'admin.orders.orders' | translate }}</p>
+          <p>{{ totalCount() }} {{ 'admin.orders.orders' | translate }}</p>
         </div>
       </div>
       <p-button
@@ -29,7 +29,7 @@
       <div class="segment-control segment-control--glass">
         <button class="segment-control__item" [class.active]="statusFilter === 'all'" (click)="onStatusFilterChange('all')">
           <span>{{ 'common.all' | translate }}</span>
-          <span class="count">{{ allOrders().length }}</span>
+          <span class="count">{{ totalCount() }}</span>
         </button>
         <button class="segment-control__item" [class.active]="statusFilter === 'pending'" (click)="onStatusFilterChange('pending')">
           <span>{{ 'admin.orders.status.pending' | translate }}</span>
@@ -56,7 +56,7 @@
       <div class="segment-control segment-control--glass">
         <button class="segment-control__item" [class.active]="paymentStatusFilter() === 'all'" (click)="onPaymentStatusFilterChange('all')">
           <span>{{ 'common.all' | translate }}</span>
-          <span class="count">{{ allOrders().length }}</span>
+          <span class="count">{{ totalCount() }}</span>
         </button>
         <button class="segment-control__item" [class.active]="paymentStatusFilter() === 'unpaid_partial'" (click)="onPaymentStatusFilterChange('unpaid_partial')">
           <span>{{ 'admin.orders.filter_unpaid_partial' | translate }}</span>
@@ -105,7 +105,7 @@
           <app-table-search
             [(query)]="searchQuery"
             (search)="onSearchInput()"
-            (clear)="filterItems()"
+            (clear)="onSearchInput()"
           />
           <div class="table-actions">
             @if (hasActiveFilters()) {

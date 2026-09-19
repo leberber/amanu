@@ -446,31 +446,51 @@ def create_order(
 def read_user_orders(
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=1000),
+    user_id: Optional[int] = Query(None),
+    status: Optional[str] = Query(None),
+    payment_status: Optional[str] = Query(None),
+    search: Optional[str] = Query(None),
     current_user: User = Depends(get_current_active_user),
     session: Session = Depends(get_session),
 ) -> Any:
     """
     Get current user's orders with user info.
+    Staff/admin can filter by user_id, status, payment_status, and search.
     """
     # Regular users can only see their own orders
     if current_user.role == UserRole.CUSTOMER:
-        orders = session.exec(
+        query = (
             select(Order)
             .where(Order.user_id == current_user.id)
             .options(joinedload(Order.user))
-            .offset(skip)
-            .limit(limit)
-            .order_by(Order.created_at.desc())
-        ).unique().all()
-    # Staff and admins can see all orders — also compute margin
+        )
+    # Staff and admins can see all orders
     else:
-        orders = session.exec(
-            select(Order)
-            .options(joinedload(Order.user))
-            .offset(skip)
-            .limit(limit)
-            .order_by(Order.created_at.desc())
-        ).unique().all()
+        query = select(Order).options(joinedload(Order.user))
+        if user_id is not None:
+            query = query.where(Order.user_id == user_id)
+
+    if status:
+        query = query.where(Order.status == status)
+    if payment_status:
+        if payment_status == "unpaid_partial":
+            query = query.where(Order.payment_status.in_(["unpaid", "partial"]))
+        else:
+            query = query.where(Order.payment_status == payment_status)
+    if search and current_user.role != UserRole.CUSTOMER:
+        from sqlalchemy import or_
+        search_filters = [
+            User.full_name.ilike(f"%{search}%"),
+            User.phone.ilike(f"%{search}%"),
+        ]
+        # If search is a number, also match order ID
+        if search.isdigit():
+            search_filters.append(Order.id == int(search))
+        query = query.join(User, Order.user_id == User.id).where(or_(*search_filters))
+
+    orders = session.exec(
+        query.offset(skip).limit(limit).order_by(Order.created_at.desc())
+    ).unique().all()
 
     return orders
 
