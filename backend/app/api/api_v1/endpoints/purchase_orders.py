@@ -1,8 +1,11 @@
+import logging
 from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlmodel import Session, select, func
 from datetime import datetime, timezone
 from pydantic import BaseModel
+
+logger = logging.getLogger(__name__)
 
 from app.database import get_session
 from app.models.purchase_order import (
@@ -47,14 +50,19 @@ def generate_reference(session: Session) -> str:
     now = datetime.now()
     date_prefix = now.strftime("%Y-%m-%d")
 
-    # Get the count of orders created today
-    count = session.exec(
-        select(func.count(PurchaseOrder.id)).where(
+    # Get the highest existing reference number for today
+    latest = session.exec(
+        select(PurchaseOrder.reference).where(
             PurchaseOrder.reference.like(f"{date_prefix}-%")
-        )
-    ).one()
+        ).order_by(PurchaseOrder.reference.desc())
+    ).first()
 
-    next_num = count + 1
+    if latest:
+        last_num = int(latest.split("-")[-1])
+        next_num = last_num + 1
+    else:
+        next_num = 1
+
     return f"{date_prefix}-{next_num:04d}"
 
 
@@ -370,6 +378,7 @@ async def create_purchase_order(
         return order_to_response(order)
 
     except Exception as e:
+        logger.error(f"Failed to create purchase order: {e}", exc_info=True)
         session.rollback()
         raise HTTPException(status_code=422, detail=str(e))
 
