@@ -39,17 +39,12 @@
 
     @if (loading()) {
       <div class="dr-kpi-strip">
-        @for (i of [1,2,3,4,5]; track i) {
+        @for (i of [1,2,3]; track i) {
           <div class="skeleton" style="height:88px;border-radius:14px;flex:1;"></div>
         }
       </div>
       <div class="dr-body">
-        <div class="dr-left">
-          <div class="skeleton" style="flex:1;border-radius:12px;"></div>
-        </div>
-        <div class="dr-right">
-          <div class="skeleton" style="flex:1;border-radius:12px;"></div>
-        </div>
+        <div class="skeleton" style="height:400px;border-radius:12px;"></div>
       </div>
     } @else {
       @if (report(); as r) {
@@ -58,65 +53,35 @@
           <!-- ══ KPI STRIP ══ -->
           <div class="dr-kpi-strip">
 
-            <!-- Net (featured card) -->
+            <!-- Solde de clôture attendu (featured) -->
             <div class="dr-kpi dr-kpi--featured"
-              [class.dr-kpi--pos]="r.net >= 0"
-              [class.dr-kpi--neg]="r.net < 0">
+              [class.dr-kpi--pos]="r.expected_closing >= 0"
+              [class.dr-kpi--neg]="r.expected_closing < 0">
               <div class="dr-kpi__icon-wrap">
                 <i class="pi pi-wallet"></i>
               </div>
               <div class="dr-kpi__main">
-                <span class="dr-kpi__label">Solde net</span>
-                <span class="dr-kpi__big"><app-currency [value]="r.net" [hideDecimals]="true" /></span>
-              </div>
-              <div class="dr-kpi__rate-wrap">
-                <div class="dr-kpi__rate-track">
-                  <div class="dr-kpi__rate-fill" [style.width.%]="collectionRate()"></div>
-                </div>
-                <span class="dr-kpi__rate-txt">{{ collectionRate() }}% collecté</span>
+                <span class="dr-kpi__label">Solde de clôture attendu</span>
+                <span class="dr-kpi__big"><app-currency [value]="r.expected_closing" [hideDecimals]="true" /></span>
               </div>
             </div>
 
-            <!-- Livraisons du jour -->
+            <!-- Total entrées -->
             <div class="dr-kpi">
-              <div class="dr-kpi__icon-wrap dr-kpi__icon-wrap--green"><i class="pi pi-credit-card"></i></div>
+              <div class="dr-kpi__icon-wrap dr-kpi__icon-wrap--green"><i class="pi pi-arrow-down"></i></div>
               <div class="dr-kpi__main">
-                <span class="dr-kpi__label">Livraisons du jour</span>
-                <span class="dr-kpi__big" style="color:#16a34a;"><app-currency [value]="r.payments_new_orders" [hideDecimals]="true" /></span>
+                <span class="dr-kpi__label">Entrées</span>
+                <span class="dr-kpi__big" style="color:#16a34a;"><app-currency [value]="r.total_entries" [hideDecimals]="true" /></span>
                 <span class="dr-kpi__sub">{{ r.deliveries_count }} livraison(s)</span>
-                @if (r.deliveries_outstanding > 0) {
-                  <span class="dr-kpi__alert"><app-currency [value]="r.deliveries_outstanding" /> impayé</span>
-                }
               </div>
             </div>
 
-            <!-- Recouvrement -->
+            <!-- Total sorties -->
             <div class="dr-kpi">
-              <div class="dr-kpi__icon-wrap dr-kpi__icon-wrap--warn"><i class="pi pi-history"></i></div>
+              <div class="dr-kpi__icon-wrap dr-kpi__icon-wrap--orange"><i class="pi pi-arrow-up"></i></div>
               <div class="dr-kpi__main">
-                <span class="dr-kpi__label">Recouvrement</span>
-                <span class="dr-kpi__big" style="color:#ca8a04;"><app-currency [value]="r.payments_old_orders" [hideDecimals]="true" /></span>
-                <span class="dr-kpi__sub">Dettes recouvrées</span>
-              </div>
-            </div>
-
-            <!-- Achats -->
-            <div class="dr-kpi">
-              <div class="dr-kpi__icon-wrap dr-kpi__icon-wrap--orange"><i class="pi pi-box"></i></div>
-              <div class="dr-kpi__main">
-                <span class="dr-kpi__label">Achats reçus</span>
-                <span class="dr-kpi__big" style="color:#d97706;"><app-currency [value]="r.purchases_total" [hideDecimals]="true" /></span>
-                <span class="dr-kpi__sub">{{ r.purchases_count }} bon(s)</span>
-              </div>
-            </div>
-
-            <!-- Retours -->
-            <div class="dr-kpi">
-              <div class="dr-kpi__icon-wrap dr-kpi__icon-wrap--purple"><i class="pi pi-replay"></i></div>
-              <div class="dr-kpi__main">
-                <span class="dr-kpi__label">Retours</span>
-                <span class="dr-kpi__big" style="color:#7c3aed;"><app-currency [value]="r.returns_total" [hideDecimals]="true" /></span>
-                <span class="dr-kpi__sub">{{ r.returns_count }} retour(s)</span>
+                <span class="dr-kpi__label">Sorties</span>
+                <span class="dr-kpi__big" style="color:#d97706;"><app-currency [value]="r.total_exits" [hideDecimals]="true" /></span>
               </div>
             </div>
 
@@ -134,24 +99,217 @@
 
           </div>
 
+          <!-- ══ TAB BAR ══ -->
+          <div class="dr-tab-bar">
+            <button class="dr-tab" [class.dr-tab--active]="activeTab() === 0" (click)="activeTab.set(0)">
+              <i class="pi pi-calculator"></i>
+              Caisse
+            </button>
+            <button class="dr-tab" [class.dr-tab--active]="activeTab() === 1" (click)="activeTab.set(1)">
+              <i class="pi pi-truck"></i>
+              Commandes
+              <span class="dr-tab__count">{{ r.deliveries_count }}</span>
+            </button>
+            <button class="dr-tab" [class.dr-tab--active]="activeTab() === 2" (click)="activeTab.set(2)">
+              <i class="pi pi-users"></i>
+              Par agent
+            </button>
+          </div>
+
           <!-- ══ BODY ══ -->
           <div class="dr-body">
 
-            <!-- ── Tab bar ── -->
-            <div class="dr-tab-bar">
-              <button class="dr-tab" [class.dr-tab--active]="activeTab() === 0" (click)="activeTab.set(0)">
-                <i class="pi pi-truck"></i>
-                Commandes livrées
-                <span class="dr-tab__count">{{ r.deliveries_count }}</span>
-              </button>
-              <button class="dr-tab" [class.dr-tab--active]="activeTab() === 1" (click)="activeTab.set(1)">
-                <i class="pi pi-users"></i>
-                Récapitulatif
-              </button>
-            </div>
+            <!-- ── Tab 0: Cash Register ── -->
+            @if (activeTab() === 0) {
+              <div class="dr-caisse-layout">
+
+                <!-- LEFT: Recouvrement + Fournisseurs -->
+                <div class="dr-caisse-left">
+
+                  <!-- Two cards side by side -->
+                  <div class="dr-caisse-bottom">
+
+                    <!-- Recouvrement dettes -->
+                    <div class="form-card dr-caisse-panel">
+                      <div class="card-header">
+                        <div class="card-header__icon card-header__icon--primary"><i class="pi pi-history"></i></div>
+                        <div class="card-header__text"><h3 class="card-header__title">Recouvrement dettes</h3></div>
+                        @if (r.payments_old_orders > 0) {
+                          <span class="dr-badge" style="background:rgba(202,138,4,0.1);color:#ca8a04;"><app-currency [value]="r.payments_old_orders" /></span>
+                        }
+                      </div>
+                      <div class="card-body p-0 dr-scroll">
+                        @if (r.debt_collections.length === 0) {
+                          <div class="flex align-items-center justify-content-center gap-2 p-4 text-secondary text-sm">
+                            Aucun recouvrement ce jour
+                          </div>
+                        } @else {
+                          <table class="table">
+                            <thead><tr><th>Client</th><th>Mode</th><th class="text-right">Montant</th></tr></thead>
+                            <tbody>
+                              @for (dc of r.debt_collections; track dc.order_id + '_' + dc.amount) {
+                                <tr class="table-row-animate clickable-row" (click)="goToOrder(dc.order_id)">
+                                  <td class="font-medium">{{ dc.customer_name }}</td>
+                                  <td><p-tag [value]="methodLabel(dc.payment_method)" severity="info" /></td>
+                                  <td class="text-right font-bold" style="color:#ca8a04;"><app-currency [value]="dc.amount" /></td>
+                                </tr>
+                              }
+                            </tbody>
+                          </table>
+                        }
+                      </div>
+                    </div>
+
+                    <!-- Paiements fournisseurs -->
+                    <div class="form-card dr-caisse-panel">
+                      <div class="card-header">
+                        <div class="card-header__icon card-header__icon--primary"><i class="pi pi-box"></i></div>
+                        <div class="card-header__text"><h3 class="card-header__title">Paiements fournisseurs</h3></div>
+                        @if (r.supplier_payments_total > 0) {
+                          <span class="dr-badge dr-badge--orange"><app-currency [value]="r.supplier_payments_total" /></span>
+                        }
+                      </div>
+                      <div class="card-body p-0 dr-scroll">
+                        @if (r.supplier_payments.length === 0) {
+                          <div class="flex align-items-center justify-content-center gap-2 p-4 text-secondary text-sm">
+                            Aucun paiement fournisseur
+                          </div>
+                        } @else {
+                          <table class="table">
+                            <thead><tr><th>Fournisseur</th><th>Mode</th><th class="text-right">Montant</th></tr></thead>
+                            <tbody>
+                              @for (sp of r.supplier_payments; track sp.id) {
+                                <tr class="table-row-animate">
+                                  <td class="font-medium">{{ sp.supplier_name }}</td>
+                                  <td><p-tag [value]="methodLabel(sp.payment_method)" severity="info" /></td>
+                                  <td class="text-right font-bold" style="color:#d97706;"><app-currency [value]="sp.amount" /></td>
+                                </tr>
+                              }
+                            </tbody>
+                          </table>
+                        }
+                      </div>
+                    </div>
+
+                  </div>
+
+                </div>
+
+                <!-- RIGHT: Cash Register -->
+                <div class="dr-cash-register">
+
+                  <!-- Fond de caisse -->
+                  <div class="dr-cash-row dr-cash-row--opening">
+                    <div class="dr-cash-row__icon"><i class="pi pi-box"></i></div>
+                    <span class="dr-cash-row__label">Fond de caisse (ouverture)</span>
+                    <span class="dr-cash-row__amount"><app-currency [value]="r.opening_balance" /></span>
+                  </div>
+
+                  <!-- ENTRÉES -->
+                  <div class="dr-cash-section">
+                    <div class="dr-cash-section__header">
+                      <i class="pi pi-arrow-down" style="color:#16a34a;"></i>
+                      <span>Entrées</span>
+                      <span class="dr-cash-section__total" style="color:#16a34a;"><app-currency [value]="r.total_entries" /></span>
+                    </div>
+
+                    @if (r.payments_new_orders > 0) {
+                      <div class="dr-cash-group">
+                        <div class="dr-cash-group__title">Encaissements livraisons du jour</div>
+                        @for (entry of methodEntries(r.payments_new_by_method); track entry.method) {
+                          <div class="dr-cash-row dr-cash-row--entry">
+                            <div class="dr-cash-row__dot" [style.background]="methodColor(entry.method)"></div>
+                            <span class="dr-cash-row__label">{{ methodLabel(entry.method) }}</span>
+                            <span class="dr-cash-row__amount" style="color:#16a34a;">+ <app-currency [value]="entry.amount" /></span>
+                          </div>
+                        }
+                      </div>
+                    }
+
+                    @if (r.payments_old_orders > 0) {
+                      <div class="dr-cash-group">
+                        <div class="dr-cash-group__title">Recouvrement dettes</div>
+                        @for (entry of methodEntries(r.payments_old_by_method); track entry.method) {
+                          <div class="dr-cash-row dr-cash-row--entry">
+                            <div class="dr-cash-row__dot" [style.background]="methodColor(entry.method)"></div>
+                            <span class="dr-cash-row__label">{{ methodLabel(entry.method) }}</span>
+                            <span class="dr-cash-row__amount" style="color:#16a34a;">+ <app-currency [value]="entry.amount" /></span>
+                          </div>
+                        }
+                      </div>
+                    }
+
+                    @if (r.payments_total === 0) {
+                      <div class="dr-cash-row dr-cash-row--empty">
+                        <span class="text-secondary text-sm">Aucun encaissement</span>
+                      </div>
+                    }
+                  </div>
+
+                  <!-- SORTIES -->
+                  <div class="dr-cash-section">
+                    <div class="dr-cash-section__header">
+                      <i class="pi pi-arrow-up" style="color:#d97706;"></i>
+                      <span>Sorties</span>
+                      <span class="dr-cash-section__total" style="color:#d97706;"><app-currency [value]="r.total_exits" /></span>
+                    </div>
+
+                    @if (r.supplier_payments_total > 0) {
+                      <div class="dr-cash-group">
+                        <div class="dr-cash-group__title">Paiements fournisseurs</div>
+                        @for (entry of methodEntries(r.supplier_payments_by_method); track entry.method) {
+                          <div class="dr-cash-row dr-cash-row--exit">
+                            <div class="dr-cash-row__dot" [style.background]="methodColor(entry.method)"></div>
+                            <span class="dr-cash-row__label">{{ methodLabel(entry.method) }}</span>
+                            <span class="dr-cash-row__amount" style="color:#d97706;">- <app-currency [value]="entry.amount" /></span>
+                          </div>
+                        }
+                      </div>
+                    }
+
+                    @if (r.returns_total > 0) {
+                      <div class="dr-cash-group">
+                        <div class="dr-cash-group__title">Remboursements</div>
+                        <div class="dr-cash-row dr-cash-row--exit">
+                          <div class="dr-cash-row__dot" style="background:#7c3aed;"></div>
+                          <span class="dr-cash-row__label">{{ r.returns_count }} retour(s)</span>
+                          <span class="dr-cash-row__amount" style="color:#d97706;">- <app-currency [value]="r.returns_total" /></span>
+                        </div>
+                      </div>
+                    }
+
+                    @if (r.total_exits === 0) {
+                      <div class="dr-cash-row dr-cash-row--empty">
+                        <span class="text-secondary text-sm">Aucune sortie</span>
+                      </div>
+                    }
+                  </div>
+
+                  <!-- SOLDE DE CLÔTURE -->
+                  <div class="dr-cash-row dr-cash-row--closing"
+                    [class.dr-cash-row--pos]="r.expected_closing >= 0"
+                    [class.dr-cash-row--neg]="r.expected_closing < 0">
+                    <div class="dr-cash-row__icon"><i class="pi pi-wallet"></i></div>
+                    <span class="dr-cash-row__label">Solde de clôture attendu</span>
+                    <span class="dr-cash-row__amount"><app-currency [value]="r.expected_closing" /></span>
+                  </div>
+
+                  <!-- Impayés du jour -->
+                  @if (r.deliveries_outstanding > 0) {
+                    <div class="dr-cash-row dr-cash-row--warning">
+                      <div class="dr-cash-row__icon"><i class="pi pi-exclamation-triangle"></i></div>
+                      <span class="dr-cash-row__label">Impayés livraisons du jour</span>
+                      <span class="dr-cash-row__amount"><app-currency [value]="r.deliveries_outstanding" /></span>
+                    </div>
+                  }
+
+                </div>
+
+              </div>
+            }
 
             <!-- ── Tab 1: Orders ── -->
-            @if (activeTab() === 0) {
+            @if (activeTab() === 1) {
               <div class="form-card dr-orders-card">
                 <div class="card-header">
                   <div class="card-header__icon card-header__icon--primary"><i class="pi pi-truck"></i></div>
@@ -220,8 +378,8 @@
               </div>
             }
 
-            <!-- ── Tab 2: Summary ── -->
-            @if (activeTab() === 1) {
+            <!-- ── Tab 2: Par agent ── -->
+            @if (activeTab() === 2) {
               <div class="dr-summary-layout">
 
                 <!-- Left: Par agent -->

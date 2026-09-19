@@ -15,6 +15,7 @@ from app.models.order import Order, OrderStatus, OrderItem, DeliveryType
 from app.models.order_payments import OrderAuditLog, AuditAction, OrderPayment
 from app.models.return_order import OrderReturn
 from app.models.purchase_order import PurchaseOrder, PurchaseOrderStatus
+from app.models.supplier import SupplierPayment
 from app.api.utils.common import format_price
 from app.api.api_v1.endpoints.orders import _recalculate_order_margin, _refresh_user_outstanding_balance
 from app.core.security import get_current_admin_user, get_current_staff_user
@@ -1067,8 +1068,27 @@ class StaffPaymentRow(BaseModel):
     by_method: Dict[str, float]
 
 
+class SupplierPaymentRow(BaseModel):
+    id: int
+    supplier_name: str
+    amount: float
+    payment_method: str
+    notes: Optional[str] = None
+    payment_date: datetime
+
+
+class DebtCollectionRow(BaseModel):
+    order_id: int
+    customer_name: str
+    amount: float
+    payment_method: str
+    recorded_at: datetime
+
+
 class DailyReportResponse(BaseModel):
     date: str
+    # Cash register
+    opening_balance: float  # fond de caisse (default 10,000 DA)
     # Deliveries
     deliveries_count: int
     deliveries_total: float
@@ -1079,7 +1099,15 @@ class DailyReportResponse(BaseModel):
     payments_new_orders: float   # payments for orders delivered today
     payments_old_orders: float   # payments for older orders (debt collection)
     payments_by_method: Dict[str, float]
+    payments_new_by_method: Dict[str, float]  # new order payments broken down
+    payments_old_by_method: Dict[str, float]  # debt collection broken down
     payments_by_staff: List[StaffPaymentRow]
+    # Debt collection (recouvrement)
+    debt_collections: List[DebtCollectionRow]
+    # Supplier payments (sorties)
+    supplier_payments_total: float
+    supplier_payments_by_method: Dict[str, float]
+    supplier_payments: List[SupplierPaymentRow]
     # Purchases received today
     purchases_count: int
     purchases_total: float
@@ -1088,6 +1116,10 @@ class DailyReportResponse(BaseModel):
     returns_count: int
     returns_total: float
     returns: List[DailyReturnRow]
+    # Cash register totals
+    total_entries: float     # all payments received
+    total_exits: float       # supplier payments + refunds
+    expected_closing: float  # opening + entries - exits
     # Net
     net: float
     # Margin on delivered orders
@@ -1180,6 +1212,8 @@ def get_daily_report(
     payments_new_orders = round(sum(p.amount for p in payments_today if p.order_id in delivered_ids_set), 2)
     payments_old_orders = round(payments_total - payments_new_orders, 2)
     by_method: Dict[str, float] = {}
+    new_by_method: Dict[str, float] = {}
+    old_by_method: Dict[str, float] = {}
     staff_map: Dict[int, str] = {}
     staff_totals: Dict[int, Dict[str, float]] = {}
     if payments_today:
@@ -1189,6 +1223,10 @@ def get_daily_report(
         for p in payments_today:
             m = p.method if isinstance(p.method, str) else p.method.value
             by_method[m] = round(by_method.get(m, 0.0) + p.amount, 2)
+            if p.order_id in delivered_ids_set:
+                new_by_method[m] = round(new_by_method.get(m, 0.0) + p.amount, 2)
+            else:
+                old_by_method[m] = round(old_by_method.get(m, 0.0) + p.amount, 2)
             staff_totals.setdefault(p.recorded_by, {})
             staff_totals[p.recorded_by][m] = round(
                 staff_totals[p.recorded_by].get(m, 0.0) + p.amount, 2
@@ -1200,6 +1238,58 @@ def get_daily_report(
             by_method=methods,
         )
         for uid, methods in sorted(staff_totals.items(), key=lambda x: -sum(x[1].values()))
+    ]
+
+    # ── Debt collections (recouvrement) ───────────────────────────────────────
+    old_payments = [p for p in payments_today if p.order_id not in delivered_ids_set]
+    debt_order_ids = list({p.order_id for p in old_payments})
+    debt_user_map: Dict[int, str] = {}
+    if debt_order_ids:
+        for o in session.exec(select(Order).where(Order.id.in_(debt_order_ids))).all():
+            if o.user_id:
+                u = session.get(User, o.user_id)
+                debt_user_map[o.id] = u.full_name or u.email if u else f"#{o.id}"
+            else:
+                debt_user_map[o.id] = "Sans compte"
+    debt_collections = [
+        DebtCollectionRow(
+            order_id=p.order_id,
+            customer_name=debt_user_map.get(p.order_id, f"Cmd #{p.order_id}"),
+            amount=round(p.amount, 2),
+            payment_method=p.method if isinstance(p.method, str) else p.method.value,
+            recorded_at=p.recorded_at,
+        )
+        for p in sorted(old_payments, key=lambda x: x.amount, reverse=True)
+    ]
+
+    # ── Supplier payments today ───────────────────────────────────────────────
+    from app.models.supplier import Supplier
+    sup_payments_today = session.exec(
+        select(SupplierPayment).where(
+            SupplierPayment.payment_date >= start_utc,
+            SupplierPayment.payment_date <= end_utc,
+        )
+    ).all()
+    supplier_payments_total = round(sum(sp.amount for sp in sup_payments_today), 2)
+    sup_by_method: Dict[str, float] = {}
+    sup_ids = list({sp.supplier_id for sp in sup_payments_today})
+    sup_name_map: Dict[int, str] = {}
+    if sup_ids:
+        for s in session.exec(select(Supplier).where(Supplier.id.in_(sup_ids))).all():
+            sup_name_map[s.id] = s.name
+    for sp in sup_payments_today:
+        m = sp.payment_method or "espece"
+        sup_by_method[m] = round(sup_by_method.get(m, 0.0) + sp.amount, 2)
+    supplier_payment_rows = [
+        SupplierPaymentRow(
+            id=sp.id,
+            supplier_name=sup_name_map.get(sp.supplier_id, f"#{sp.supplier_id}"),
+            amount=round(sp.amount, 2),
+            payment_method=sp.payment_method or "espece",
+            notes=sp.notes,
+            payment_date=sp.payment_date,
+        )
+        for sp in sup_payments_today
     ]
 
     # ── Purchases delivered today ─────────────────────────────────────────────
@@ -1246,7 +1336,17 @@ def get_daily_report(
         for r in returns_today
     ]
 
-    net = round(payments_total - purchases_total - returns_total, 2)
+    # ── Cash register computation (cash only) ───────────────────────────────
+    opening_balance = 10000.0  # Fond de caisse par défaut
+    cash_methods = {"cash", "espece"}
+    cash_entries = round(sum(v for k, v in by_method.items() if k in cash_methods), 2)
+    cash_supplier_exits = round(sum(v for k, v in sup_by_method.items() if k in cash_methods), 2)
+    # TODO: returns are always cash for now
+    cash_exits = round(cash_supplier_exits + returns_total, 2)
+    expected_closing = round(opening_balance + cash_entries - cash_exits, 2)
+    total_entries = payments_total
+    total_exits = round(supplier_payments_total + returns_total, 2)
+    net = round(payments_total - supplier_payments_total - returns_total, 2)
 
     margin_rows = [o for o in order_rows if o.margin is not None]
     margin_total = round(sum(o.margin for o in margin_rows), 2) if margin_rows else None
@@ -1254,6 +1354,7 @@ def get_daily_report(
 
     return DailyReportResponse(
         date=day.isoformat(),
+        opening_balance=opening_balance,
         deliveries_count=len(order_rows),
         deliveries_total=round(deliveries_total, 2),
         deliveries_outstanding=round(deliveries_outstanding, 2),
@@ -1262,13 +1363,22 @@ def get_daily_report(
         payments_new_orders=payments_new_orders,
         payments_old_orders=payments_old_orders,
         payments_by_method=by_method,
+        payments_new_by_method=new_by_method,
+        payments_old_by_method=old_by_method,
         payments_by_staff=payments_by_staff,
+        debt_collections=debt_collections,
+        supplier_payments_total=supplier_payments_total,
+        supplier_payments_by_method=sup_by_method,
+        supplier_payments=supplier_payment_rows,
         purchases_count=len(purchase_rows),
         purchases_total=purchases_total,
         purchases=purchase_rows,
         returns_count=len(return_rows),
         returns_total=returns_total,
         returns=return_rows,
+        total_entries=total_entries,
+        total_exits=total_exits,
+        expected_closing=expected_closing,
         net=net,
         margin_total=margin_total,
         margin_pct=margin_pct,

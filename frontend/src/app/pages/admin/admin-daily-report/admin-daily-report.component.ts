@@ -50,8 +50,26 @@ export interface StaffPaymentRow {
   by_method: Record<string, number>;
 }
 
+export interface SupplierPaymentRow {
+  id: number;
+  supplier_name: string;
+  amount: number;
+  payment_method: string;
+  notes?: string;
+  payment_date: string;
+}
+
+export interface DebtCollectionRow {
+  order_id: number;
+  customer_name: string;
+  amount: number;
+  payment_method: string;
+  recorded_at: string;
+}
+
 export interface DailyReport {
   date: string;
+  opening_balance: number;
   deliveries_count: number;
   deliveries_total: number;
   deliveries_outstanding: number;
@@ -60,16 +78,31 @@ export interface DailyReport {
   payments_new_orders: number;
   payments_old_orders: number;
   payments_by_method: Record<string, number>;
+  payments_new_by_method: Record<string, number>;
+  payments_old_by_method: Record<string, number>;
   payments_by_staff: StaffPaymentRow[];
+  debt_collections: DebtCollectionRow[];
+  supplier_payments_total: number;
+  supplier_payments_by_method: Record<string, number>;
+  supplier_payments: SupplierPaymentRow[];
   purchases_count: number;
   purchases_total: number;
   purchases: DailyPurchaseRow[];
   returns_count: number;
   returns_total: number;
   returns: DailyReturnRow[];
+  total_entries: number;
+  total_exits: number;
+  expected_closing: number;
   net: number;
   margin_total?: number | null;
   margin_pct?: number | null;
+}
+
+interface MethodEntry {
+  method: string;
+  label: string;
+  amount: number;
 }
 
 @Component({
@@ -112,24 +145,6 @@ export class AdminDailyReportComponent {
     return d.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
   });
 
-  collectionRate = computed(() => {
-    const r = this.report();
-    if (!r || r.deliveries_total === 0) return 0;
-    return Math.min(100, Math.round((r.payments_total / r.deliveries_total) * 100));
-  });
-
-  methodEntries = computed(() => {
-    const r = this.report();
-    if (!r) return [];
-    const total = r.payments_total || 1;
-    return Object.entries(r.payments_by_method).map(([method, amount]) => ({
-      method,
-      label: this.methodLabel(method),
-      amount,
-      pct: Math.round((amount / total) * 100),
-    })).sort((a, b) => b.amount - a.amount);
-  });
-
   constructor() {
     this.load();
   }
@@ -160,13 +175,23 @@ export class AdminDailyReportComponent {
     this.router.navigate([RouteHelpers.adminPurchaseOrderDetail(id)]);
   }
 
+  methodEntries(byMethod: Record<string, number>): MethodEntry[] {
+    return Object.entries(byMethod)
+      .map(([method, amount]) => ({
+        method,
+        label: this.methodLabel(method),
+        amount,
+      }))
+      .sort((a, b) => b.amount - a.amount);
+  }
+
   methodLabel(method: string): string {
-    const m: Record<string, string> = { cash: 'Espèces', virement: 'Virement', cheque: 'Chèque' };
+    const m: Record<string, string> = { cash: 'Espèces', espece: 'Espèces', virement: 'Virement', cheque: 'Chèque' };
     return m[method] ?? method;
   }
 
   methodColor(method: string): string {
-    const m: Record<string, string> = { cash: '#16a34a', virement: '#2563eb', cheque: '#d97706' };
+    const m: Record<string, string> = { cash: '#16a34a', espece: '#16a34a', virement: '#2563eb', cheque: '#d97706' };
     return m[method] ?? '#6b7280';
   }
 
@@ -186,11 +211,6 @@ export class AdminDailyReportComponent {
     const d = this.selectedDate();
     const now = new Date();
     return d.getDate() === now.getDate() && d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
-  }
-
-  goToToday(): void {
-    this.selectedDate.set(new Date());
-    this.load();
   }
 
   prevDay(): void {
