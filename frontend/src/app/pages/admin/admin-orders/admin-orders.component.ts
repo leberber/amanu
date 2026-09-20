@@ -44,10 +44,6 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
 
   // Data signals
   allOrders = signal<Order[]>([]);
-  /** Cached counts from unfiltered load (so status tabs stay accurate) */
-  private cachedCounts = signal<{ total: number; pending: number; confirmed: number; in_transit: number; delivered: number; cancelled: number; unpaid_partial: number; paid: number }>({
-    total: 0, pending: 0, confirmed: 0, in_transit: 0, delivered: 0, cancelled: 0, unpaid_partial: 0, paid: 0
-  });
   orders = signal<Order[]>([]);
   displayedOrders = signal<Order[]>([]);
   loadingMore = signal(false);
@@ -56,13 +52,13 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
   private serverPage = 1;
   hasMore = computed(() => this.displayedOrders().length < this.orders().length || this.serverHasMore());
 
-  // Computed counts — use cached counts so they stay accurate across filters
-  totalCount = computed(() => this.cachedCounts().total);
-  pendingCount = computed(() => this.cachedCounts().pending);
-  confirmedCount = computed(() => this.cachedCounts().confirmed);
-  inTransitCount = computed(() => this.cachedCounts().in_transit);
-  deliveredCount = computed(() => this.cachedCounts().delivered);
-  cancelledCount = computed(() => this.cachedCounts().cancelled);
+  // Computed counts from loaded orders
+  totalCount = computed(() => this.allOrders().length);
+  pendingCount = computed(() => this.allOrders().filter(o => o.status === ORDER_STATUS.PENDING).length);
+  confirmedCount = computed(() => this.allOrders().filter(o => o.status === ORDER_STATUS.CONFIRMED).length);
+  inTransitCount = computed(() => this.allOrders().filter(o => o.status === ORDER_STATUS.IN_TRANSIT).length);
+  deliveredCount = computed(() => this.allOrders().filter(o => o.status === ORDER_STATUS.DELIVERED).length);
+  cancelledCount = computed(() => this.allOrders().filter(o => o.status === ORDER_STATUS.CANCELLED).length);
 
   // Status editing signals
   editingStatusOrderId = signal<number | null>(null);
@@ -98,8 +94,8 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
   paymentStatusFilter = signal<'all' | 'unpaid_partial' | 'paid'>('all');
 
   // Computed payment counts — use cached counts
-  unpaidPartialCount = computed(() => this.cachedCounts().unpaid_partial);
-  paidCount = computed(() => this.cachedCounts().paid);
+  unpaidPartialCount = computed(() => this.allOrders().filter(o => o.payment_status === 'unpaid' || o.payment_status === 'partial').length);
+  paidCount = computed(() => this.allOrders().filter(o => o.payment_status === 'paid').length);
 
   // Column visibility options - with mobile defaults (initialized in ngOnInit)
   override columnOptions: ColumnOption[] = [];
@@ -189,7 +185,6 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
     const status = this.statusFilter !== 'all' ? this.statusFilter : undefined;
     const paymentStatus = this.paymentStatusFilter() !== 'all' ? this.paymentStatusFilter() : undefined;
     const search = this.searchQuery?.trim() || undefined;
-    const isUnfiltered = !status && !paymentStatus && !search;
 
     this.serverPage = 1;
     this.serverHasMore.set(true);
@@ -206,9 +201,6 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
           this.serverHasMore.set(orders.length >= this.PAGE_SIZE);
           this.orders.set(orders);
           this.displayedOrders.set(orders);
-          if (isUnfiltered) {
-            this.updateCachedCounts(orders);
-          }
           this.loading = false;
           this.markTableInitialized();
         },
@@ -226,18 +218,6 @@ export class AdminOrdersComponent extends BaseAdminListComponent implements OnIn
       });
   }
 
-  private updateCachedCounts(orders: Order[]): void {
-    this.cachedCounts.set({
-      total: orders.length,
-      pending: orders.filter(o => o.status === ORDER_STATUS.PENDING).length,
-      confirmed: orders.filter(o => o.status === ORDER_STATUS.CONFIRMED).length,
-      in_transit: orders.filter(o => o.status === ORDER_STATUS.IN_TRANSIT).length,
-      delivered: orders.filter(o => o.status === ORDER_STATUS.DELIVERED).length,
-      cancelled: orders.filter(o => o.status === ORDER_STATUS.CANCELLED).length,
-      unpaid_partial: orders.filter(o => o.payment_status === 'unpaid' || o.payment_status === 'partial').length,
-      paid: orders.filter(o => o.payment_status === 'paid').length,
-    });
-  }
 
   /** Re-fetch from server when any filter changes */
   filterItems(): void {

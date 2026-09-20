@@ -471,7 +471,7 @@ def read_user_orders(
             query = query.where(Order.user_id == user_id)
 
     if status:
-        query = query.where(Order.status == status)
+        query = query.where(Order.status == OrderStatus(status.upper()))
     if payment_status:
         if payment_status == "unpaid_partial":
             query = query.where(Order.payment_status.in_(["unpaid", "partial"]))
@@ -480,13 +480,12 @@ def read_user_orders(
     if search and current_user.role != UserRole.CUSTOMER:
         from sqlalchemy import or_
         search_filters = [
-            User.full_name.ilike(f"%{search}%"),
-            User.phone.ilike(f"%{search}%"),
+            Order.user.has(User.full_name.ilike(f"%{search}%")),
+            Order.user.has(User.phone.ilike(f"%{search}%")),
         ]
-        # If search is a number, also match order ID
         if search.isdigit():
             search_filters.append(Order.id == int(search))
-        query = query.join(User, Order.user_id == User.id).where(or_(*search_filters))
+        query = query.where(or_(*search_filters))
 
     orders = session.exec(
         query.offset(skip).limit(limit).order_by(Order.created_at.desc())
