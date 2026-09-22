@@ -986,9 +986,10 @@ def _recalculate_payment_status(order: Order, session: Session) -> None:
     ).one()
 
     order.total_paid = float(total_paid)
+    full_total = order.total_amount + (order.shipping_cost or 0)
     if total_paid <= 0:
         order.payment_status = PaymentStatus.UNPAID
-    elif total_paid >= order.total_amount:
+    elif total_paid >= full_total:
         order.payment_status = PaymentStatus.PAID
     else:
         order.payment_status = PaymentStatus.PARTIAL
