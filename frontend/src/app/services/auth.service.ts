@@ -1,8 +1,9 @@
 import { Injectable, inject } from '@angular/core';
 import { BehaviorSubject, Observable, tap, switchMap, map, of } from 'rxjs';
 import { ApiService } from './api.service';
-import { LoginRequest, LoginResponse, RegisterRequest, User, UserRole, GoogleAuthRequest, GoogleAuthResponse } from '../models/user.model';
+import { LoginRequest, LoginResponse, RegisterRequest, User, UserRole, GoogleAuthRequest, GoogleAuthResponse, GoogleRegisterRequest, PendingGoogleSignup } from '../models/user.model';
 import { StorageService } from '../core/services/storage.service';
+import { STORAGE_KEYS } from '../core/constants/app.constants';
 
 @Injectable({
   providedIn: 'root'
@@ -234,12 +235,56 @@ export class AuthService {
   googleAuth(credential: string): Observable<GoogleAuthResponse> {
     return this.apiService.post<GoogleAuthResponse>('/auth/google', { credential }).pipe(
       tap(response => {
-        this.storage.setAuthToken(response.access_token);
-        this.storage.setUser(response.user);
-        this.currentUserSubject.next(response.user);
-        this.isLoggedInSubject.next(true);
+        if (response.signup_token) {
+          // New user: no account yet, keep the verified Google identity until registration completes
+          this.setPendingGoogleSignup({
+            signup_token: response.signup_token,
+            email: response.email ?? '',
+            full_name: response.full_name ?? ''
+          });
+        } else {
+          this.clearPendingGoogleSignup();
+          this.setGoogleSession(response);
+        }
       })
     );
+  }
+
+  /**
+   * Complete a Google sign-up - the account is only created here (phone required)
+   */
+  googleRegister(data: GoogleRegisterRequest): Observable<GoogleAuthResponse> {
+    return this.apiService.post<GoogleAuthResponse>('/auth/google/register', data).pipe(
+      tap(response => {
+        this.clearPendingGoogleSignup();
+        this.setGoogleSession(response);
+      })
+    );
+  }
+
+  get pendingGoogleSignup(): PendingGoogleSignup | null {
+    try {
+      const raw = sessionStorage.getItem(STORAGE_KEYS.PENDING_GOOGLE_SIGNUP);
+      return raw ? JSON.parse(raw) as PendingGoogleSignup : null;
+    } catch {
+      return null;
+    }
+  }
+
+  clearPendingGoogleSignup(): void {
+    sessionStorage.removeItem(STORAGE_KEYS.PENDING_GOOGLE_SIGNUP);
+  }
+
+  private setPendingGoogleSignup(pending: PendingGoogleSignup): void {
+    sessionStorage.setItem(STORAGE_KEYS.PENDING_GOOGLE_SIGNUP, JSON.stringify(pending));
+  }
+
+  private setGoogleSession(response: GoogleAuthResponse): void {
+    if (!response.access_token || !response.user) return;
+    this.storage.setAuthToken(response.access_token);
+    this.storage.setUser(response.user);
+    this.currentUserSubject.next(response.user);
+    this.isLoggedInSubject.next(true);
   }
 
   /**

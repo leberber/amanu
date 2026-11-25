@@ -175,6 +175,13 @@
           Notes
         </button>
 
+        <!-- Products scope: all vs only products with facture stock -->
+        <p-selectbutton class="ml-auto" size="small"
+                        [options]="productScopeOptions" optionLabel="label" optionValue="value"
+                        [allowEmpty]="false"
+                        [(ngModel)]="productScope" (onChange)="onProductScopeChange()"
+                        pTooltip="Facturés : uniquement les produits avec stock facture" tooltipPosition="bottom" />
+
       </div>
 
       <!-- Notes textarea (when expanded) -->
@@ -232,14 +239,67 @@
                 [options]="allClients"
                 optionLabel="display_name"
                 [filter]="true"
-                filterBy="display_name,full_name"
-                placeholder="Rechercher un client..."
+                filterBy="full_name,store_name,fiscal_info.raison_sociale"
+                placeholder="Nom ou magasin..."
                 styleClass="w-full"
                 appendTo="body"
                 [showClear]="true"
                 (onChange)="onClientSelect($event.value)"
                 (onClear)="clearClient()"
-              />
+              >
+                <ng-template #selectedItem let-client>
+                  @if (client) {
+                    <span class="text-sm white-space-nowrap overflow-hidden text-overflow-ellipsis">{{ clientLabel(client) }}</span>
+                  }
+                </ng-template>
+                <ng-template #item let-client>
+                  <div class="flex flex-column gap-1">
+                    <span class="text-sm font-medium text-900">{{ client.full_name }}</span>
+                    @if (client.store_name && client.store_name !== client.full_name) {
+                      <span class="text-xs text-500"><i class="pi pi-shop mr-1" style="font-size:.65rem"></i>{{ client.store_name }}</span>
+                    }
+                    @if (client.fiscal_info?.raison_sociale) {
+                      <span class="text-xs text-primary"><i class="pi pi-building mr-1" style="font-size:.65rem"></i>{{ client.fiscal_info.raison_sociale }}</span>
+                    }
+                  </div>
+                </ng-template>
+              </p-select>
+
+              @if (selectedClient) {
+                <!-- Raison sociale: the name printed on the facture -->
+                <div class="flex flex-column gap-1 mt-2">
+                  <span class="text-xs text-500">Facturer au nom de (raison sociale)</span>
+                  <input pInputText type="text" class="w-full p-inputtext-sm"
+                         [(ngModel)]="fiscal.raison_sociale"
+                         [placeholder]="selectedClient.store_name || selectedClient.full_name" />
+                  @if (!fiscal.raison_sociale.trim()) {
+                    <span class="text-xs text-orange-500">
+                      <i class="pi pi-exclamation-triangle mr-1" style="font-size:.65rem"></i>
+                      Pas de raison sociale — la facture sera au nom de « {{ selectedClient.store_name || selectedClient.full_name }} »
+                    </span>
+                  }
+                </div>
+              }
+
+              <!-- Month pre-fill + facture date -->
+              <div class="flex gap-2 mt-2">
+                <div class="flex flex-column gap-1 flex-1" style="min-width:0">
+                  <span class="text-xs text-500">Mois</span>
+                  <p-datepicker [ngModel]="billingMonth" (ngModelChange)="$event ? onMonthSelect($event) : clearMonth()"
+                                view="month" dateFormat="mm/yy" [maxDate]="today"
+                                [showClear]="true" placeholder="Choisir..."
+                                [disabled]="loadingMonth()"
+                                styleClass="w-full" inputStyleClass="p-inputtext-sm w-full" appendTo="body" />
+                </div>
+                <div class="flex flex-column gap-1 flex-1" style="min-width:0">
+                  <span class="text-xs text-500">Date facture</span>
+                  <p-datepicker [(ngModel)]="factureDate" dateFormat="dd/mm/yy"
+                                styleClass="w-full" inputStyleClass="p-inputtext-sm w-full" appendTo="body" />
+                </div>
+              </div>
+              @if (billingMonth && !selectedClient) {
+                <span class="text-xs text-500 mt-1 block">Choisissez un client pour charger ses achats du mois</span>
+              }
             </div>
 
             <p-popover #clientInfoPopover>
@@ -283,6 +343,15 @@
                 }
               </div>
             </p-popover>
+
+            <!-- Product search -->
+            <div class="px-2 py-2 border-bottom-1 surface-border flex-shrink-0">
+              <p-iconfield styleClass="w-full">
+                <p-inputicon styleClass="pi pi-search" />
+                <input pInputText type="text" class="w-full p-inputtext-sm"
+                       [(ngModel)]="productSearch" placeholder="Rechercher un produit..." />
+              </p-iconfield>
+            </div>
 
             <!-- Brand filter -->
             <div class="flex align-items-center gap-2 px-2 py-1 border-bottom-1 surface-border flex-shrink-0">
@@ -351,7 +420,19 @@
 
           <!-- Items table -->
           <div class="overflow-y-auto flex-1">
-            @if (items.length === 0) {
+            @if (loadingMonth()) {
+              <div class="flex flex-column gap-3 p-3">
+                @for (i of [1,2,3,4,5]; track i) {
+                  <div class="flex align-items-center gap-2">
+                    <div class="skeleton skeleton-avatar"></div>
+                    <div class="flex flex-column gap-1 flex-1">
+                      <div class="skeleton skeleton-text"></div>
+                      <div class="skeleton skeleton-text short"></div>
+                    </div>
+                  </div>
+                }
+              </div>
+            } @else if (items.length === 0) {
               <div class="flex flex-column align-items-center justify-content-center gap-3 h-full text-500">
                 <span class="flex align-items-center justify-content-center border-round-xl"
                       style="width:56px;height:56px;background:var(--surface-100)">
@@ -359,7 +440,7 @@
                 </span>
                 <div class="text-center">
                   <p class="m-0 text-sm font-medium text-600">Aucun article</p>
-                  <p class="m-0 text-xs text-400 mt-1">Sélectionnez des produits depuis le catalogue</p>
+                  <p class="m-0 text-xs text-400 mt-1">Choisissez un mois ou sélectionnez des produits depuis le catalogue</p>
                 </div>
               </div>
             } @else {

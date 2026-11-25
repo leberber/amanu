@@ -2,6 +2,9 @@ from sqlmodel import SQLModel, Field, Relationship
 from typing import Optional, List, TYPE_CHECKING
 from datetime import datetime, timezone
 from enum import Enum
+from pydantic import field_validator
+
+from app.models.user import require_phone
 
 if TYPE_CHECKING:
     from app.models.user import User
@@ -203,6 +206,27 @@ class DriverRegister(SQLModel):
     vehicle_type: VehicleType
     capacity_kg: Optional[float] = None
     capacity_volume: Optional[float] = None
+
+    @field_validator("phone", mode="before")
+    @classmethod
+    def validate_phone(cls, value: str) -> str:
+        return require_phone(value)
+
+
+class GoogleDriverRegister(SQLModel):
+    """Model for completing a Google sign-up as a driver (account is only created here)"""
+    signup_token: str
+    full_name: str
+    phone: str
+    # Vehicle fields
+    vehicle_type: VehicleType
+    capacity_kg: Optional[float] = None
+    capacity_volume: Optional[float] = None
+
+    @field_validator("phone", mode="before")
+    @classmethod
+    def validate_phone(cls, value: str) -> str:
+        return require_phone(value)
 
 
 # =============================================================================

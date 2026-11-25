@@ -13,7 +13,7 @@ from app.models.user import User
 from app.models.product import Product
 from app.models.brand import Brand
 from app.models.purchase_order import PurchaseOrderItem
-from app.models.order import Order
+from app.models.order import Order, OrderItem, OrderStatus
 from app.models.facturation import (
     CompanySettings, CompanySettingsUpdate, CompanySettingsResponse,
     Facturation, FacturationItem,
@@ -65,24 +65,22 @@ async def proxy_image(url: str):
 # Helpers
 # =============================================================================
 
-def generate_reference(session: Session, document_type: str = "facture") -> str:
-    year = datetime.now().year
+def next_reference(session: Session, prefix: str, year: int) -> str:
+    """Next number after the highest existing one (a count would reuse numbers after a deletion)."""
+    refs = session.exec(
+        select(Facturation.reference).where(Facturation.reference.like(f"{prefix}-{year}-%"))
+    ).all()
+    numbers = [int(r.rsplit("-", 1)[1]) for r in refs if r.rsplit("-", 1)[1].isdigit()]
+    return f"{prefix}-{year}-{(max(numbers, default=0) + 1):03d}"
+
+
+def generate_reference(session: Session, document_type: str = "facture", year: Optional[int] = None) -> str:
     prefix = "BL" if document_type == "bon_de_livraison" else "F"
-    count = session.exec(
-        select(func.count(Facturation.id)).where(
-            Facturation.reference.like(f"{prefix}-{year}-%")
-        )
-    ).one()
-    return f"{prefix}-{year}-{(count + 1):03d}"
+    return next_reference(session, prefix, year or datetime.now().year)
 
 
 def generate_ext_reference(session: Session, year: int) -> str:
-    count = session.exec(
-        select(func.count(Facturation.id)).where(
-            Facturation.reference.like(f"EXT-{year}-%")
-        )
-    ).one()
-    return f"EXT-{year}-{(count + 1):03d}"
+    return next_reference(session, "EXT", year)
 
 
 def calc_ht(unit_price: float, quantity: int, tva_rate: int) -> float:
@@ -90,6 +88,11 @@ def calc_ht(unit_price: float, quantity: int, tva_rate: int) -> float:
     if tva_rate == 0:
         return round(total_ttc, 2)
     return round(total_ttc / (1 + tva_rate / 100), 2)
+
+
+def invoice_name(fiscal: Optional[dict], u: User) -> str:
+    """Name printed on the facture: raison sociale first, then store name, then person name."""
+    return (fiscal or {}).get("raison_sociale") or u.store_name or u.full_name
 
 
 def user_to_client_view(u: User) -> FacturationClientView:
@@ -225,6 +228,7 @@ async def list_invoice_clients(
 
 
 class FiscalInfoUpdate(PydanticBaseModel):
+    raison_sociale: Optional[str] = None
     rc: Optional[str] = None
     na: Optional[str] = None
     nif: Optional[str] = None
@@ -440,6 +444,63 @@ class FacturationDraft(BaseModel):
     items: List[FacturationDraftItem]
 
 
+PACKAGING_LABELS = {
+    'carton': 'Carton', 'box': 'Boîte', 'crate': 'Caisse',
+    'pack': 'Pack', 'bag': 'Sac', 'bundle': 'Fardeau',
+    'bottle': 'Bouteille', 'palette': 'Palette',
+}
+
+
+def build_draft_items(session: Session, order_items: List[OrderItem]) -> List[FacturationDraftItem]:
+    """Group order items by product and convert piece quantities into invoice lines (cartons, HT price)."""
+    product_ids = list({item.product_id for item in order_items if item.product_id})
+    product_map: dict[int, Product] = {}
+    brand_name_map: dict[int, str] = {}
+    if product_ids:
+        products = session.exec(select(Product).where(Product.id.in_(product_ids))).all()
+        product_map = {p.id: p for p in products}
+        brand_ids = list({p.brand_id for p in products if p.brand_id})
+        if brand_ids:
+            brands = session.exec(select(Brand).where(Brand.id.in_(brand_ids))).all()
+            brand_map = {b.id: b.name for b in brands}
+            brand_name_map = {p.id: brand_map[p.brand_id] for p in products if p.brand_id in brand_map}
+
+    # product_id -> [total pieces, total TTC amount, product_name]; keeps first-seen order
+    grouped: dict[int, list] = {}
+    for item in order_items:
+        entry = grouped.setdefault(item.product_id, [0.0, 0.0, item.product_name])
+        entry[0] += item.quantity
+        entry[1] += item.quantity * item.unit_price
+
+    draft_items = []
+    for product_id, (pieces, amount_ttc, product_name) in grouped.items():
+        product = product_map.get(product_id)
+        tva_rate = product.tva_rate if product else 0
+        pieces_per_box = (product.pieces_per_box or 1) if product else 1
+        unit = PACKAGING_LABELS.get(
+            product.packaging_type.value if product and product.packaging_type else '', 'Carton'
+        )
+        # Convert pieces qty → cartons; ensure at least 1
+        cartons = max(1, round(pieces / pieces_per_box))
+        # Order prices are TTC per piece; average across orders, then back out HT
+        unit_price_ttc = amount_ttc / pieces if pieces else 0.0
+        prix_vente_pcs = unit_price_ttc / (1 + tva_rate / 100) if tva_rate else unit_price_ttc
+
+        draft_items.append(FacturationDraftItem(
+            product_id=product_id,
+            product_name=product_name,
+            brand_name=brand_name_map.get(product_id),
+            unit=unit,
+            pieces_per_box=pieces_per_box,
+            quantity=cartons,
+            prix_vente_pcs=round(prix_vente_pcs, 4),
+            original_unit_price=round(unit_price_ttc, 4),
+            tva_rate=tva_rate,
+            image_url=product.image_url if product else None,
+        ))
+    return draft_items
+
+
 @router.get("/from-order/{order_id}", response_model=FacturationDraft)
 async def get_facturation_draft_from_order(order_id: int, session: Session = Depends(get_session)):
     """Build a pre-filled facturation draft from a customer order."""
@@ -451,52 +512,40 @@ async def get_facturation_draft_from_order(order_id: int, session: Session = Dep
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
-    packaging_map = {
-        'carton': 'Carton', 'box': 'Boîte', 'crate': 'Caisse',
-        'pack': 'Pack', 'bag': 'Sac', 'bundle': 'Fardeau',
-        'bottle': 'Bouteille', 'palette': 'Palette',
-    }
+    return FacturationDraft(client=user_to_client_view(user), items=build_draft_items(session, order.items))
 
-    # Pre-load all products and brands for this order in bulk
-    order_product_ids = [item.product_id for item in order.items if item.product_id]
-    product_map: dict[int, Product] = {}
-    brand_name_map: dict[int, str] = {}
-    if order_product_ids:
-        order_products = session.exec(select(Product).where(Product.id.in_(order_product_ids))).all()
-        product_map = {p.id: p for p in order_products}
-        order_brand_ids = list({p.brand_id for p in order_products if p.brand_id})
-        if order_brand_ids:
-            order_brands = session.exec(select(Brand).where(Brand.id.in_(order_brand_ids))).all()
-            order_brand_map = {b.id: b.name for b in order_brands}
-            brand_name_map = {p.id: order_brand_map[p.brand_id] for p in order_products if p.brand_id and p.brand_id in order_brand_map}
 
-    draft_items = []
-    for item in order.items:
-        product = product_map.get(item.product_id) if item.product_id else None
-        tva_rate = product.tva_rate if product else 0
-        pieces_per_box = (product.pieces_per_box or 1) if product else 1
-        unit = packaging_map.get(
-            product.packaging_type.value if product and product.packaging_type else '', 'Carton'
+@router.get("/from-month", response_model=FacturationDraft)
+async def get_facturation_draft_from_month(
+    client_id: int = Query(...),
+    year: int = Query(..., ge=2000, le=2100),
+    month: int = Query(..., ge=1, le=12),
+    session: Session = Depends(get_session),
+):
+    """Build a pre-filled facturation draft from everything a client received in a given month."""
+    user = session.get(User, client_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="Client introuvable")
+
+    # Month boundaries in Algeria time (UTC+1)
+    algeria_offset = timedelta(hours=1)
+    start = datetime(year, month, 1, tzinfo=timezone.utc) - algeria_offset
+    next_year, next_month = (year + 1, 1) if month == 12 else (year, month + 1)
+    end = datetime(next_year, next_month, 1, tzinfo=timezone.utc) - algeria_offset
+
+    order_items = session.exec(
+        select(OrderItem)
+        .join(Order, OrderItem.order_id == Order.id)
+        .where(
+            Order.user_id == client_id,
+            Order.status == OrderStatus.DELIVERED,
+            Order.created_at >= start,
+            Order.created_at < end,
         )
-        # Convert pieces qty → cartons; ensure at least 1
-        cartons = max(1, round(item.quantity / pieces_per_box))
-        # unit_price in order is TTC per piece; back out HT
-        prix_vente_pcs = item.unit_price / (1 + tva_rate / 100) if tva_rate else item.unit_price
+        .order_by(Order.created_at, OrderItem.id)
+    ).all()
 
-        draft_items.append(FacturationDraftItem(
-            product_id=item.product_id,
-            product_name=item.product_name,
-            brand_name=brand_name_map.get(item.product_id) if item.product_id else None,
-            unit=unit,
-            pieces_per_box=pieces_per_box,
-            quantity=cartons,
-            prix_vente_pcs=round(prix_vente_pcs, 4),
-            original_unit_price=item.unit_price,
-            tva_rate=tva_rate,
-            image_url=product.image_url if product else None,
-        ))
-
-    return FacturationDraft(client=user_to_client_view(user), items=draft_items)
+    return FacturationDraft(client=user_to_client_view(user), items=build_draft_items(session, order_items))
 
 
 # =============================================================================
@@ -590,7 +639,7 @@ async def create_external_facturation(data: ExternalFactureCreate, session: Sess
         is_external=True,
         merchant_name=data.merchant_name,
         client_id=user.id,
-        client_name=user.store_name or user.full_name,
+        client_name=invoice_name(user.fiscal_info, user),
         client_address=user.address,
         payment_mode=data.payment_mode,
         ext_impose=round(data.ext_impose, 2),
@@ -626,13 +675,15 @@ async def create_facturation(data: FacturationCreate, session: Session = Depends
         if not user:
             raise HTTPException(status_code=404, detail="Client not found")
 
-        # Use provided fiscal_info or fall back to user's saved fiscal_info
-        fiscal = data.fiscal_info or user.fiscal_info or {}
-
-        # If fiscal_info was provided and differs, save it back to the user
-        if data.fiscal_info and data.fiscal_info != user.fiscal_info:
-            user.fiscal_info = data.fiscal_info
+        # Merge provided fiscal_info over the user's saved fiscal_info and save it back;
+        # an empty value clears that field
+        merged = {**(user.fiscal_info or {}), **(data.fiscal_info or {})}
+        fiscal = {k: v for k, v in merged.items() if v is not None and v != ""}
+        if fiscal != (user.fiscal_info or {}):
+            user.fiscal_info = fiscal
             session.add(user)
+
+        facture_date = data.facture_date or datetime.now(timezone.utc)
 
         # Fetch product images upfront — stored as snapshot on each item
         product_ids = [item.product_id for item in data.items if item.product_id]
@@ -641,7 +692,7 @@ async def create_facturation(data: FacturationCreate, session: Session = Depends
             products = session.exec(select(Product).where(Product.id.in_(product_ids))).all()
             image_map = {p.id: p.image_url for p in products}
 
-        reference = generate_reference(session, data.document_type)
+        reference = generate_reference(session, data.document_type, facture_date.year)
         total_ht = 0.0
         total_tva = 0.0
 
@@ -649,7 +700,7 @@ async def create_facturation(data: FacturationCreate, session: Session = Depends
             reference=reference,
             document_type=data.document_type,
             client_id=user.id,
-            client_name=user.store_name or user.full_name,
+            client_name=invoice_name(fiscal, user),
             client_address=user.address,
             client_rc=fiscal.get("rc"),
             client_na=fiscal.get("na"),
@@ -660,6 +711,7 @@ async def create_facturation(data: FacturationCreate, session: Session = Depends
             timbre=data.timbre,
             notes=data.notes,
             converted_from_bl_reference=data.converted_from_bl_reference,
+            created_at=facture_date,
         )
         session.add(f)
         session.flush()

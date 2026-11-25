@@ -34,6 +34,10 @@ export interface ConvertToDriverRequest {
   capacity_volume?: number;
 }
 
+export interface GoogleDriverRegisterRequest extends ConvertToDriverRequest {
+  signup_token: string;
+}
+
 export interface DriverRead {
   id: number;
   user_id: number;
@@ -83,6 +87,10 @@ export class DriverService {
 
   convertToDriver(data: ConvertToDriverRequest): Observable<DriverWithProfile> {
     return this.http.post<DriverWithProfile>(`${this.API_URL}/convert`, data);
+  }
+
+  registerGoogle(data: GoogleDriverRegisterRequest): Observable<DriverWithProfile> {
+    return this.http.post<DriverWithProfile>(`${this.API_URL}/register-google`, data);
   }
 
   getProfile(): Observable<DriverWithProfile> {

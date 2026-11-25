@@ -26,6 +26,8 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { SelectModule } from 'primeng/select';
 import { PopoverModule } from 'primeng/popover';
 import { DialogModule } from 'primeng/dialog';
+import { DatePickerModule } from 'primeng/datepicker';
+import { SelectButtonModule } from 'primeng/selectbutton';
 
 interface InvoiceItem {
   product_id?: number;
@@ -42,6 +44,7 @@ interface InvoiceItem {
 }
 
 interface FiscalInfo {
+  raison_sociale: string;
   rc: string;
   na: string;
   nif: string;
@@ -61,6 +64,8 @@ interface FiscalInfo {
     RouterLink,
     CleanAddressPipe,
     DialogModule,
+    DatePickerModule,
+    SelectButtonModule,
   ],
   providers: [ConfirmationService],
   templateUrl: './admin-facturation-detail.component.html',
@@ -100,7 +105,13 @@ export class AdminFacturationDetailComponent implements OnInit {
   selectedClient: FacturationClient | null = null;
 
   // Editable fiscal info (populated from selectedClient.fiscal_info, editable inline)
-  fiscal: FiscalInfo = { rc: '', na: '', nif: '', nis: '', montant_declare: undefined };
+  fiscal: FiscalInfo = AdminFacturationDetailComponent.emptyFiscal();
+
+  // ── Period ───────────────────────────────────────────────────────────────────
+  billingMonth: Date | null = null;   // month whose deliveries pre-fill the items
+  factureDate: Date = new Date();     // date printed on the facture (editable)
+  readonly today = new Date();
+  loadingMonth = signal(false);
 
   // ── Catalog ─────────────────────────────────────────────────────────────────
   private allProducts: FacturationCatalogItem[] = [];
@@ -109,9 +120,38 @@ export class AdminFacturationDetailComponent implements OnInit {
   catalogExpanded = signal(true);
   notesExpanded = signal(false);
 
+  // 'facture' = only products with facture stock (received with a supplier invoice)
+  productScope: 'all' | 'facture' = 'all';
+  readonly productScopeOptions = [
+    { label: 'Tout', value: 'all' },
+    { label: 'Facturés', value: 'facture' },
+  ];
+
+  productSearch = '';
+
   get catalogProducts(): FacturationCatalogItem[] {
-    if (this.filterBrand === null) return this.allProducts;
-    return this.allProducts.filter(p => p.brand_id === this.filterBrand);
+    const terms = this.normalize(this.productSearch).split(/\s+/).filter(Boolean);
+    return this.allProducts.filter(p => {
+      if (this.filterBrand !== null && p.brand_id !== this.filterBrand) return false;
+      if (this.productScope === 'facture' && p.facture_stock <= 0) return false;
+      if (terms.length === 0) return true;
+      const haystack = this.normalize(`${p.name} ${p.brand_name ?? ''}`);
+      return terms.every(t => haystack.includes(t));
+    });
+  }
+
+  /** Lowercase and strip accents so "cafe" matches "Café" */
+  private normalize(value: string): string {
+    return value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  }
+
+  private hasFactureStock(productId?: number): boolean {
+    return !!productId && (this.allProducts.find(p => p.id === productId)?.facture_stock ?? 0) > 0;
+  }
+
+  onProductScopeChange(): void {
+    // Re-apply the filter to the month's items
+    if (this.billingMonth && this.selectedClient) this.loadMonth();
   }
 
   // ── Invoice form ─────────────────────────────────────────────────────────────
@@ -191,6 +231,10 @@ export class AdminFacturationDetailComponent implements OnInit {
   ];
   private static readonly DRAFT_KEY = 'facturation_new_draft';
 
+  private static emptyFiscal(): FiscalInfo {
+    return { raison_sociale: '', rc: '', na: '', nif: '', nis: '', montant_declare: undefined };
+  }
+
   ngOnInit(): void {
     const id = this.route.snapshot.params['id'];
     if (id) {
@@ -230,6 +274,9 @@ export class AdminFacturationDetailComponent implements OnInit {
         notes: this.notes,
         items: this.items,
         sourceBdlReference: this.sourceBdlReference,
+        productScope: this.productScope,
+        billingMonth: this.billingMonth?.toISOString() ?? null,
+        factureDate: this.factureDate.toISOString(),
       }));
     } catch { /* storage quota exceeded */ }
   }
@@ -240,7 +287,7 @@ export class AdminFacturationDetailComponent implements OnInit {
       if (!raw) return;
       const draft = JSON.parse(raw);
       this.selectedClient = draft.selectedClient ?? null;
-      this.fiscal = draft.fiscal ?? { rc: '', na: '', nif: '', nis: '', montant_declare: undefined };
+      this.fiscal = { ...AdminFacturationDetailComponent.emptyFiscal(), ...(draft.fiscal ?? {}) };
       this.documentType = draft.documentType ?? 'facture';
       this.paymentMode = draft.paymentMode ?? 'espece';
       this.marge = draft.marge ?? 0;
@@ -248,6 +295,9 @@ export class AdminFacturationDetailComponent implements OnInit {
       this.notes = draft.notes ?? '';
       this.items = draft.items ?? [];
       this.sourceBdlReference = draft.sourceBdlReference ?? null;
+      this.productScope = draft.productScope ?? 'all';
+      this.billingMonth = draft.billingMonth ? new Date(draft.billingMonth) : null;
+      this.factureDate = draft.factureDate ? new Date(draft.factureDate) : new Date();
       if (this.items.length > 0 || this.selectedClient) {
         this.toast.showInfo('Brouillon restauré');
       }
@@ -310,23 +360,7 @@ export class AdminFacturationDetailComponent implements OnInit {
         next: (draft: FacturationDraft) => {
           this.selectedClient = draft.client;
           this.fiscal = this.fiscalFromClient(draft.client);
-          this.items = draft.items.map(draftItem => {
-            const item: InvoiceItem = {
-              product_id: draftItem.product_id,
-              product_name: draftItem.product_name,
-              brand_name: draftItem.brand_name,
-              unit: draftItem.unit,
-              pieces_per_box: draftItem.pieces_per_box,
-              quantity: draftItem.quantity,
-              facture_unit_price: draftItem.original_unit_price,
-              prix_vente_pcs: draftItem.prix_vente_pcs,
-              unit_price: 0,
-              tva_rate: draftItem.tva_rate,
-              image_url: draftItem.image_url,
-            };
-            item.unit_price = this.pCtnTtc(item);
-            return item;
-          });
+          this.items = this.itemsFromDraft(draft);
           this.loading.set(false);
         },
         error: () => {
@@ -336,13 +370,90 @@ export class AdminFacturationDetailComponent implements OnInit {
       });
   }
 
-  onClientSelect(client: FacturationClient): void {
+  private itemsFromDraft(draft: FacturationDraft): InvoiceItem[] {
+    return draft.items.map(draftItem => {
+      const item: InvoiceItem = {
+        product_id: draftItem.product_id,
+        product_name: draftItem.product_name,
+        brand_name: draftItem.brand_name,
+        unit: draftItem.unit,
+        pieces_per_box: draftItem.pieces_per_box,
+        quantity: draftItem.quantity,
+        facture_unit_price: draftItem.original_unit_price,
+        prix_vente_pcs: draftItem.prix_vente_pcs,
+        unit_price: 0,
+        tva_rate: draftItem.tva_rate,
+        image_url: draftItem.image_url,
+      };
+      item.unit_price = this.pCtnTtc(item);
+      return item;
+    });
+  }
+
+  onClientSelect(client: FacturationClient | null): void {
+    if (!client) {
+      this.clearClient();
+      return;
+    }
     this.selectedClient = client;
     this.fiscal = this.fiscalFromClient(client);
+    if (this.billingMonth) this.loadMonth();
+  }
+
+  /** Name searched/shown in the client dropdown: person + store */
+  clientLabel(client: FacturationClient): string {
+    return client.store_name && client.store_name !== client.full_name
+      ? `${client.full_name} — ${client.store_name}`
+      : client.full_name;
+  }
+
+  // ── Month pre-fill ──────────────────────────────────────────────────────────
+  onMonthSelect(month: Date): void {
+    this.billingMonth = month;
+    // Date the facture on the last day of that month (or today for the current month)
+    const lastDay = new Date(month.getFullYear(), month.getMonth() + 1, 0, 12);
+    this.factureDate = lastDay > this.today ? new Date() : lastDay;
+    if (this.selectedClient) this.loadMonth();
+  }
+
+  clearMonth(): void {
+    this.billingMonth = null;
+    this.factureDate = new Date();
+  }
+
+  private loadMonth(): void {
+    const client = this.selectedClient;
+    const month = this.billingMonth;
+    if (!client || !month) return;
+    this.loadingMonth.set(true);
+    this.facturationService.getFacturationDraftFromMonth(client.id, month.getFullYear(), month.getMonth() + 1)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (draft) => {
+          this.loadingMonth.set(false);
+          const allItems = this.itemsFromDraft(draft);
+          this.items = this.productScope === 'facture'
+            ? allItems.filter(i => this.hasFactureStock(i.product_id))
+            : allItems;
+          if (this.marge > 0) this.onMargeChange();
+          if (this.items.length === 0) {
+            this.toast.showInfo(allItems.length > 0
+              ? 'Aucun produit facturé dans les achats de ce mois'
+              : 'Aucune commande livrée pour ce client ce mois-ci');
+          } else {
+            this.toast.showSuccess(`${this.items.length} article(s) ajouté(s) depuis les commandes du mois`);
+          }
+        },
+        error: () => {
+          this.loadingMonth.set(false);
+          this.toast.showError('Erreur lors du chargement des commandes du mois');
+        }
+      });
   }
 
   private fiscalFromClient(client: FacturationClient): FiscalInfo {
     return {
+      raison_sociale: client.fiscal_info?.raison_sociale ?? '',
       rc: client.fiscal_info?.rc ?? '',
       na: client.fiscal_info?.na ?? '',
       nif: client.fiscal_info?.nif ?? '',
@@ -353,7 +464,7 @@ export class AdminFacturationDetailComponent implements OnInit {
 
   clearClient(): void {
     this.selectedClient = null;
-    this.fiscal = { rc: '', na: '', nif: '', nis: '', montant_declare: undefined };
+    this.fiscal = AdminFacturationDetailComponent.emptyFiscal();
   }
 
   // ── Marge ────────────────────────────────────────────────────────────────────
@@ -456,7 +567,10 @@ export class AdminFacturationDetailComponent implements OnInit {
       return;
     }
 
+    // raison_sociale is editable here, so an empty string is sent to clear it;
+    // the other fiscal fields are read-only here and are never cleared from this page
     const fiscalPayload = {
+      raison_sociale: this.fiscal.raison_sociale.trim(),
       rc: this.fiscal.rc || undefined,
       na: this.fiscal.na || undefined,
       nif: this.fiscal.nif || undefined,
@@ -473,6 +587,7 @@ export class AdminFacturationDetailComponent implements OnInit {
       timbre: this.timbre,
       notes: this.notes || undefined,
       converted_from_bl_reference: this.sourceBdlReference ?? undefined,
+      facture_date: this.factureDateForSave().toISOString(),
       items: this.items.map(item => ({
         product_id: item.product_id,
         reference: item.product_id?.toString() ?? '',
@@ -504,6 +619,14 @@ export class AdminFacturationDetailComponent implements OnInit {
           this.toast.showError('Erreur lors de la création de la facture');
         }
       });
+  }
+
+  /** Today keeps the current time; a picked past date is set to midday to stay on that day in any time zone */
+  private factureDateForSave(): Date {
+    const d = new Date(this.factureDate);
+    if (d.toDateString() === new Date().toDateString()) return new Date();
+    d.setHours(12, 0, 0, 0);
+    return d;
   }
 
   createFromBdl(): void {

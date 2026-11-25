@@ -36,6 +36,56 @@ def create_access_token(subject: Union[str, Any], expires_delta: Optional[timede
     encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
     return encoded_jwt
 
+GOOGLE_SIGNUP_TOKEN_TYPE = "google_signup"
+GOOGLE_SIGNUP_EXPIRE_MINUTES = 30
+
+
+def create_google_signup_token(google_id: str, email: str, full_name: str, profile_picture: Optional[str]) -> str:
+    """Short-lived token proving a verified Google identity, used to finish registration.
+    Has no "sub" claim, so it can never be used as an access token."""
+    expire = datetime.now(timezone.utc) + timedelta(minutes=GOOGLE_SIGNUP_EXPIRE_MINUTES)
+    to_encode = {
+        "exp": expire,
+        "type": GOOGLE_SIGNUP_TOKEN_TYPE,
+        "google_id": google_id,
+        "email": email,
+        "full_name": full_name,
+        "profile_picture": profile_picture,
+    }
+    return jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
+
+
+def decode_google_signup_token(token: str) -> dict:
+    """Decode a Google signup token, raising 400 if invalid or expired"""
+    invalid = HTTPException(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        detail="Google sign-up session expired. Please sign in with Google again.",
+    )
+    try:
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+    except jwt.JWTError:
+        raise invalid
+    if payload.get("type") != GOOGLE_SIGNUP_TOKEN_TYPE or not payload.get("google_id") or not payload.get("email"):
+        raise invalid
+    return payload
+
+
+def get_google_signup_identity(signup_token: str, session: Session) -> dict:
+    """Decode a Google signup token and ensure no account exists for it yet"""
+    payload = decode_google_signup_token(signup_token)
+    existing = session.exec(
+        select(User).where(
+            (User.google_id == payload["google_id"]) | (User.email == payload["email"])
+        )
+    ).first()
+    if existing:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="The user with this email already exists.",
+        )
+    return payload
+
+
 def get_current_user(token: str = Depends(oauth2_scheme), session: Session = Depends(get_session)) -> User:
     """Get current user from token"""
     credentials_exception = HTTPException(

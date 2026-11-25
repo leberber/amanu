@@ -76,8 +76,8 @@ export class LoginComponent implements OnInit {
         .pipe(finalize(() => this.googleButton()?.setLoading(false)))
         .subscribe({
           next: (authResponse) => {
-            if (authResponse.is_new_user || !authResponse.profile_complete) {
-              // New user or incomplete profile - redirect to complete registration
+            if (!authResponse.user || !authResponse.profile_complete) {
+              // New user (no account yet) or incomplete profile - redirect to complete registration
               this.router.navigate([ROUTES.REGISTER], { queryParams: { fromGoogle: 'true' } });
             } else {
               // Existing user with complete profile

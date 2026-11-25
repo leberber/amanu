@@ -37,7 +37,8 @@ export const STORAGE_KEYS = {
   CART: 'fresh_produce_cart',
   CART_PROMO: 'fresh_produce_promo',
   PREFERENCES: 'user_preferences',
-  HAS_SEEN_ONBOARDING: 'has_seen_onboarding'
+  HAS_SEEN_ONBOARDING: 'has_seen_onboarding',
+  PENDING_GOOGLE_SIGNUP: 'pending_google_signup'
 } as const;
 
 // Layout Breakpoints (pixels)

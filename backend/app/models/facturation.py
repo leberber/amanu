@@ -158,6 +158,7 @@ class FacturationCreate(BaseModel):
     timbre: float = 0
     notes: Optional[str] = None
     converted_from_bl_reference: Optional[str] = None  # e.g. "BL-2026-002"
+    facture_date: Optional[datetime] = None  # defaults to now; lets a facture be dated in a past month
     items: List[FacturationItemCreate]
 
 
@@ -231,4 +232,4 @@ class FacturationClientView(BaseModel):
     full_name: str
     store_name: Optional[str]
     address: Optional[str]
-    fiscal_info: Optional[Dict[str, Any]] = None  # {rc, na, nif, nis}
+    fiscal_info: Optional[Dict[str, Any]] = None  # {raison_sociale, rc, na, nif, nis}

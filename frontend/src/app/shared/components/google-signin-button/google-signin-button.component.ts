@@ -66,15 +66,19 @@ export class GoogleSignInButtonComponent implements AfterViewInit, OnDestroy {
           client_id: environment.googleClientId,
           callback: (response: any) => this.handleCallback(response),
           auto_select: false,
-          cancel_on_tap_outside: true
+          cancel_on_tap_outside: true,
+          // Use the browser's native account chooser (FedCM) - on Android Chrome this lists the phone's Google accounts
+          use_fedcm_for_button: true,
+          use_fedcm_for_prompt: true
         });
 
-        const buttonElement = this.elementRef.nativeElement.querySelector(`#${this.buttonId}`);
+        const buttonElement: HTMLElement | null = this.elementRef.nativeElement.querySelector(`#${this.buttonId}`);
         if (buttonElement) {
           google.accounts.id.renderButton(buttonElement, {
             theme: 'outline',
             size: 'large',
-            width: '100%',
+            // GIS only accepts a pixel width (max 400), not percentages
+            width: Math.min(buttonElement.clientWidth || 400, 400),
             text: this.buttonText(),
             shape: 'pill',
             logo_alignment: 'center'

@@ -334,7 +334,7 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
           next: (response) => {
-            if (response.is_new_user || !response.profile_complete) {
+            if (!response.user || !response.profile_complete) {
               this.initGoogleFlow();
             } else {
               this.toast.showSuccess('auth.login_success');
@@ -349,16 +349,20 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   private initGoogleFlow(): void {
+    // New Google user (no account yet) takes precedence; otherwise an existing Google account with an incomplete profile
+    const pending = this.authService.pendingGoogleSignup;
     const user = this.authService.currentUserValue;
-    if (!user || user.auth_provider !== AuthProvider.GOOGLE) {
+    const identity = pending
+      ?? (user?.auth_provider === AuthProvider.GOOGLE ? { full_name: user.full_name, email: user.email } : null);
+    if (!identity) {
       this.router.navigate([ROUTES.LOGIN]);
       return;
     }
 
     this.state.fromGoogle.set(true);
     this.state.personalInfoForm.patchValue({
-      full_name: user.full_name || '',
-      email: user.email || '',
+      full_name: identity.full_name || '',
+      email: identity.email || '',
       phone: ''
     });
     this.state.emailVerified.set(true);
@@ -457,16 +461,23 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
 
     const driverData = {
       full_name: this.state.personalInfoForm.value.full_name,
-      phone: this.state.personalInfoForm.value.phone,
+      phone: normalizeAlgerianPhone(this.state.personalInfoForm.value.phone || ''),
       vehicle_type: vehicleData.vehicle_type,
       capacity_kg: vehicleData.capacity_kg || null,
       capacity_volume: vehicleData.capacity_volume || null
     };
 
-    this.driverService.convertToDriver(driverData)
+    // New Google user: create the account now; existing incomplete account: convert it
+    const pending = this.authService.pendingGoogleSignup;
+    const request$ = pending
+      ? this.driverService.registerGoogle({ ...driverData, signup_token: pending.signup_token })
+      : this.driverService.convertToDriver(driverData);
+
+    request$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
+          this.authService.clearPendingGoogleSignup();
           this.state.loading.set(false);
           this.state.clearSavedState();
           this.state.activeStep.set(6);
@@ -485,7 +496,7 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
 
     const profileData = {
       full_name: this.state.personalInfoForm.value.full_name,
-      phone: this.state.personalInfoForm.value.phone,
+      phone: normalizeAlgerianPhone(this.state.personalInfoForm.value.phone || ''),
       address: location?.address || '',
       latitude: location?.latitude,
       longitude: location?.longitude,
@@ -496,6 +507,26 @@ export class RegisterComponent implements OnInit, OnDestroy, AfterViewInit {
       commune: storeDetails.commune
     };
 
+    // New Google user: create the account now, with the phone
+    const pending = this.authService.pendingGoogleSignup;
+    if (pending) {
+      this.authService.googleRegister({ ...profileData, signup_token: pending.signup_token })
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: () => {
+            this.state.loading.set(false);
+            this.state.clearSavedState();
+            this.state.activeStep.set(6);
+          },
+          error: (error) => {
+            this.state.loading.set(false);
+            this.handleServerError(error);
+          }
+        });
+      return;
+    }
+
+    // Existing Google account with an incomplete profile
     this.userService.updateProfile(profileData)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({

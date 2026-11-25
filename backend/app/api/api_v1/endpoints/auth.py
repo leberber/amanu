@@ -13,12 +13,14 @@ from google.auth.transport import requests as google_requests
 from app.database import get_session
 from app.core.security import (
     create_access_token,
+    create_google_signup_token,
+    get_google_signup_identity,
     get_password_hash,
     verify_password,
 )
 from app.core.config import settings
 from app.core.geo import lat_lng_to_h3
-from app.models.user import User, UserCreate, UserRead, AuthProvider
+from app.models.user import User, UserCreate, UserRead, AuthProvider, GoogleRegister
 from app.models.password_reset import PasswordResetToken, ForgotPasswordRequest, ResetPasswordRequest
 from app.models.email_verification import EmailVerificationToken, SendVerificationCodeRequest, VerifyEmailRequest
 from app.services.email import send_password_reset_email, send_email_verification_email
@@ -30,12 +32,19 @@ class GoogleAuthRequest(BaseModel):
 
 
 class GoogleAuthResponse(BaseModel):
-    """Response model for Google OAuth"""
-    access_token: str
+    """Response model for Google OAuth.
+    Existing user: access_token + user are set.
+    New user: no account exists yet; signup_token + Google profile are set and
+    the client must finish via POST /auth/google/register."""
+    access_token: Optional[str] = None
     token_type: str = "bearer"
-    user: UserRead
+    user: Optional[UserRead] = None
     is_new_user: bool
     profile_complete: bool
+    signup_token: Optional[str] = None
+    email: Optional[str] = None
+    full_name: Optional[str] = None
+    profile_picture: Optional[str] = None
 
 router = APIRouter()
 
@@ -336,8 +345,9 @@ def google_auth(
     """
     Authenticate with Google OAuth.
     - Verifies the Google ID token
-    - Creates a new user if not exists
-    - Returns JWT token and user info
+    - Existing user: returns JWT token and user info
+    - New user: does NOT create an account; returns a signup token to finish
+      registration (with phone) via POST /auth/google/register
     """
     try:
         # Verify the Google ID token
@@ -360,34 +370,27 @@ def google_auth(
             )
         ).first()
 
-        is_new_user = False
-
-        if user:
-            # Existing user - update Google info if needed
-            if not user.google_id:
-                user.google_id = google_id
-                user.auth_provider = AuthProvider.GOOGLE
-            if profile_picture and not user.profile_picture:
-                user.profile_picture = profile_picture
-            user.updated_at = datetime.utcnow()
-            session.add(user)
-            session.commit()
-            session.refresh(user)
-        else:
-            # New user - create account
-            is_new_user = True
-            user = User(
+        if not user:
+            # New user - no account until registration is completed with a phone
+            return GoogleAuthResponse(
+                is_new_user=True,
+                profile_complete=False,
+                signup_token=create_google_signup_token(google_id, email, full_name, profile_picture),
                 email=email,
                 full_name=full_name,
-                google_id=google_id,
                 profile_picture=profile_picture,
-                auth_provider=AuthProvider.GOOGLE,
-                hashed_password=None,  # No password for Google users
-                is_active=False,  # Pending admin approval like regular users
             )
-            session.add(user)
-            session.commit()
-            session.refresh(user)
+
+        # Existing user - update Google info if needed
+        if not user.google_id:
+            user.google_id = google_id
+            user.auth_provider = AuthProvider.GOOGLE
+        if profile_picture and not user.profile_picture:
+            user.profile_picture = profile_picture
+        user.updated_at = datetime.utcnow()
+        session.add(user)
+        session.commit()
+        session.refresh(user)
 
         # Create access token
         access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
@@ -399,7 +402,7 @@ def google_auth(
             access_token=access_token,
             token_type="bearer",
             user=UserRead.model_validate(user),
-            is_new_user=is_new_user,
+            is_new_user=False,
             profile_complete=is_profile_complete(user)
         )
 
@@ -409,3 +412,46 @@ def google_auth(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=f"Invalid Google token: {str(e)}",
         )
+
+
+@router.post("/google/register", response_model=GoogleAuthResponse)
+def google_register(
+    user_in: GoogleRegister,
+    session: Session = Depends(get_session),
+) -> Any:
+    """
+    Complete a Google sign-up. The account is only created here, with a required phone.
+    """
+    identity = get_google_signup_identity(user_in.signup_token, session)
+
+    new_user = User(
+        email=identity["email"],
+        full_name=user_in.full_name,
+        phone=user_in.phone,
+        store_name=user_in.store_name,
+        segment_id=user_in.segment_id,
+        address=user_in.address,
+        wilaya=user_in.wilaya,
+        daira=user_in.daira,
+        commune=user_in.commune,
+        latitude=user_in.latitude,
+        longitude=user_in.longitude,
+        h3_index=lat_lng_to_h3(user_in.latitude, user_in.longitude),
+        google_id=identity["google_id"],
+        profile_picture=identity.get("profile_picture"),
+        auth_provider=AuthProvider.GOOGLE,
+        hashed_password=None,  # No password for Google users
+        is_active=False,  # Pending admin approval like regular users
+    )
+    session.add(new_user)
+    session.commit()
+    session.refresh(new_user)
+
+    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    return GoogleAuthResponse(
+        access_token=create_access_token(new_user.email, expires_delta=access_token_expires),
+        token_type="bearer",
+        user=UserRead.model_validate(new_user),
+        is_new_user=True,
+        profile_complete=is_profile_complete(new_user),
+    )

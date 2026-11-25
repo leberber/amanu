@@ -3,7 +3,7 @@ from sqlalchemy import String, JSON
 from typing import Optional, List, Dict, Any, TYPE_CHECKING
 from datetime import datetime, timezone
 from enum import Enum
-from pydantic import EmailStr
+from pydantic import EmailStr, field_validator
 
 # Import UserGroupLink at runtime (no circular dependency - it doesn't import User)
 from app.models.user_group import UserGroupLink
@@ -106,10 +106,43 @@ class User(SQLModel, table=True):
     driver: Optional["Driver"] = Relationship(back_populates="user", sa_relationship_kwargs={"cascade": "all, delete-orphan", "uselist": False, "foreign_keys": "[Driver.user_id]"})
     customer_route: Optional["CustomerRoute"] = Relationship(back_populates="user", sa_relationship_kwargs={"cascade": "all, delete-orphan", "uselist": False})
 
+def require_phone(value: str) -> str:
+    """Strip whitespace and reject blank phone numbers"""
+    value = (value or "").strip()
+    if not value:
+        raise ValueError("phone is required")
+    return value
+
+
 class UserCreate(UserBase):
     """Model for creating a new user"""
     phone: str = Field(min_length=1, max_length=20)
     password: str = Field(min_length=8, max_length=100)
+
+    @field_validator("phone", mode="before")
+    @classmethod
+    def validate_phone(cls, value: str) -> str:
+        return require_phone(value)
+
+
+class GoogleRegister(SQLModel):
+    """Model for completing a Google sign-up (account is only created here)"""
+    signup_token: str
+    full_name: str = Field(min_length=1, max_length=100)
+    phone: str = Field(min_length=1, max_length=20)
+    store_name: Optional[str] = Field(default=None, max_length=100)
+    segment_id: Optional[int] = Field(default=None)
+    address: Optional[str] = Field(default=None, max_length=200)
+    wilaya: Optional[str] = Field(default=None, max_length=50)
+    daira: Optional[str] = Field(default=None, max_length=50)
+    commune: Optional[str] = Field(default=None, max_length=50)
+    latitude: Optional[float] = Field(default=None)
+    longitude: Optional[float] = Field(default=None)
+
+    @field_validator("phone", mode="before")
+    @classmethod
+    def validate_phone(cls, value: str) -> str:
+        return require_phone(value)
 
 class UserUpdate(SQLModel):
     """Model for updating users"""

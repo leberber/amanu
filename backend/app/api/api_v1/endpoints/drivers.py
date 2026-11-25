@@ -9,14 +9,16 @@ from app.core.security import (
     get_password_hash,
     get_current_user,
     get_current_admin_user,
+    get_google_signup_identity,
 )
-from app.models.user import User, UserRole, UserRead
+from app.models.user import User, UserRole, UserRead, AuthProvider
 from app.models.driver import (
     Driver,
     DriverVehicle,
     DriverRead,
     DriverUpdate,
     DriverRegister,
+    GoogleDriverRegister,
     DriverVehicleRead,
     VehicleType,
 )
@@ -226,6 +228,57 @@ def convert_to_driver(
 
     return DriverWithProfile(
         **UserRead.model_validate(current_user).model_dump(),
+        driver=driver_read
+    )
+
+
+@router.post("/register-google", response_model=DriverWithProfile)
+def register_google_driver(
+    driver_in: GoogleDriverRegister,
+    session: Session = Depends(get_session),
+) -> Any:
+    """
+    Complete a Google sign-up as a driver (creates user + driver + vehicle).
+    Driver will be inactive until admin approval.
+    """
+    identity = get_google_signup_identity(driver_in.signup_token, session)
+
+    new_user = User(
+        email=identity["email"],
+        full_name=driver_in.full_name,
+        phone=driver_in.phone,
+        google_id=identity["google_id"],
+        profile_picture=identity.get("profile_picture"),
+        auth_provider=AuthProvider.GOOGLE,
+        hashed_password=None,
+        role=UserRole.DRIVER,
+        is_active=False,  # Requires admin approval
+    )
+    session.add(new_user)
+    session.commit()
+    session.refresh(new_user)
+
+    driver = Driver(user_id=new_user.id)
+    session.add(driver)
+    session.commit()
+    session.refresh(driver)
+
+    vehicle = DriverVehicle(
+        driver_id=driver.id,
+        vehicle_type=driver_in.vehicle_type,
+        capacity_kg=driver_in.capacity_kg,
+        capacity_volume=driver_in.capacity_volume,
+        is_primary=True,
+    )
+    session.add(vehicle)
+    session.commit()
+    session.refresh(vehicle)
+
+    stats = get_driver_stats(session, driver.id)
+    driver_read = build_driver_read(driver, vehicle, stats)
+
+    return DriverWithProfile(
+        **UserRead.model_validate(new_user).model_dump(),
         driver=driver_read
     )
 

@@ -27,6 +27,7 @@ export interface FacturationClient {
   store_name?: string;
   address?: string;
   fiscal_info?: {
+    raison_sociale?: string;
     rc?: string;
     na?: string;
     nif?: string;
@@ -84,12 +85,13 @@ export interface FacturationItemCreate {
 export interface FacturationCreate {
   client_id: number;
   document_type: 'facture' | 'bon_de_livraison';
-  fiscal_info?: { rc?: string; na?: string; nif?: string; nis?: string; montant_declare?: number };
+  fiscal_info?: { raison_sociale?: string; rc?: string; na?: string; nif?: string; nis?: string; montant_declare?: number };
   payment_mode: string;
   remise: number;
   timbre: number;
   notes?: string;
   converted_from_bl_reference?: string;
+  facture_date?: string;  // ISO date; defaults to now on the server
   items: FacturationItemCreate[];
 }
 
@@ -249,6 +251,13 @@ export class FacturationService {
 
   getFacturationDraftFromOrder(orderId: number): Observable<FacturationDraft> {
     return this.http.get<FacturationDraft>(`${this.apiUrl}/from-order/${orderId}`);
+  }
+
+  /** month is 1-12 */
+  getFacturationDraftFromMonth(clientId: number, year: number, month: number): Observable<FacturationDraft> {
+    return this.http.get<FacturationDraft>(`${this.apiUrl}/from-month`, {
+      params: { client_id: clientId, year, month },
+    });
   }
 
   createFacturation(data: FacturationCreate): Observable<Facturation> {

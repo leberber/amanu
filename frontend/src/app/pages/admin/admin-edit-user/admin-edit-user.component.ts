@@ -110,6 +110,7 @@ export class AdminEditUserComponent implements OnInit {
       address: [''],
       store_name: [''],
       segment_id: [null as number | null, Validators.required],
+      fiscal_raison_sociale: [''],
       fiscal_rc: [''],
       fiscal_na: [''],
       fiscal_nif: [''],
@@ -196,6 +197,7 @@ export class AdminEditUserComponent implements OnInit {
           address: user.address || '',
           store_name: user.store_name || '',
           segment_id: user.segment_id ?? null,
+          fiscal_raison_sociale: user.fiscal_info?.raison_sociale || '',
           fiscal_rc: user.fiscal_info?.rc || '',
           fiscal_na: user.fiscal_info?.na || '',
           fiscal_nif: user.fiscal_info?.nif || '',
@@ -272,6 +274,7 @@ export class AdminEditUserComponent implements OnInit {
 
     // Build update data
     const fiscalInfo = {
+      raison_sociale: formValues.fiscal_raison_sociale?.trim() || undefined,
       rc: formValues.fiscal_rc || undefined,
       na: formValues.fiscal_na || undefined,
       nif: formValues.fiscal_nif || undefined,
@@ -286,7 +289,8 @@ export class AdminEditUserComponent implements OnInit {
       address: formValues.address || null,
       store_name: formValues.store_name || null,
       segment_id: formValues.segment_id ?? null,
-      fiscal_info: hasFiscal ? fiscalInfo : undefined,
+      // Keep fiscal keys this form doesn't edit (marge_subv is set from the accounting page)
+      fiscal_info: hasFiscal ? { marge_subv: this.currentUser?.fiscal_info?.marge_subv, ...fiscalInfo } : undefined,
       wilaya: formValues.wilaya || null,
       daira: formValues.daira || null,
       commune: formValues.commune || null,

@@ -59,10 +59,39 @@ export interface GoogleAuthRequest {
   credential: string;
 }
 
+/**
+ * Existing user: access_token + user are set.
+ * New user: no account exists yet; signup_token + Google profile are set,
+ * and registration must be finished via /auth/google/register.
+ */
 export interface GoogleAuthResponse {
-  access_token: string;
+  access_token: string | null;
   token_type: string;
-  user: User;
+  user: User | null;
   is_new_user: boolean;
   profile_complete: boolean;
+  signup_token: string | null;
+  email: string | null;
+  full_name: string | null;
+  profile_picture: string | null;
+}
+
+export interface PendingGoogleSignup {
+  signup_token: string;
+  email: string;
+  full_name: string;
+}
+
+export interface GoogleRegisterRequest {
+  signup_token: string;
+  full_name: string;
+  phone: string;
+  store_name?: string | null;
+  segment_id?: number | null;
+  address?: string;
+  wilaya?: string;
+  daira?: string;
+  commune?: string;
+  latitude?: number;
+  longitude?: number;
 }

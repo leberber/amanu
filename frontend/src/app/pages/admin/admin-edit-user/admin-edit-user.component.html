@@ -333,6 +333,16 @@
                     <h3 class="card-header__title">Informations fiscales</h3>
                   </div>
                   <div class="card-body">
+                    <!-- Raison sociale -->
+                    <div class="form-field">
+                      <div class="field-box" [class.filled]="userForm.get('fiscal_raison_sociale')?.value">
+                        <div class="field-box__icon field-box__icon--primary"><i class="pi pi-building"></i></div>
+                        <div class="field-box__content">
+                          <label>Raison sociale</label>
+                          <input pInputText type="text" formControlName="fiscal_raison_sociale" placeholder="Nom légal utilisé sur les factures">
+                        </div>
+                      </div>
+                    </div>
                     <!-- RC + N.A -->
                     <div class="grid">
                       <div class="col-12 md:col-6">
